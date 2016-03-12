@@ -24,6 +24,8 @@ type Paradise struct {
 	ip            string
 	command       string
 	param         string
+	total         int64
+	buffer        []byte
 }
 
 func NewParadise(connection net.Conn) *Paradise {
@@ -73,6 +75,7 @@ func (self *Paradise) HandleCommands() {
 		} else if command == "RETR" {
 		} else if command == "STAT" {
 		} else if command == "STOR" || command == "APPE" {
+			self.handleStore()
 		} else {
 			self.writeMessage(550, "not allowed")
 		}
