@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
-	"paradice/server"
+	"paradise/server"
 )
 
 func main() {
