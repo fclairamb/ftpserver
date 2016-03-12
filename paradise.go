@@ -18,16 +18,15 @@ func main() {
 	fmt.Println("listening on: ", url)
 
 	for {
-		holder := server.ConnectionHolder{}
-		holder.Path = "/"
-		holder.TheConnection, err = listener.Accept()
+		connection, err := listener.Accept()
 		if err != nil {
 			fmt.Println("listening error ", err)
 			break
 		}
+		p := server.NewParadise(connection)
 
-		fmt.Println("Got client on: ", holder.TheConnection.RemoteAddr().String())
+		fmt.Println("Got client on: ", p.Ip)
 
-		go server.HandleCommands(&holder)
+		go p.HandleCommands()
 	}
 }
