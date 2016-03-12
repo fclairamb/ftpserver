@@ -3,7 +3,7 @@ package server
 import (
 	"bufio"
 	"fmt"
-	//	"io"
+	"io"
 	"net"
 	"strings"
 	"sync"
@@ -26,35 +26,6 @@ type Paradise struct {
 	Param         string
 }
 
-/*
-func HandleCommands(holder *ConnectionHolder) {
-	p := NewParadise(holder)
-
-	p.writeMessage(220, "Welcome to Paradise")
-	for {
-		line, err := p.reader.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				continue
-			}
-			break
-		}
-		holder.Command, holder.Param = parseLine(line)
-
-		if command == "USER" {
-			p.handleUser()
-		} else if command == "PASS" {
-			p.handlePass()
-		} else {
-			p.writeMessage(550, "not allowed")
-		}
-
-		// close passive connection each time
-		p.ClosePassiveConnection()
-	}
-}
-*/
-
 func NewParadise(connection net.Conn) *Paradise {
 	p := Paradise{}
 
@@ -67,6 +38,28 @@ func NewParadise(connection net.Conn) *Paradise {
 }
 
 func (self *Paradise) HandleCommands() {
+	self.writeMessage(220, "Welcome to Paradise")
+	for {
+		line, err := self.reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				continue
+			}
+			break
+		}
+		command, _ := parseLine(line)
+
+		if command == "USER" {
+			self.handleUser()
+		} else if command == "PASS" {
+			self.handlePass()
+		} else {
+			self.writeMessage(550, "not allowed")
+		}
+
+		// close passive connection each time
+		self.closePassiveConnection()
+	}
 }
 
 func (self *Paradise) writeMessage(code int, message string) {
