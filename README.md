@@ -14,6 +14,7 @@ FYI FTP is a big protocol and I only implemented the stuff I needed. Stuff that'
  * Both EPSV and PASV commands
  * uploads large files without reading entire file into memory
  * just simple if command == "this" else if command == "that" logic
+ * uploads read first 512 bytes of file first into bufffer to check mime type
 
 Sample Run:
 
