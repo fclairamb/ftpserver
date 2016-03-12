@@ -1,7 +1,7 @@
 # paradise_ftp
 paradise_ftp is a powerful, 100% native (golang) ftp server that is production ready.
 
-It can handle 1000's of connections and 1000's of files flying back and forward sideways under and through. It does not run out of file descriptions. It does not forget to close any socket connection or socket listener. Ahem hem, cough cough, looking at you https://github.com/goftp/server.
+It can handle 1000's of connections and 1000's of files flying back and forward sideways under and through. It does not run out of file descriptors. It does not forget to close any socket connection or socket listener. Ahem hem, cough cough, looking at you https://github.com/goftp/server.
 
 Enjoy.
 
