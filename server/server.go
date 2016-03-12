@@ -48,7 +48,9 @@ func (self *Paradise) HandleCommands() {
 			}
 			break
 		}
-		command, _ := parseLine(line)
+		command, param := parseLine(line)
+		self.command = command
+		self.param = param
 
 		if command == "USER" {
 			self.handleUser()
