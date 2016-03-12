@@ -13,3 +13,4 @@ FYI FTP is a big protocol and I only implemented the stuff I needed. Stuff that'
  * user authentication (soon to suppport Bitium API https://developer.bitium.com)
  * Both EPSV and PASV commands
  * uploads large files without reading entire file into memory
+ * just simple if command == "this" else if command == "that" logic
