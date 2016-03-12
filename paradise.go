@@ -25,8 +25,6 @@ func main() {
 		}
 		p := server.NewParadise(connection)
 
-		fmt.Println("Got client on: ", p.Ip)
-
 		go p.HandleCommands()
 	}
 }

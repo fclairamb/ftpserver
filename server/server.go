@@ -21,9 +21,9 @@ type Paradise struct {
 	User          string
 	HomeDir       string
 	path          string
-	Ip            string
-	Command       string
-	Param         string
+	ip            string
+	command       string
+	param         string
 }
 
 func NewParadise(connection net.Conn) *Paradise {
@@ -33,11 +33,12 @@ func NewParadise(connection net.Conn) *Paradise {
 	p.reader = bufio.NewReader(connection)
 	p.path = "/"
 	p.theConnection = connection
-	p.Ip = connection.RemoteAddr().String()
+	p.ip = connection.RemoteAddr().String()
 	return &p
 }
 
 func (self *Paradise) HandleCommands() {
+	fmt.Println("Got client on: ", self.ip)
 	self.writeMessage(220, "Welcome to Paradise")
 	for {
 		line, err := self.reader.ReadString('\n')
