@@ -1,7 +1,7 @@
 package server
 
 import (
-	"fmt"
+//"fmt"
 )
 
 func (self *Paradise) handleSyst() {
@@ -10,4 +10,8 @@ func (self *Paradise) handleSyst() {
 
 func (self *Paradise) handlePwd() {
 	self.writeMessage(257, "\""+self.path+"\" is the current directory")
+}
+
+func (self *Paradise) handleType() {
+	self.writeMessage(200, "Type set to binary")
 }
