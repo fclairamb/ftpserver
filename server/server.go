@@ -1,7 +1,7 @@
 package server
 
 import (
-	//"bufio"
+	"bufio"
 	"net"
 	"sync"
 )
@@ -15,14 +15,26 @@ type ConnectionHolder struct {
 	Path          string
 }
 
-type ParadiseWriter struct {
+type Paradise struct {
+	writer *bufio.Writer
+	reader *bufio.Reader
+	holder *ConnectionHolder
 }
 
 func HandleCommands(holder *ConnectionHolder) {
-	//var cw *bufio.Writer
-	//var cr *bufio.Reader
-	//cw = bufio.NewWriter(holder.TheConnection)
-	//cr = bufio.NewReader(holder.TheConnection)
+	p := NewParadise(holder)
 
-	//writeMessage(220, "Welcome to Paradise", cw)
+	p.writeMessage(220, "Welcome to Paradise")
+}
+
+func NewParadise(holder *ConnectionHolder) *Paradise {
+	p := Paradise{}
+
+	p.writer = bufio.NewWriter(holder.TheConnection)
+	p.reader = bufio.NewReader(holder.TheConnection)
+	p.holder = holder
+	return &p
+}
+
+func (self *Paradise) writeMessage(code int, message string) {
 }
