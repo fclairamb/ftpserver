@@ -15,3 +15,8 @@ func (self *Paradise) handlePwd() {
 func (self *Paradise) handleType() {
 	self.writeMessage(200, "Type set to binary")
 }
+
+func (self *Paradise) handleQuit() {
+	self.writeMessage(221, "Goodbye")
+	self.theConnection.Close()
+}

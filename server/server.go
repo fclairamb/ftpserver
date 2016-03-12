@@ -65,6 +65,7 @@ func (self *Paradise) HandleCommands() {
 		} else if command == "EPSV" || command == "PASV" {
 		} else if command == "LIST" || command == "NLST" {
 		} else if command == "QUIT" {
+			self.handleQuit()
 		} else if command == "CWD" {
 		} else if command == "SIZE" {
 		} else if command == "RETR" {
