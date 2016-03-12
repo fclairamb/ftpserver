@@ -19,7 +19,8 @@ func (self *Paradise) handleStore() {
 }
 
 func (self *Paradise) storeOrAppend() (int64, error) {
-	err := self.readFirst512Bytes()
+	var err error
+	err = self.readFirst512Bytes()
 	if err != nil {
 		return 0, err
 	}
@@ -30,10 +31,11 @@ func (self *Paradise) storeOrAppend() (int64, error) {
 	// TODO send self.buffer to where u want bits stored
 
 	var total int64
+	var n int
 	total = int64(len(self.buffer))
 	for {
 		temp_buffer := make([]byte, 20971520) // reads 20MB at a time
-		n, err := self.passiveConn.Read(temp_buffer)
+		n, err = self.passiveConn.Read(temp_buffer)
 		total += int64(n)
 
 		if err != nil {
