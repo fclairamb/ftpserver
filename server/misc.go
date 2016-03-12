@@ -1,7 +1,8 @@
 package server
 
 import (
-//"fmt"
+	//"fmt"
+	"strings"
 )
 
 func (self *Paradise) handleSyst() {
@@ -19,4 +20,28 @@ func (self *Paradise) handleType() {
 func (self *Paradise) handleQuit() {
 	self.writeMessage(221, "Goodbye")
 	self.theConnection.Close()
+}
+
+func (self *Paradise) handleCwd() {
+	if self.param == ".." {
+		self.path = "/"
+	} else {
+		self.path = self.param
+	}
+	if !strings.HasPrefix(self.path, "/") {
+		self.path = "/" + self.path
+	}
+	self.writeMessage(250, "CD worked")
+}
+
+func (self *Paradise) handleSize() {
+	self.writeMessage(450, "downloads not allowed")
+}
+
+func (self *Paradise) handleRetr() {
+	self.writeMessage(551, "downloads not allowed")
+}
+
+func (self *Paradise) handleStat() {
+	self.writeMessage(551, "downloads not allowed")
 }

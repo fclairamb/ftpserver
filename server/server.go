@@ -71,9 +71,13 @@ func (self *Paradise) HandleCommands() {
 		} else if command == "QUIT" {
 			self.handleQuit()
 		} else if command == "CWD" {
+			self.handleCwd()
 		} else if command == "SIZE" {
+			self.handleSize()
 		} else if command == "RETR" {
+			self.handleRetr()
 		} else if command == "STAT" {
+			self.handleStat()
 		} else if command == "STOR" || command == "APPE" {
 			self.handleStore()
 		} else {
