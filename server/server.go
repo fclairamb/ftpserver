@@ -17,9 +17,9 @@ type Paradise struct {
 	reader        *bufio.Reader
 	theConnection net.Conn
 	passiveConn   *net.TCPConn
-	Waiter        sync.WaitGroup
+	waiter        sync.WaitGroup
 	user          string
-	HomeDir       string
+	homeDir       string
 	path          string
 	ip            string
 	command       string
@@ -63,6 +63,7 @@ func (self *Paradise) HandleCommands() {
 		} else if command == "TYPE" {
 			self.handleType()
 		} else if command == "EPSV" || command == "PASV" {
+			self.handlePassive()
 		} else if command == "LIST" || command == "NLST" {
 		} else if command == "QUIT" {
 			self.handleQuit()
