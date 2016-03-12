@@ -7,8 +7,8 @@ Enjoy.
 
 FYI FTP is a big protocol and I only implemented the stuff I needed. Stuff that's here:
 
-1) passive socket connections (not active ones)
-2) uploading files (not downloading)
-3) directory listing
-4) user authentication (soon to suppport Bitium API)
-5) Both EPSV and PASV commands
+ * passive socket connections (not active ones)
+ * uploading files (not downloading)
+ * directory listing
+ * user authentication (soon to suppport Bitium API)
+ * Both EPSV and PASV commands
