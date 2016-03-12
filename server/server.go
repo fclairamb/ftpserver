@@ -56,6 +56,19 @@ func (self *Paradise) HandleCommands() {
 			self.handleUser()
 		} else if command == "PASS" {
 			self.handlePass()
+		} else if command == "SYST" {
+			self.handleSyst()
+		} else if command == "PWD" {
+			self.handlePwd()
+		} else if command == "TYPE" {
+		} else if command == "EPSV" || command == "PASV" {
+		} else if command == "LIST" || command == "NLST" {
+		} else if command == "QUIT" {
+		} else if command == "CWD" {
+		} else if command == "SIZE" {
+		} else if command == "RETR" {
+		} else if command == "STAT" {
+		} else if command == "STOR" || command == "APPE" {
 		} else {
 			self.writeMessage(550, "not allowed")
 		}
