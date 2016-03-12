@@ -27,7 +27,25 @@ func (self *Paradise) storeOrAppend() (int64, error) {
 	// TODO run self.buffer thru mime type checker
 	// if mime type bad, reject upload
 
-	return 0, nil
+	// TODO send self.buffer to where u want bits stored
+
+	var total int64
+	total = int64(len(self.buffer))
+	for {
+		temp_buffer := make([]byte, 20971520) // reads 20MB at a time
+		n, err := self.passiveConn.Read(temp_buffer)
+		total += int64(n)
+
+		if err != nil {
+			break
+		}
+		// TODO send temp_buffer to where u want bits stored
+		if err != nil {
+			break
+		}
+	}
+
+	return total, err
 }
 
 func (self *Paradise) readFirst512Bytes() error {
