@@ -2,6 +2,7 @@ package server
 
 import (
 	"bufio"
+	"fmt"
 	"net"
 	"sync"
 )
@@ -37,4 +38,7 @@ func NewParadise(holder *ConnectionHolder) *Paradise {
 }
 
 func (self *Paradise) writeMessage(code int, message string) {
+	line := fmt.Sprintf("%d %s\r\n", code, message)
+	self.writer.WriteString(line)
+	self.writer.Flush()
 }
