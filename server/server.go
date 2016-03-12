@@ -18,7 +18,7 @@ type Paradise struct {
 	theConnection net.Conn
 	passiveConn   *net.TCPConn
 	Waiter        sync.WaitGroup
-	User          string
+	user          string
 	HomeDir       string
 	path          string
 	ip            string
