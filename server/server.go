@@ -15,12 +15,12 @@ type ConnectionHolder struct {
 type Paradise struct {
 	writer        *bufio.Writer
 	reader        *bufio.Reader
-	TheConnection net.Conn
+	theConnection net.Conn
 	passiveConn   *net.TCPConn
 	Waiter        sync.WaitGroup
 	User          string
 	HomeDir       string
-	Path          string
+	path          string
 	Ip            string
 	Command       string
 	Param         string
@@ -60,6 +60,9 @@ func NewParadise(connection net.Conn) *Paradise {
 
 	p.writer = bufio.NewWriter(connection)
 	p.reader = bufio.NewReader(connection)
+	p.path = "/"
+	p.theConnection = connection
+	p.Ip = connection.RemoteAddr().String()
 	return &p
 }
 
