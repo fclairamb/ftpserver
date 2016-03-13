@@ -51,6 +51,9 @@ func (self *Paradise) HandleCommands() {
 		self.command = command
 		self.param = param
 
+		//var t T
+		//reflect.ValueOf(&t).MethodByName("Foo").Call([]reflect.Value{})
+
 		if command == "USER" {
 			self.handleUser()
 		} else if command == "PASS" {
