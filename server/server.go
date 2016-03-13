@@ -9,9 +9,6 @@ import (
 	"sync"
 )
 
-type ConnectionHolder struct {
-}
-
 type Paradise struct {
 	writer        *bufio.Writer
 	reader        *bufio.Reader
