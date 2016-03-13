@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"reflect"
 	"strings"
 	"sync"
 )
+
+var CommandMap map[string]string
 
 type Paradise struct {
 	writer        *bufio.Writer
@@ -52,36 +55,13 @@ func (self *Paradise) HandleCommands() {
 		self.param = param
 
 		//var t T
-		//reflect.ValueOf(&t).MethodByName("Foo").Call([]reflect.Value{})
-
-		if command == "USER" {
-			self.handleUser()
-		} else if command == "PASS" {
-			self.handlePass()
-		} else if command == "SYST" {
-			self.handleSyst()
-		} else if command == "PWD" {
-			self.handlePwd()
-		} else if command == "TYPE" {
-			self.handleType()
-		} else if command == "EPSV" || command == "PASV" {
-			self.handlePassive()
-		} else if command == "LIST" || command == "NLST" {
-			self.handleList()
-		} else if command == "QUIT" {
-			self.handleQuit()
-		} else if command == "CWD" {
-			self.handleCwd()
-		} else if command == "SIZE" {
-			self.handleSize()
-		} else if command == "RETR" {
-			self.handleRetr()
-		} else if command == "STAT" {
-			self.handleStat()
-		} else if command == "STOR" || command == "APPE" {
-			self.handleStore()
-		} else {
+		method_name := CommandMap[command]
+		thing := reflect.ValueOf(self).MethodByName(method_name)
+		thing_s := fmt.Sprintf("%s", thing)
+		if thing_s == "<invalid reflect.Value>" {
 			self.writeMessage(550, "not allowed")
+		} else {
+			thing.Call([]reflect.Value{})
 		}
 
 		// close passive connection each time

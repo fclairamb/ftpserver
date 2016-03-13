@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-func (self *Paradise) handleStore() {
+func (self *Paradise) HandleStore() {
 	fmt.Println(self.ip, self.command, self.param)
 
 	self.writeMessage(150, "Data transfer starting")

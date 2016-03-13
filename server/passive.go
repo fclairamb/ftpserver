@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (self *Paradise) handlePassive() {
+func (self *Paradise) HandlePassive() {
 	fmt.Println(self.ip, self.command, self.param)
 
 	laddr, _ := net.ResolveTCPAddr("tcp", "0.0.0.0:0")

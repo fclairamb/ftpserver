@@ -4,13 +4,13 @@ import (
 	"fmt"
 )
 
-func (self *Paradise) handleUser() {
+func (self *Paradise) HandleUser() {
 	fmt.Println(self.ip, self.command, self.param)
 	self.user = self.param
 	self.writeMessage(331, "User name ok, password required")
 }
 
-func (self *Paradise) handlePass() {
+func (self *Paradise) HandlePass() {
 	if true { // change to your auth logic, think about using https://developer.bitium.com
 		self.writeMessage(230, "Password ok, continue")
 	} else {

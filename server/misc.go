@@ -5,24 +5,24 @@ import (
 	"strings"
 )
 
-func (self *Paradise) handleSyst() {
+func (self *Paradise) HandleSyst() {
 	self.writeMessage(215, "UNIX Type: L8")
 }
 
-func (self *Paradise) handlePwd() {
+func (self *Paradise) HandlePwd() {
 	self.writeMessage(257, "\""+self.path+"\" is the current directory")
 }
 
-func (self *Paradise) handleType() {
+func (self *Paradise) HandleType() {
 	self.writeMessage(200, "Type set to binary")
 }
 
-func (self *Paradise) handleQuit() {
+func (self *Paradise) HandleQuit() {
 	self.writeMessage(221, "Goodbye")
 	self.theConnection.Close()
 }
 
-func (self *Paradise) handleCwd() {
+func (self *Paradise) HandleCwd() {
 	if self.param == ".." {
 		self.path = "/"
 	} else {
@@ -34,14 +34,14 @@ func (self *Paradise) handleCwd() {
 	self.writeMessage(250, "CD worked")
 }
 
-func (self *Paradise) handleSize() {
+func (self *Paradise) HandleSize() {
 	self.writeMessage(450, "downloads not allowed")
 }
 
-func (self *Paradise) handleRetr() {
+func (self *Paradise) HandleRetr() {
 	self.writeMessage(551, "downloads not allowed")
 }
 
-func (self *Paradise) handleStat() {
+func (self *Paradise) HandleStat() {
 	self.writeMessage(551, "downloads not allowed")
 }
