@@ -1,25 +1,25 @@
 package server
 
-func MakeCommandMap() map[string]string {
-	m := make(map[string]string)
+func MakeCommandMap() map[string]func(*Paradise) {
+	m := make(map[string]func(*Paradise))
 
-	m["USER"] = "HandleUser"
-	m["PASS"] = "HandlePass"
-	m["STOR"] = "HandleStore"
-	m["APPE"] = "HandleStore"
-	m["STAT"] = "HandleStat"
+	m["USER"] = (*Paradise).HandleUser
+	m["PASS"] = (*Paradise).HandlePass
+	m["STOR"] = (*Paradise).HandleStore
+	m["APPE"] = (*Paradise).HandleStore
+	m["STAT"] = (*Paradise).HandleStat
 
-	m["SYST"] = "HandleSyst"
-	m["PWD"] = "HandlePwd"
-	m["TYPE"] = "HandleType"
-	m["PASV"] = "HandlePassive"
-	m["EPSV"] = "HandlePassive"
-	m["NLST"] = "HandleList"
-	m["LIST"] = "HandleList"
-	m["QUIT"] = "HandleQuit"
-	m["CWD"] = "HandleCwd"
-	m["SIZE"] = "HandleSize"
-	m["RETR"] = "HandleRetr"
+	m["SYST"] = (*Paradise).HandleSyst
+	m["PWD"] = (*Paradise).HandlePwd
+	m["TYPE"] = (*Paradise).HandleType
+	m["PASV"] = (*Paradise).HandlePassive
+	m["EPSV"] = (*Paradise).HandlePassive
+	m["NLST"] = (*Paradise).HandleList
+	m["LIST"] = (*Paradise).HandleList
+	m["QUIT"] = (*Paradise).HandleQuit
+	m["CWD"] = (*Paradise).HandleCwd
+	m["SIZE"] = (*Paradise).HandleSize
+	m["RETR"] = (*Paradise).HandleRetr
 
 	return m
 }

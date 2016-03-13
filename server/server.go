@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"reflect"
 	"strings"
 	"sync"
 )
 
-var CommandMap map[string]string
+var CommandMap map[string]func(*Paradise)
 
 type Paradise struct {
 	writer        *bufio.Writer
@@ -54,14 +53,11 @@ func (self *Paradise) HandleCommands() {
 		self.command = command
 		self.param = param
 
-		//var t T
-		method_name := CommandMap[command]
-		thing := reflect.ValueOf(self).MethodByName(method_name)
-		thing_s := fmt.Sprintf("%s", thing)
-		if thing_s == "<invalid reflect.Value>" {
+		fn := CommandMap[command]
+		if fn == nil {
 			self.writeMessage(550, "not allowed")
 		} else {
-			thing.Call([]reflect.Value{})
+			fn(self)
 		}
 
 		// close passive connection each time
