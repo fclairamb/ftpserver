@@ -6,7 +6,11 @@ import (
 	"paradise/server"
 )
 
+var CommandMap *map[string]string
+
 func main() {
+	CommandMap = server.MakeCommandMap()
+
 	url := fmt.Sprintf("localhost:%d", 2121) // change to 21 in production
 	var listener net.Listener
 	listener, err := net.Listen("tcp", url)
