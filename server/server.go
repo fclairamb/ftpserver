@@ -45,7 +45,7 @@ func (self *Paradise) HandleCommands() {
 		line, err := self.reader.ReadString('\n')
 		if err != nil {
 			if err == io.EOF {
-				continue
+				//continue
 			}
 			break
 		}
