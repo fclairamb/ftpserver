@@ -59,9 +59,6 @@ func (self *Paradise) HandleCommands() {
 		} else {
 			fn(self)
 		}
-
-		// close passive connection each time
-		self.closePassiveConnection()
 	}
 }
 
