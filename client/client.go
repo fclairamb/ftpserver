@@ -101,7 +101,7 @@ func fakeFile(size int64) []byte {
 func (c *Client) openPassive() {
 	c.send("EPSV")
 	c.read()
-	fmt.Println("PORT ", c.lastMsg)
+	//fmt.Println("PORT ", c.lastMsg)
 
 	port := strings.TrimRight(c.lastMsg, "(|)")[35:40]
 	c.passive, _ = net.DialTimeout("tcp", "127.0.0.1:"+port, 10000000)

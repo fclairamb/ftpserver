@@ -17,13 +17,15 @@ func Start() {
 	}
 	fmt.Println("listening on: ", url)
 
+	ids := 0
 	for {
 		connection, err := listener.Accept()
 		if err != nil {
 			fmt.Println("listening error ", err)
 			break
 		}
-		p := NewParadise(connection)
+		ids++
+		p := NewParadise(connection, ids)
 
 		go p.HandleCommands()
 	}
