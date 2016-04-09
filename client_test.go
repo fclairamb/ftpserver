@@ -34,7 +34,7 @@ func testLots(t *testing.T) {
 	for {
 		rb := int64(byte(s1.Int63()))
 		go randClient(rb)
-		time.Sleep(1 * (time.Second * 1))
+		time.Sleep(1 * (time.Millisecond * 100))
 	}
 }
 

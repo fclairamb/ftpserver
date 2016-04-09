@@ -27,7 +27,9 @@ func NewClient() *Client {
 
 func (c *Client) read() {
 	code, msg, err := c.reader.ReadResponse(0)
-	fmt.Println(code, msg)
+	if false {
+		fmt.Println(code, msg)
+	}
 	c.lastMsg = msg
 	if err != nil {
 		fmt.Println(err)
@@ -64,7 +66,6 @@ func (c *Client) List() {
 		if line == "\r\n" {
 			break
 		}
-		fmt.Print(line)
 		if err != nil {
 			fmt.Println(err)
 		}
