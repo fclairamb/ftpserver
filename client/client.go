@@ -75,7 +75,7 @@ func (c *Client) List() {
 	c.read()
 }
 
-func (c *Client) Stor(size int) {
+func (c *Client) Stor(size int64) {
 	c.openPassive()
 	c.send("STOR fake_file.dat")
 	c.read()
@@ -87,10 +87,10 @@ func (c *Client) Stor(size int) {
 	c.read()
 }
 
-func fakeFile(size int) []byte {
+func fakeFile(size int64) []byte {
 	bytes := make([]byte, size)
 	s1 := rand.NewSource(time.Now().UnixNano())
-	for i := 0; i < size; i++ {
+	for i := int64(0); i < size; i++ {
 		bytes[i] = byte(s1.Int63())
 	}
 	return bytes

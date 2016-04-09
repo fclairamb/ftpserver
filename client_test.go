@@ -17,9 +17,7 @@ func TestSimple(t *testing.T) {
 	go server.Start()
 	time.Sleep(1 * (time.Second * 1))
 	testConnect(t)
-	if false {
-		t.Errorf("test")
-	}
+	testLots(t)
 }
 
 func testConnect(t *testing.T) {
@@ -27,4 +25,14 @@ func testConnect(t *testing.T) {
 	c.Connect()
 	c.List()
 	c.Stor(1024)
+}
+
+func testLots(t *testing.T) {
+	for {
+		c := client.NewClient()
+		c.Connect()
+		c.List()
+		c.Stor(1024)
+		time.Sleep(1 * (time.Second * 1))
+	}
 }
