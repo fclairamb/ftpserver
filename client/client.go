@@ -5,6 +5,8 @@ import "fmt"
 import "net/textproto"
 import "bufio"
 import "strings"
+import "math/rand"
+import "time"
 
 type Client struct {
 	address    string
@@ -71,6 +73,27 @@ func (c *Client) List() {
 		c.passive.Close()
 	}
 	c.read()
+}
+
+func (c *Client) Stor(size int) {
+	c.openPassive()
+	c.send("STOR fake_file.dat")
+	c.read()
+	c.passWriter.Write(fakeFile(size))
+	c.passWriter.Flush()
+	if true {
+		c.passive.Close()
+	}
+	c.read()
+}
+
+func fakeFile(size int) []byte {
+	bytes := make([]byte, size)
+	s1 := rand.NewSource(time.Now().UnixNano())
+	for i := 0; i < size; i++ {
+		bytes[i] = byte(s1.Int63())
+	}
+	return bytes
 }
 
 func (c *Client) openPassive() {
