@@ -5,6 +5,7 @@ import "fmt"
 import "net/textproto"
 import "bufio"
 import "strings"
+import "io"
 
 type Client struct {
 	address    string
@@ -55,6 +56,21 @@ func (c *Client) Connect() {
 
 func (c *Client) List() {
 	c.openPassive()
+	c.send("LIST")
+	c.read()
+	for {
+		line, err := c.passReader.ReadString('\n')
+		if err == io.EOF {
+			break
+		}
+		fmt.Print(line)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	if true {
+		c.passive.Close()
+	}
 }
 
 func (c *Client) openPassive() {
