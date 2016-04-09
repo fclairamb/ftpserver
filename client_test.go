@@ -47,6 +47,7 @@ func openPassive(reader *textproto.Reader, writer *textproto.Writer) (passive ne
 
 func testConnect(t *testing.T) {
 	c := client.NewClient()
+	c.Connect()
 	fmt.Println(c)
 }
 

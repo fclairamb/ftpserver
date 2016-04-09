@@ -18,16 +18,23 @@ func NewClient() *Client {
 	return &c
 }
 
-func (c *Client) connect() {
+func (c *Client) read() {
+	code, msg, err := c.reader.ReadResponse(0)
+	fmt.Println(code, msg, err)
+}
+func (c *Client) send(text string) {
+	err := c.writer.PrintfLine("USER Bad")
+	fmt.Println(err)
+}
+
+func (c *Client) Connect() {
 	c.conn, _ = net.DialTimeout("tcp", c.address, 10000000)
 
 	c.reader = textproto.NewReader(bufio.NewReader(c.conn))
 	c.writer = textproto.NewWriter(bufio.NewWriter(c.conn))
 
-	code, msg, err := c.reader.ReadResponse(0)
-	fmt.Println(code, msg, err)
-
-	err = c.writer.PrintfLine("USER Bad")
-	code, msg, err = c.reader.ReadResponse(0)
-	fmt.Println(code, msg, err)
+	c.read()
+	c.send("USER bad")
+	c.read()
+	c.send("PASS security")
 }
