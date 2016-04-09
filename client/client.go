@@ -76,6 +76,7 @@ func (c *Client) List() {
 }
 
 func (c *Client) Stor(size int64) {
+	fmt.Println("Sending ", size)
 	c.openPassive()
 	c.send("STOR fake_file.dat")
 	c.read()
