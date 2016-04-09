@@ -46,6 +46,7 @@ func (self *Paradise) storeOrAppend() (int64, error) {
 			break
 		}
 	}
+	fmt.Println(self.id, " Done ", total)
 
 	return total, err
 }

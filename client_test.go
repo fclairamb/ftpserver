@@ -32,9 +32,9 @@ func testLots(t *testing.T) {
 	s1 := rand.NewSource(time.Now().UnixNano())
 
 	for {
-		rb := int64(byte(s1.Int63()))
+		rb := int64(byte(s1.Int63() * 400))
 		go randClient(rb)
-		time.Sleep(1 * (time.Millisecond * 100))
+		time.Sleep(time.Duration(rb) * (time.Millisecond * 1))
 	}
 }
 
