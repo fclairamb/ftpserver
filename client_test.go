@@ -10,6 +10,7 @@ import "net/textproto"
 import "time"
 import "strings"
 import "paradise/server"
+import "paradise/client"
 
 var file *os.File
 var fileBytes []byte
@@ -45,6 +46,11 @@ func openPassive(reader *textproto.Reader, writer *textproto.Writer) (passive ne
 }
 
 func testConnect(t *testing.T) {
+	c := client.NewClient()
+	fmt.Println(c)
+}
+
+func testConnect3(t *testing.T) {
 	conn, _ := net.DialTimeout("tcp", "127.0.0.1:2121", 10000000)
 
 	reader := textproto.NewReader(bufio.NewReader(conn))
@@ -58,6 +64,46 @@ func testConnect(t *testing.T) {
 	fmt.Println(code, msg, err)
 
 	err = writer.PrintfLine("PASS Security")
+	code, msg, err = reader.ReadResponse(0)
+	fmt.Println(code, msg, err)
+
+	err = writer.PrintfLine("QUIT")
+	code, msg, err = reader.ReadResponse(0)
+	fmt.Println(code, msg, err)
+}
+
+func testCommandList(t *testing.T) {
+	conn, _ := net.DialTimeout("tcp", "127.0.0.1:2121", 10000000)
+
+	reader := textproto.NewReader(bufio.NewReader(conn))
+	writer := textproto.NewWriter(bufio.NewWriter(conn))
+
+	code, msg, err := reader.ReadResponse(0)
+	fmt.Println(code, msg, err)
+
+	err = writer.PrintfLine("USER Bad")
+	code, msg, err = reader.ReadResponse(0)
+	fmt.Println(code, msg, err)
+
+	err = writer.PrintfLine("PASS Security")
+	code, msg, err = reader.ReadResponse(0)
+	fmt.Println(code, msg, err)
+
+	_, passReader, _ := openPassive(reader, writer)
+
+	err = writer.PrintfLine("LIST")
+	code, msg, err = reader.ReadResponse(0)
+	fmt.Println(code, msg, err)
+	for {
+		line, err := passReader.ReadString('\n')
+		if err == io.EOF {
+			break
+		}
+		fmt.Println(line, err)
+	}
+	//fmt.Println("Closing Passive")
+	//passive.Close()
+	fmt.Println("Closed")
 	code, msg, err = reader.ReadResponse(0)
 	fmt.Println(code, msg, err)
 }
