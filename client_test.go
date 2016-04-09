@@ -24,6 +24,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestSimple(t *testing.T) {
+	go server.Start()
+	time.Sleep(1 * (time.Second * 1))
 	testConnect(t)
 	if false {
 		t.Errorf("test")
@@ -43,7 +45,21 @@ func openPassive(reader *textproto.Reader, writer *textproto.Writer) (passive ne
 }
 
 func testConnect(t *testing.T) {
-	server.Start()
+	conn, _ := net.DialTimeout("tcp", "127.0.0.1:2121", 10000000)
+
+	reader := textproto.NewReader(bufio.NewReader(conn))
+	writer := textproto.NewWriter(bufio.NewWriter(conn))
+
+	code, msg, err := reader.ReadResponse(0)
+	fmt.Println(code, msg, err)
+
+	err = writer.PrintfLine("USER Bad")
+	code, msg, err = reader.ReadResponse(0)
+	fmt.Println(code, msg, err)
+
+	err = writer.PrintfLine("PASS Security")
+	code, msg, err = reader.ReadResponse(0)
+	fmt.Println(code, msg, err)
 }
 
 func testConnect2(t *testing.T) {
