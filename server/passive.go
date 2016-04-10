@@ -1,11 +1,40 @@
 package server
 
-import (
-	"net"
-	"strconv"
-	"strings"
-)
 import "fmt"
+import "sync"
+import "net"
+import "strconv"
+import "strings"
+import "time"
+
+func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
+	c := make(chan struct{})
+	go func() {
+		defer close(c)
+		wg.Wait()
+	}()
+	select {
+	case <-c:
+		return false
+	case <-time.After(timeout):
+		return true
+	}
+}
+
+func getThatPassiveConnection(passiveListen *net.TCPListener, p *Paradise) {
+	var perr error
+	p.passiveConn, perr = passiveListen.AcceptTCP()
+	if perr != nil {
+		p.passiveListenFailedAt = time.Now().Unix()
+		return
+	}
+	passiveListen.Close()
+	if waitTimeout(&p.waiter, time.Minute) {
+		p.passiveListenFailedAt = time.Now().Unix()
+	} else {
+		p.passiveListenSuccessAt = time.Now().Unix()
+	}
+}
 
 func (self *Paradise) HandlePassive() {
 	//fmt.Println(self.ip, self.command, self.param)
@@ -18,12 +47,8 @@ func (self *Paradise) HandlePassive() {
 	port, _ := strconv.Atoi(parts[len(parts)-1])
 
 	self.waiter.Add(1)
-
-	go func() {
-		self.passiveConn, _ = passiveListen.AcceptTCP()
-		passiveListen.Close()
-		self.waiter.Done()
-	}()
+	self.passiveListenAt = time.Now().Unix()
+	go getThatPassiveConnection(passiveListen, self)
 
 	if self.command == "PASV" {
 		p1 := port / 256

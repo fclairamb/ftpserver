@@ -5,7 +5,8 @@ import "time"
 import "net/http"
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "9 clients, 4 passive, Up for 12:33:12")
+	fmt.Fprintf(w, "%d client, %d passive, Up for 12:33:12\n",
+		len(ConnectionMap), 55)
 	fmt.Fprintln(w, "   PFC106 00:17:34")
 	fmt.Fprintln(w, "   PFC106 00:17:34")
 }
@@ -23,7 +24,7 @@ func Monitor2() {
 		fmt.Println("   PFC109 00:07:04")
 		fmt.Println("     PFC109p 03:33")
 		fmt.Println("     PFC109p 01:33")
-		fmt.Println("     PFC109p 00:33")
+		fmt.Println("     PFC109p 00:00, 00:45")
 		fmt.Println("   PFC116 00:06:04")
 		fmt.Println("   PFC126 00:05:30")
 		fmt.Println("   PFC104 00:04:30")

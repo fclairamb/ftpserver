@@ -14,21 +14,24 @@ var CommandMap map[string]func(*Paradise)
 var ConnectionMap map[string]*Paradise
 
 type Paradise struct {
-	writer        *bufio.Writer
-	reader        *bufio.Reader
-	theConnection net.Conn
-	passiveConn   *net.TCPConn
-	waiter        sync.WaitGroup
-	user          string
-	homeDir       string
-	path          string
-	ip            string
-	command       string
-	param         string
-	total         int64
-	buffer        []byte
-	cid           string
-	connectedAt   int64
+	writer                 *bufio.Writer
+	reader                 *bufio.Reader
+	theConnection          net.Conn
+	passiveConn            *net.TCPConn
+	waiter                 sync.WaitGroup
+	user                   string
+	homeDir                string
+	path                   string
+	ip                     string
+	command                string
+	param                  string
+	total                  int64
+	buffer                 []byte
+	cid                    string
+	connectedAt            int64
+	passiveListenAt        int64
+	passiveListenSuccessAt int64
+	passiveListenFailedAt  int64
 }
 
 func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
