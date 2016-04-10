@@ -49,6 +49,8 @@ func (self *Paradise) HandlePassive() {
 	port, _ := strconv.Atoi(parts[len(parts)-1])
 
 	self.waiter.Add(1)
+	self.passiveListenFailedAt = 0
+	self.passiveListenSuccessAt = 0
 	self.passiveListenAt = time.Now().Unix()
 	go getThatPassiveConnection(passiveListen, self)
 
