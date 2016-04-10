@@ -3,6 +3,13 @@ package server
 import "fmt"
 import "net"
 import "time"
+import "strconv"
+import "math/rand"
+
+func genClientID() string {
+	id := rand.Intn(Settings.MaxConnections)
+	return strconv.FormatInt(int64(id), 16)
+}
 
 func Start() {
 	fmt.Println("starting...")
@@ -29,6 +36,8 @@ func Start() {
 			break
 		}
 		ids++
+		cid := genClientID()
+		fmt.Println(cid)
 		p := NewParadise(connection, ids, time.Now().Unix())
 		ConnectionMap[ids] = p
 
