@@ -7,6 +7,7 @@ import "strconv"
 import "math/rand"
 
 func genClientID() string {
+	rand.Seed(time.Now().UTC().UnixNano())
 	id := rand.Intn(Settings.MaxConnections)
 	return strconv.FormatInt(int64(id), 16)
 }
