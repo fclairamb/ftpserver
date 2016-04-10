@@ -1,14 +1,14 @@
 package server
 
 import (
-	"fmt"
 	"net"
 	"strconv"
 	"strings"
 )
+import "fmt"
 
 func (self *Paradise) HandlePassive() {
-	fmt.Println(self.ip, self.command, self.param)
+	//fmt.Println(self.ip, self.command, self.param)
 
 	laddr, _ := net.ResolveTCPAddr("tcp", "0.0.0.0:0")
 	passiveListen, _ := net.ListenTCP("tcp", laddr)

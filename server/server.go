@@ -44,13 +44,13 @@ func NewParadise(connection net.Conn, id int, now int64) *Paradise {
 }
 
 func (self *Paradise) HandleCommands() {
-	fmt.Println(self.id, " Got client on: ", self.ip)
+	//fmt.Println(self.id, " Got client on: ", self.ip)
 	self.writeMessage(220, "Welcome to Paradise")
 	for {
 		line, err := self.reader.ReadString('\n')
 		if err != nil {
 			delete(ConnectionMap, self.id)
-			fmt.Println(self.id, " end ", len(ConnectionMap))
+			//fmt.Println(self.id, " end ", len(ConnectionMap))
 			if err == io.EOF {
 				//continue
 			}

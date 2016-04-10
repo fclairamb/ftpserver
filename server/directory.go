@@ -10,7 +10,7 @@ import (
 )
 
 func (self *Paradise) HandleList() {
-	fmt.Println(self.ip, self.command, self.param)
+	//fmt.Println(self.ip, self.command, self.param)
 
 	self.writeMessage(150, "Opening ASCII mode data connection for file list")
 

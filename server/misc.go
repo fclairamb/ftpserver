@@ -1,6 +1,6 @@
 package server
 
-import "fmt"
+//import "fmt"
 import "strings"
 
 func (self *Paradise) HandleSyst() {
@@ -16,7 +16,7 @@ func (self *Paradise) HandleType() {
 }
 
 func (self *Paradise) HandleQuit() {
-	fmt.Println("Goodbye")
+	//fmt.Println("Goodbye")
 	self.writeMessage(221, "Goodbye")
 	self.theConnection.Close()
 	delete(ConnectionMap, self.id)

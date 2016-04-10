@@ -93,7 +93,7 @@ func (c *Client) Quit() {
 }
 
 func (c *Client) Stor(size int64) {
-	fmt.Println(c.id, " Sending ", size)
+	//fmt.Println(c.id, " Sending ", size)
 	c.openPassive()
 	c.send("STOR fake_file.dat")
 	c.read(false)

@@ -3,7 +3,7 @@ package client
 import "time"
 
 func StressTest() {
-	time.Sleep(3 * time.Second)
+	time.Sleep(1 * time.Second)
 	c := NewClient(1)
 	c.Connect()
 	c.List()

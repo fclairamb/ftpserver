@@ -1,12 +1,9 @@
 package server
 
-import (
-	"fmt"
-	"io"
-)
+import "io"
 
 func (self *Paradise) HandleStore() {
-	fmt.Println(self.ip, self.command, self.param)
+	//fmt.Println(self.ip, self.command, self.param)
 
 	self.writeMessage(150, "Data transfer starting")
 
@@ -46,7 +43,7 @@ func (self *Paradise) storeOrAppend() (int64, error) {
 			break
 		}
 	}
-	fmt.Println(self.id, " Done ", total)
+	//fmt.Println(self.id, " Done ", total)
 
 	return total, err
 }
