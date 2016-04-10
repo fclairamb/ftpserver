@@ -5,7 +5,9 @@ import "time"
 import "net/http"
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
+	fmt.Fprintln(w, "9 clients, 4 passive, Up for 12:33:12")
+	fmt.Fprintln(w, "   PFC106 00:17:34")
+	fmt.Fprintln(w, "   PFC106 00:17:34")
 }
 
 func Monitor() {
