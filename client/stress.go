@@ -1,7 +1,11 @@
 package client
 
-import "fmt"
+import "time"
 
 func StressTest() {
-	fmt.Println("test")
+	time.Sleep(3 * time.Second)
+	c := NewClient(1)
+	c.Connect()
+	c.List()
+	c.Stor(1024)
 }
