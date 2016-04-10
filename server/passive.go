@@ -29,11 +29,7 @@ func getThatPassiveConnection(passiveListen *net.TCPListener, p *Paradise) {
 		return
 	}
 	passiveListen.Close()
-	if waitTimeout(&p.waiter, time.Minute) {
-		p.passiveListenFailedAt = time.Now().Unix()
-	} else {
-		p.passiveListenSuccessAt = time.Now().Unix()
-	}
+	p.passiveListenSuccessAt = time.Now().Unix()
 }
 
 func (self *Paradise) HandlePassive() {

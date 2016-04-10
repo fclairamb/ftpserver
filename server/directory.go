@@ -18,7 +18,11 @@ func (self *Paradise) HandleList() {
 	if err != nil {
 		self.writeMessage(550, err.Error())
 	} else {
-		self.waiter.Wait()
+		if waitTimeout(&self.waiter, time.Minute) {
+			self.writeMessage(550, "Could not get passive connection.")
+			return
+		}
+		// might have been an error that came back, but at least there was no timeout
 		self.passiveConn.Write(bytes)
 		message := "Closing data connection, sent bytes"
 		self.writeMessage(226, message)
