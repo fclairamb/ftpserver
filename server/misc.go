@@ -19,6 +19,7 @@ func (self *Paradise) HandleQuit() {
 	fmt.Println("Goodbye")
 	self.writeMessage(221, "Goodbye")
 	self.theConnection.Close()
+	delete(ConnectionMap, self.id)
 }
 
 func (self *Paradise) HandleCwd() {

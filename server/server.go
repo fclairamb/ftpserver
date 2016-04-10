@@ -10,6 +10,7 @@ import (
 )
 
 var CommandMap map[string]func(*Paradise)
+var ConnectionMap map[int]*Paradise
 
 type Paradise struct {
 	writer        *bufio.Writer
@@ -46,6 +47,8 @@ func (self *Paradise) HandleCommands() {
 	for {
 		line, err := self.reader.ReadString('\n')
 		if err != nil {
+			delete(ConnectionMap, self.id)
+			fmt.Println(self.id, " end ", len(ConnectionMap))
 			if err == io.EOF {
 				//continue
 			}

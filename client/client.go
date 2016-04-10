@@ -79,7 +79,6 @@ func (c *Client) List() {
 func (c *Client) Quit() {
 	c.send("QUIT")
 	c.read(true)
-	c.conn.Close()
 }
 
 func (c *Client) Stor(size int64) {

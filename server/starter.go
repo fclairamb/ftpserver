@@ -6,6 +6,7 @@ import "net"
 func Start() {
 	fmt.Println("starting...")
 	CommandMap = MakeCommandMap()
+	ConnectionMap = make(map[int]*Paradise)
 
 	url := fmt.Sprintf("localhost:%d", 2121) // change to 21 in production
 	var listener net.Listener
@@ -26,6 +27,7 @@ func Start() {
 		}
 		ids++
 		p := NewParadise(connection, ids)
+		ConnectionMap[ids] = p
 
 		go p.HandleCommands()
 	}
