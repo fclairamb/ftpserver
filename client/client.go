@@ -25,9 +25,9 @@ func NewClient() *Client {
 	return &c
 }
 
-func (c *Client) read() {
+func (c *Client) read(print bool) {
 	code, msg, err := c.reader.ReadResponse(0)
-	if false {
+	if print {
 		fmt.Println(code, msg)
 	}
 	c.lastMsg = msg
@@ -50,17 +50,17 @@ func (c *Client) Connect() {
 	c.reader = textproto.NewReader(bufio.NewReader(c.conn))
 	c.writer = textproto.NewWriter(bufio.NewWriter(c.conn))
 
-	c.read()
+	c.read(false)
 	c.send("USER bad")
-	c.read()
+	c.read(false)
 	c.send("PASS security")
-	c.read()
+	c.read(false)
 }
 
 func (c *Client) List() {
 	c.openPassive()
 	c.send("LIST")
-	c.read()
+	c.read(false)
 	for {
 		line, err := c.passReader.ReadString('\n')
 		if line == "\r\n" {
@@ -73,20 +73,26 @@ func (c *Client) List() {
 	if true {
 		c.passive.Close()
 	}
-	c.read()
+	c.read(false)
+}
+
+func (c *Client) Quit() {
+	c.send("QUIT")
+	c.read(true)
+	c.conn.Close()
 }
 
 func (c *Client) Stor(size int64) {
 	fmt.Println("Sending ", size)
 	c.openPassive()
 	c.send("STOR fake_file.dat")
-	c.read()
+	c.read(false)
 	c.passWriter.Write(fakeFile(size))
 	c.passWriter.Flush()
 	if true {
 		c.passive.Close()
 	}
-	c.read()
+	c.read(false)
 }
 
 func fakeFile(size int64) []byte {
@@ -100,7 +106,7 @@ func fakeFile(size int64) []byte {
 
 func (c *Client) openPassive() {
 	c.send("EPSV")
-	c.read()
+	c.read(false)
 	//fmt.Println("PORT ", c.lastMsg)
 
 	port := strings.TrimRight(c.lastMsg, "(|)")[35:40]

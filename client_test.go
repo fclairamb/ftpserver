@@ -2,7 +2,8 @@ package main
 
 import "testing"
 import "os"
-import "paradise/server"
+
+//import "paradise/server"
 import "paradise/client"
 import "math/rand"
 import "time"
@@ -15,7 +16,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestSimple(t *testing.T) {
-	go server.Start()
+	//go server.Start()
 	time.Sleep(1 * (time.Second * 1))
 	testConnect(t)
 	testLots(t)
@@ -43,4 +44,5 @@ func randClient(size int64) {
 	c.Connect()
 	c.List()
 	c.Stor(1024 * size)
+	c.Quit()
 }

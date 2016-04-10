@@ -1,9 +1,7 @@
 package server
 
-import (
-	//"fmt"
-	"strings"
-)
+import "fmt"
+import "strings"
 
 func (self *Paradise) HandleSyst() {
 	self.writeMessage(215, "UNIX Type: L8")
@@ -18,6 +16,7 @@ func (self *Paradise) HandleType() {
 }
 
 func (self *Paradise) HandleQuit() {
+	fmt.Println("Goodbye")
 	self.writeMessage(221, "Goodbye")
 	self.theConnection.Close()
 }
