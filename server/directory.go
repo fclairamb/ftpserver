@@ -22,10 +22,20 @@ func (self *Paradise) HandleList() {
 			self.writeMessage(550, "Could not get passive connection.")
 			return
 		}
-		// might have been an error that came back, but at least there was no timeout
+		if self.passiveListenFailedAt > 0 {
+			self.writeMessage(550, "Could not get passive connection.")
+			return
+		}
 		self.passiveConn.Write(bytes)
-		message := "Closing data connection, sent bytes"
+		message := "Closing data connection, sent some bytes"
 		self.writeMessage(226, message)
+
+		err := self.passiveConn.Close()
+		if err != nil {
+			self.passiveCloseFailedAt = time.Now().Unix()
+		} else {
+			self.passiveCloseSuccessAt = time.Now().Unix()
+		}
 	}
 }
 

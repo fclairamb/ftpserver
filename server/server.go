@@ -32,6 +32,8 @@ type Paradise struct {
 	passiveListenAt        int64
 	passiveListenSuccessAt int64
 	passiveListenFailedAt  int64
+	passiveCloseSuccessAt  int64
+	passiveCloseFailedAt   int64
 }
 
 func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
