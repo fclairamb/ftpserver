@@ -6,6 +6,7 @@ import "os"
 import "os/exec"
 import "paradise/client"
 import "math/rand"
+import "sync"
 import "time"
 
 var file *os.File
@@ -20,32 +21,34 @@ func TestSimple(t *testing.T) {
 	cmd.Run()
 	cmd = exec.Command("./paradise")
 	cmd.Start()
-	time.Sleep(1 * (time.Second * 1))
-	//testConnect(t)
-	//testLots(t)
+	time.Sleep(3 * (time.Second * 1))
+	testConnect(t)
+	testLots(t)
 }
 
 func testConnect(t *testing.T) {
-	c := client.NewClient()
+	c := client.NewClient(1)
 	c.Connect()
 	c.List()
 	c.Stor(1024)
 }
 
 func testLots(t *testing.T) {
-	s1 := rand.NewSource(time.Now().UnixNano())
-
-	for {
-		rb := int64(byte(s1.Int63() * 400))
-		go randClient()
-		time.Sleep(time.Duration(rb) * (time.Millisecond * 1))
+	var wg sync.WaitGroup
+	wg.Add(1)
+	for i := 0; i < 5; i++ {
+		go randClient(i)
+		time.Sleep((time.Millisecond * 500))
 	}
+	wg.Wait()
 }
 
-func randClient() {
-	c := client.NewClient()
+func randClient(id int) {
+	c := client.NewClient(id)
 	c.Connect()
-	c.List()
-	c.Stor(int64(1024 * 1024 * rand.Intn(20)))
-	//c.Quit()
+	for {
+		c.List()
+		c.Stor(int64(1024 * 1024 * rand.Intn(20)))
+		time.Sleep((time.Millisecond * 500))
+	}
 }
