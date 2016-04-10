@@ -2,6 +2,7 @@ package server
 
 import "fmt"
 import "net"
+import "time"
 
 func Start() {
 	fmt.Println("starting...")
@@ -26,7 +27,7 @@ func Start() {
 			break
 		}
 		ids++
-		p := NewParadise(connection, ids)
+		p := NewParadise(connection, ids, time.Now().Unix())
 		ConnectionMap[ids] = p
 
 		go p.HandleCommands()

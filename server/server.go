@@ -27,9 +27,10 @@ type Paradise struct {
 	total         int64
 	buffer        []byte
 	id            int
+	connectedAt   int64
 }
 
-func NewParadise(connection net.Conn, id int) *Paradise {
+func NewParadise(connection net.Conn, id int, now int64) *Paradise {
 	p := Paradise{}
 
 	p.writer = bufio.NewWriter(connection)
@@ -38,6 +39,7 @@ func NewParadise(connection net.Conn, id int) *Paradise {
 	p.theConnection = connection
 	p.ip = connection.RemoteAddr().String()
 	p.id = id
+	p.connectedAt = now
 	return &p
 }
 

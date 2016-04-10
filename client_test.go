@@ -3,7 +3,7 @@ package main
 import "testing"
 import "os"
 
-//import "paradise/server"
+import "os/exec"
 import "paradise/client"
 import "math/rand"
 import "time"
@@ -16,10 +16,13 @@ func TestMain(m *testing.M) {
 }
 
 func TestSimple(t *testing.T) {
-	//go server.Start()
+	cmd := exec.Command("killall", "paradise")
+	cmd.Run()
+	cmd = exec.Command("./paradise")
+	cmd.Start()
 	time.Sleep(1 * (time.Second * 1))
-	testConnect(t)
-	testLots(t)
+	//testConnect(t)
+	//testLots(t)
 }
 
 func testConnect(t *testing.T) {
@@ -34,15 +37,15 @@ func testLots(t *testing.T) {
 
 	for {
 		rb := int64(byte(s1.Int63() * 400))
-		go randClient(rb)
+		go randClient()
 		time.Sleep(time.Duration(rb) * (time.Millisecond * 1))
 	}
 }
 
-func randClient(size int64) {
+func randClient() {
 	c := client.NewClient()
 	c.Connect()
 	c.List()
-	c.Stor(1024 * size)
+	c.Stor(int64(1024 * 1024 * rand.Intn(20)))
 	//c.Quit()
 }
