@@ -44,5 +44,5 @@ func randClient(size int64) {
 	c.Connect()
 	c.List()
 	c.Stor(1024 * size)
-	c.Quit()
+	//c.Quit()
 }

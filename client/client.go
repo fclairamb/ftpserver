@@ -26,6 +26,9 @@ func NewClient() *Client {
 }
 
 func (c *Client) read(print bool) {
+	if c.reader == nil {
+		return
+	}
 	code, msg, err := c.reader.ReadResponse(0)
 	if print {
 		fmt.Println(code, msg)
