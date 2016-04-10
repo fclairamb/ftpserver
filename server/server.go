@@ -9,6 +9,7 @@ import (
 	"sync"
 )
 
+var Settings ParadiseSettings
 var CommandMap map[string]func(*Paradise)
 var ConnectionMap map[int]*Paradise
 

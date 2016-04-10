@@ -6,6 +6,8 @@ import "time"
 
 func Start() {
 	fmt.Println("starting...")
+	Settings = ReadSettings()
+	fmt.Println(Settings)
 	CommandMap = MakeCommandMap()
 	ConnectionMap = make(map[int]*Paradise)
 

@@ -1,0 +1,3 @@
+port = 2121
+host = "0.0.0.0"
+max_connections = 16777215             # happens to be FFFFFF in base 16
