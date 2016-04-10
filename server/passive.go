@@ -26,17 +26,23 @@ func getThatPassiveConnection(passiveListen *net.TCPListener, p *Paradise) {
 	p.passiveConn, perr = passiveListen.AcceptTCP()
 	if perr != nil {
 		p.passiveListenFailedAt = time.Now().Unix()
+		p.waiter.Done()
 		return
 	}
 	passiveListen.Close()
 	p.passiveListenSuccessAt = time.Now().Unix()
+	p.waiter.Done()
 }
 
 func (self *Paradise) HandlePassive() {
 	//fmt.Println(self.ip, self.command, self.param)
 
-	laddr, _ := net.ResolveTCPAddr("tcp", "0.0.0.0:0")
-	passiveListen, _ := net.ListenTCP("tcp", laddr)
+	laddr, err := net.ResolveTCPAddr("tcp", "0.0.0.0:0")
+	passiveListen, err := net.ListenTCP("tcp", laddr)
+	if err != nil {
+		self.writeMessage(550, "Error with passive: "+err.Error())
+		return
+	}
 
 	add := passiveListen.Addr()
 	parts := strings.Split(add.String(), ":")
