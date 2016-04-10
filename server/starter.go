@@ -17,7 +17,7 @@ func Start() {
 	Settings = ReadSettings()
 	fmt.Println(Settings)
 	CommandMap = MakeCommandMap()
-	ConnectionMap = make(map[int]*Paradise)
+	ConnectionMap = make(map[string]*Paradise)
 
 	url := fmt.Sprintf("localhost:%d", 2121) // change to 21 in production
 	var listener net.Listener
@@ -29,18 +29,15 @@ func Start() {
 	}
 	fmt.Println("listening on: ", url)
 
-	ids := 0
 	for {
 		connection, err := listener.Accept()
 		if err != nil {
 			fmt.Println("listening error ", err)
 			break
 		}
-		ids++
 		cid := genClientID()
-		fmt.Println(cid)
-		p := NewParadise(connection, ids, time.Now().Unix())
-		ConnectionMap[ids] = p
+		p := NewParadise(connection, cid, time.Now().Unix())
+		ConnectionMap[cid] = p
 
 		go p.HandleCommands()
 	}

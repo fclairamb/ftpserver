@@ -11,7 +11,7 @@ import (
 
 var Settings ParadiseSettings
 var CommandMap map[string]func(*Paradise)
-var ConnectionMap map[int]*Paradise
+var ConnectionMap map[string]*Paradise
 
 type Paradise struct {
 	writer        *bufio.Writer
@@ -27,11 +27,11 @@ type Paradise struct {
 	param         string
 	total         int64
 	buffer        []byte
-	id            int
+	cid           string
 	connectedAt   int64
 }
 
-func NewParadise(connection net.Conn, id int, now int64) *Paradise {
+func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
 	p := Paradise{}
 
 	p.writer = bufio.NewWriter(connection)
@@ -39,7 +39,7 @@ func NewParadise(connection net.Conn, id int, now int64) *Paradise {
 	p.path = "/"
 	p.theConnection = connection
 	p.ip = connection.RemoteAddr().String()
-	p.id = id
+	p.cid = cid
 	p.connectedAt = now
 	return &p
 }
@@ -50,7 +50,7 @@ func (self *Paradise) HandleCommands() {
 	for {
 		line, err := self.reader.ReadString('\n')
 		if err != nil {
-			delete(ConnectionMap, self.id)
+			delete(ConnectionMap, self.cid)
 			//fmt.Println(self.id, " end ", len(ConnectionMap))
 			if err == io.EOF {
 				//continue
