@@ -1,17 +1,34 @@
 package server
 
 import "io"
+import "time"
 
 func (self *Paradise) HandleStore() {
 	//fmt.Println(self.ip, self.command, self.param)
 
 	self.writeMessage(150, "Data transfer starting")
 
+	if waitTimeout(&self.waiter, time.Minute) {
+		self.writeMessage(550, "Could not get passive connection.")
+		return
+	}
+	if self.passiveListenFailedAt > 0 {
+		self.writeMessage(550, "Could not get passive connection.")
+		return
+	}
+
 	_, err := self.storeOrAppend()
 	if err == io.EOF {
 		self.writeMessage(226, "OK, received some bytes") // TODO send total in message
 	} else {
 		self.writeMessage(550, "Error with upload: "+err.Error())
+	}
+
+	err = self.passiveConn.Close()
+	if err != nil {
+		self.passiveCloseFailedAt = time.Now().Unix()
+	} else {
+		self.passiveCloseSuccessAt = time.Now().Unix()
 	}
 }
 
@@ -51,7 +68,6 @@ func (self *Paradise) storeOrAppend() (int64, error) {
 func (self *Paradise) readFirst512Bytes() error {
 	self.buffer = make([]byte, 0)
 	var err error
-	self.waiter.Wait()
 	for {
 		temp_buffer := make([]byte, 512)
 		n, err := self.passiveConn.Read(temp_buffer)
