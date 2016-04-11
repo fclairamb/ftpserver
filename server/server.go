@@ -13,48 +13,24 @@ var Settings ParadiseSettings
 var CommandMap map[string]func(*Paradise)
 var ConnectionMap map[string]*Paradise
 
-type Passive struct {
-	ListenAt        int64
-	ListenSuccessAt int64
-	ListenFailedAt  int64
-	CloseSuccessAt  int64
-	CloseFailedAt   int64
-	connectedAt     int64
-	passive         *net.TCPConn
-	command         string
-	cid             string
-}
-
 type Paradise struct {
-	writer                 *bufio.Writer
-	reader                 *bufio.Reader
-	theConnection          net.Conn
-	passiveConn            *net.TCPConn
-	waiter                 sync.WaitGroup
-	user                   string
-	homeDir                string
-	path                   string
-	ip                     string
-	command                string
-	param                  string
-	total                  int64
-	buffer                 []byte
-	cid                    string
-	connectedAt            int64
-	passives               map[string]*Passive
-	passiveListenAt        int64
-	passiveListenSuccessAt int64
-	passiveListenFailedAt  int64
-	passiveCloseSuccessAt  int64
-	passiveCloseFailedAt   int64
-}
-
-func NewPassive(passive *net.TCPConn, cid string, now int64) *Passive {
-	p := Passive{}
-	p.cid = cid
-	p.connectedAt = now
-	p.passive = passive
-	return &p
+	writer        *bufio.Writer
+	reader        *bufio.Reader
+	theConnection net.Conn
+	passiveConn   *net.TCPConn
+	waiter        sync.WaitGroup
+	user          string
+	homeDir       string
+	path          string
+	ip            string
+	command       string
+	param         string
+	total         int64
+	buffer        []byte
+	cid           string
+	connectedAt   int64
+	passives      map[string]*Passive
+	lastPassCid   string
 }
 
 func NewParadise(connection net.Conn, cid string, now int64) *Paradise {

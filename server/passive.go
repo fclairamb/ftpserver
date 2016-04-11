@@ -21,17 +21,48 @@ func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
 	}
 }
 
-func getThatPassiveConnection(passiveListen *net.TCPListener, p *Paradise) {
+type Passive struct {
+	listenSuccessAt int64
+	listenFailedAt  int64
+	closeSuccessAt  int64
+	closeFailedAt   int64
+	listenAt        int64
+	connectedAt     int64
+	passive         *net.TCPConn
+	command         string
+	cid             string
+	port            int
+}
+
+func getThatPassiveConnection(passiveListen *net.TCPListener, p *Passive) {
 	var perr error
 	p.passiveConn, perr = passiveListen.AcceptTCP()
 	if perr != nil {
-		p.passiveListenFailedAt = time.Now().Unix()
-		p.waiter.Done()
+		p.listenFailedAt = time.Now().Unix()
+		//p.waiter.Done()
 		return
 	}
 	passiveListen.Close()
-	p.passiveListenSuccessAt = time.Now().Unix()
-	p.waiter.Done()
+	p.listenSuccessAt = time.Now().Unix()
+	//p.waiter.Done()
+}
+
+func NewPassive(passiveListen *net.TCPListener, cid string, now int64) *Passive {
+	p := Passive{}
+	p.cid = cid
+	p.listenAt = now
+
+	add := passiveListen.Addr()
+	parts := strings.Split(add.String(), ":")
+	p.port, _ = strconv.Atoi(parts[len(parts)-1])
+
+	//self.waiter.Add(1)
+	//self.passiveListenFailedAt = 0
+	//self.passiveListenSuccessAt = 0
+	//self.passiveListenAt = time.Now().Unix()
+	go getThatPassiveConnection(passiveListen, &p)
+
+	return &p
 }
 
 func (self *Paradise) HandlePassive() {
@@ -44,19 +75,13 @@ func (self *Paradise) HandlePassive() {
 		return
 	}
 
-	add := passiveListen.Addr()
-	parts := strings.Split(add.String(), ":")
-	port, _ := strconv.Atoi(parts[len(parts)-1])
-
-	self.waiter.Add(1)
-	self.passiveListenFailedAt = 0
-	self.passiveListenSuccessAt = 0
-	self.passiveListenAt = time.Now().Unix()
-	go getThatPassiveConnection(passiveListen, self)
+	cid := genClientID()
+	p := NewPassive(passiveListen, cid, time.Now().Unix())
+	self.passives[cid] = p
 
 	if self.command == "PASV" {
-		p1 := port / 256
-		p2 := port - (p1 * 256)
+		p1 := p.port / 256
+		p2 := p.port - (p1 * 256)
 		addr := self.theConnection.LocalAddr()
 		tokens := strings.Split(addr.String(), ":")
 		host := tokens[0]
@@ -65,7 +90,7 @@ func (self *Paradise) HandlePassive() {
 		msg := "Entering Passive Mode " + target
 		self.writeMessage(227, msg)
 	} else {
-		msg := fmt.Sprintf("Entering Extended Passive Mode (|||%d|)", port)
+		msg := fmt.Sprintf("Entering Extended Passive Mode (|||%d|)", p.port)
 		self.writeMessage(229, msg)
 	}
 }
