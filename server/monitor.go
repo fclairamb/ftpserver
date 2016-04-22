@@ -17,7 +17,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		len(ConnectionMap), PassiveCount, countdown(UpSince))
 
 	for k, v := range ConnectionMap {
-		fmt.Fprintf(w, "   %s 00:17:34, %s\n", k, v.user)
+		fmt.Fprintf(w, "   %s %s, %s\n", k, countdown(v.connectedAt), v.user)
 	}
 }
 
