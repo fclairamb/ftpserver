@@ -46,40 +46,40 @@ func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
 	return &p
 }
 
-func (self *Paradise) lastPassive() *Passive {
-	return self.passives[self.lastPassCid]
+func (p *Paradise) lastPassive() *Passive {
+	return p.passives[p.lastPassCid]
 }
 
-func (self *Paradise) HandleCommands() {
-	//fmt.Println(self.id, " Got client on: ", self.ip)
-	self.writeMessage(220, "Welcome to Paradise")
+func (p *Paradise) HandleCommands() {
+	//fmt.Println(p.id, " Got client on: ", p.ip)
+	p.writeMessage(220, "Welcome to Paradise")
 	for {
-		line, err := self.reader.ReadString('\n')
+		line, err := p.reader.ReadString('\n')
 		if err != nil {
-			delete(ConnectionMap, self.cid)
-			//fmt.Println(self.id, " end ", len(ConnectionMap))
+			delete(ConnectionMap, p.cid)
+			//fmt.Println(p.id, " end ", len(ConnectionMap))
 			if err == io.EOF {
 				//continue
 			}
 			break
 		}
 		command, param := parseLine(line)
-		self.command = command
-		self.param = param
+		p.command = command
+		p.param = param
 
 		fn := CommandMap[command]
 		if fn == nil {
-			self.writeMessage(550, "not allowed")
+			p.writeMessage(550, "not allowed")
 		} else {
-			fn(self)
+			fn(p)
 		}
 	}
 }
 
-func (self *Paradise) writeMessage(code int, message string) {
+func (p *Paradise) writeMessage(code int, message string) {
 	line := fmt.Sprintf("%d %s\r\n", code, message)
-	self.writer.WriteString(line)
-	self.writer.Flush()
+	p.writer.WriteString(line)
+	p.writer.Flush()
 }
 
 func parseLine(line string) (string, string) {

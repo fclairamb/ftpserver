@@ -1,15 +1,15 @@
 package server
 
-func (self *Paradise) HandleUser() {
-	//fmt.Println(self.ip, self.command, self.param)
-	self.user = self.param
-	self.writeMessage(331, "User name ok, password required")
+func (p *Paradise) HandleUser() {
+	//fmt.Println(p.ip, p.command, p.param)
+	p.user = p.param
+	p.writeMessage(331, "User name ok, password required")
 }
 
-func (self *Paradise) HandlePass() {
+func (p *Paradise) HandlePass() {
 	if true { // change to your auth logic, think about using https://developer.bitium.com
-		self.writeMessage(230, "Password ok, continue")
+		p.writeMessage(230, "Password ok, continue")
 	} else {
-		self.writeMessage(530, "Incorrect password, not logged in")
+		p.writeMessage(530, "Incorrect password, not logged in")
 	}
 }

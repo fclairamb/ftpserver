@@ -9,27 +9,27 @@ import (
 	"time"
 )
 
-func (self *Paradise) HandleList() {
-	//fmt.Println(self.ip, self.command, self.param)
+func (p *Paradise) HandleList() {
+	//fmt.Println(p.ip, p.command, p.param)
 
-	self.writeMessage(150, "Opening ASCII mode data connection for file list")
+	p.writeMessage(150, "Opening ASCII mode data connection for file list")
 
-	bytes, err := self.dirList()
+	bytes, err := p.dirList()
 	if err != nil {
-		self.writeMessage(550, err.Error())
+		p.writeMessage(550, err.Error())
 	} else {
-		passive := self.lastPassive()
+		passive := p.lastPassive()
 		if waitTimeout(&passive.waiter, time.Minute) {
-			self.writeMessage(550, "Could not get passive connection.")
+			p.writeMessage(550, "Could not get passive connection.")
 			return
 		}
 		if passive.listenFailedAt > 0 {
-			self.writeMessage(550, "Could not get passive connection.")
+			p.writeMessage(550, "Could not get passive connection.")
 			return
 		}
 		passive.connection.Write(bytes)
 		message := "Closing data connection, sent some bytes"
-		self.writeMessage(226, message)
+		p.writeMessage(226, message)
 
 		err := passive.connection.Close()
 		if err != nil {
@@ -40,7 +40,7 @@ func (self *Paradise) HandleList() {
 	}
 }
 
-func (self *Paradise) dirList() ([]byte, error) {
+func (p *Paradise) dirList() ([]byte, error) {
 	var buf bytes.Buffer
 
 	files := []int{1, 2, 3, 4, 5} // change to real list of files

@@ -3,45 +3,45 @@ package server
 //import "fmt"
 import "strings"
 
-func (self *Paradise) HandleSyst() {
-	self.writeMessage(215, "UNIX Type: L8")
+func (p *Paradise) HandleSyst() {
+	p.writeMessage(215, "UNIX Type: L8")
 }
 
-func (self *Paradise) HandlePwd() {
-	self.writeMessage(257, "\""+self.path+"\" is the current directory")
+func (p *Paradise) HandlePwd() {
+	p.writeMessage(257, "\""+p.path+"\" is the current directory")
 }
 
-func (self *Paradise) HandleType() {
-	self.writeMessage(200, "Type set to binary")
+func (p *Paradise) HandleType() {
+	p.writeMessage(200, "Type set to binary")
 }
 
-func (self *Paradise) HandleQuit() {
+func (p *Paradise) HandleQuit() {
 	//fmt.Println("Goodbye")
-	self.writeMessage(221, "Goodbye")
-	self.theConnection.Close()
-	delete(ConnectionMap, self.cid)
+	p.writeMessage(221, "Goodbye")
+	p.theConnection.Close()
+	delete(ConnectionMap, p.cid)
 }
 
-func (self *Paradise) HandleCwd() {
-	if self.param == ".." {
-		self.path = "/"
+func (p *Paradise) HandleCwd() {
+	if p.param == ".." {
+		p.path = "/"
 	} else {
-		self.path = self.param
+		p.path = p.param
 	}
-	if !strings.HasPrefix(self.path, "/") {
-		self.path = "/" + self.path
+	if !strings.HasPrefix(p.path, "/") {
+		p.path = "/" + p.path
 	}
-	self.writeMessage(250, "CD worked")
+	p.writeMessage(250, "CD worked")
 }
 
-func (self *Paradise) HandleSize() {
-	self.writeMessage(450, "downloads not allowed")
+func (p *Paradise) HandleSize() {
+	p.writeMessage(450, "downloads not allowed")
 }
 
-func (self *Paradise) HandleRetr() {
-	self.writeMessage(551, "downloads not allowed")
+func (p *Paradise) HandleRetr() {
+	p.writeMessage(551, "downloads not allowed")
 }
 
-func (self *Paradise) HandleStat() {
-	self.writeMessage(551, "downloads not allowed")
+func (p *Paradise) HandleStat() {
+	p.writeMessage(551, "downloads not allowed")
 }
