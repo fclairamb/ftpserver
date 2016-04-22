@@ -18,7 +18,7 @@ func (self *Paradise) HandleStore() {
 		return
 	}
 
-	_, err := self.storeOrAppend()
+	_, err := self.storeOrAppend(passive)
 	if err == io.EOF {
 		self.writeMessage(226, "OK, received some bytes") // TODO send total in message
 	} else {
@@ -33,9 +33,9 @@ func (self *Paradise) HandleStore() {
 	}
 }
 
-func (self *Paradise) storeOrAppend() (int64, error) {
+func (self *Paradise) storeOrAppend(passive *Passive) (int64, error) {
 	var err error
-	err = self.readFirst512Bytes()
+	err = self.readFirst512Bytes(passive)
 	if err != nil {
 		return 0, err
 	}
@@ -50,7 +50,7 @@ func (self *Paradise) storeOrAppend() (int64, error) {
 	total = int64(len(self.buffer))
 	for {
 		temp_buffer := make([]byte, 20971520) // reads 20MB at a time
-		n, err = self.passiveConn.Read(temp_buffer)
+		n, err = passive.connection.Read(temp_buffer)
 		total += int64(n)
 
 		if err != nil {
@@ -66,12 +66,12 @@ func (self *Paradise) storeOrAppend() (int64, error) {
 	return total, err
 }
 
-func (self *Paradise) readFirst512Bytes() error {
+func (self *Paradise) readFirst512Bytes(passive *Passive) error {
 	self.buffer = make([]byte, 0)
 	var err error
 	for {
 		temp_buffer := make([]byte, 512)
-		n, err := self.passiveConn.Read(temp_buffer)
+		n, err := passive.connection.Read(temp_buffer)
 
 		if err != nil {
 			break

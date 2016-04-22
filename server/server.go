@@ -17,7 +17,6 @@ type Paradise struct {
 	writer        *bufio.Writer
 	reader        *bufio.Reader
 	theConnection net.Conn
-	passiveConn   *net.TCPConn
 	waiter        sync.WaitGroup
 	user          string
 	homeDir       string
@@ -43,6 +42,7 @@ func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
 	p.ip = connection.RemoteAddr().String()
 	p.cid = cid
 	p.connectedAt = now
+	p.passives = make(map[string]*Passive)
 	return &p
 }
 
@@ -80,12 +80,6 @@ func (self *Paradise) writeMessage(code int, message string) {
 	line := fmt.Sprintf("%d %s\r\n", code, message)
 	self.writer.WriteString(line)
 	self.writer.Flush()
-}
-
-func (self *Paradise) closePassiveConnection() {
-	if self.passiveConn != nil {
-		self.passiveConn.Close()
-	}
 }
 
 func parseLine(line string) (string, string) {
