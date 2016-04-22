@@ -16,8 +16,6 @@ func Start() {
 	fmt.Println("starting...")
 	Settings = ReadSettings()
 	fmt.Println(Settings)
-	CommandMap = MakeCommandMap()
-	ConnectionMap = make(map[string]*Paradise)
 
 	url := fmt.Sprintf("localhost:%d", 2121) // change to 21 in production
 	var listener net.Listener

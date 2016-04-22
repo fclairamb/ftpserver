@@ -32,6 +32,30 @@ type Paradise struct {
 	lastPassCid   string
 }
 
+func init() {
+	CommandMap = make(map[string]func(*Paradise))
+
+	CommandMap["USER"] = (*Paradise).HandleUser
+	CommandMap["PASS"] = (*Paradise).HandlePass
+	CommandMap["STOR"] = (*Paradise).HandleStore
+	CommandMap["APPE"] = (*Paradise).HandleStore
+	CommandMap["STAT"] = (*Paradise).HandleStat
+
+	CommandMap["SYST"] = (*Paradise).HandleSyst
+	CommandMap["PWD"] = (*Paradise).HandlePwd
+	CommandMap["TYPE"] = (*Paradise).HandleType
+	CommandMap["PASV"] = (*Paradise).HandlePassive
+	CommandMap["EPSV"] = (*Paradise).HandlePassive
+	CommandMap["NLST"] = (*Paradise).HandleList
+	CommandMap["LIST"] = (*Paradise).HandleList
+	CommandMap["QUIT"] = (*Paradise).HandleQuit
+	CommandMap["CWD"] = (*Paradise).HandleCwd
+	CommandMap["SIZE"] = (*Paradise).HandleSize
+	CommandMap["RETR"] = (*Paradise).HandleRetr
+
+	ConnectionMap = make(map[string]*Paradise)
+}
+
 func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
 	p := Paradise{}
 
