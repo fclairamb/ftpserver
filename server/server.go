@@ -15,6 +15,7 @@ var ConnectionMap map[string]*Paradise
 var PassiveCount int
 var UpSince int64
 var FileManager *paradise.FileManager
+var AuthManager *paradise.AuthManager
 
 type Paradise struct {
 	writer        *bufio.Writer

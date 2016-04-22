@@ -11,5 +11,6 @@ func main() {
 	}
 	go server.Monitor()
 	fm := paradise.NewDefaultFileSystem()
-	server.Start(fm)
+	am := paradise.NewDefaultAuthSystem()
+	server.Start(fm, am)
 }
