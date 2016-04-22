@@ -1,6 +1,6 @@
 package paradise
 
-type FileSytem interface {
+type FileSystem interface {
 	GetFiles() []string
 }
 
