@@ -11,13 +11,17 @@ func countdown(upsince int64) string {
 	return str[11:20]
 }
 
+func trimGuid(guid string) string {
+	return guid[0:6]
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "%d client(s), %d passive(s), Up for %s\n",
 		len(ConnectionMap), PassiveCount, countdown(UpSince))
 
 	for k, v := range ConnectionMap {
-		fmt.Fprintf(w, "   %s %s, %s\n", k, countdown(v.connectedAt), v.user)
+		fmt.Fprintf(w, "   %s %s, %s\n", trimGuid(k), countdown(v.connectedAt), v.user)
 	}
 }
 
