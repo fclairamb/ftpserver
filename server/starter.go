@@ -3,13 +3,15 @@ package server
 import "fmt"
 import "net"
 import "time"
-import "strconv"
-import "math/rand"
+import "os"
 
 func genClientID() string {
-	rand.Seed(time.Now().UTC().UnixNano())
-	id := rand.Intn(Settings.MaxConnections)
-	return strconv.FormatInt(int64(id), 16)
+	random, _ := os.Open("/dev/urandom")
+	b := make([]byte, 16)
+	random.Read(b)
+	random.Close()
+	return fmt.Sprintf("%x-%x-%x-%x-%x",
+		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
 
 func Start() {
