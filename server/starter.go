@@ -4,6 +4,7 @@ import "fmt"
 import "net"
 import "time"
 import "os"
+import "github.com/andrewarrow/paradise_ftp/paradise"
 
 func genClientID() string {
 	random, _ := os.Open("/dev/urandom")
@@ -14,7 +15,7 @@ func genClientID() string {
 		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
 
-func Start() {
+func Start(fm *paradise.FileManager) {
 	fmt.Println("starting...")
 	url := fmt.Sprintf("localhost:%d", 2121) // change to 21 in production
 	var listener net.Listener

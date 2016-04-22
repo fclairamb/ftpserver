@@ -11,7 +11,7 @@ type FileManager struct {
 type DefaultFileSystem struct {
 }
 
-func (dfs *FileSystem) GetFiles() []string {
+func (dfs DefaultFileSystem) GetFiles() []string {
 	files := make([]string, 5)
 
 	return files

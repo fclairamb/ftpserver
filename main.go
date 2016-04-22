@@ -2,6 +2,7 @@ package main
 
 import "github.com/andrewarrow/paradise_ftp/server"
 import "github.com/andrewarrow/paradise_ftp/client"
+import "github.com/andrewarrow/paradise_ftp/paradise"
 import "os"
 
 func main() {
@@ -9,5 +10,6 @@ func main() {
 		go client.StressTest()
 	}
 	go server.Monitor()
-	server.Start()
+	fm := paradise.NewDefaultFileSystem()
+	server.Start(fm)
 }
