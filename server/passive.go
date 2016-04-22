@@ -30,6 +30,7 @@ type Passive struct {
 	connectedAt     int64
 	connection      *net.TCPConn
 	command         string
+	param           string
 	cid             string
 	port            int
 	waiter          sync.WaitGroup
@@ -86,6 +87,8 @@ func (p *Paradise) HandlePassive() {
 
 	cid := genClientID()
 	passive := NewPassive(passiveListen, cid, time.Now().Unix())
+	passive.command = p.command
+	passive.param = p.param
 	p.lastPassCid = cid
 	p.passives[cid] = passive
 
