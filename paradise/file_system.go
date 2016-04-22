@@ -14,11 +14,16 @@ type DefaultFileSystem struct {
 func (dfs DefaultFileSystem) GetFiles() []map[string]string {
 	files := make([]map[string]string, 0)
 
-	file := make(map[string]string)
-	file["size"] = "123"
-	file["name"] = "hello.txt"
+	//if p.user == "test" {
+	// no op just to use p.user as example
+	//}
 
-	files = append(files, file)
+	for i := 0; i < 5; i++ {
+		file := make(map[string]string)
+		file["size"] = "90210"
+		file["name"] = "paradise.txt"
+		files = append(files, file)
+	}
 
 	return files
 }
