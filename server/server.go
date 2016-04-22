@@ -46,6 +46,10 @@ func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
 	return &p
 }
 
+func (self *Paradise) lastPassive() *Passive {
+	return self.passives[self.lastPassCid]
+}
+
 func (self *Paradise) HandleCommands() {
 	//fmt.Println(self.id, " Got client on: ", self.ip)
 	self.writeMessage(220, "Welcome to Paradise")

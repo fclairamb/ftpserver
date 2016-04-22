@@ -28,23 +28,25 @@ type Passive struct {
 	closeFailedAt   int64
 	listenAt        int64
 	connectedAt     int64
-	passive         *net.TCPConn
+	connection      *net.TCPConn
 	command         string
 	cid             string
 	port            int
+	waiter          sync.WaitGroup
 }
 
 func getThatPassiveConnection(passiveListen *net.TCPListener, p *Passive) {
 	var perr error
-	p.passiveConn, perr = passiveListen.AcceptTCP()
+	p.connection, perr = passiveListen.AcceptTCP()
 	if perr != nil {
 		p.listenFailedAt = time.Now().Unix()
-		//p.waiter.Done()
+		p.waiter.Done()
 		return
 	}
 	passiveListen.Close()
+	// start reading from p.passive, it will block, wait for err. Err means client killed connection.
 	p.listenSuccessAt = time.Now().Unix()
-	//p.waiter.Done()
+	p.waiter.Done()
 }
 
 func NewPassive(passiveListen *net.TCPListener, cid string, now int64) *Passive {
@@ -56,13 +58,17 @@ func NewPassive(passiveListen *net.TCPListener, cid string, now int64) *Passive 
 	parts := strings.Split(add.String(), ":")
 	p.port, _ = strconv.Atoi(parts[len(parts)-1])
 
-	//self.waiter.Add(1)
-	//self.passiveListenFailedAt = 0
-	//self.passiveListenSuccessAt = 0
-	//self.passiveListenAt = time.Now().Unix()
+	p.waiter.Add(1)
+	p.listenFailedAt = 0
+	p.listenSuccessAt = 0
+	p.listenAt = time.Now().Unix()
 	go getThatPassiveConnection(passiveListen, &p)
 
 	return &p
+}
+
+func anotherPassiveIsAvail() bool {
+	return false
 }
 
 func (self *Paradise) HandlePassive() {
@@ -74,9 +80,14 @@ func (self *Paradise) HandlePassive() {
 		self.writeMessage(550, "Error with passive: "+err.Error())
 		return
 	}
+	if anotherPassiveIsAvail() {
+		self.writeMessage(550, "Use other passive connection first.")
+		return
+	}
 
 	cid := genClientID()
 	p := NewPassive(passiveListen, cid, time.Now().Unix())
+	self.lastPassCid = cid
 	self.passives[cid] = p
 
 	if self.command == "PASV" {

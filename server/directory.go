@@ -18,23 +18,24 @@ func (self *Paradise) HandleList() {
 	if err != nil {
 		self.writeMessage(550, err.Error())
 	} else {
-		if waitTimeout(&self.waiter, time.Minute) {
+		passive := self.lastPassive()
+		if waitTimeout(&passive.waiter, time.Minute) {
 			self.writeMessage(550, "Could not get passive connection.")
 			return
 		}
-		if self.passiveListenFailedAt > 0 {
+		if passive.listenFailedAt > 0 {
 			self.writeMessage(550, "Could not get passive connection.")
 			return
 		}
-		self.passiveConn.Write(bytes)
+		passive.connection.Write(bytes)
 		message := "Closing data connection, sent some bytes"
 		self.writeMessage(226, message)
 
-		err := self.passiveConn.Close()
+		err := passive.connection.Close()
 		if err != nil {
-			self.passiveCloseFailedAt = time.Now().Unix()
+			passive.closeFailedAt = time.Now().Unix()
 		} else {
-			self.passiveCloseSuccessAt = time.Now().Unix()
+			passive.closeSuccessAt = time.Now().Unix()
 		}
 	}
 }

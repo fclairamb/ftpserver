@@ -8,6 +8,7 @@ type ParadiseSettings struct {
 	Host           string
 	Port           int
 	MaxConnections int
+	MaxPassive     int
 }
 
 func ReadSettings() ParadiseSettings {
