@@ -7,12 +7,14 @@ import (
 	"net"
 	"strings"
 	"sync"
+	"time"
 )
 
 var Settings ParadiseSettings
 var CommandMap map[string]func(*Paradise)
 var ConnectionMap map[string]*Paradise
 var PassiveCount int
+var UpSince int64
 
 type Paradise struct {
 	writer        *bufio.Writer
@@ -36,6 +38,7 @@ type Paradise struct {
 func init() {
 	Settings = ReadSettings()
 	fmt.Println(Settings)
+	UpSince = time.Now().Unix()
 
 	CommandMap = make(map[string]func(*Paradise))
 

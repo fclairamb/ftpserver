@@ -5,10 +5,13 @@ import "time"
 import "net/http"
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%d client, %d passive, Up for 12:33:12\n",
-		len(ConnectionMap), PassiveCount)
-	fmt.Fprintln(w, "   PFC106 00:17:34")
-	fmt.Fprintln(w, "   PFC106 00:17:34")
+	us := time.Now().Unix() - UpSince
+	fmt.Fprintf(w, "%d client, %d passive, Up for %d\n",
+		len(ConnectionMap), PassiveCount, us)
+
+	for k, v := range ConnectionMap {
+		fmt.Fprintf(w, "   %s 00:17:34, %s\n", k, v.user)
+	}
 }
 
 func Monitor() {
