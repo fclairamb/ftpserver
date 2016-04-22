@@ -4,10 +4,17 @@ import "fmt"
 import "time"
 import "net/http"
 
+func countdown(upsince int64) string {
+	secs := time.Now().Unix() - upsince
+	us := time.Unix(secs, 0)
+	str := us.UTC().String()
+	return str[11:20]
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
-	us := time.Now().Unix() - UpSince
-	fmt.Fprintf(w, "%d client, %d passive, Up for %d\n",
-		len(ConnectionMap), PassiveCount, us)
+
+	fmt.Fprintf(w, "%d client(s), %d passive(s), Up for %s\n",
+		len(ConnectionMap), PassiveCount, countdown(UpSince))
 
 	for k, v := range ConnectionMap {
 		fmt.Fprintf(w, "   %s 00:17:34, %s\n", k, v.user)
