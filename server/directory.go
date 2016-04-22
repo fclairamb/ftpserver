@@ -36,6 +36,7 @@ func (p *Paradise) HandleList() {
 			passive.closeFailedAt = time.Now().Unix()
 		} else {
 			passive.closeSuccessAt = time.Now().Unix()
+			delete(p.passives, passive.cid)
 		}
 	}
 }

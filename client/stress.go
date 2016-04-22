@@ -8,4 +8,11 @@ func StressTest() {
 	c.Connect()
 	c.List()
 	c.Stor(1024)
+	time.Sleep(1 * time.Second)
+	c.List()
+	time.Sleep(1 * time.Second)
+	c.Stor(1024 * 20)
+	time.Sleep(1 * time.Second)
+	time.Sleep(1 * time.Second)
+	c.List()
 }
