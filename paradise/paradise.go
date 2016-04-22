@@ -12,7 +12,7 @@ type DefaultFileSystem struct {
 }
 
 func (dfs DefaultFileSystem) GetFiles() []string {
-	files := make([]string, 5)
+	files := make([]string, 6)
 
 	return files
 }

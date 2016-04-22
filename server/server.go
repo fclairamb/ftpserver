@@ -1,20 +1,20 @@
 package server
 
-import (
-	"bufio"
-	"fmt"
-	"io"
-	"net"
-	"strings"
-	"sync"
-	"time"
-)
+import "bufio"
+import "fmt"
+import "io"
+import "net"
+import "strings"
+import "sync"
+import "time"
+import "github.com/andrewarrow/paradise_ftp/paradise"
 
 var Settings ParadiseSettings
 var CommandMap map[string]func(*Paradise)
 var ConnectionMap map[string]*Paradise
 var PassiveCount int
 var UpSince int64
+var FileManager *paradise.FileManager
 
 type Paradise struct {
 	writer        *bufio.Writer

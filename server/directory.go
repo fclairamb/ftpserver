@@ -43,7 +43,7 @@ func (p *Paradise) HandleList() {
 func (p *Paradise) dirList() ([]byte, error) {
 	var buf bytes.Buffer
 
-	files := []int{1, 2, 3, 4, 5} // change to real list of files
+	files := FileManager.GetFiles()
 	for _, _ = range files {
 
 		if false { // change to really test for isDir
