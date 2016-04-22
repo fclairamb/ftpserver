@@ -12,6 +12,7 @@ import (
 var Settings ParadiseSettings
 var CommandMap map[string]func(*Paradise)
 var ConnectionMap map[string]*Paradise
+var PassiveCount int
 
 type Paradise struct {
 	writer        *bufio.Writer
@@ -33,6 +34,9 @@ type Paradise struct {
 }
 
 func init() {
+	Settings = ReadSettings()
+	fmt.Println(Settings)
+
 	CommandMap = make(map[string]func(*Paradise))
 
 	CommandMap["USER"] = (*Paradise).HandleUser

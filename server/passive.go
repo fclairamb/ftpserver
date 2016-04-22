@@ -50,6 +50,7 @@ func getThatPassiveConnection(passiveListen *net.TCPListener, p *Passive) {
 }
 
 func NewPassive(passiveListen *net.TCPListener, cid string, now int64) *Passive {
+	PassiveCount++
 	p := Passive{}
 	p.cid = cid
 	p.listenAt = now

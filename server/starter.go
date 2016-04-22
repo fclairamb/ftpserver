@@ -14,9 +14,6 @@ func genClientID() string {
 
 func Start() {
 	fmt.Println("starting...")
-	Settings = ReadSettings()
-	fmt.Println(Settings)
-
 	url := fmt.Sprintf("localhost:%d", 2121) // change to 21 in production
 	var listener net.Listener
 	listener, err := net.Listen("tcp", url)

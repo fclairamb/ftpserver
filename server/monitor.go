@@ -6,7 +6,7 @@ import "net/http"
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%d client, %d passive, Up for 12:33:12\n",
-		len(ConnectionMap), 55)
+		len(ConnectionMap), PassiveCount)
 	fmt.Fprintln(w, "   PFC106 00:17:34")
 	fmt.Fprintln(w, "   PFC106 00:17:34")
 }
