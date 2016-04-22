@@ -8,7 +8,7 @@ func countdown(upsince int64) string {
 	secs := time.Now().Unix() - upsince
 	us := time.Unix(secs, 0)
 	str := us.UTC().String()
-	return str[11:20]
+	return str[11:19]
 }
 
 func trimGuid(guid string) string {

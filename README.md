@@ -54,9 +54,13 @@ Server Output:
 $ ./paradise 
 listening on:  localhost:2121
 Got client on:  127.0.0.1:55728
-127.0.0.1:55728 USER auser
-127.0.0.1:55728 EPSV 
-127.0.0.1:55728 LIST 
-127.0.0.1:55728 EPSV 
-127.0.0.1:55728 STOR file_driver.go
+
+
+2 client(s), 6 passive(s), Up for 00:00:29
+   41949e 00:00:20, user1
+     0fbeb0 00:00:08, 59119 LIST 
+     7dcdf7 00:00:04, 59441 EPSV 
+   2d3beb 00:00:13, user2
+     dc6776 00:00:13, 58859 LIST 
+     2772a8 00:00:10, 58989 STOR hello.txt
 ```
