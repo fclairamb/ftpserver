@@ -54,8 +54,11 @@ Server Output:
 $ ./paradise 
 listening on:  localhost:2121
 Got client on:  127.0.0.1:55728
+```
 
+Web Monitoring Output:
 
+```
 2 client(s), 6 passive(s), Up for 00:00:29
    41949e 00:00:20, user1
      0fbeb0 00:00:08, 59119 LIST 
