@@ -36,6 +36,17 @@ type Passive struct {
 	waiter          sync.WaitGroup
 }
 
+func (p *Paradise) closePassive(passive *Passive) {
+	err := passive.connection.Close()
+	if err != nil {
+		passive.closeFailedAt = time.Now().Unix()
+	} else {
+		passive.closeSuccessAt = time.Now().Unix()
+		delete(p.passives, passive.cid)
+		PassiveCount--
+	}
+}
+
 func getThatPassiveConnection(passiveListen *net.TCPListener, p *Passive) {
 	var perr error
 	p.connection, perr = passiveListen.AcceptTCP()

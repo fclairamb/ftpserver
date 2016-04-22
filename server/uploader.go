@@ -4,15 +4,17 @@ import "io"
 import "time"
 
 func (p *Paradise) HandleStore() {
-	p.writeMessage(150, "Data transfer starting")
-
 	passive := p.lastPassive()
+
+	p.writeMessage(150, "Data transfer starting")
 	if waitTimeout(&passive.waiter, time.Minute) {
 		p.writeMessage(550, "Could not get passive connection.")
+		p.closePassive(passive)
 		return
 	}
 	if passive.listenFailedAt > 0 {
 		p.writeMessage(550, "Could not get passive connection.")
+		p.closePassive(passive)
 		return
 	}
 
@@ -23,13 +25,7 @@ func (p *Paradise) HandleStore() {
 		p.writeMessage(550, "Error with upload: "+err.Error())
 	}
 
-	err = passive.connection.Close()
-	if err != nil {
-		passive.closeFailedAt = time.Now().Unix()
-	} else {
-		passive.closeSuccessAt = time.Now().Unix()
-		delete(p.passives, passive.cid)
-	}
+	p.closePassive(passive)
 }
 
 func (p *Paradise) storeOrAppend(passive *Passive) (int64, error) {

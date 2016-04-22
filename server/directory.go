@@ -10,35 +10,28 @@ import (
 )
 
 func (p *Paradise) HandleList() {
-	//fmt.Println(p.ip, p.command, p.param)
-
+	passive := p.lastPassive()
 	p.writeMessage(150, "Opening ASCII mode data connection for file list")
 
 	bytes, err := p.dirList()
 	if err != nil {
 		p.writeMessage(550, err.Error())
 	} else {
-		passive := p.lastPassive()
 		if waitTimeout(&passive.waiter, time.Minute) {
 			p.writeMessage(550, "Could not get passive connection.")
+			p.closePassive(passive)
 			return
 		}
 		if passive.listenFailedAt > 0 {
 			p.writeMessage(550, "Could not get passive connection.")
+			p.closePassive(passive)
 			return
 		}
 		passive.connection.Write(bytes)
 		message := "Closing data connection, sent some bytes"
 		p.writeMessage(226, message)
-
-		err := passive.connection.Close()
-		if err != nil {
-			passive.closeFailedAt = time.Now().Unix()
-		} else {
-			passive.closeSuccessAt = time.Now().Unix()
-			delete(p.passives, passive.cid)
-		}
 	}
+	p.closePassive(passive)
 }
 
 func (p *Paradise) dirList() ([]byte, error) {
