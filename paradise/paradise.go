@@ -1,7 +1,7 @@
 package paradise
 
 type FileSystem interface {
-	GetFiles() []string
+	GetFiles() []map[string]string
 }
 
 type FileManager struct {
@@ -11,8 +11,14 @@ type FileManager struct {
 type DefaultFileSystem struct {
 }
 
-func (dfs DefaultFileSystem) GetFiles() []string {
-	files := make([]string, 6)
+func (dfs DefaultFileSystem) GetFiles() []map[string]string {
+	files := make([]map[string]string, 0)
+
+	file := make(map[string]string)
+	file["size"] = "123"
+	file["name"] = "hello.txt"
+
+	files = append(files, file)
 
 	return files
 }
