@@ -34,6 +34,7 @@ type Paradise struct {
 	connectedAt   int64
 	passives      map[string]*Passive
 	lastPassCid   string
+	userInfo      map[string]string
 }
 
 func init() {
@@ -75,6 +76,7 @@ func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
 	p.cid = cid
 	p.connectedAt = now
 	p.passives = make(map[string]*Passive)
+	p.userInfo = make(map[string]string)
 	return &p
 }
 

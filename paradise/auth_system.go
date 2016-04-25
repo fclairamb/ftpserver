@@ -1,7 +1,7 @@
 package paradise
 
 type AuthSystem interface {
-	CheckUser(user, pass string) bool
+	CheckUser(user, pass string, userInfo *map[string]string) bool
 }
 
 type AuthManager struct {
@@ -11,7 +11,7 @@ type AuthManager struct {
 type DefaultAuthSystem struct {
 }
 
-func (das DefaultAuthSystem) CheckUser(user, pass string) bool {
+func (das DefaultAuthSystem) CheckUser(user, pass string, userInfo *map[string]string) bool {
 	return true
 }
 
