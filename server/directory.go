@@ -1,12 +1,11 @@
 package server
 
-import (
-	"bytes"
-	"fmt"
-	"github.com/jehiah/go-strftime"
-	"strings"
-	"time"
-)
+import "strconv"
+import "bytes"
+import "fmt"
+import "strings"
+import "time"
+import "github.com/jehiah/go-strftime"
 
 func (p *Paradise) HandleList() {
 	passive := p.lastPassive()
@@ -46,7 +45,8 @@ func (p *Paradise) dirList() ([]byte, error) {
 		}
 		fmt.Fprintf(&buf, " 1 %s %s ", "paradise", "ftp")
 		fmt.Fprintf(&buf, lpad(file["size"], 12))
-		fmt.Fprintf(&buf, strftime.Format(" %b %d %H:%M ", time.Now())) // change to real file date
+		ts, _ := strconv.ParseInt(file["modTime"], 10, 64)
+		fmt.Fprintf(&buf, strftime.Format(" %b %d %H:%M ", time.Unix(ts, 0)))
 		fmt.Fprintf(&buf, "%s\r\n", file["name"])
 	}
 	fmt.Fprintf(&buf, "\r\n")
