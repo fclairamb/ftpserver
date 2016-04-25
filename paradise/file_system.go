@@ -1,7 +1,7 @@
 package paradise
 
 type FileSystem interface {
-	GetFiles() ([]map[string]string, error)
+	GetFiles(userInfo *map[string]string) ([]map[string]string, error)
 }
 
 type FileManager struct {
@@ -11,7 +11,7 @@ type FileManager struct {
 type DefaultFileSystem struct {
 }
 
-func (dfs DefaultFileSystem) GetFiles() ([]map[string]string, error) {
+func (dfs DefaultFileSystem) GetFiles(userInfo *map[string]string) ([]map[string]string, error) {
 	files := make([]map[string]string, 0)
 
 	//if p.user == "test" {
