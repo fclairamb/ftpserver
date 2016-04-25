@@ -39,7 +39,7 @@ func (p *Paradise) dirList() ([]byte, error) {
 	files, err := FileManager.GetFiles(&p.userInfo)
 	for _, file := range files {
 
-		if false { // change to really test for isDir
+		if file["isDir"] != "" {
 			fmt.Fprintf(&buf, "drw-r--r--")
 		} else {
 			fmt.Fprintf(&buf, "-rw-r--r--")
