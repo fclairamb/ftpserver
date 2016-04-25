@@ -36,7 +36,7 @@ func (p *Paradise) HandleList() {
 func (p *Paradise) dirList() ([]byte, error) {
 	var buf bytes.Buffer
 
-	files := FileManager.GetFiles()
+	files, err := FileManager.GetFiles()
 	for _, file := range files {
 
 		if false { // change to really test for isDir
@@ -50,7 +50,7 @@ func (p *Paradise) dirList() ([]byte, error) {
 		fmt.Fprintf(&buf, "%s\r\n", file["name"])
 	}
 	fmt.Fprintf(&buf, "\r\n")
-	return buf.Bytes(), nil
+	return buf.Bytes(), err
 }
 
 func lpad(input string, length int) (result string) {

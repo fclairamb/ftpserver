@@ -1,7 +1,7 @@
 package paradise
 
 type FileSystem interface {
-	GetFiles() []map[string]string
+	GetFiles() ([]map[string]string, error)
 }
 
 type FileManager struct {
@@ -11,7 +11,7 @@ type FileManager struct {
 type DefaultFileSystem struct {
 }
 
-func (dfs DefaultFileSystem) GetFiles() []map[string]string {
+func (dfs DefaultFileSystem) GetFiles() ([]map[string]string, error) {
 	files := make([]map[string]string, 0)
 
 	//if p.user == "test" {
@@ -25,7 +25,7 @@ func (dfs DefaultFileSystem) GetFiles() []map[string]string {
 		files = append(files, file)
 	}
 
-	return files
+	return files, nil
 }
 
 func NewDefaultFileSystem() *FileManager {
