@@ -39,10 +39,6 @@ func (p *Paradise) HandleSize() {
 	p.writeMessage(450, "downloads not allowed")
 }
 
-func (p *Paradise) HandleRetr() {
-	p.writeMessage(551, "downloads not allowed")
-}
-
 func (p *Paradise) HandleStat() {
 	p.writeMessage(551, "downloads not allowed")
 }
