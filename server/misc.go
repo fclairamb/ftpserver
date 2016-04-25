@@ -31,6 +31,7 @@ func (p *Paradise) HandleCwd() {
 	if !strings.HasPrefix(p.path, "/") {
 		p.path = "/" + p.path
 	}
+	p.userInfo["path"] = p.path
 	p.writeMessage(250, "CD worked")
 }
 

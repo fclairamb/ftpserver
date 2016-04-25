@@ -77,6 +77,7 @@ func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
 	p.connectedAt = now
 	p.passives = make(map[string]*Passive)
 	p.userInfo = make(map[string]string)
+	p.userInfo["path"] = "/"
 	return &p
 }
 
