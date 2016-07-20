@@ -1,10 +1,18 @@
 package server
 
 import "fmt"
+import "syscall"
 import "net"
 import "time"
 import "os"
+import "os/signal"
+import "os/exec"
 import "github.com/andrewarrow/paradise_ftp/paradise"
+
+var Settings ParadiseSettings
+var Listener net.Listener
+var err error
+var FinishAndStop bool
 
 func genClientID() string {
 	random, _ := os.Open("/dev/urandom")
@@ -14,22 +22,64 @@ func genClientID() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
 
-func Start(fm *paradise.FileManager, am *paradise.AuthManager) {
+func signalHandler() {
+	ch := make(chan os.Signal, 10)
+	signal.Notify(ch, syscall.SIGTERM, syscall.SIGUSR2)
+	for {
+		sig := <-ch
+		switch sig {
+		case syscall.SIGTERM:
+			signal.Stop(ch)
+			FinishAndStop = true
+			return
+		case syscall.SIGUSR2:
+			file, _ := Listener.(*net.TCPListener).File()
+			path := Settings.Exec
+			args := []string{
+				"-graceful"}
+			cmd := exec.Command(path, args...)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			cmd.ExtraFiles = []*os.File{file}
+			err := cmd.Start()
+			fmt.Println("forking err is ", err)
+		}
+	}
+}
+
+func Start(fm *paradise.FileManager, am *paradise.AuthManager, gracefulChild bool) {
+	Settings = ReadSettings()
+	FinishAndStop = false
 	fmt.Println("starting...")
 	FileManager = fm
 	AuthManager = am
-	url := fmt.Sprintf("localhost:%d", 2121) // change to 21 in production
-	var listener net.Listener
-	listener, err := net.Listen("tcp", url)
+
+	if gracefulChild {
+		f := os.NewFile(3, "") // FD 3 is special number
+		Listener, err = net.FileListener(f)
+	} else {
+		url := fmt.Sprintf("%s:%d", Settings.Host, Settings.Port)
+		Listener, err = net.Listen("tcp", url)
+	}
 
 	if err != nil {
-		fmt.Println("cannot listen on: ", url)
+		fmt.Println("cannot listen: ", err)
 		return
 	}
-	fmt.Println("listening on: ", url)
+	fmt.Println("listening...")
+
+	if gracefulChild {
+		parent := syscall.Getppid()
+		syscall.Kill(parent, syscall.SIGTERM)
+	}
+
+	go signalHandler()
 
 	for {
-		connection, err := listener.Accept()
+		if FinishAndStop {
+			break
+		}
+		connection, err := Listener.Accept()
 		if err != nil {
 			fmt.Println("listening error ", err)
 			break

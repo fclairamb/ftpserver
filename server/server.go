@@ -9,7 +9,6 @@ import "sync"
 import "time"
 import "github.com/andrewarrow/paradise_ftp/paradise"
 
-var Settings ParadiseSettings
 var CommandMap map[string]func(*Paradise)
 var ConnectionMap map[string]*Paradise
 var PassiveCount int
@@ -38,7 +37,6 @@ type Paradise struct {
 }
 
 func init() {
-	Settings = ReadSettings()
 	fmt.Println(Settings)
 	UpSince = time.Now().Unix()
 
