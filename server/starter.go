@@ -90,4 +90,8 @@ func Start(fm *paradise.FileManager, am *paradise.AuthManager, gracefulChild boo
 
 		go p.HandleCommands()
 	}
+
+	// TODO add wait group for still active connections to finish up
+	// otherwise, this will just exit and kill them
+	// defeating whole point of gracefulChild restart
 }
