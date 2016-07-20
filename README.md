@@ -3,8 +3,6 @@ paradise_ftp is a powerful, 100% native (golang) ftp server that is production r
 
 It can handle 1000's of connections and 1000's of files flying back and forward sideways under and through. It does not run out of file descriptors. It does not forget to close any socket connection or socket listener. Ahem hem, cough cough, looking at you https://github.com/goftp/server.
 
-Enjoy.
-
 FYI FTP is a big protocol and I only implemented the stuff I needed. Stuff that's here:
 
  * passive socket connections (not active ones)
@@ -14,6 +12,7 @@ FYI FTP is a big protocol and I only implemented the stuff I needed. Stuff that'
  * Both EPSV and PASV commands
  * uploads large files without reading entire file into memory
  * uploads read first 512 bytes of file first into bufffer to check mime type
+ * graceful restarts by sending kill -USR2 pid
 
 Sample Run:
 

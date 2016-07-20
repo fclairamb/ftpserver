@@ -37,7 +37,6 @@ type Paradise struct {
 }
 
 func init() {
-	fmt.Println(Settings)
 	UpSince = time.Now().Unix()
 
 	CommandMap = make(map[string]func(*Paradise))
