@@ -79,16 +79,17 @@ func Start(fm *paradise.FileManager, am *paradise.AuthManager, gracefulChild boo
 		if FinishAndStop {
 			break
 		}
+		Listener.(*net.TCPListener).SetDeadline(time.Now().Add(60 * time.Second))
 		connection, err := Listener.Accept()
 		if err != nil {
 			fmt.Println("listening error ", err)
-			break
-		}
-		cid := genClientID()
-		p := NewParadise(connection, cid, time.Now().Unix())
-		ConnectionMap[cid] = p
+		} else {
+		  cid := genClientID()
+		  p := NewParadise(connection, cid, time.Now().Unix())
+		  ConnectionMap[cid] = p
 
-		go p.HandleCommands()
+		  go p.HandleCommands()
+		}
 	}
 
 	// TODO add wait group for still active connections to finish up
