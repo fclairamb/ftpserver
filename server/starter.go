@@ -82,7 +82,9 @@ func Start(fm *paradise.FileManager, am *paradise.AuthManager, gracefulChild boo
 		Listener.(*net.TCPListener).SetDeadline(time.Now().Add(60 * time.Second))
 		connection, err := Listener.Accept()
 		if err != nil {
-			fmt.Println("listening error ", err)
+			if opError, ok := err.(*net.OpError); !ok || !opError.Timeout() {
+				fmt.Println("listening error ", err)
+			}
 		} else {
 		  cid := genClientID()
 		  p := NewParadise(connection, cid, time.Now().Unix())
