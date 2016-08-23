@@ -9,6 +9,9 @@ import "github.com/jehiah/go-strftime"
 
 func (p *Paradise) HandleList() {
 	passive := p.lastPassive()
+	if passive == nil {
+		return
+	}
 	p.writeMessage(150, "Opening ASCII mode data connection for file list")
 
 	bytes, err := p.dirList()

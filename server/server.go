@@ -80,6 +80,9 @@ func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
 
 func (p *Paradise) lastPassive() *Passive {
 	passive := p.passives[p.lastPassCid]
+	if passive == nil {
+		return nil
+	}
 	passive.command = p.command
 	passive.param = p.param
 	return passive

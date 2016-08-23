@@ -5,6 +5,9 @@ import "time"
 
 func (p *Paradise) HandleStore() {
 	passive := p.lastPassive()
+	if passive == nil {
+		return
+	}
 
 	p.writeMessage(150, "Data transfer starting")
 	if waitTimeout(&passive.waiter, time.Minute) {
