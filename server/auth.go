@@ -11,5 +11,7 @@ func (p *Paradise) HandlePass() {
 		p.writeMessage(230, "Password ok, continue")
 	} else {
 		p.writeMessage(530, "Incorrect password, not logged in")
+		p.theConnection.Close()
+		delete(ConnectionMap, p.cid)
 	}
 }
