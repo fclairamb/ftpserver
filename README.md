@@ -67,4 +67,4 @@ Web Monitoring Output:
      2772a8 00:00:10, 58989 STOR hello.txt
 ```
 
-http://i.imgur.com/axJMtNCl.jpg
+![](http://i.imgur.com/axJMtNCl.jpg?raw=true)
