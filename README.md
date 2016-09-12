@@ -66,3 +66,5 @@ Web Monitoring Output:
      dc6776 00:00:13, 58859 LIST 
      2772a8 00:00:10, 58989 STOR hello.txt
 ```
+
+http://i.imgur.com/axJMtNCl.jpg
