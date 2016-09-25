@@ -4,11 +4,18 @@ package server
 
 // Adding the ClientContext concept to be able to handle more than just UserInfo
 type ClientContext interface {
+	// Get userInfo
 	UserInfo() map[string]string
+
+	// Get current path
+	Path() string
 }
 
 // Server driver
 type Driver interface {
+	// Welcome a user
+	WelcomeUser(cc ClientContext) (string, error)
+
 	// Authenticate an user
 	// Returns if the user could be authenticated
 	CheckUser(client ClientContext, user, pass string) error

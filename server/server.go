@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 	"io"
+	"gopkg.in/inconshreveable/log15.v2"
 )
-
 
 var commandsMap map[string]func(*ClientHandler)
 
@@ -34,6 +34,7 @@ func init() {
 	commandsMap["LIST"] = (*ClientHandler).HandleList
 	commandsMap["QUIT"] = (*ClientHandler).HandleQuit
 	commandsMap["CWD"] = (*ClientHandler).HandleCwd
+	commandsMap["CDUP"] = (*ClientHandler).HandleCdUp
 	commandsMap["SIZE"] = (*ClientHandler).HandleSize
 	commandsMap["RETR"] = (*ClientHandler).HandleRetr
 }
@@ -65,6 +66,7 @@ type ClientHandler struct {
 	passives    map[string]*Passive // Index of all the passive connections that are associated to this control connection
 	lastPassCid string
 	userInfo    map[string]string
+	debug       bool                // Show debugging info on the server side
 }
 
 func NewFtpServer(driver Driver) *FtpServer {
@@ -99,6 +101,14 @@ func (p *ClientHandler) UserInfo() map[string]string {
 	return p.userInfo
 }
 
+func (p *ClientHandler) Path() string {
+	return p.userInfo["path"]
+}
+
+func (p *ClientHandler) SetPath(path string) {
+	p.userInfo["path"] = path
+}
+
 func (p *ClientHandler) lastPassive() *Passive {
 	passive := p.passives[p.lastPassCid]
 	if passive == nil {
@@ -111,9 +121,19 @@ func (p *ClientHandler) lastPassive() *Passive {
 
 func (p *ClientHandler) HandleCommands() {
 	//fmt.Println(p.id, " Got client on: ", p.ip)
-	p.writeMessage(220, "Welcome to Paradise")
+	if msg, err := p.daddy.driver.WelcomeUser(p); err == nil {
+		p.writeMessage(220, msg)
+	} else {
+		p.writeMessage(500, msg)
+	}
+
 	for {
 		line, err := p.reader.ReadString('\n')
+
+		if p.debug {
+			log15.Info("FTP RECV", "action", "ftp.cmd_recv", "line", line)
+		}
+
 		if err != nil {
 			delete(p.daddy.ConnectionMap, p.cid)
 			//fmt.Println(p.id, " end ", len(ConnectionMap))
@@ -137,6 +157,9 @@ func (p *ClientHandler) HandleCommands() {
 
 func (p *ClientHandler) writeMessage(code int, message string) {
 	line := fmt.Sprintf("%d %s\r\n", code, message)
+	if p.debug {
+		log15.Info("FTP SEND", "action", "ftp.cmd_send", "line", line)
+	}
 	p.writer.WriteString(line)
 	p.writer.Flush()
 }

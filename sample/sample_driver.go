@@ -12,6 +12,11 @@ type SampleDriver struct {
 
 }
 
+func (driver SampleDriver) WelcomeUser(cc server.ClientContext) (string, error) {
+	// This will remain the official name for now
+	return "Welcome on PARADISE FTP !", nil
+}
+
 func (driver SampleDriver) CheckUser(cc server.ClientContext, user, pass string) error {
 	if user == "bad" || pass == "bad" {
 		return errors.New("BAD username or password !")
@@ -24,28 +29,38 @@ func (driver SampleDriver) GoToDirectory(cc server.ClientContext, directory stri
 	if strings.HasPrefix(directory, "/root") {
 		return errors.New("This doesn't look good !")
 	}
-	cc.UserInfo()["path"] = directory
 	return nil
 }
 
 func (driver SampleDriver) GetFiles(cc server.ClientContext) ([]map[string]string, error) {
 	files := make([]map[string]string, 0)
 
-	userInfo := cc.UserInfo()
+	path := cc.Path()
 
-	if userInfo["path"] == "/" {
-		file := make(map[string]string)
-		file["size"] = "1024"
-		file["isDir"] = "true"
-		file["name"] = "home"
-		files = append(files, file)
+	if path == "/" {
+		{
+			file := make(map[string]string)
+			file["size"] = "4096"
+			file["isDir"] = "true"
+			file["name"] = "home"
+			files = append(files, file)
+		}
+		{
+			file := make(map[string]string)
+			file["size"] = "4096"
+			file["isDir"] = "true"
+			file["name"] = "root"
+			files = append(files, file)
+		}
 	}
 
-	for i := 0; i < 5; i++ {
-		file := make(map[string]string)
-		file["size"] = "90210"
-		file["name"] = fmt.Sprintf("paradise_%d.txt", i)
-		files = append(files, file)
+	if path == "/home" {
+		for i := 0; i < 5; i++ {
+			file := make(map[string]string)
+			file["size"] = "90210"
+			file["name"] = fmt.Sprintf("paradise_%d.txt", i)
+			files = append(files, file)
+		}
 	}
 
 	return files, nil

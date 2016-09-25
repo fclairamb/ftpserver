@@ -4,10 +4,6 @@ func (p *ClientHandler) HandleSyst() {
 	p.writeMessage(215, "UNIX Type: L8")
 }
 
-func (p *ClientHandler) HandlePwd() {
-	p.writeMessage(257, "\""+p.path+"\" is the current directory")
-}
-
 func (p *ClientHandler) HandleType() {
 	p.writeMessage(200, "Type set to binary")
 }
