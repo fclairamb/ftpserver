@@ -100,17 +100,17 @@ func (p *ClientHandler) dirList() ([]byte, error) {
 	for _, file := range files {
 
 		if file["isDir"] != "" {
-			fmt.Fprintf(&buf, "drw-r--r--")
+			buf.WriteString("drw-r--r--")
 		} else {
-			fmt.Fprintf(&buf, "-rw-r--r--")
+			buf.WriteString("-rw-r--r--")
 		}
 		fmt.Fprintf(&buf, " 1 %s %s ", "paradise", "ftp")
-		fmt.Fprintf(&buf, lpad(file["size"], 12))
+		fmt.Fprintf(&buf, "%12s", file["size"])
 		ts, _ := strconv.ParseInt(file["modTime"], 10, 64)
 		fmt.Fprintf(&buf, strftime.Format(" %b %d %H:%M ", time.Unix(ts, 0)))
 		fmt.Fprintf(&buf, "%s\r\n", file["name"])
 	}
-	fmt.Fprintf(&buf, "\r\n")
+	buf.WriteString("\r\n")
 	return buf.Bytes(), err
 }
 
