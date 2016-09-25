@@ -21,7 +21,7 @@ func genClientID() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
 
-func (server *FtpServer) HandleSignal(sig os.Signal) {
+func (server *FtpServer) HandleSignal(sig os.Signal) error {
 	//ch := make(chan os.Signal, 10)
 	//signal.Notify(ch, syscall.SIGTERM, syscall.SIGUSR2)
 
@@ -29,19 +29,22 @@ func (server *FtpServer) HandleSignal(sig os.Signal) {
 	switch sig {
 	case syscall.SIGTERM:
 		FinishAndStop = true
-		return
+		return nil
 	case syscall.SIGUSR2:
 		file, _ := server.Listener.(*net.TCPListener).File()
-		path := server.Settings.Exec
-		args := []string{
-			"-graceful"}
-		cmd := exec.Command(path, args...)
+		//path := server.Settings.Exec
+		//args := []string{"-graceful"}
+		//cmd := exec.Command(path, args...)
+		// I'm pretty sure we can just do:
+		cmd := exec.Command(os.Args[0], "-graceful")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.ExtraFiles = []*os.File{file}
 		err := cmd.Start()
-		fmt.Println("forking err is ", err)
+		log15.Error("Could not fork", "err", err)
+		return err
 	}
+	return nil
 }
 
 func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
@@ -73,7 +76,7 @@ func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 	log15.Info("Listening...")
 
 	if server.Settings.MonitorOn {
-			go server.Monitor()
+		go server.Monitor()
 	}
 
 	if gracefulChild {

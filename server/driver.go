@@ -33,3 +33,14 @@ type Driver interface {
 	// - size : The size of the file
 	GetFiles(client ClientContext) ([]map[string]string, error)
 }
+
+// Settings are part of the driver
+type Settings struct {
+	Host           string // Host to receive connections on
+	Port           int    // Port to listen on
+	MaxConnections int    // Max number of connections to accept
+	MaxPassive     int    // Max number of passive connections per control connections to accept
+	MonitorOn      bool   // To activate the monitor
+	MonitorPort    int    // Port for the monitor to listen on
+	Exec           string
+}

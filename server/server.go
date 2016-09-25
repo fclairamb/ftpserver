@@ -48,16 +48,6 @@ type FtpServer struct {
 	StartTime       int64                     // Time when the server was started
 }
 
-type Settings struct {
-	Host           string // Host to receive connections on
-	Port           int    // Port to listen on
-	MaxConnections int    // Max number of connections to accept
-	MaxPassive     int    // Max number of passive connections per control connections to accept
-	MonitorOn      bool   // To activate the monitor
-	MonitorPort    int    // Port for the monitor to listen on
-	Exec           string
-}
-
 type ClientHandler struct {
 	daddy       *FtpServer          // Server on which the connection was accepted
 	writer      *bufio.Writer       // Writer on the TCP connection
