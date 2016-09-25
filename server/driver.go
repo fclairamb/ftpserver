@@ -9,6 +9,13 @@ type ClientContext interface {
 
 	// Get current path
 	Path() string
+
+	// Custom value. This avoids having to create a mapping between the client.Id and our own internal system. We can
+	// just store the driver's instance in the ClientContext
+	MyInstance() interface{}
+
+	// Set the custom value
+	SetMyInstance(interface{})
 }
 
 // Server driver
