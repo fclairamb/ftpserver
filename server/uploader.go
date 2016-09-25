@@ -21,7 +21,9 @@ func (p *ClientHandler) HandleStore() {
 		return
 	}
 
-	_, err := p.storeOrAppend(passive)
+	name := p.Path() + "/" + p.param
+
+	_, err := p.storeOrAppend(passive, name)
 	if err == io.EOF {
 		p.writeMessage(226, "OK, received some bytes") // TODO send total in message
 	} else {
@@ -31,9 +33,17 @@ func (p *ClientHandler) HandleStore() {
 	p.closePassive(passive)
 }
 
-func (p *ClientHandler) storeOrAppend(passive *Passive) (int64, error) {
+func (p *ClientHandler) storeOrAppend(passive *Passive, name string) (int64, error) {
 	var err error
+	/*
 	err = p.readFirst512Bytes(passive)
+	if err != nil {
+		return 0, err
+	}
+	*/
+
+	file, err := p.daddy.driver.StartFileUpload(p, name)
+
 	if err != nil {
 		return 0, err
 	}
@@ -43,27 +53,35 @@ func (p *ClientHandler) storeOrAppend(passive *Passive) (int64, error) {
 
 	// TODO send p.buffer to where u want bits stored
 
-	var total int64
-	var n int
-	total = int64(len(p.buffer))
+	total := int64(0)
+	n := 0
+	bytesToRead := 512 // We read 512B and then 4MB
 	for {
-		temp_buffer := make([]byte, 20971520) // reads 20MB at a time
+		temp_buffer := make([]byte, bytesToRead)
 		n, err = passive.connection.Read(temp_buffer)
 		total += int64(n)
 
 		if err != nil {
 			break
 		}
+
+		file.Write(temp_buffer[0:n])
+
 		// TODO send temp_buffer to where u want bits stored
 		if err != nil {
 			break
 		}
+		bytesToRead = 4 * 1024 * 1024
 	}
+	file.Close()
 	//fmt.Println(p.id, " Done ", total)
 
 	return total, err
 }
 
+// This is useless. We could indeed only read 512 bytes the first time around, and it's the driver who should accept
+// or not this mimetype.
+/*
 func (p *ClientHandler) readFirst512Bytes(passive *Passive) error {
 	p.buffer = make([]byte, 0)
 	var err error
@@ -88,3 +106,4 @@ func (p *ClientHandler) readFirst512Bytes(passive *Passive) error {
 	// you have a buffer filled to 512, or less if file is less than 512
 	return nil
 }
+*/

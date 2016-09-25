@@ -73,6 +73,26 @@ func (driver SampleDriver) UserLeft(cc server.ClientContext) {
 
 }
 
+func (driver SampleDriver) StartFileUpload (cc server.ClientContext, path string) (server.FileContext, error) {
+	return os.Create("/tmp/"+path)
+}
+
+
+// We actually only need this for a more complex implementation.
+/*
+type FileWriter struct {
+	Name string
+}
+
+func (fw FileWriter) Write(buf []byte) error {
+	return nil
+}
+
+func (fw FileWriter) Close() error {
+	return nil
+}
+*/
+
 func (driver SampleDriver) GetSettings() *server.Settings {
 	f, err := os.Open("conf/settings.toml")
 	if err != nil {
