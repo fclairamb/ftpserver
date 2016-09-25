@@ -9,7 +9,7 @@ func (p *ClientHandler) HandleUser() {
 
 func (p *ClientHandler) HandlePass() {
 	// think about using https://developer.bitium.com
-	if err := p.daddy.driver.CheckUser(p.userInfo, p.user, p.param); err == nil {
+	if err := p.daddy.driver.CheckUser(p, p.user, p.param); err == nil {
 		p.writeMessage(230, "Password ok, continue")
 	} else {
 		p.writeMessage(530, fmt.Sprintf("Authentication problem: %s", err))

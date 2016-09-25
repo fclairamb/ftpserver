@@ -7,6 +7,19 @@ import "strings"
 import "time"
 import "github.com/jehiah/go-strftime"
 
+func (p *ClientHandler) HandleCwd() {
+	if p.param == ".." {
+		p.path = "/"
+	} else {
+		p.path = p.param
+	}
+	if !strings.HasPrefix(p.path, "/") {
+		p.path = "/" + p.path
+	}
+	p.userInfo["path"] = p.path
+	p.writeMessage(250, "CD worked")
+}
+
 func (p *ClientHandler) HandleList() {
 	passive := p.lastPassive()
 	if passive == nil {
@@ -38,7 +51,7 @@ func (p *ClientHandler) HandleList() {
 func (p *ClientHandler) dirList() ([]byte, error) {
 	var buf bytes.Buffer
 
-	files, err := p.daddy.driver.GetFiles(p.userInfo)
+	files, err := p.daddy.driver.GetFiles(p)
 	for _, file := range files {
 
 		if file["isDir"] != "" {

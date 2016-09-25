@@ -95,6 +95,10 @@ func (server *FtpServer) NewClientHandler(connection net.Conn, cid string, now i
 	return p
 }
 
+func (p *ClientHandler) UserInfo() map[string]string {
+	return p.userInfo
+}
+
 func (p *ClientHandler) lastPassive() *Passive {
 	passive := p.passives[p.lastPassCid]
 	if passive == nil {

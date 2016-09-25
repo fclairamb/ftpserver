@@ -4,6 +4,7 @@ import (
 	"github.com/fclairamb/ftpserver/server"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // SampleDriver defines a very basic serverftp driver
@@ -11,7 +12,7 @@ type SampleDriver struct {
 
 }
 
-func (driver SampleDriver) CheckUser(userInfo map[string]string, user, pass string) error {
+func (driver SampleDriver) CheckUser(cc server.ClientContext, user, pass string) error {
 	if user == "bad" || pass == "bad" {
 		return errors.New("BAD username or password !")
 	} else {
@@ -19,12 +20,26 @@ func (driver SampleDriver) CheckUser(userInfo map[string]string, user, pass stri
 	}
 }
 
-func (driver SampleDriver) GetFiles(userInfo map[string]string) ([]map[string]string, error) {
+func (driver SampleDriver) GoToDirectory(cc server.ClientContext, directory string) error {
+	if strings.HasPrefix(directory, "/root") {
+		return errors.New("This doesn't look good !")
+	}
+	cc.UserInfo()["path"] = directory
+	return nil
+}
+
+func (driver SampleDriver) GetFiles(cc server.ClientContext) ([]map[string]string, error) {
 	files := make([]map[string]string, 0)
 
-	//if p.user == "test" {
-	// no op just to use p.user as example
-	//}
+	userInfo := cc.UserInfo()
+
+	if userInfo["path"] == "/" {
+		file := make(map[string]string)
+		file["size"] = "1024"
+		file["isDir"] = "true"
+		file["name"] = "home"
+		files = append(files, file)
+	}
 
 	for i := 0; i < 5; i++ {
 		file := make(map[string]string)

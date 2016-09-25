@@ -1,8 +1,5 @@
 package server
 
-//import "fmt"
-import "strings"
-
 func (p *ClientHandler) HandleSyst() {
 	p.writeMessage(215, "UNIX Type: L8")
 }
@@ -20,19 +17,6 @@ func (p *ClientHandler) HandleQuit() {
 	p.writeMessage(221, "Goodbye")
 	p.conn.Close()
 	delete(p.daddy.ConnectionMap, p.cid)
-}
-
-func (p *ClientHandler) HandleCwd() {
-	if p.param == ".." {
-		p.path = "/"
-	} else {
-		p.path = p.param
-	}
-	if !strings.HasPrefix(p.path, "/") {
-		p.path = "/" + p.path
-	}
-	p.userInfo["path"] = p.path
-	p.writeMessage(250, "CD worked")
 }
 
 func (p *ClientHandler) HandleSize() {
