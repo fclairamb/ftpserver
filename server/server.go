@@ -39,13 +39,13 @@ func init() {
 }
 
 type FtpServer struct {
-	Settings      *Settings                 // General settings
-	driver        Driver                    // Driver to handle all the actual authentication and files access logic
-	Listener      net.Listener              // Listener used to receive files
-	ConnectionMap map[string]*ClientHandler // Connections map
-	sync          sync.Mutex
-	PassiveCount  int                       // Number of passive connections opened
-	StartTime     int64                     // Time when the server was started
+	Settings        *Settings                 // General settings
+	driver          Driver                    // Driver to handle all the actual authentication and files access logic
+	Listener        net.Listener              // Listener used to receive files
+	ConnectionsById map[string]*ClientHandler // Connections map
+	sync            sync.Mutex
+	PassiveCount    int                       // Number of passive connections opened
+	StartTime       int64                     // Time when the server was started
 }
 
 type Settings struct {
@@ -84,7 +84,7 @@ func NewFtpServer(driver Driver) *FtpServer {
 	return &FtpServer{
 		driver: driver,
 		StartTime: time.Now().Unix(), // Might make sense to put it in Start method
-		ConnectionMap: make(map[string]*ClientHandler),
+		ConnectionsById: make(map[string]*ClientHandler),
 	}
 }
 
@@ -93,7 +93,7 @@ func (server *FtpServer) ClientArrival(c *ClientHandler) error {
 	server.sync.Lock()
 	defer server.sync.Unlock()
 
-	server.ConnectionMap[c.Id] = c
+	server.ConnectionsById[c.Id] = c
 
 	return nil
 }
@@ -103,7 +103,7 @@ func (server *FtpServer) ClientDeparture(c *ClientHandler) {
 	server.sync.Lock()
 	defer server.sync.Unlock()
 
-	delete(server.ConnectionMap, c.Id)
+	delete(server.ConnectionsById, c.Id)
 }
 
 func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
