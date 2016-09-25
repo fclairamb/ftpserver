@@ -38,7 +38,7 @@ func (p *ClientHandler) HandleList() {
 func (p *ClientHandler) dirList() ([]byte, error) {
 	var buf bytes.Buffer
 
-	files, err := p.daddy.driver.GetFiles(&p.userInfo)
+	files, err := p.daddy.driver.GetFiles(p.userInfo)
 	for _, file := range files {
 
 		if file["isDir"] != "" {

@@ -1,16 +1,18 @@
 package server
 
+import "fmt"
+
 func (p *ClientHandler) HandleUser() {
 	p.user = p.param
-	p.writeMessage(331, "User name ok, password required")
+	p.writeMessage(331, "OK")
 }
 
 func (p *ClientHandler) HandlePass() {
 	// think about using https://developer.bitium.com
-	if p.daddy.driver.CheckUser(p.user, p.param, &p.userInfo) {
+	if err := p.daddy.driver.CheckUser(p.userInfo, p.user, p.param); err == nil {
 		p.writeMessage(230, "Password ok, continue")
 	} else {
-		p.writeMessage(530, "Incorrect password, not logged in")
+		p.writeMessage(530, fmt.Sprintf("Authentication problem: %s", err))
 		p.conn.Close()
 		delete(p.daddy.ConnectionMap, p.cid)
 	}

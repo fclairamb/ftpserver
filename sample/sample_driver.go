@@ -1,17 +1,25 @@
 package sample
 
-import "github.com/fclairamb/ftpserver/server"
+import (
+	"github.com/fclairamb/ftpserver/server"
+	"errors"
+	"fmt"
+)
 
 // SampleDriver defines a very basic serverftp driver
 type SampleDriver struct {
 
 }
 
-func (driver SampleDriver) CheckUser(user, pass string, userInfo *map[string]string) bool {
-	return true
+func (driver SampleDriver) CheckUser(userInfo map[string]string, user, pass string) error {
+	if user == "bad" || pass == "bad" {
+		return errors.New("BAD username or password !")
+	} else {
+		return nil
+	}
 }
 
-func (driver SampleDriver) GetFiles(userInfo *map[string]string) ([]map[string]string, error) {
+func (driver SampleDriver) GetFiles(userInfo map[string]string) ([]map[string]string, error) {
 	files := make([]map[string]string, 0)
 
 	//if p.user == "test" {
@@ -21,7 +29,7 @@ func (driver SampleDriver) GetFiles(userInfo *map[string]string) ([]map[string]s
 	for i := 0; i < 5; i++ {
 		file := make(map[string]string)
 		file["size"] = "90210"
-		file["name"] = "paradise.txt"
+		file["name"] = fmt.Sprintf("paradise_%d.txt", i)
 		files = append(files, file)
 	}
 

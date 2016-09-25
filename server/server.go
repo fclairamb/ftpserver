@@ -47,7 +47,7 @@ type FtpServer struct {
 }
 
 type ClientHandler struct {
-	daddy       *FtpServer          // Server on which the connection was performed
+	daddy       *FtpServer          // Server on which the connection was accepted
 	writer      *bufio.Writer       // Writer on the TCP connection
 	reader      *bufio.Reader       // Reader on the TCP connection
 	conn        net.Conn            // TCP connection

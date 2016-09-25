@@ -5,11 +5,11 @@ package server
 type Driver interface {
 	// Authenticate an user
 	// Returns if the user could be authenticated
-	CheckUser(user, pass string, userInfo *map[string]string) bool
+	CheckUser(userInfo map[string]string, user, pass string) error
 
 	// List the files of a given directory
 	// For each file, we have a map containing:
 	// - name : The name of the file
 	// - size : The size of the file
-	GetFiles(userInfo *map[string]string) ([]map[string]string, error)
+	GetFiles(userInfo map[string]string) ([]map[string]string, error)
 }
