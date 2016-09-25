@@ -69,6 +69,10 @@ func (driver SampleDriver) GetFiles(cc server.ClientContext) ([]map[string]strin
 	return files, nil
 }
 
+func (driver SampleDriver) UserLeft(cc server.ClientContext) {
+
+}
+
 func (driver SampleDriver) GetSettings() *server.Settings {
 	f, err := os.Open("conf/settings.toml")
 	if err != nil {

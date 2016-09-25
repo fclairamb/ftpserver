@@ -32,6 +32,9 @@ type Driver interface {
 	// - name : The name of the file
 	// - size : The size of the file
 	GetFiles(client ClientContext) ([]map[string]string, error)
+
+	// Called when a user disconnects
+	UserLeft(cc ClientContext)
 }
 
 // Settings are part of the driver

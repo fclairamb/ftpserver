@@ -117,6 +117,7 @@ func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
 }
 
 func (p *ClientHandler) Die() {
+	p.daddy.driver.UserLeft(p)
 	p.conn.Close()
 	p.daddy.ClientDeparture(p)
 }
