@@ -1,11 +1,13 @@
 package server
 
-import "fmt"
-import "sync"
-import "net"
-import "strconv"
-import "strings"
-import "time"
+import (
+	"time"
+	"sync"
+	"net"
+	"strings"
+	"strconv"
+	"fmt"
+)
 
 func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
 	c := make(chan struct{})
@@ -36,14 +38,14 @@ type Passive struct {
 	waiter          sync.WaitGroup
 }
 
-func (p *ClientHandler) closePassive(passive *Passive) {
+func (c *ClientHandler) closePassive(passive *Passive) {
 	err := passive.connection.Close()
 	if err != nil {
 		passive.closeFailedAt = time.Now().Unix()
 	} else {
 		passive.closeSuccessAt = time.Now().Unix()
-		delete(p.passives, passive.cid)
-		PassiveCount--
+		delete(c.passives, passive.cid)
+		c.daddy.PassiveCount--
 	}
 }
 
@@ -61,8 +63,8 @@ func getThatPassiveConnection(passiveListen *net.TCPListener, p *Passive) {
 	p.waiter.Done()
 }
 
-func NewPassive(passiveListen *net.TCPListener, cid string, now int64) *Passive {
-	PassiveCount++
+func (c *ClientHandler) NewPassive(passiveListen *net.TCPListener, cid string, now int64) *Passive {
+	c.daddy.PassiveCount++
 	p := Passive{}
 	p.cid = cid
 	p.listenAt = now
@@ -97,7 +99,7 @@ func (p *ClientHandler) HandlePassive() {
 	}
 
 	cid := genClientID()
-	passive := NewPassive(passiveListen, cid, time.Now().Unix())
+	passive := p.NewPassive(passiveListen, cid, time.Now().Unix())
 	passive.command = p.command
 	passive.param = p.param
 	p.lastPassCid = cid
@@ -106,7 +108,7 @@ func (p *ClientHandler) HandlePassive() {
 	if p.command == "PASV" {
 		p1 := passive.port / 256
 		p2 := passive.port - (p1 * 256)
-		addr := p.theConnection.LocalAddr()
+		addr := p.conn.LocalAddr()
 		tokens := strings.Split(addr.String(), ":")
 		host := tokens[0]
 		quads := strings.Split(host, ".")

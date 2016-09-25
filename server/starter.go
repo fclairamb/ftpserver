@@ -1,7 +1,6 @@
 package server
 
 import (
-	"os/signal"
 	"os/exec"
 	"crypto/rand"
 	"os"
@@ -12,7 +11,6 @@ import (
 )
 
 var Settings ParadiseSettings
-var Listener net.Listener
 var err error
 var FinishAndStop bool
 
@@ -23,43 +21,40 @@ func genClientID() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
 
-func signalHandler() {
-	ch := make(chan os.Signal, 10)
-	signal.Notify(ch, syscall.SIGTERM, syscall.SIGUSR2)
-	for {
-		sig := <-ch
-		switch sig {
-		case syscall.SIGTERM:
-			signal.Stop(ch)
-			FinishAndStop = true
-			return
-		case syscall.SIGUSR2:
-			file, _ := Listener.(*net.TCPListener).File()
-			path := Settings.Exec
-			args := []string{
-				"-graceful"}
-			cmd := exec.Command(path, args...)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			cmd.ExtraFiles = []*os.File{file}
-			err := cmd.Start()
-			fmt.Println("forking err is ", err)
-		}
+func (server *FtpServer) HandleSignal(sig os.Signal) {
+	//ch := make(chan os.Signal, 10)
+	//signal.Notify(ch, syscall.SIGTERM, syscall.SIGUSR2)
+
+	// From now on, we can't just handle signals for the complete program, we would have to transfer them to us.
+	switch sig {
+	case syscall.SIGTERM:
+		FinishAndStop = true
+		return
+	case syscall.SIGUSR2:
+		file, _ := server.Listener.(*net.TCPListener).File()
+		path := Settings.Exec
+		args := []string{
+			"-graceful"}
+		cmd := exec.Command(path, args...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.ExtraFiles = []*os.File{file}
+		err := cmd.Start()
+		fmt.Println("forking err is ", err)
 	}
 }
 
-func Start(d Driver, gracefulChild bool) error {
-	driver = d
+func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 	Settings = ReadSettings()
 	FinishAndStop = false
 	fmt.Println("starting...")
 
 	if gracefulChild {
 		f := os.NewFile(3, "") // FD 3 is a special file descriptor to get an already-opened socket
-		Listener, err = net.FileListener(f)
+		server.Listener, err = net.FileListener(f)
 	} else {
 		url := fmt.Sprintf("%s:%d", Settings.Host, Settings.Port)
-		Listener, err = net.Listen("tcp", url)
+		server.Listener, err = net.Listen("tcp", url)
 	}
 
 	if err != nil {
@@ -73,24 +68,25 @@ func Start(d Driver, gracefulChild bool) error {
 		syscall.Kill(parent, syscall.SIGTERM)
 	}
 
-	go signalHandler()
+	// The actual signal handler of the core program will do that (if he wants to)
+	// go signalHandler()
 
 	for {
 		if FinishAndStop {
 			break
 		}
-		Listener.(*net.TCPListener).SetDeadline(time.Now().Add(60 * time.Second))
-		connection, err := Listener.Accept()
+		server.Listener.(*net.TCPListener).SetDeadline(time.Now().Add(60 * time.Second))
+		connection, err := server.Listener.Accept()
 		if err != nil {
 			if opError, ok := err.(*net.OpError); !ok || !opError.Timeout() {
 				fmt.Println("listening error ", err)
 			}
 		} else {
-		  cid := genClientID()
-		  p := NewParadise(connection, cid, time.Now().Unix())
-		  ConnectionMap[cid] = p
+			cid := genClientID()
+			p := server.NewClientHandler(connection, cid, time.Now().Unix())
+			server.ConnectionMap[cid] = p
 
-		  go p.HandleCommands()
+			go p.HandleCommands()
 		}
 	}
 

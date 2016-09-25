@@ -7,11 +7,11 @@ func (p *ClientHandler) HandleUser() {
 
 func (p *ClientHandler) HandlePass() {
 	// think about using https://developer.bitium.com
-	if driver.CheckUser(p.user, p.param, &p.userInfo) {
+	if p.daddy.driver.CheckUser(p.user, p.param, &p.userInfo) {
 		p.writeMessage(230, "Password ok, continue")
 	} else {
 		p.writeMessage(530, "Incorrect password, not logged in")
-		p.theConnection.Close()
-		delete(ConnectionMap, p.cid)
+		p.conn.Close()
+		delete(p.daddy.ConnectionMap, p.cid)
 	}
 }

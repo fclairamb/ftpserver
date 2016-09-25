@@ -9,7 +9,7 @@ import (
 
 var (
 	gracefulChild = flag.Bool("graceful", false, "listen on fd open 3 (internal use only)")
-	stressTest    = flag.Bool("stressTest", false, "start a client making connections")
+	stressTest = flag.Bool("stressTest", false, "start a client making connections")
 )
 
 func main() {
@@ -17,6 +17,7 @@ func main() {
 	if *stressTest {
 		go client.StressTest()
 	}
+	server := server.NewFtpServer(sample.NewSampleDriver())
 	go server.Monitor()
-	server.Start(sample.NewSampleDriver(), *gracefulChild)
+	server.ListenAndServe(*gracefulChild)
 }
