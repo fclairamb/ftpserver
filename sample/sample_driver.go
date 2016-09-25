@@ -55,6 +55,9 @@ func (driver SampleDriver) GetFiles(cc server.ClientContext) ([]map[string]strin
 			file["name"] = "root"
 			files = append(files, file)
 		}
+		{
+
+		}
 	}
 
 	if path == "/home" {

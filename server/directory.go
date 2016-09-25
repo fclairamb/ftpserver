@@ -49,14 +49,10 @@ func (p *ClientHandler) HandleCdUp() {
 	if path == "" {
 		path = "/"
 	}
-	if err == nil {
-		if err = p.daddy.driver.GoToDirectory(p, path); err == nil {
-			p.SetPath(path)
-			p.writeMessage(250, fmt.Sprintf("CDUP worked on %s", path))
-		}
-	}
-
-	if err != nil {
+	if err := p.daddy.driver.GoToDirectory(p, path); err == nil {
+		p.SetPath(path)
+		p.writeMessage(250, fmt.Sprintf("CDUP worked on %s", path))
+	} else {
 		p.writeMessage(550, fmt.Sprintf("CDUP issue: %s", err.Error()))
 	}
 }

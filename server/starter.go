@@ -4,15 +4,11 @@ import (
 	"os/exec"
 	"crypto/rand"
 	"os"
-	"time"
 	"fmt"
 	"syscall"
 	"net"
 	"gopkg.in/inconshreveable/log15.v2"
 )
-
-var err error
-var FinishAndStop bool
 
 // TODO: Consider if we actually need it
 func genClientID() string {
@@ -28,7 +24,7 @@ func (server *FtpServer) HandleSignal(sig os.Signal) error {
 	// From now on, we can't just handle signals for the complete program, we would have to transfer them to us.
 	switch sig {
 	case syscall.SIGTERM:
-		FinishAndStop = true
+		server.Stop()
 		return nil
 	case syscall.SIGUSR2:
 		file, _ := server.Listener.(*net.TCPListener).File()
@@ -49,7 +45,7 @@ func (server *FtpServer) HandleSignal(sig os.Signal) error {
 
 func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 	server.Settings = server.driver.GetSettings()
-	FinishAndStop = false
+	var err error
 	log15.Info("Starting...")
 
 	if gracefulChild {
@@ -66,8 +62,6 @@ func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 		log15.Error("Cannot listen", "err", err)
 		return err
 	}
-
-	server.Listener.(*net.TCPListener).SetDeadline(time.Now().Add(60 * time.Second))
 
 	if err != nil {
 		log15.Error("cannot listen: ", err)
@@ -88,9 +82,6 @@ func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 	// go signalHandler()
 
 	for {
-		if FinishAndStop {
-			break
-		}
 		connection, err := server.Listener.Accept()
 		if err != nil {
 			if opError, ok := err.(*net.OpError); !ok || !opError.Timeout() {
@@ -107,4 +98,8 @@ func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 	// otherwise, this will just exit and kill them
 	// defeating whole point of gracefulChild restart
 	return nil
+}
+
+func (server *FtpServer) Stop() {
+	server.Listener.Close()
 }
