@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"syscall"
 	"net"
+	"gopkg.in/inconshreveable/log15.v2"
 )
 
-var Settings ParadiseSettings
 var err error
 var FinishAndStop bool
 
@@ -32,7 +32,7 @@ func (server *FtpServer) HandleSignal(sig os.Signal) {
 		return
 	case syscall.SIGUSR2:
 		file, _ := server.Listener.(*net.TCPListener).File()
-		path := Settings.Exec
+		path := server.Settings.Exec
 		args := []string{
 			"-graceful"}
 		cmd := exec.Command(path, args...)
@@ -45,23 +45,32 @@ func (server *FtpServer) HandleSignal(sig os.Signal) {
 }
 
 func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
-	Settings = ReadSettings()
+	server.Settings = server.driver.GetSettings()
 	FinishAndStop = false
-	fmt.Println("starting...")
+	log15.Info("Starting...")
 
 	if gracefulChild {
 		f := os.NewFile(3, "") // FD 3 is a special file descriptor to get an already-opened socket
 		server.Listener, err = net.FileListener(f)
 	} else {
-		url := fmt.Sprintf("%s:%d", Settings.Host, Settings.Port)
-		server.Listener, err = net.Listen("tcp", url)
+		server.Listener, err = net.Listen(
+			"tcp",
+			fmt.Sprintf("%s:%d", server.Settings.Host, server.Settings.Port),
+		)
 	}
 
 	if err != nil {
-		fmt.Println("cannot listen: ", err)
+		log15.Error("Cannot listen", "err", err)
 		return err
 	}
-	fmt.Println("listening...")
+
+	server.Listener.(*net.TCPListener).SetDeadline(time.Now().Add(60 * time.Second))
+
+	if err != nil {
+		log15.Error("cannot listen: ", err)
+		return err
+	}
+	log15.Info("Listening...")
 
 	if gracefulChild {
 		parent := syscall.Getppid()
@@ -75,7 +84,6 @@ func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 		if FinishAndStop {
 			break
 		}
-		server.Listener.(*net.TCPListener).SetDeadline(time.Now().Add(60 * time.Second))
 		connection, err := server.Listener.Accept()
 		if err != nil {
 			if opError, ok := err.(*net.OpError); !ok || !opError.Timeout() {

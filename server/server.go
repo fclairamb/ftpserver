@@ -40,11 +40,20 @@ func init() {
 }
 
 type FtpServer struct {
+	Settings      *Settings                 // General settings
 	driver        Driver                    // Driver to handle all the actual authentication and files access logic
 	Listener      net.Listener              // Listener used to receive files
 	ConnectionMap map[string]*ClientHandler // Connections map
 	PassiveCount  int                       // Number of passive connections opened
 	StartTime     int64                     // Time when the server was started
+}
+
+type Settings struct {
+	Host           string // Host to receive connetions on
+	Port           int    // Port to listen on
+	MaxConnections int    // Max number of connections to accept
+	MaxPassive     int    // Max number of passive connections per control connections to accept
+	Exec           string
 }
 
 type ClientHandler struct {

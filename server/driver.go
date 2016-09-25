@@ -13,6 +13,9 @@ type ClientContext interface {
 
 // Server driver
 type Driver interface {
+	// Load some general settings around the server setup
+	GetSettings() *Settings
+
 	// Welcome a user
 	WelcomeUser(cc ClientContext) (string, error)
 

@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"os"
+	"io/ioutil"
+	"github.com/naoina/toml"
 )
 
 // SampleDriver defines a very basic serverftp driver
@@ -65,6 +68,24 @@ func (driver SampleDriver) GetFiles(cc server.ClientContext) ([]map[string]strin
 
 	return files, nil
 }
+
+func (driver SampleDriver) GetSettings() *server.Settings {
+	f, err := os.Open("conf/settings.toml")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	buf, err := ioutil.ReadAll(f)
+	if err != nil {
+		panic(err)
+	}
+	var config server.Settings
+	if err := toml.Unmarshal(buf, &config); err != nil {
+		panic(err)
+	}
+	return &config
+}
+
 
 // Note: This is not a mistake. Interface can be pointers. There seems to be a lot of confusion around this in the
 //       server_ftp original code.
