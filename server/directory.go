@@ -1,13 +1,13 @@
 package server
 
-import "strconv"
-import "bytes"
-import "fmt"
-import "strings"
-import "time"
 import (
 	"github.com/jehiah/go-strftime"
 	"path/filepath"
+	"strings"
+	"fmt"
+	"time"
+	"strconv"
+	"bytes"
 )
 
 func (p *ClientHandler) HandleCwd() {
