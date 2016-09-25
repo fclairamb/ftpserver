@@ -3,7 +3,7 @@ package server
 import "io"
 import "time"
 
-func (p *Paradise) HandleStore() {
+func (p *ClientHandler) HandleStore() {
 	passive := p.lastPassive()
 	if passive == nil {
 		return
@@ -31,7 +31,7 @@ func (p *Paradise) HandleStore() {
 	p.closePassive(passive)
 }
 
-func (p *Paradise) storeOrAppend(passive *Passive) (int64, error) {
+func (p *ClientHandler) storeOrAppend(passive *Passive) (int64, error) {
 	var err error
 	err = p.readFirst512Bytes(passive)
 	if err != nil {
@@ -64,7 +64,7 @@ func (p *Paradise) storeOrAppend(passive *Passive) (int64, error) {
 	return total, err
 }
 
-func (p *Paradise) readFirst512Bytes(passive *Passive) error {
+func (p *ClientHandler) readFirst512Bytes(passive *Passive) error {
 	p.buffer = make([]byte, 0)
 	var err error
 	for {

@@ -1,11 +1,11 @@
 package server
 
-func (p *Paradise) HandleUser() {
+func (p *ClientHandler) HandleUser() {
 	p.user = p.param
 	p.writeMessage(331, "User name ok, password required")
 }
 
-func (p *Paradise) HandlePass() {
+func (p *ClientHandler) HandlePass() {
 	// think about using https://developer.bitium.com
 	if driver.CheckUser(p.user, p.param, &p.userInfo) {
 		p.writeMessage(230, "Password ok, continue")

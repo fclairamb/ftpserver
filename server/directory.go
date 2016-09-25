@@ -7,7 +7,7 @@ import "strings"
 import "time"
 import "github.com/jehiah/go-strftime"
 
-func (p *Paradise) HandleList() {
+func (p *ClientHandler) HandleList() {
 	passive := p.lastPassive()
 	if passive == nil {
 		return
@@ -35,7 +35,7 @@ func (p *Paradise) HandleList() {
 	p.closePassive(passive)
 }
 
-func (p *Paradise) dirList() ([]byte, error) {
+func (p *ClientHandler) dirList() ([]byte, error) {
 	var buf bytes.Buffer
 
 	files, err := driver.GetFiles(&p.userInfo)

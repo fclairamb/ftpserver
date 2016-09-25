@@ -3,26 +3,26 @@ package server
 //import "fmt"
 import "strings"
 
-func (p *Paradise) HandleSyst() {
+func (p *ClientHandler) HandleSyst() {
 	p.writeMessage(215, "UNIX Type: L8")
 }
 
-func (p *Paradise) HandlePwd() {
+func (p *ClientHandler) HandlePwd() {
 	p.writeMessage(257, "\""+p.path+"\" is the current directory")
 }
 
-func (p *Paradise) HandleType() {
+func (p *ClientHandler) HandleType() {
 	p.writeMessage(200, "Type set to binary")
 }
 
-func (p *Paradise) HandleQuit() {
+func (p *ClientHandler) HandleQuit() {
 	//fmt.Println("Goodbye")
 	p.writeMessage(221, "Goodbye")
 	p.theConnection.Close()
 	delete(ConnectionMap, p.cid)
 }
 
-func (p *Paradise) HandleCwd() {
+func (p *ClientHandler) HandleCwd() {
 	if p.param == ".." {
 		p.path = "/"
 	} else {
@@ -35,10 +35,10 @@ func (p *Paradise) HandleCwd() {
 	p.writeMessage(250, "CD worked")
 }
 
-func (p *Paradise) HandleSize() {
+func (p *ClientHandler) HandleSize() {
 	p.writeMessage(450, "downloads not allowed")
 }
 
-func (p *Paradise) HandleStat() {
+func (p *ClientHandler) HandleStat() {
 	p.writeMessage(551, "downloads not allowed")
 }

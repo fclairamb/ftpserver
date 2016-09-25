@@ -1,5 +1,5 @@
 package server
 
-func (p *Paradise) HandleRetr() {
+func (p *ClientHandler) HandleRetr() {
 	p.writeMessage(551, "downloads not allowed")
 }

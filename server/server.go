@@ -10,15 +10,15 @@ import (
 	"time"
 )
 
-var CommandMap map[string]func(*Paradise)
-var ConnectionMap map[string]*Paradise
+var CommandMap map[string]func(*ClientHandler)
+var ConnectionMap map[string]*ClientHandler
 var PassiveCount int
 var UpSince int64
 
 // TODO: Put this in a server handler struct
 var driver Driver
 
-type Paradise struct {
+type ClientHandler struct {
 	writer        *bufio.Writer
 	reader        *bufio.Reader
 	theConnection net.Conn
@@ -41,31 +41,31 @@ type Paradise struct {
 func init() {
 	UpSince = time.Now().Unix()
 
-	CommandMap = make(map[string]func(*Paradise))
+	CommandMap = make(map[string]func(*ClientHandler))
 
-	CommandMap["USER"] = (*Paradise).HandleUser
-	CommandMap["PASS"] = (*Paradise).HandlePass
-	CommandMap["STOR"] = (*Paradise).HandleStore
-	CommandMap["APPE"] = (*Paradise).HandleStore
-	CommandMap["STAT"] = (*Paradise).HandleStat
+	CommandMap["USER"] = (*ClientHandler).HandleUser
+	CommandMap["PASS"] = (*ClientHandler).HandlePass
+	CommandMap["STOR"] = (*ClientHandler).HandleStore
+	CommandMap["APPE"] = (*ClientHandler).HandleStore
+	CommandMap["STAT"] = (*ClientHandler).HandleStat
 
-	CommandMap["SYST"] = (*Paradise).HandleSyst
-	CommandMap["PWD"] = (*Paradise).HandlePwd
-	CommandMap["TYPE"] = (*Paradise).HandleType
-	CommandMap["PASV"] = (*Paradise).HandlePassive
-	CommandMap["EPSV"] = (*Paradise).HandlePassive
-	CommandMap["NLST"] = (*Paradise).HandleList
-	CommandMap["LIST"] = (*Paradise).HandleList
-	CommandMap["QUIT"] = (*Paradise).HandleQuit
-	CommandMap["CWD"] = (*Paradise).HandleCwd
-	CommandMap["SIZE"] = (*Paradise).HandleSize
-	CommandMap["RETR"] = (*Paradise).HandleRetr
+	CommandMap["SYST"] = (*ClientHandler).HandleSyst
+	CommandMap["PWD"] = (*ClientHandler).HandlePwd
+	CommandMap["TYPE"] = (*ClientHandler).HandleType
+	CommandMap["PASV"] = (*ClientHandler).HandlePassive
+	CommandMap["EPSV"] = (*ClientHandler).HandlePassive
+	CommandMap["NLST"] = (*ClientHandler).HandleList
+	CommandMap["LIST"] = (*ClientHandler).HandleList
+	CommandMap["QUIT"] = (*ClientHandler).HandleQuit
+	CommandMap["CWD"] = (*ClientHandler).HandleCwd
+	CommandMap["SIZE"] = (*ClientHandler).HandleSize
+	CommandMap["RETR"] = (*ClientHandler).HandleRetr
 
-	ConnectionMap = make(map[string]*Paradise)
+	ConnectionMap = make(map[string]*ClientHandler)
 }
 
-func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
-	p := Paradise{}
+func NewParadise(connection net.Conn, cid string, now int64) *ClientHandler {
+	p := ClientHandler{}
 
 	p.writer = bufio.NewWriter(connection)
 	p.reader = bufio.NewReader(connection)
@@ -80,7 +80,7 @@ func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
 	return &p
 }
 
-func (p *Paradise) lastPassive() *Passive {
+func (p *ClientHandler) lastPassive() *Passive {
 	passive := p.passives[p.lastPassCid]
 	if passive == nil {
 		return nil
@@ -90,7 +90,7 @@ func (p *Paradise) lastPassive() *Passive {
 	return passive
 }
 
-func (p *Paradise) HandleCommands() {
+func (p *ClientHandler) HandleCommands() {
 	//fmt.Println(p.id, " Got client on: ", p.ip)
 	p.writeMessage(220, "Welcome to Paradise")
 	for {
@@ -116,7 +116,7 @@ func (p *Paradise) HandleCommands() {
 	}
 }
 
-func (p *Paradise) writeMessage(code int, message string) {
+func (p *ClientHandler) writeMessage(code int, message string) {
 	line := fmt.Sprintf("%d %s\r\n", code, message)
 	p.writer.WriteString(line)
 	p.writer.Flush()
