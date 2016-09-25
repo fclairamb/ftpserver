@@ -1,24 +1,25 @@
 package server
 
-import "fmt"
-import "syscall"
-import "net"
-import "time"
-import "os"
-import "os/signal"
-import "os/exec"
-import "github.com/andrewarrow/paradise_ftp/paradise"
+import (
+	"os/signal"
+	"os/exec"
+	"crypto/rand"
+	"os"
+	"time"
+	"fmt"
+	"syscall"
+	"net"
+)
 
 var Settings ParadiseSettings
 var Listener net.Listener
 var err error
 var FinishAndStop bool
 
+// TODO: Consider if we actually need it
 func genClientID() string {
-	random, _ := os.Open("/dev/urandom")
 	b := make([]byte, 16)
-	random.Read(b)
-	random.Close()
+	rand.Read(b)
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
 
@@ -47,15 +48,14 @@ func signalHandler() {
 	}
 }
 
-func Start(fm *paradise.FileManager, am *paradise.AuthManager, gracefulChild bool) {
+func Start(d Driver, gracefulChild bool) error {
+	driver = d
 	Settings = ReadSettings()
 	FinishAndStop = false
 	fmt.Println("starting...")
-	FileManager = fm
-	AuthManager = am
 
 	if gracefulChild {
-		f := os.NewFile(3, "") // FD 3 is special number
+		f := os.NewFile(3, "") // FD 3 is a special file descriptor to get an already-opened socket
 		Listener, err = net.FileListener(f)
 	} else {
 		url := fmt.Sprintf("%s:%d", Settings.Host, Settings.Port)
@@ -64,7 +64,7 @@ func Start(fm *paradise.FileManager, am *paradise.AuthManager, gracefulChild boo
 
 	if err != nil {
 		fmt.Println("cannot listen: ", err)
-		return
+		return err
 	}
 	fmt.Println("listening...")
 
@@ -97,4 +97,5 @@ func Start(fm *paradise.FileManager, am *paradise.AuthManager, gracefulChild boo
 	// TODO add wait group for still active connections to finish up
 	// otherwise, this will just exit and kill them
 	// defeating whole point of gracefulChild restart
+	return nil
 }

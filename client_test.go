@@ -4,13 +4,10 @@ import "testing"
 import "os"
 
 import "os/exec"
-import "paradise/client"
+import "github.com/fclairamb/ftpserver/client"
 import "math/rand"
 import "sync"
 import "time"
-
-var file *os.File
-var fileBytes []byte
 
 func TestMain(m *testing.M) {
 	os.Exit(m.Run())

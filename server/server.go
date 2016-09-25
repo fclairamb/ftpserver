@@ -6,15 +6,17 @@ import "io"
 import "net"
 import "strings"
 import "sync"
-import "time"
-import "github.com/andrewarrow/paradise_ftp/paradise"
+import (
+	"time"
+)
 
 var CommandMap map[string]func(*Paradise)
 var ConnectionMap map[string]*Paradise
 var PassiveCount int
 var UpSince int64
-var FileManager *paradise.FileManager
-var AuthManager *paradise.AuthManager
+
+// TODO: Put this in a server handler struct
+var driver Driver
 
 type Paradise struct {
 	writer        *bufio.Writer

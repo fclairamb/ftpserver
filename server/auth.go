@@ -7,7 +7,7 @@ func (p *Paradise) HandleUser() {
 
 func (p *Paradise) HandlePass() {
 	// think about using https://developer.bitium.com
-	if AuthManager.CheckUser(p.user, p.param, &p.userInfo) {
+	if driver.CheckUser(p.user, p.param, &p.userInfo) {
 		p.writeMessage(230, "Password ok, continue")
 	} else {
 		p.writeMessage(530, "Incorrect password, not logged in")
