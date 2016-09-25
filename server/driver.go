@@ -58,7 +58,7 @@ type Driver interface {
 	UserLeft(cc ClientContext)
 
 	// Upload a file
-	StartFileUpload(cc ClientContext, path string) (FileContext, error)
+	StartFileUpload(cc ClientContext, path string, flag int) (FileContext, error)
 }
 
 // Settings are part of the driver

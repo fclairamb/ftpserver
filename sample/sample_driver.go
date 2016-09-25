@@ -55,9 +55,6 @@ func (driver SampleDriver) GetFiles(cc server.ClientContext) ([]map[string]strin
 			file["name"] = "root"
 			files = append(files, file)
 		}
-		{
-
-		}
 	}
 
 	if path == "/home" {
@@ -76,8 +73,21 @@ func (driver SampleDriver) UserLeft(cc server.ClientContext) {
 
 }
 
-func (driver SampleDriver) StartFileUpload (cc server.ClientContext, path string) (server.FileContext, error) {
-	return os.Create("/tmp/"+path)
+func (driver SampleDriver) StartFileUpload (cc server.ClientContext, path string, flag int) (server.FileContext, error) {
+	ourFlag := os.O_CREATE | os.O_WRONLY
+
+	// We can't really copy-paste it because we will probably have flags that are not used for OS files
+	if (flag & os.O_APPEND) != 0 {
+		ourFlag |= os.O_APPEND
+	}
+
+	path = "/tmp/"+path
+
+	if ( flag & os.O_APPEND) == 0 {
+		os.Remove(path)
+	}
+
+	return os.OpenFile(path, ourFlag, 0666)
 }
 
 

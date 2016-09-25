@@ -17,7 +17,7 @@ func init() {
 	commandsMap["USER"] = (*ClientHandler).HandleUser
 	commandsMap["PASS"] = (*ClientHandler).HandlePass
 	commandsMap["STOR"] = (*ClientHandler).HandleStore
-	commandsMap["APPE"] = (*ClientHandler).HandleStore
+	commandsMap["APPE"] = (*ClientHandler).HandleAppend
 	commandsMap["STAT"] = (*ClientHandler).HandleStat
 
 	commandsMap["SYST"] = (*ClientHandler).HandleSyst

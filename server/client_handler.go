@@ -91,6 +91,7 @@ func (p *ClientHandler) SetMyInstance(value interface{}) {
 
 func (p *ClientHandler) HandleCommands() {
 	p.daddy.ClientArrival(p)
+	defer p.daddy.ClientDeparture(p)
 
 	//fmt.Println(p.id, " Got client on: ", p.ip)
 	if msg, err := p.daddy.driver.WelcomeUser(p); err == nil {
@@ -109,7 +110,8 @@ func (p *ClientHandler) HandleCommands() {
 		}
 
 		if err != nil {
-			p.Die()
+			log15.Error("TCP error", "err", err)
+			return
 		}
 		command, param := parseLine(line)
 		p.command = command
