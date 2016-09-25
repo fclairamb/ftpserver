@@ -7,7 +7,6 @@ import (
 	"sync"
 	"fmt"
 	"strings"
-	"io"
 	"gopkg.in/inconshreveable/log15.v2"
 )
 
@@ -44,15 +43,18 @@ type FtpServer struct {
 	driver        Driver                    // Driver to handle all the actual authentication and files access logic
 	Listener      net.Listener              // Listener used to receive files
 	ConnectionMap map[string]*ClientHandler // Connections map
+	sync          sync.Mutex
 	PassiveCount  int                       // Number of passive connections opened
 	StartTime     int64                     // Time when the server was started
 }
 
 type Settings struct {
-	Host           string // Host to receive connetions on
+	Host           string // Host to receive connections on
 	Port           int    // Port to listen on
 	MaxConnections int    // Max number of connections to accept
 	MaxPassive     int    // Max number of passive connections per control connections to accept
+	MonitorOn      bool   // To activate the monitor
+	MonitorPort    int    // Port for the monitor to listen on
 	Exec           string
 }
 
@@ -70,7 +72,7 @@ type ClientHandler struct {
 	param       string
 	total       int64
 	buffer      []byte
-	cid         string
+	Id          string
 	connectedAt int64
 	passives    map[string]*Passive // Index of all the passive connections that are associated to this control connection
 	lastPassCid string
@@ -86,16 +88,34 @@ func NewFtpServer(driver Driver) *FtpServer {
 	}
 }
 
-func (server *FtpServer) NewClientHandler(connection net.Conn, cid string, now int64) *ClientHandler {
+// When a client connects, the server could refuse the connection
+func (server *FtpServer) ClientArrival(c *ClientHandler) error {
+	server.sync.Lock()
+	defer server.sync.Unlock()
+
+	server.ConnectionMap[c.Id] = c
+
+	return nil
+}
+
+// When a client leaves
+func (server *FtpServer) ClientDeparture(c *ClientHandler) {
+	server.sync.Lock()
+	defer server.sync.Unlock()
+
+	delete(server.ConnectionMap, c.Id)
+}
+
+func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
 
 	p := &ClientHandler{
 		daddy: server,
 		conn: connection,
+		Id: genClientID(),
 		writer: bufio.NewWriter(connection),
 		reader: bufio.NewReader(connection),
 		connectedAt: time.Now().UTC().UnixNano(),
 		path: "/",
-		ip: connection.RemoteAddr().String(), // TODO: Do we need this ?
 		passives: make(map[string]*Passive),
 		userInfo: make(map[string]string),
 	}
@@ -104,6 +124,11 @@ func (server *FtpServer) NewClientHandler(connection net.Conn, cid string, now i
 	p.userInfo["path"] = p.path
 
 	return p
+}
+
+func (p *ClientHandler) Die() {
+	p.conn.Close()
+	p.daddy.ClientDeparture(p)
 }
 
 func (p *ClientHandler) UserInfo() map[string]string {
@@ -129,6 +154,8 @@ func (p *ClientHandler) lastPassive() *Passive {
 }
 
 func (p *ClientHandler) HandleCommands() {
+	p.daddy.ClientArrival(p)
+
 	//fmt.Println(p.id, " Got client on: ", p.ip)
 	if msg, err := p.daddy.driver.WelcomeUser(p); err == nil {
 		p.writeMessage(220, msg)
@@ -144,12 +171,7 @@ func (p *ClientHandler) HandleCommands() {
 		}
 
 		if err != nil {
-			delete(p.daddy.ConnectionMap, p.cid)
-			//fmt.Println(p.id, " end ", len(ConnectionMap))
-			if err == io.EOF {
-				//continue
-			}
-			break
+			p.Die()
 		}
 		command, param := parseLine(line)
 		p.command = command

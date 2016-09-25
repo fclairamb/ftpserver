@@ -18,6 +18,5 @@ func main() {
 		go client.StressTest()
 	}
 	server := server.NewFtpServer(sample.NewSampleDriver())
-	go server.Monitor()
 	server.ListenAndServe(*gracefulChild)
 }

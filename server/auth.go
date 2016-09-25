@@ -13,7 +13,6 @@ func (p *ClientHandler) HandlePass() {
 		p.writeMessage(230, "Password ok, continue")
 	} else {
 		p.writeMessage(530, fmt.Sprintf("Authentication problem: %s", err))
-		p.conn.Close()
-		delete(p.daddy.ConnectionMap, p.cid)
+		p.Die()
 	}
 }

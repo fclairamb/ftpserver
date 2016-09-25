@@ -11,8 +11,7 @@ func (p *ClientHandler) HandleType() {
 func (p *ClientHandler) HandleQuit() {
 	//fmt.Println("Goodbye")
 	p.writeMessage(221, "Goodbye")
-	p.conn.Close()
-	delete(p.daddy.ConnectionMap, p.cid)
+	p.Die()
 }
 
 func (p *ClientHandler) HandleSize() {

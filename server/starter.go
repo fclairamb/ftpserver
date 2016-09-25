@@ -72,6 +72,10 @@ func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 	}
 	log15.Info("Listening...")
 
+	if server.Settings.MonitorOn {
+			go server.Monitor()
+	}
+
 	if gracefulChild {
 		parent := syscall.Getppid()
 		syscall.Kill(parent, syscall.SIGTERM)
@@ -87,13 +91,11 @@ func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 		connection, err := server.Listener.Accept()
 		if err != nil {
 			if opError, ok := err.(*net.OpError); !ok || !opError.Timeout() {
-				fmt.Println("listening error ", err)
+				log15.Error("Listening error", "socket", connection.LocalAddr().String(), "err", err)
+				return err
 			}
 		} else {
-			cid := genClientID()
-			p := server.NewClientHandler(connection, cid, time.Now().Unix())
-			server.ConnectionMap[cid] = p
-
+			p := server.NewClientHandler(connection)
 			go p.HandleCommands()
 		}
 	}
