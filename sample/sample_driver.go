@@ -10,7 +10,7 @@ import (
 	"github.com/naoina/toml"
 )
 
-var BASE_DIR = "/tmp"
+var BASE_DIR = "/tmp/ftpserver"
 
 // SampleDriver defines a very basic serverftp driver
 type SampleDriver struct {
@@ -34,7 +34,8 @@ func (driver SampleDriver) ChangeDirectory(cc server.ClientContext, directory st
 	if strings.HasPrefix(directory, "/root") {
 		return errors.New("This doesn't look good !")
 	}
-	return nil
+	_, err := os.Stat(BASE_DIR+directory)
+	return err
 }
 
 func (driver SampleDriver) MakeDirectory(cc server.ClientContext, directory string) error {
@@ -133,5 +134,6 @@ func (driver SampleDriver) GetSettings() *server.Settings {
 // Note: This is not a mistake. Interface can be pointers. There seems to be a lot of confusion around this in the
 //       server_ftp original code.
 func NewSampleDriver() server.Driver {
+	os.MkdirAll(BASE_DIR, 0777)
 	return new(SampleDriver)
 }
