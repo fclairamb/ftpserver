@@ -6,7 +6,6 @@ import (
 	"net"
 	"bufio"
 	"time"
-	"sync"
 	"strings"
 )
 
@@ -15,22 +14,18 @@ type ClientHandler struct {
 	writer         *bufio.Writer       // Writer on the TCP connection
 	reader         *bufio.Reader       // Reader on the TCP connection
 	conn           net.Conn            // TCP connection
-	waiter         sync.WaitGroup
-	user           string
-	homeDir        string
-	path           string
-	ip             string
-	command        string
-	param          string
-	total          int64
-	buffer         []byte
-	Id             string
-	connectedAt    int64
+	user           string              // Authenticated user
+	path           string              // Current path
+	command        string              // Command received on the connection
+	param          string              // Param of the FTP command
+	total          int64               // Total number of bytes exchanges
+	Id             string              // Id of the client
+	connectedAt    int64               // Date of connection
 	passives       map[string]*Passive // Index of all the passive connections that are associated to this control connection
-	lastPassCid    string
-	userInfo       map[string]string
+	lastPassCid    string              // Last Passive connection Id
+	userInfo       map[string]string   // Various user information (shared between server and driver)
 	debug          bool                // Show debugging info on the server side
-	driverInstance interface{}
+	driverInstance interface{}         // Instance of the driver's matching object
 }
 
 func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
@@ -45,6 +40,7 @@ func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
 		path: "/",
 		passives: make(map[string]*Passive),
 		userInfo: make(map[string]string),
+		debug: true,
 	}
 
 	// Just respecting the existing logic here, this could be probably be dropped at some point
@@ -134,7 +130,6 @@ func (p *ClientHandler) writeMessage(code int, message string) {
 	p.writer.WriteString(line)
 	p.writer.Flush()
 }
-
 
 func parseLine(line string) (string, string) {
 	params := strings.SplitN(strings.Trim(line, "\r\n"), " ", 2)

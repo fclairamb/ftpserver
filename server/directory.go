@@ -10,89 +10,104 @@ import (
 	"bytes"
 )
 
-func (p *ClientHandler) HandleCwd() {
-	if p.param == ".." {
-		p.HandleCdUp()
-		return
-	}
+func (c *ClientHandler) absPath(p string) string {
+	path := c.Path()
 
-	path := p.Path()
-
-	if strings.HasPrefix(p.param, "/") {
-		path = p.param
+	if strings.HasPrefix(p, "/") {
+		path = p
 	} else {
 		if path != "/" {
 			path += "/"
 		}
-		path += p.param
+		path += p
 	}
 
-	// TODO: Find something smarter, this is obviously quite limitating...
-	if path == "/debug" {
-		p.writeMessage(250, "Debug activated !")
-		p.debug = true
+	return path
+}
+
+func (c *ClientHandler) HandleCwd() {
+	if c.param == ".." {
+		c.HandleCdUp()
 		return
 	}
 
-	if err := p.daddy.driver.GoToDirectory(p, path); err == nil {
-		p.SetPath(path)
-		p.writeMessage(250, fmt.Sprintf("CD worked on %s", path))
+	path := c.absPath(c.param)
+
+	// TODO: Find something smarter, this is obviously quite limitating...
+	if path == "/debug" {
+		c.writeMessage(250, "Debug activated !")
+		c.debug = true
+		return
+	}
+
+	if err := c.daddy.driver.ChangeDirectory(c, path); err == nil {
+		c.SetPath(path)
+		c.writeMessage(250, fmt.Sprintf("CD worked on %s", path))
 	} else {
-		p.writeMessage(550, fmt.Sprintf("CD issue: %s", err.Error()))
+		c.writeMessage(550, fmt.Sprintf("CD issue: %s", err.Error()))
 	}
 }
 
-func (p *ClientHandler) HandleCdUp() {
-	dirs := filepath.SplitList(p.Path())
+func (c *ClientHandler) HandleMkd() {
+	path := c.absPath(c.param)
+	if err := c.daddy.driver.MakeDirectory(c, path); err == nil {
+		c.writeMessage(250, fmt.Sprintf("Created dir %s", path))
+	} else {
+		c.writeMessage(550, fmt.Sprintf("Could not create %s : %s", path, err.Error()))
+	}
+}
+
+func (c *ClientHandler) HandleCdUp() {
+	dirs := filepath.SplitList(c.Path())
 	dirs = dirs[0:len(dirs) - 1]
 	path := filepath.Join(dirs...)
 	if path == "" {
 		path = "/"
 	}
-	if err := p.daddy.driver.GoToDirectory(p, path); err == nil {
-		p.SetPath(path)
-		p.writeMessage(250, fmt.Sprintf("CDUP worked on %s", path))
+	if err := c.daddy.driver.ChangeDirectory(c, path); err == nil {
+		c.SetPath(path)
+		c.writeMessage(250, fmt.Sprintf("CDUP worked on %s", path))
 	} else {
-		p.writeMessage(550, fmt.Sprintf("CDUP issue: %s", err.Error()))
+		c.writeMessage(550, fmt.Sprintf("CDUP issue: %s", err.Error()))
 	}
 }
 
-func (p *ClientHandler) HandlePwd() {
-	p.writeMessage(257, "\"" + p.Path() + "\" is the current directory")
+func (c *ClientHandler) HandlePwd() {
+	c.writeMessage(257, "\"" + c.Path() + "\" is the current directory")
 }
 
-func (p *ClientHandler) HandleList() {
-	passive := p.lastPassive()
+func (c *ClientHandler) HandleList() {
+	passive := c.lastPassive()
 	if passive == nil {
 		return
 	}
-	p.writeMessage(150, "Opening ASCII mode data connection for file list")
+	c.writeMessage(150, "Opening ASCII mode data connection for file list")
 
-	bytes, err := p.dirList()
+	bytes, err := c.dirList()
 	if err != nil {
-		p.writeMessage(550, err.Error())
+		c.writeMessage(550, err.Error())
 	} else {
 		if waitTimeout(&passive.waiter, time.Minute) {
-			p.writeMessage(550, "Could not get passive connection.")
-			p.closePassive(passive)
+			c.writeMessage(550, "Could not get passive connection.")
+			c.closePassive(passive)
 			return
 		}
 		if passive.listenFailedAt > 0 {
-			p.writeMessage(550, "Could not get passive connection.")
-			p.closePassive(passive)
+			c.writeMessage(550, "Could not get passive connection.")
+			c.closePassive(passive)
 			return
 		}
 		passive.connection.Write(bytes)
 		message := "Closing data connection, sent some bytes"
-		p.writeMessage(226, message)
+		c.writeMessage(226, message)
 	}
-	p.closePassive(passive)
+	c.closePassive(passive)
 }
 
-func (p *ClientHandler) dirList() ([]byte, error) {
+func (c *ClientHandler) dirList() ([]byte, error) {
 	var buf bytes.Buffer
 
-	files, err := p.daddy.driver.GetFiles(p)
+	files, err := c.daddy.driver.GetFiles(c)
 	for _, file := range files {
 
 		if file["isDir"] != "" {
@@ -110,6 +125,8 @@ func (p *ClientHandler) dirList() ([]byte, error) {
 	return buf.Bytes(), err
 }
 
+// Useless, fmt.Sprintf("%12s") can do the same
+/*
 func lpad(input string, length int) (result string) {
 	if len(input) < length {
 		result = strings.Repeat(" ", length - len(input)) + input
@@ -120,3 +137,4 @@ func lpad(input string, length int) (result string) {
 	}
 	return
 }
+*/

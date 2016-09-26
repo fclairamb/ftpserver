@@ -86,37 +86,37 @@ func anotherPassiveIsAvail() bool {
 	return false
 }
 
-func (p *ClientHandler) HandlePassive() {
+func (c *ClientHandler) HandlePassive() {
 	laddr, err := net.ResolveTCPAddr("tcp", "0.0.0.0:0")
 	passiveListen, err := net.ListenTCP("tcp", laddr)
 	if err != nil {
-		p.writeMessage(550, "Error with passive: "+err.Error())
+		c.writeMessage(550, "Error with passive: "+err.Error())
 		return
 	}
 	if anotherPassiveIsAvail() {
-		p.writeMessage(550, "Use other passive connection first.")
+		c.writeMessage(550, "Use other passive connection first.")
 		return
 	}
 
 	cid := genClientID()
-	passive := p.NewPassive(passiveListen, cid, time.Now().Unix())
-	passive.command = p.command
-	passive.param = p.param
-	p.lastPassCid = cid
-	p.passives[cid] = passive
+	passive := c.NewPassive(passiveListen, cid, time.Now().Unix())
+	passive.command = c.command
+	passive.param = c.param
+	c.lastPassCid = cid
+	c.passives[cid] = passive
 
-	if p.command == "PASV" {
+	if c.command == "PASV" {
 		p1 := passive.port / 256
 		p2 := passive.port - (p1 * 256)
-		addr := p.conn.LocalAddr()
+		addr := c.conn.LocalAddr()
 		tokens := strings.Split(addr.String(), ":")
 		host := tokens[0]
 		quads := strings.Split(host, ".")
 		target := fmt.Sprintf("(%s,%s,%s,%s,%d,%d)", quads[0], quads[1], quads[2], quads[3], p1, p2)
 		msg := "Entering Passive Mode " + target
-		p.writeMessage(227, msg)
+		c.writeMessage(227, msg)
 	} else {
 		msg := fmt.Sprintf("Entering Extended Passive Mode (|||%d|)", passive.port)
-		p.writeMessage(229, msg)
+		c.writeMessage(229, msg)
 	}
 }

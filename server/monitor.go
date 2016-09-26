@@ -19,8 +19,8 @@ func trimGuid(guid string) string {
 }
 
 func (server *FtpServer) handler(w http.ResponseWriter, r *http.Request) {
-	server.sync.Lock()
-	defer server.sync.Unlock()
+	server.connectionsMutex.RLock()
+	defer server.connectionsMutex.RUnlock()
 
 	fmt.Fprintf(w, "%d client(s), %d passive(s), Up for %s\n",
 		len(server.ConnectionsById), server.PassiveCount, countdown(server.StartTime))

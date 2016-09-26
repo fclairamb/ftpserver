@@ -45,8 +45,10 @@ type Driver interface {
 	CheckUser(cc ClientContext, user, pass string) error
 
 	// Request to use a directory
-	// Request access to user a directory
-	GoToDirectory(cc ClientContext, directory string) error
+	ChangeDirectory(cc ClientContext, directory string) error
+
+	// Create a directory
+	MakeDirectory(cc ClientContext, directory string) error
 
 	// List the files of a given directory
 	// For each file, we have a map containing:
@@ -69,5 +71,4 @@ type Settings struct {
 	MaxPassive     int    // Max number of passive connections per control connections to accept
 	MonitorOn      bool   // To activate the monitor
 	MonitorPort    int    // Port for the monitor to listen on
-	Exec           string
 }

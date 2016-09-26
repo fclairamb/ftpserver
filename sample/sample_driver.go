@@ -10,6 +10,8 @@ import (
 	"github.com/naoina/toml"
 )
 
+var BASE_DIR = "/tmp"
+
 // SampleDriver defines a very basic serverftp driver
 type SampleDriver struct {
 
@@ -28,11 +30,15 @@ func (driver SampleDriver) CheckUser(cc server.ClientContext, user, pass string)
 	}
 }
 
-func (driver SampleDriver) GoToDirectory(cc server.ClientContext, directory string) error {
+func (driver SampleDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
 	if strings.HasPrefix(directory, "/root") {
 		return errors.New("This doesn't look good !")
 	}
 	return nil
+}
+
+func (driver SampleDriver) MakeDirectory(cc server.ClientContext, directory string) error {
+	return os.Mkdir(BASE_DIR + directory, 0777)
 }
 
 func (driver SampleDriver) GetFiles(cc server.ClientContext) ([]map[string]string, error) {
@@ -73,7 +79,7 @@ func (driver SampleDriver) UserLeft(cc server.ClientContext) {
 
 }
 
-func (driver SampleDriver) StartFileUpload (cc server.ClientContext, path string, flag int) (server.FileContext, error) {
+func (driver SampleDriver) StartFileUpload(cc server.ClientContext, path string, flag int) (server.FileContext, error) {
 	ourFlag := os.O_CREATE | os.O_WRONLY
 
 	// We can't really copy-paste it because we will probably have flags that are not used for OS files
@@ -81,7 +87,7 @@ func (driver SampleDriver) StartFileUpload (cc server.ClientContext, path string
 		ourFlag |= os.O_APPEND
 	}
 
-	path = "/tmp/"+path
+	path = BASE_DIR + path
 
 	if ( flag & os.O_APPEND) == 0 {
 		os.Remove(path)

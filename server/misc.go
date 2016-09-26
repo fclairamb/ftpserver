@@ -1,23 +1,23 @@
 package server
 
-func (p *ClientHandler) HandleSyst() {
-	p.writeMessage(215, "UNIX Type: L8")
+func (c *ClientHandler) HandleSyst() {
+	c.writeMessage(215, "UNIX Type: L8")
 }
 
-func (p *ClientHandler) HandleType() {
-	p.writeMessage(200, "Type set to binary")
+func (c *ClientHandler) HandleType() {
+	c.writeMessage(200, "Type set to binary")
 }
 
-func (p *ClientHandler) HandleQuit() {
+func (c *ClientHandler) HandleQuit() {
 	//fmt.Println("Goodbye")
-	p.writeMessage(221, "Goodbye")
-	p.Die()
+	c.writeMessage(221, "Goodbye")
+	c.Die()
 }
 
-func (p *ClientHandler) HandleSize() {
-	p.writeMessage(450, "downloads not allowed")
+func (c *ClientHandler) HandleSize() {
+	c.writeMessage(450, "downloads not allowed")
 }
 
-func (p *ClientHandler) HandleStat() {
-	p.writeMessage(551, "downloads not allowed")
+func (c *ClientHandler) HandleStat() {
+	c.writeMessage(551, "downloads not allowed")
 }
