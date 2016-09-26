@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"net"
 	"gopkg.in/inconshreveable/log15.v2"
+	"time"
 )
 
 // TODO: Consider if we actually need it
@@ -84,15 +85,15 @@ func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 	for {
 		connection, err := server.Listener.Accept()
 		if err != nil {
-			if opError, ok := err.(*net.OpError); !ok || !opError.Timeout() {
-				log15.Error("Listening error", "socket", connection.LocalAddr().String(), "err", err)
-				return err
-			}
+			log15.Error("Accept error", "err", err)
+			break
 		} else {
 			p := server.NewClientHandler(connection)
 			go p.HandleCommands()
 		}
 	}
+
+	// Note: At this precise time, the clients are still connected. We are just not accepting clients anymore.
 
 	// TODO add wait group for still active connections to finish up
 	// otherwise, this will just exit and kill them

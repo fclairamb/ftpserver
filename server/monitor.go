@@ -33,8 +33,13 @@ func (server *FtpServer) handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (server *FtpServer) handlerStop(w http.ResponseWriter, r *http.Request) {
+	server.Listener.Close()
+}
+
 func (server *FtpServer) Monitor() error {
 	http.HandleFunc("/", server.handler)
+	http.HandleFunc("/stop", server.handlerStop)
 
 	lstAddr := fmt.Sprintf(":%d", server.Settings.MonitorPort)
 
