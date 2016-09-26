@@ -8,7 +8,6 @@ import (
 	"syscall"
 	"net"
 	"gopkg.in/inconshreveable/log15.v2"
-	"time"
 )
 
 // TODO: Consider if we actually need it
