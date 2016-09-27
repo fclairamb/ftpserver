@@ -3,11 +3,11 @@ package sample
 import (
 	"github.com/fclairamb/ftpserver/server"
 	"errors"
-	"fmt"
 	"strings"
 	"os"
 	"io/ioutil"
 	"github.com/naoina/toml"
+	"time"
 )
 
 var BASE_DIR = "/tmp/ftpserver"
@@ -33,6 +33,8 @@ func (driver SampleDriver) CheckUser(cc server.ClientContext, user, pass string)
 func (driver SampleDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
 	if strings.HasPrefix(directory, "/root") {
 		return errors.New("This doesn't look good !")
+	} else if directory == "/virtual" {
+		return nil
 	}
 	_, err := os.Stat(BASE_DIR + directory)
 	return err
@@ -41,39 +43,58 @@ func (driver SampleDriver) ChangeDirectory(cc server.ClientContext, directory st
 func (driver SampleDriver) MakeDirectory(cc server.ClientContext, directory string) error {
 	return os.Mkdir(BASE_DIR + directory, 0777)
 }
+// type FileInfo interface {
+//        Name() string       // base name of the file
+//        Size() int64        // length in bytes for regular files; system-dependent for others
+//        Mode() FileMode     // file mode bits
+//        ModTime() time.Time // modification time
+//        IsDir() bool        // abbreviation for Mode().IsDir()
+//        Sys() interface{}   // underlying data source (can return nil)
+// }
+type VirtualFile struct {
+	name string
+	size int64
+	mode os.FileMode
+}
 
-func (driver SampleDriver) ListFiles(cc server.ClientContext) ([]map[string]string, error) {
-	files := make([]map[string]string, 0)
+func (f VirtualFile) Name() string {
+	return f.name
+}
 
-	path := cc.Path()
+func (f VirtualFile) Size() int64 {
+	return f.size
+}
 
-	if path == "/" {
-		{
-			file := make(map[string]string)
-			file["size"] = "4096"
-			file["isDir"] = "true"
-			file["name"] = "home"
-			files = append(files, file)
-		}
-		{
-			file := make(map[string]string)
-			file["size"] = "4096"
-			file["isDir"] = "true"
-			file["name"] = "root"
-			files = append(files, file)
-		}
+func (f VirtualFile) Mode() os.FileMode {
+	return f.mode
+}
+
+func (f VirtualFile) IsDir() bool {
+	return f.mode.IsDir()
+}
+
+func (f VirtualFile) ModTime() time.Time {
+	return time.Now()
+}
+
+func (f VirtualFile) Sys() interface{} {
+	return nil
+}
+
+func (driver SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
+	path := BASE_DIR + cc.Path()
+	files, err := ioutil.ReadDir(path)
+
+	// We add a virtual dir
+	if path == "/" && err == nil {
+		files = append(files, VirtualFile{
+			name: "virtual",
+			mode: os.FileMode(0666) | os.ModeDir,
+			size: 4096,
+		})
 	}
 
-	if path == "/home" {
-		for i := 0; i < 5; i++ {
-			file := make(map[string]string)
-			file["size"] = "90210"
-			file["name"] = fmt.Sprintf("paradise_%d.txt", i)
-			files = append(files, file)
-		}
-	}
-
-	return files, nil
+	return files, err
 }
 
 func (driver SampleDriver) UserLeft(cc server.ClientContext) {
