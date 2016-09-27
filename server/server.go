@@ -21,6 +21,7 @@ func init() {
 	// File access
 	commandsMap["STAT"] = (*ClientHandler).HandleStat
 	commandsMap["SIZE"] = (*ClientHandler).HandleSize
+	commandsMap["MDTM"] = (*ClientHandler).HandleMdtm
 	commandsMap["RETR"] = (*ClientHandler).HandleRetr
 	commandsMap["STOR"] = (*ClientHandler).HandleStore
 	commandsMap["APPE"] = (*ClientHandler).HandleAppend
@@ -54,7 +55,7 @@ type FtpServer struct {
 	ConnectionsById  map[string]*ClientHandler // Connections map
 	PassiveCount     int                       // Number of passive connections opened
 	StartTime        int64                     // Time when the server was started
-	connectionsMutex sync.RWMutex                // Connections map sync
+	connectionsMutex sync.RWMutex              // Connections map sync
 	driver           Driver                    // Driver to handle all the actual authentication and files access logic
 }
 

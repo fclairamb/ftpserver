@@ -123,17 +123,3 @@ func (c *ClientHandler) dirList(w io.Writer, files []os.FileInfo) error {
 	fmt.Fprint(w, "\r\n")
 	return nil
 }
-
-// Useless, fmt.Sprintf("%12s") can do the same
-/*
-func lpad(input string, length int) (result string) {
-	if len(input) < length {
-		result = strings.Repeat(" ", length - len(input)) + input
-	} else if len(input) == length {
-		result = input
-	} else {
-		result = input[0:length]
-	}
-	return
-}
-*/

@@ -1,10 +1,10 @@
 package server
 
-import "io"
 import (
 	"time"
 	"os"
 	"fmt"
+	"io"
 )
 
 func (c *ClientHandler) HandleStore() {
@@ -107,5 +107,23 @@ func (c *ClientHandler) HandleDele() {
 		c.writeMessage(250, fmt.Sprintf("Removed file %s", path))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't delete %s: %s", path, err.Error()))
+	}
+}
+
+func (c *ClientHandler) HandleSize() {
+	path := c.absPath(c.param)
+	if info, err := c.daddy.driver.GetFileInfo(c, path); err == nil {
+		c.writeMessage(213, fmt.Sprintf("%d", info.Size()))
+	} else {
+		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
+	}
+}
+
+func (c *ClientHandler) HandleMdtm() {
+	path := c.absPath(c.param)
+		if info, err := c.daddy.driver.GetFileInfo(c, path); err == nil {
+		c.writeMessage(250, info.ModTime().UTC().Format("20060102150405"))
+	} else {
+		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
 	}
 }

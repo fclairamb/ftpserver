@@ -42,7 +42,7 @@ type Driver interface {
 	WelcomeUser(cc ClientContext) (string, error)
 
 	// Authenticate an user
-	// Returns if the user could be authenticated
+	// Returns nil if the user could be authenticated
 	CheckUser(cc ClientContext, user, pass string) error
 
 	// Request to use a directory
@@ -52,9 +52,6 @@ type Driver interface {
 	MakeDirectory(cc ClientContext, directory string) error
 
 	// List the files of a given directory
-	// For each file, we have a map containing:
-	// - name : The name of the file
-	// - size : The size of the file
 	ListFiles(cc ClientContext) ([]os.FileInfo, error)
 
 	// Called when a user disconnects
@@ -65,6 +62,9 @@ type Driver interface {
 
 	// Delete a file
 	DeleteFile(cc ClientContext, path string) error
+
+	// Get some info about a file
+	GetFileInfo(cc ClientContext, path string) (os.FileInfo, error)
 }
 
 // Settings are part of the driver

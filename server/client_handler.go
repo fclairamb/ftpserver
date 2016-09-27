@@ -10,6 +10,7 @@ import (
 )
 
 type ClientHandler struct {
+	Id             string              // Id of the client
 	daddy          *FtpServer          // Server on which the connection was accepted
 	writer         *bufio.Writer       // Writer on the TCP connection
 	reader         *bufio.Reader       // Reader on the TCP connection
@@ -18,8 +19,6 @@ type ClientHandler struct {
 	path           string              // Current path
 	command        string              // Command received on the connection
 	param          string              // Param of the FTP command
-	total          int64               // Total number of bytes exchanges
-	Id             string              // Id of the client
 	connectedAt    int64               // Date of connection
 	passives       map[string]*Passive // Index of all the passive connections that are associated to this control connection
 	lastPassCid    string              // Last Passive connection Id

@@ -14,9 +14,6 @@ func (c *ClientHandler) HandleQuit() {
 	c.Die()
 }
 
-func (c *ClientHandler) HandleSize() {
-	c.writeMessage(450, "downloads not allowed")
-}
 
 func (c *ClientHandler) HandleStat() {
 	c.writeMessage(551, "downloads not allowed")

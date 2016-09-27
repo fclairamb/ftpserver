@@ -102,6 +102,12 @@ func (driver SampleDriver) OpenFile(cc server.ClientContext, path string, flag i
 	return os.OpenFile(path, flag, 0666)
 }
 
+func (driver SampleDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
+	path = BASE_DIR + path
+
+	return os.Stat(path)
+}
+
 func (driver SampleDriver) DeleteFile(cc server.ClientContext, path string) error {
 
 	path = BASE_DIR + path
