@@ -26,9 +26,9 @@ func init() {
 	commandsMap["STOR"] = (*ClientHandler).HandleStore
 	commandsMap["APPE"] = (*ClientHandler).HandleAppend
 	commandsMap["DELE"] = (*ClientHandler).HandleDele
-	// TODO: Implement renaming
-	// commandsMap["RNFR"] = (*ClientHandler).HandleRnfr
-	// commandsMap["RNTO"] = (*ClientHandler).HandleRnto
+
+	commandsMap["RNFR"] = (*ClientHandler).HandleRnfr
+	commandsMap["RNTO"] = (*ClientHandler).HandleRnto
 
 	// Directory handling
 	commandsMap["CWD"] = (*ClientHandler).HandleCwd

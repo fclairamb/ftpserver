@@ -110,6 +110,28 @@ func (c *ClientHandler) HandleDele() {
 	}
 }
 
+func (c *ClientHandler) HandleRnfr() {
+	path := c.absPath(c.param)
+	if _, err := c.daddy.driver.GetFileInfo(c, path); err == nil {
+		c.writeMessage(250, "Sure, give me a target")
+		c.UserInfo()["rnfr"] = path
+	} else {
+		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
+	}
+}
+
+func (c *ClientHandler) HandleRnto() {
+	dst := c.absPath(c.param)
+	if src := c.UserInfo()["rnfr"]; src != "" {
+		if err := c.daddy.driver.RenameFile(c, src, dst); err == nil {
+			c.writeMessage(250, "Done !")
+			delete(c.UserInfo(), "rnfr")
+		} else {
+			c.writeMessage(550, fmt.Sprintf("Couldn't rename %s to %s: %s", src, dst, err.Error()))
+		}
+	}
+}
+
 func (c *ClientHandler) HandleSize() {
 	path := c.absPath(c.param)
 	if info, err := c.daddy.driver.GetFileInfo(c, path); err == nil {

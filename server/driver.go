@@ -65,6 +65,9 @@ type Driver interface {
 
 	// Get some info about a file
 	GetFileInfo(cc ClientContext, path string) (os.FileInfo, error)
+
+	// Move a file
+	RenameFile(cc ClientContext, from, to string) error
 }
 
 // Settings are part of the driver

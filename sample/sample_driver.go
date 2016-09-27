@@ -109,10 +109,16 @@ func (driver SampleDriver) GetFileInfo(cc server.ClientContext, path string) (os
 }
 
 func (driver SampleDriver) DeleteFile(cc server.ClientContext, path string) error {
-
 	path = BASE_DIR + path
 
 	return os.Remove(path)
+}
+
+func (driver SampleDriver) RenameFile(cc server.ClientContext, from, to string) error {
+	from = BASE_DIR + from
+	to = BASE_DIR + to
+
+	return os.Rename(from, to)
 }
 
 
