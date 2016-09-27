@@ -36,7 +36,7 @@ func (c *ClientHandler) handleStoreAndAppend(append bool) {
 
 	path := c.absPath(c.param)
 
-	if total, err := c.storeOrAppend(passive, path, append); err == nil {
+	if total, err := c.storeOrAppend(passive, path, append); err == nil && err != io.EOF  {
 		c.writeMessage(226, fmt.Sprintf("OK, received %d bytes", total))
 	} else {
 		c.writeMessage(550, "Error with upload: " + err.Error())
@@ -62,7 +62,7 @@ func (c *ClientHandler) HandleRetr() {
 
 	path := c.absPath(c.param)
 
-	if total, err := c.download(passive, path); err == nil {
+	if total, err := c.download(passive, path); err == nil && err != io.EOF {
 		c.writeMessage(226, fmt.Sprintf("OK, sent %d bytes", total))
 	} else {
 		c.writeMessage(551, "Error with download: " + err.Error())
