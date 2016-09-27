@@ -24,6 +24,7 @@ func init() {
 	commandsMap["RETR"] = (*ClientHandler).HandleRetr
 	commandsMap["STOR"] = (*ClientHandler).HandleStore
 	commandsMap["APPE"] = (*ClientHandler).HandleAppend
+	commandsMap["DELE"] = (*ClientHandler).HandleDele
 
 	// Directory handling
 	commandsMap["CWD"] = (*ClientHandler).HandleCwd

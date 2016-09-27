@@ -99,3 +99,13 @@ func (c *ClientHandler) storeOrAppend(passive *Passive, name string, append bool
 		return 0, err
 	}
 }
+
+func (c *ClientHandler) HandleDele() {
+	path := c.absPath(c.param)
+	if err := c.daddy.driver.DeleteFile(c, path); err == nil {
+		c.SetPath(path)
+		c.writeMessage(250, fmt.Sprintf("Removed file %s", path))
+	} else {
+		c.writeMessage(550, fmt.Sprintf("Couldn't delete %s: %s", path, err.Error()))
+	}
+}

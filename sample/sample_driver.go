@@ -95,6 +95,13 @@ func (driver SampleDriver) OpenFile(cc server.ClientContext, path string, flag i
 	return os.OpenFile(path, flag, 0666)
 }
 
+func (driver SampleDriver) DeleteFile(cc server.ClientContext, path string) error {
+
+	path = BASE_DIR + path
+
+	return os.Remove(path)
+}
+
 
 // We actually only need this for a more complex implementation.
 /*

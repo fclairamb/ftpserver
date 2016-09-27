@@ -62,6 +62,9 @@ type Driver interface {
 
 	// Upload a file
 	OpenFile(cc ClientContext, path string, flag int) (FileContext, error)
+
+	// Delete a file
+	DeleteFile(cc ClientContext, path string) error
 }
 
 // Settings are part of the driver
