@@ -6,7 +6,8 @@ import (
 	"strings"
 	"fmt"
 	"time"
-	"bytes"
+	"os"
+	"io"
 )
 
 func (c *ClientHandler) absPath(p string) string {
@@ -93,7 +94,7 @@ func (c *ClientHandler) HandleList() {
 
 	c.writeMessage(150, "Opening ASCII mode data connection for file list")
 
-	bytes, err := c.dirList()
+	files, err := c.daddy.driver.ListFiles(c)
 	if err != nil {
 		c.writeMessage(550, err.Error())
 	} else {
@@ -105,28 +106,22 @@ func (c *ClientHandler) HandleList() {
 			c.writeMessage(550, "Could not get passive connection.")
 			return
 		}
-		passive.connection.Write(bytes)
-		message := "Closing data connection, sent some bytes"
-		c.writeMessage(226, message)
+		c.dirList(passive.connection, files)
+		c.writeMessage(226, "Closing data connection, sent some bytes")
 	}
 
 }
 
-func (c *ClientHandler) dirList() ([]byte, error) {
-	if files, err := c.daddy.driver.ListFiles(c); err == nil {
-		var buf bytes.Buffer
-		for _, file := range files {
-			buf.WriteString(file.Mode().String())
-			fmt.Fprintf(&buf, " 1 %s %s ", "ftp", "ftp")
-			fmt.Fprintf(&buf, "%12d", file.Size())
-			fmt.Fprintf(&buf, strftime.Format(" %b %d %H:%M ", file.ModTime()))
-			fmt.Fprintf(&buf, "%s\r\n", file.Name())
-		}
-		buf.WriteString("\r\n")
-		return buf.Bytes(), nil
-	} else {
-		return nil, err
+func (c *ClientHandler) dirList(w io.Writer, files []os.FileInfo) error {
+	for _, file := range files {
+		fmt.Fprint(w, file.Mode().String())
+		fmt.Fprintf(w, " 1 %s %s ", "ftp", "ftp")
+		fmt.Fprintf(w, "%12d", file.Size())
+		fmt.Fprintf(w, strftime.Format(" %b %d %H:%M ", file.ModTime()))
+		fmt.Fprintf(w, "%s\r\n", file.Name())
 	}
+	fmt.Fprint(w, "\r\n")
+	return nil
 }
 
 // Useless, fmt.Sprintf("%12s") can do the same

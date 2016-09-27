@@ -39,14 +39,18 @@ type Passive struct {
 }
 
 func (c *ClientHandler) closePassive(passive *Passive) {
-	err := passive.connection.Close()
-	if err != nil {
-		passive.closeFailedAt = time.Now().Unix()
-	} else {
-		passive.closeSuccessAt = time.Now().Unix()
-		delete(c.passives, passive.cid)
-		c.daddy.PassiveCount--
+	if passive.connection != nil {
+		err := passive.connection.Close()
+		if err != nil {
+			passive.closeFailedAt = time.Now().Unix()
+		} else {
+			passive.closeSuccessAt = time.Now().Unix()
+
+		}
 	}
+
+	delete(c.passives, passive.cid)
+	c.daddy.PassiveCount--
 }
 
 func getThatPassiveConnection(passiveListen *net.TCPListener, p *Passive) {
@@ -71,7 +75,7 @@ func (c *ClientHandler) NewPassive(passiveListen *net.TCPListener, cid string, n
 
 	add := passiveListen.Addr()
 	parts := strings.Split(add.String(), ":")
-	p.port, _ = strconv.Atoi(parts[len(parts)-1])
+	p.port, _ = strconv.Atoi(parts[len(parts) - 1])
 
 	p.waiter.Add(1)
 	p.listenFailedAt = 0
@@ -90,7 +94,7 @@ func (c *ClientHandler) HandlePassive() {
 	laddr, err := net.ResolveTCPAddr("tcp", "0.0.0.0:0")
 	passiveListen, err := net.ListenTCP("tcp", laddr)
 	if err != nil {
-		c.writeMessage(550, "Error with passive: "+err.Error())
+		c.writeMessage(550, "Error with passive: " + err.Error())
 		return
 	}
 	if anotherPassiveIsAvail() {

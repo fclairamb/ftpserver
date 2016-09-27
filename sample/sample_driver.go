@@ -46,7 +46,7 @@ func (driver SampleDriver) MakeDirectory(cc server.ClientContext, directory stri
 
 func (driver SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
 
-	if ( cc.Path() == "/virtual") {
+	if ( cc.Path() == "/virtual2") {
 		files := make([]os.FileInfo, 0)
 		files = append(files,
 			VirtualFile{
@@ -84,6 +84,10 @@ func (driver SampleDriver) UserLeft(cc server.ClientContext) {
 }
 
 func (driver SampleDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileContext, error) {
+
+	if path == "/virtual/file1.txt" {
+		path = "/.file1.txt"
+	}
 
 	path = BASE_DIR + path
 
