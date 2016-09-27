@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"github.com/naoina/toml"
 	"time"
+	"gopkg.in/inconshreveable/log15.v2"
 )
 
 var BASE_DIR = "/tmp/ftpserver"
@@ -74,7 +75,7 @@ func (f VirtualFile) IsDir() bool {
 }
 
 func (f VirtualFile) ModTime() time.Time {
-	return time.Now()
+	return time.Now().UTC()
 }
 
 func (f VirtualFile) Sys() interface{} {
@@ -82,7 +83,28 @@ func (f VirtualFile) Sys() interface{} {
 }
 
 func (driver SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
+
+	log15.Info("Listing files", "path", cc.Path())
+
+	if ( cc.Path() == "/virtual") {
+		files := make([]os.FileInfo, 0)
+		files = append(files,
+			VirtualFile{
+				name: "file1.txt",
+				mode: os.FileMode(0666),
+				size: 1024,
+			},
+			VirtualFile{
+				name: "file2.txt",
+				mode: os.FileMode(0666),
+				size: 2048,
+			},
+		)
+		return files, nil
+	}
+
 	path := BASE_DIR + cc.Path()
+
 	files, err := ioutil.ReadDir(path)
 
 	// We add a virtual dir
