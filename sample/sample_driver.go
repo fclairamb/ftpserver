@@ -34,7 +34,7 @@ func (driver SampleDriver) ChangeDirectory(cc server.ClientContext, directory st
 	if strings.HasPrefix(directory, "/root") {
 		return errors.New("This doesn't look good !")
 	}
-	_, err := os.Stat(BASE_DIR+directory)
+	_, err := os.Stat(BASE_DIR + directory)
 	return err
 }
 
@@ -42,7 +42,7 @@ func (driver SampleDriver) MakeDirectory(cc server.ClientContext, directory stri
 	return os.Mkdir(BASE_DIR + directory, 0777)
 }
 
-func (driver SampleDriver) GetFiles(cc server.ClientContext) ([]map[string]string, error) {
+func (driver SampleDriver) ListFiles(cc server.ClientContext) ([]map[string]string, error) {
 	files := make([]map[string]string, 0)
 
 	path := cc.Path()
@@ -80,21 +80,19 @@ func (driver SampleDriver) UserLeft(cc server.ClientContext) {
 
 }
 
-func (driver SampleDriver) StartFileUpload(cc server.ClientContext, path string, flag int) (server.FileContext, error) {
-	ourFlag := os.O_CREATE | os.O_WRONLY
-
-	// We can't really copy-paste it because we will probably have flags that are not used for OS files
-	if (flag & os.O_APPEND) != 0 {
-		ourFlag |= os.O_APPEND
-	}
+func (driver SampleDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileContext, error) {
 
 	path = BASE_DIR + path
 
-	if ( flag & os.O_APPEND) == 0 {
-		os.Remove(path)
+	// If we are writing and we are not in append mode, we should remove the file
+	if ( flag & os.O_WRONLY) != 0 {
+		flag |= os.O_CREATE
+		if (flag & os.O_APPEND) == 0 {
+			os.Remove(path)
+		}
 	}
 
-	return os.OpenFile(path, ourFlag, 0666)
+	return os.OpenFile(path, flag, 0666)
 }
 
 

@@ -27,6 +27,7 @@ type ClientContext interface {
 // Note: The first write will be performed with at most 512B, the following ones can contain up to 4MB
 type FileContext interface {
 	io.Writer
+	io.Reader
 	io.Closer
 	io.Seeker
 }
@@ -54,13 +55,13 @@ type Driver interface {
 	// For each file, we have a map containing:
 	// - name : The name of the file
 	// - size : The size of the file
-	GetFiles(cc ClientContext) ([]map[string]string, error)
+	ListFiles(cc ClientContext) ([]map[string]string, error)
 
 	// Called when a user disconnects
 	UserLeft(cc ClientContext)
 
 	// Upload a file
-	StartFileUpload(cc ClientContext, path string, flag int) (FileContext, error)
+	OpenFile(cc ClientContext, path string, flag int) (FileContext, error)
 }
 
 // Settings are part of the driver

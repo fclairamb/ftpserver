@@ -107,7 +107,7 @@ func (c *ClientHandler) HandleList() {
 func (c *ClientHandler) dirList() ([]byte, error) {
 	var buf bytes.Buffer
 
-	files, err := c.daddy.driver.GetFiles(c)
+	files, err := c.daddy.driver.ListFiles(c)
 	for _, file := range files {
 
 		if file["isDir"] != "" {
