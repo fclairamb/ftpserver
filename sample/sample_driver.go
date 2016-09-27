@@ -44,43 +44,6 @@ func (driver SampleDriver) ChangeDirectory(cc server.ClientContext, directory st
 func (driver SampleDriver) MakeDirectory(cc server.ClientContext, directory string) error {
 	return os.Mkdir(BASE_DIR + directory, 0777)
 }
-// type FileInfo interface {
-//        Name() string       // base name of the file
-//        Size() int64        // length in bytes for regular files; system-dependent for others
-//        Mode() FileMode     // file mode bits
-//        ModTime() time.Time // modification time
-//        IsDir() bool        // abbreviation for Mode().IsDir()
-//        Sys() interface{}   // underlying data source (can return nil)
-// }
-type VirtualFile struct {
-	name string
-	size int64
-	mode os.FileMode
-}
-
-func (f VirtualFile) Name() string {
-	return f.name
-}
-
-func (f VirtualFile) Size() int64 {
-	return f.size
-}
-
-func (f VirtualFile) Mode() os.FileMode {
-	return f.mode
-}
-
-func (f VirtualFile) IsDir() bool {
-	return f.mode.IsDir()
-}
-
-func (f VirtualFile) ModTime() time.Time {
-	return time.Now().UTC()
-}
-
-func (f VirtualFile) Sys() interface{} {
-	return nil
-}
 
 func (driver SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
 
@@ -184,4 +147,35 @@ func (driver SampleDriver) GetSettings() *server.Settings {
 func NewSampleDriver() server.Driver {
 	os.MkdirAll(BASE_DIR, 0777)
 	return new(SampleDriver)
+}
+
+
+type VirtualFile struct {
+	name string
+	size int64
+	mode os.FileMode
+}
+
+func (f VirtualFile) Name() string {
+	return f.name
+}
+
+func (f VirtualFile) Size() int64 {
+	return f.size
+}
+
+func (f VirtualFile) Mode() os.FileMode {
+	return f.mode
+}
+
+func (f VirtualFile) IsDir() bool {
+	return f.mode.IsDir()
+}
+
+func (f VirtualFile) ModTime() time.Time {
+	return time.Now().UTC()
+}
+
+func (f VirtualFile) Sys() interface{} {
+	return nil
 }
