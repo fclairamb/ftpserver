@@ -68,6 +68,9 @@ type Driver interface {
 
 	// Move a file
 	RenameFile(cc ClientContext, from, to string) error
+
+	// Change file mode - Let's not make it part of the driver actually, it's not that useful
+	// ChmodFile(cc ClientContext, path string, mode os.FileMode) error
 }
 
 // Settings are part of the driver

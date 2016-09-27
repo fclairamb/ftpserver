@@ -108,6 +108,12 @@ func (driver SampleDriver) GetFileInfo(cc server.ClientContext, path string) (os
 	return os.Stat(path)
 }
 
+func (driver SampleDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
+	path = BASE_DIR + path
+
+	return os.Chmod(path, mode)
+}
+
 func (driver SampleDriver) DeleteFile(cc server.ClientContext, path string) error {
 	path = BASE_DIR + path
 
