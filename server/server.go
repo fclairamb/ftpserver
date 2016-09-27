@@ -33,6 +33,7 @@ func init() {
 	commandsMap["NLST"] = (*ClientHandler).HandleList
 	commandsMap["LIST"] = (*ClientHandler).HandleList
 	commandsMap["MKD"] = (*ClientHandler).HandleMkd
+	commandsMap["RMD"] = (*ClientHandler).HandleRmd
 
 	// Connection handling
 	commandsMap["TYPE"] = (*ClientHandler).HandleType

@@ -57,6 +57,15 @@ func (c *ClientHandler) HandleMkd() {
 	}
 }
 
+func (c *ClientHandler) HandleRmd() {
+	path := c.absPath(c.param)
+	if err := c.daddy.driver.DeleteFile(c, path); err == nil {
+		c.writeMessage(250, fmt.Sprintf("Deleted dir %s", path))
+	} else {
+		c.writeMessage(550, fmt.Sprintf("Could not delete dir %s : %s", path, err.Error()))
+	}
+}
+
 func (c *ClientHandler) HandleCdUp() {
 	dirs := filepath.SplitList(c.Path())
 	dirs = dirs[0:len(dirs) - 1]
