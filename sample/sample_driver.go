@@ -46,7 +46,7 @@ func (driver SampleDriver) MakeDirectory(cc server.ClientContext, directory stri
 
 func (driver SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
 
-	if ( cc.Path() == "/virtual2") {
+	if ( cc.Path() == "/virtual") {
 		files := make([]os.FileInfo, 0)
 		files = append(files,
 			VirtualFile{
