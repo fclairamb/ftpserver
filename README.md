@@ -2,7 +2,7 @@
 
 This is a consistent and comprehensive library to create your own FTP server.
 
-Note: this is a fork of https://github.com/andrewarrow/paradise_ftp but many things have been changed since then.
+Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) but many things have been changed since then.
 
 ## Current status of the project
 
