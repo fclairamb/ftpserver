@@ -8,13 +8,13 @@ import (
 	"io/ioutil"
 	"github.com/naoina/toml"
 	"time"
+	"gopkg.in/inconshreveable/log15.v2"
+	"io"
 )
-
-var BASE_DIR = "/tmp/ftpserver"
 
 // SampleDriver defines a very basic serverftp driver
 type SampleDriver struct {
-
+	baseDir string
 }
 
 func (driver SampleDriver) WelcomeUser(cc server.ClientContext) (string, error) {
@@ -36,12 +36,12 @@ func (driver SampleDriver) ChangeDirectory(cc server.ClientContext, directory st
 	} else if directory == "/virtual" {
 		return nil
 	}
-	_, err := os.Stat(BASE_DIR + directory)
+	_, err := os.Stat(driver.baseDir + directory)
 	return err
 }
 
 func (driver SampleDriver) MakeDirectory(cc server.ClientContext, directory string) error {
-	return os.Mkdir(BASE_DIR + directory, 0777)
+	return os.Mkdir(driver.baseDir + directory, 0777)
 }
 
 func (driver SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
@@ -49,12 +49,12 @@ func (driver SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, er
 	if ( cc.Path() == "/virtual") {
 		files := make([]os.FileInfo, 0)
 		files = append(files,
-			VirtualFile{
-				name: "file1.txt",
+			VirtualFileInfo{
+				name: "localpath.txt",
 				mode: os.FileMode(0666),
 				size: 1024,
 			},
-			VirtualFile{
+			VirtualFileInfo{
 				name: "file2.txt",
 				mode: os.FileMode(0666),
 				size: 2048,
@@ -63,13 +63,13 @@ func (driver SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, er
 		return files, nil
 	}
 
-	path := BASE_DIR + cc.Path()
+	path := driver.baseDir + cc.Path()
 
 	files, err := ioutil.ReadDir(path)
 
 	// We add a virtual dir
 	if cc.Path() == "/" && err == nil {
-		files = append(files, VirtualFile{
+		files = append(files, VirtualFileInfo{
 			name: "virtual",
 			mode: os.FileMode(0666) | os.ModeDir,
 			size: 4096,
@@ -85,11 +85,11 @@ func (driver SampleDriver) UserLeft(cc server.ClientContext) {
 
 func (driver SampleDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileContext, error) {
 
-	if path == "/virtual/file1.txt" {
-		path = "/.file1.txt"
+	if path == "/virtual/localpath.txt" {
+		return &VirtualFile{content: []byte(driver.baseDir), }, nil
 	}
 
-	path = BASE_DIR + path
+	path = driver.baseDir + path
 
 	// If we are writing and we are not in append mode, we should remove the file
 	if ( flag & os.O_WRONLY) != 0 {
@@ -103,45 +103,29 @@ func (driver SampleDriver) OpenFile(cc server.ClientContext, path string, flag i
 }
 
 func (driver SampleDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
-	path = BASE_DIR + path
+	path = driver.baseDir + path
 
 	return os.Stat(path)
 }
 
 func (driver SampleDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
-	path = BASE_DIR + path
+	path = driver.baseDir + path
 
 	return os.Chmod(path, mode)
 }
 
 func (driver SampleDriver) DeleteFile(cc server.ClientContext, path string) error {
-	path = BASE_DIR + path
+	path = driver.baseDir + path
 
 	return os.Remove(path)
 }
 
 func (driver SampleDriver) RenameFile(cc server.ClientContext, from, to string) error {
-	from = BASE_DIR + from
-	to = BASE_DIR + to
+	from = driver.baseDir + from
+	to = driver.baseDir + to
 
 	return os.Rename(from, to)
 }
-
-
-// We actually only need this for a more complex implementation.
-/*
-type FileWriter struct {
-	Name string
-}
-
-func (fw FileWriter) Write(buf []byte) error {
-	return nil
-}
-
-func (fw FileWriter) Close() error {
-	return nil
-}
-*/
 
 func (driver SampleDriver) GetSettings() *server.Settings {
 	f, err := os.Open("conf/settings.toml")
@@ -164,37 +148,71 @@ func (driver SampleDriver) GetSettings() *server.Settings {
 // Note: This is not a mistake. Interface can be pointers. There seems to be a lot of confusion around this in the
 //       server_ftp original code.
 func NewSampleDriver() server.Driver {
-	os.MkdirAll(BASE_DIR, 0777)
-	return new(SampleDriver)
+	dir, err := ioutil.TempDir("", "ftpserver")
+	if err != nil {
+		log15.Error("Could not find a temporary dir", "err", err)
+	}
+
+	driver := &SampleDriver{
+		baseDir: dir,
+	}
+	os.MkdirAll(driver.baseDir, 0777)
+	return driver
 }
 
-
 type VirtualFile struct {
+	content    []byte // Content of the file
+	readOffset int    // Reading offset
+}
+
+func (f *VirtualFile) Close() error {
+	return nil
+}
+
+func (f *VirtualFile) Read(buffer []byte) (int, error) {
+	n := copy(buffer, f.content[f.readOffset:])
+	f.readOffset += n
+	if n == 0 {
+		return 0, io.EOF
+	}
+
+	return n, nil
+}
+
+func (f *VirtualFile) Seek(n int64, w int) (int64, error) {
+	return 0, nil
+}
+
+func (f *VirtualFile) Write(buffer []byte) (int, error) {
+	return 0, nil
+}
+
+type VirtualFileInfo struct {
 	name string
 	size int64
 	mode os.FileMode
 }
 
-func (f VirtualFile) Name() string {
+func (f VirtualFileInfo) Name() string {
 	return f.name
 }
 
-func (f VirtualFile) Size() int64 {
+func (f VirtualFileInfo) Size() int64 {
 	return f.size
 }
 
-func (f VirtualFile) Mode() os.FileMode {
+func (f VirtualFileInfo) Mode() os.FileMode {
 	return f.mode
 }
 
-func (f VirtualFile) IsDir() bool {
+func (f VirtualFileInfo) IsDir() bool {
 	return f.mode.IsDir()
 }
 
-func (f VirtualFile) ModTime() time.Time {
+func (f VirtualFileInfo) ModTime() time.Time {
 	return time.Now().UTC()
 }
 
-func (f VirtualFile) Sys() interface{} {
+func (f VirtualFileInfo) Sys() interface{} {
 	return nil
 }
