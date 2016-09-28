@@ -27,9 +27,6 @@ func (server *FtpServer) handler(w http.ResponseWriter, r *http.Request) {
 
 	for k, v := range server.ConnectionsById {
 		fmt.Fprintf(w, "   %s %s, %s\n", trimGuid(k), countdown(v.connectedAt), v.user)
-		for pk, pv := range v.passives {
-			fmt.Fprintf(w, "     %s %s, %d %s %s\n", trimGuid(pk), countdown(pv.listenAt), pv.port, pv.command, pv.param)
-		}
 	}
 }
 

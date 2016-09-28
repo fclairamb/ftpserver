@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 	"fmt"
-	"time"
 	"os"
 	"io"
 )
@@ -86,30 +85,16 @@ func (c *ClientHandler) HandlePwd() {
 }
 
 func (c *ClientHandler) HandleList() {
-	passive := c.lastPassive()
-	if passive == nil {
-		return
-	}
-	defer c.closePassive(passive)
-
-	c.writeMessage(150, "Opening ASCII mode data connection for file list")
-
-	files, err := c.daddy.driver.ListFiles(c)
-	if err != nil {
-		c.writeMessage(550, err.Error())
-	} else {
-		if waitTimeout(&passive.waiter, time.Minute) {
-			c.writeMessage(550, "Could not get passive connection.")
-			return
+	if files, err := c.daddy.driver.ListFiles(c); err == nil {
+		c.writeMessage(150, "Opening ASCII mode data connection for file list")
+		if tr, err := c.TransferOpen(); err == nil {
+			defer c.TransferClose()
+			c.dirList(tr, files)
+			c.writeMessage(226, "Closing data connection, sent some bytes")
+		} else {
+			c.writeMessage(550, err.Error())
 		}
-		if passive.listenFailedAt > 0 {
-			c.writeMessage(550, "Could not get passive connection.")
-			return
-		}
-		c.dirList(passive.connection, files)
-		c.writeMessage(226, "Closing data connection, sent some bytes")
 	}
-
 }
 
 func (c *ClientHandler) dirList(w io.Writer, files []os.FileInfo) error {

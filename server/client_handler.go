@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"time"
 	"strings"
+	"errors"
 )
 
 type ClientHandler struct {
@@ -20,11 +21,11 @@ type ClientHandler struct {
 	command        string              // Command received on the connection
 	param          string              // Param of the FTP command
 	connectedAt    int64               // Date of connection
-	passives       map[string]*Passive // Index of all the passive connections that are associated to this control connection
 	lastPassCid    string              // Last Passive connection Id
 	userInfo       map[string]string   // Various user information (shared between server and driver)
 	debug          bool                // Show debugging info on the server side
 	driverInstance interface{}         // Instance of the driver's matching object
+	transfer       TransferHandler     // Transfer connection (passive one)
 }
 
 func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
@@ -37,7 +38,6 @@ func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
 		reader: bufio.NewReader(connection),
 		connectedAt: time.Now().UTC().UnixNano(),
 		path: "/",
-		passives: make(map[string]*Passive),
 		userInfo: make(map[string]string),
 		debug: true,
 	}
@@ -64,16 +64,6 @@ func (p *ClientHandler) Path() string {
 
 func (p *ClientHandler) SetPath(path string) {
 	p.userInfo["path"] = path
-}
-
-func (p *ClientHandler) lastPassive() *Passive {
-	passive := p.passives[p.lastPassCid]
-	if passive == nil {
-		return nil
-	}
-	passive.command = p.command
-	passive.param = p.param
-	return passive
 }
 
 func (p *ClientHandler) MyInstance() interface{} {
@@ -121,13 +111,28 @@ func (p *ClientHandler) HandleCommands() {
 	}
 }
 
-func (p *ClientHandler) writeMessage(code int, message string) {
+func (c *ClientHandler) writeMessage(code int, message string) {
 	line := fmt.Sprintf("%d %s\r\n", code, message)
-	if p.debug {
+	if c.debug {
 		log15.Info("FTP SEND", "action", "ftp.cmd_send", "line", line)
 	}
-	p.writer.WriteString(line)
-	p.writer.Flush()
+	c.writer.WriteString(line)
+	c.writer.Flush()
+}
+
+func (c *ClientHandler) TransferOpen() (net.Conn, error) {
+	if c.transfer != nil {
+		return c.transfer.Open()
+	} else {
+		return nil, errors.New("No passive connection declared")
+	}
+}
+
+func (c *ClientHandler) TransferClose() {
+	if c.transfer != nil {
+		c.transfer.Close()
+		c.transfer = nil
+	}
 }
 
 func parseLine(line string) (string, string) {

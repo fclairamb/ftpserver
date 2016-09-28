@@ -41,8 +41,8 @@ func init() {
 
 	// Connection handling
 	commandsMap["TYPE"] = (*ClientHandler).HandleType
-	commandsMap["PASV"] = (*ClientHandler).HandlePassive
-	commandsMap["EPSV"] = (*ClientHandler).HandlePassive
+	commandsMap["PASV"] = (*ClientHandler).HandlePASV
+	commandsMap["EPSV"] = (*ClientHandler).HandlePASV
 	commandsMap["QUIT"] = (*ClientHandler).HandleQuit
 
 	// Misc
