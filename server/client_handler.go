@@ -51,7 +51,6 @@ func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
 func (p *ClientHandler) Die() {
 	p.daddy.driver.UserLeft(p)
 	p.conn.Close()
-	p.daddy.ClientDeparture(p)
 }
 
 func (p *ClientHandler) UserInfo() map[string]string {
@@ -74,9 +73,16 @@ func (p *ClientHandler) SetMyInstance(value interface{}) {
 	p.driverInstance = value
 }
 
+func (p *ClientHandler) end() {
+	if p.transfer != nil {
+		p.transfer.Close()
+	}
+}
+
 func (p *ClientHandler) HandleCommands() {
 	p.daddy.ClientArrival(p)
 	defer p.daddy.ClientDeparture(p)
+	defer p.end()
 
 	//fmt.Println(p.id, " Got client on: ", p.ip)
 	if msg, err := p.daddy.driver.WelcomeUser(p); err == nil {
