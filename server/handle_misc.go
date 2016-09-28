@@ -1,20 +1,20 @@
 package server
 
-func (c *ClientHandler) HandleSYST() {
+func (c *ClientHandler) handleSYST() {
 	c.writeMessage(215, "UNIX Type: L8")
 }
 
-func (c *ClientHandler) HandleTYPE() {
+func (c *ClientHandler) handleTYPE() {
 	c.writeMessage(200, "Type set to binary")
 }
 
-func (c *ClientHandler) HandleQUIT() {
+func (c *ClientHandler) handleQUIT() {
 	//fmt.Println("Goodbye")
 	c.writeMessage(221, "Goodbye")
-	c.Die()
+	c.disconnect()
 }
 
 
-func (c *ClientHandler) HandleSTAT() {
+func (c *ClientHandler) handleSTAT() {
 	c.writeMessage(551, "downloads not allowed")
 }

@@ -18,37 +18,37 @@ func init() {
 	commandsMap = make(map[string]func(*ClientHandler))
 
 	// Authentication
-	commandsMap["USER"] = (*ClientHandler).HandleUSER
-	commandsMap["PASS"] = (*ClientHandler).HandlePASS
+	commandsMap["USER"] = (*ClientHandler).handleUSER
+	commandsMap["PASS"] = (*ClientHandler).handlePASS
 
 	// File access
-	commandsMap["STAT"] = (*ClientHandler).HandleSTAT
-	commandsMap["SIZE"] = (*ClientHandler).HandleSIZE
-	commandsMap["MDTM"] = (*ClientHandler).HandleMDTM
-	commandsMap["RETR"] = (*ClientHandler).HandleRETR
-	commandsMap["STOR"] = (*ClientHandler).HandleSTOR
-	commandsMap["APPE"] = (*ClientHandler).HandleAPPE
-	commandsMap["DELE"] = (*ClientHandler).HandleDELE
-	commandsMap["RNFR"] = (*ClientHandler).HandleRNFR
-	commandsMap["RNTO"] = (*ClientHandler).HandleRNTO
+	commandsMap["STAT"] = (*ClientHandler).handleSTAT
+	commandsMap["SIZE"] = (*ClientHandler).handleSIZE
+	commandsMap["MDTM"] = (*ClientHandler).handleMDTM
+	commandsMap["RETR"] = (*ClientHandler).handleRETR
+	commandsMap["STOR"] = (*ClientHandler).handleSTOR
+	commandsMap["APPE"] = (*ClientHandler).handleAPPE
+	commandsMap["DELE"] = (*ClientHandler).handleDELE
+	commandsMap["RNFR"] = (*ClientHandler).handleRNFR
+	commandsMap["RNTO"] = (*ClientHandler).handleRNTO
 
 	// Directory handling
-	commandsMap["CWD"] = (*ClientHandler).HandleCWD
-	commandsMap["PWD"] = (*ClientHandler).HandlePWD
-	commandsMap["CDUP"] = (*ClientHandler).HandleCDUP
-	commandsMap["NLST"] = (*ClientHandler).HandleLIST
-	commandsMap["LIST"] = (*ClientHandler).HandleLIST
-	commandsMap["MKD"] = (*ClientHandler).HandleMKD
-	commandsMap["RMD"] = (*ClientHandler).HandleRMD
+	commandsMap["CWD"] = (*ClientHandler).handleCWD
+	commandsMap["PWD"] = (*ClientHandler).handlePWD
+	commandsMap["CDUP"] = (*ClientHandler).handleCDUP
+	commandsMap["NLST"] = (*ClientHandler).handleLIST
+	commandsMap["LIST"] = (*ClientHandler).handleLIST
+	commandsMap["MKD"] = (*ClientHandler).handleMKD
+	commandsMap["RMD"] = (*ClientHandler).handleRMD
 
 	// Connection handling
-	commandsMap["TYPE"] = (*ClientHandler).HandleTYPE
-	commandsMap["PASV"] = (*ClientHandler).HandlePASV
-	commandsMap["EPSV"] = (*ClientHandler).HandlePASV
-	commandsMap["QUIT"] = (*ClientHandler).HandleQUIT
+	commandsMap["TYPE"] = (*ClientHandler).handleTYPE
+	commandsMap["PASV"] = (*ClientHandler).handlePASV
+	commandsMap["EPSV"] = (*ClientHandler).handlePASV
+	commandsMap["QUIT"] = (*ClientHandler).handleQUIT
 
 	// Misc
-	commandsMap["SYST"] = (*ClientHandler).HandleSYST
+	commandsMap["SYST"] = (*ClientHandler).handleSYST
 }
 
 type FtpServer struct {
@@ -70,7 +70,7 @@ func NewFtpServer(driver Driver) *FtpServer {
 }
 
 // When a client connects, the server could refuse the connection
-func (server *FtpServer) ClientArrival(c *ClientHandler) error {
+func (server *FtpServer) clientArrival(c *ClientHandler) error {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 
@@ -88,7 +88,7 @@ func (server *FtpServer) ClientArrival(c *ClientHandler) error {
 }
 
 // When a client leaves
-func (server *FtpServer) ClientDeparture(c *ClientHandler) {
+func (server *FtpServer) clientDeparture(c *ClientHandler) {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 

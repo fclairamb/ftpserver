@@ -1,5 +1,5 @@
 port = 2121
 host = "0.0.0.0"
-max_connections = 100
+max_connections = 5
 monitor_on = true
 monitor_port = 5010

@@ -24,7 +24,7 @@ type Passive struct {
 	connection net.Conn         // TCP Connection established
 }
 
-func (c *ClientHandler) HandlePASV() {
+func (c *ClientHandler) handlePASV() {
 	addr, _ := net.ResolveTCPAddr("tcp", ":0")
 	listener, err := net.ListenTCP("tcp", addr)
 	if err != nil {

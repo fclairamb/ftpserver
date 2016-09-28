@@ -8,6 +8,7 @@ import (
 	"time"
 	"strings"
 	"errors"
+	"io"
 )
 
 type ClientHandler struct {
@@ -47,8 +48,7 @@ func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
 	return p
 }
 
-func (p *ClientHandler) Die() {
-	p.daddy.driver.UserLeft(p)
+func (p *ClientHandler) disconnect() {
 	p.conn.Close()
 }
 
@@ -79,19 +79,21 @@ func (p *ClientHandler) end() {
 }
 
 func (p *ClientHandler) HandleCommands() {
-	defer p.daddy.ClientDeparture(p)
+	defer p.daddy.clientDeparture(p)
 	defer p.end()
 
-	if err := p.daddy.ClientArrival(p); err != nil {
+	if err := p.daddy.clientArrival(p); err != nil {
 		p.writeMessage(500, "Can't accept you - "+err.Error() )
+		return
 	}
+
+	defer p.daddy.driver.UserLeft(p)
 
 	//fmt.Println(p.id, " Got client on: ", p.ip)
 	if msg, err := p.daddy.driver.WelcomeUser(p); err == nil {
 		p.writeMessage(220, msg)
 	} else {
 		p.writeMessage(500, msg)
-		p.Die()
 		return
 	}
 
@@ -103,9 +105,14 @@ func (p *ClientHandler) HandleCommands() {
 		}
 
 		if err != nil {
-			log15.Error("TCP error", "err", err)
+			if err == io.EOF {
+				log15.Info("Client disconnected", "id", p.Id)
+			} else {
+				log15.Error("TCP error", "err", err)
+			}
 			return
 		}
+
 		command, param := parseLine(line)
 		p.command = command
 		p.param = param

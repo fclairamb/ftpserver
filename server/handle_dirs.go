@@ -24,9 +24,9 @@ func (c *ClientHandler) absPath(p string) string {
 	return path
 }
 
-func (c *ClientHandler) HandleCWD() {
+func (c *ClientHandler) handleCWD() {
 	if c.param == ".." {
-		c.HandleCDUP()
+		c.handleCDUP()
 		return
 	}
 
@@ -47,7 +47,7 @@ func (c *ClientHandler) HandleCWD() {
 	}
 }
 
-func (c *ClientHandler) HandleMKD() {
+func (c *ClientHandler) handleMKD() {
 	path := c.absPath(c.param)
 	if err := c.daddy.driver.MakeDirectory(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Created dir %s", path))
@@ -56,7 +56,7 @@ func (c *ClientHandler) HandleMKD() {
 	}
 }
 
-func (c *ClientHandler) HandleRMD() {
+func (c *ClientHandler) handleRMD() {
 	path := c.absPath(c.param)
 	if err := c.daddy.driver.DeleteFile(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Deleted dir %s", path))
@@ -65,7 +65,7 @@ func (c *ClientHandler) HandleRMD() {
 	}
 }
 
-func (c *ClientHandler) HandleCDUP() {
+func (c *ClientHandler) handleCDUP() {
 	dirs := filepath.SplitList(c.Path())
 	dirs = dirs[0:len(dirs) - 1]
 	path := filepath.Join(dirs...)
@@ -80,11 +80,11 @@ func (c *ClientHandler) HandleCDUP() {
 	}
 }
 
-func (c *ClientHandler) HandlePWD() {
+func (c *ClientHandler) handlePWD() {
 	c.writeMessage(257, "\"" + c.Path() + "\" is the current directory")
 }
 
-func (c *ClientHandler) HandleLIST() {
+func (c *ClientHandler) handleLIST() {
 	if files, err := c.daddy.driver.ListFiles(c); err == nil {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
