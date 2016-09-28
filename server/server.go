@@ -15,38 +15,37 @@ func init() {
 	commandsMap = make(map[string]func(*ClientHandler))
 
 	// Authentication
-	commandsMap["USER"] = (*ClientHandler).HandleUser
-	commandsMap["PASS"] = (*ClientHandler).HandlePass
+	commandsMap["USER"] = (*ClientHandler).HandleUSER
+	commandsMap["PASS"] = (*ClientHandler).HandlePASS
 
 	// File access
-	commandsMap["STAT"] = (*ClientHandler).HandleStat
-	commandsMap["SIZE"] = (*ClientHandler).HandleSize
-	commandsMap["MDTM"] = (*ClientHandler).HandleMdtm
-	commandsMap["RETR"] = (*ClientHandler).HandleRetr
-	commandsMap["STOR"] = (*ClientHandler).HandleStore
-	commandsMap["APPE"] = (*ClientHandler).HandleAppend
-	commandsMap["DELE"] = (*ClientHandler).HandleDele
-
-	commandsMap["RNFR"] = (*ClientHandler).HandleRnfr
-	commandsMap["RNTO"] = (*ClientHandler).HandleRnto
+	commandsMap["STAT"] = (*ClientHandler).HandleSTAT
+	commandsMap["SIZE"] = (*ClientHandler).HandleSIZE
+	commandsMap["MDTM"] = (*ClientHandler).HandleMDTM
+	commandsMap["RETR"] = (*ClientHandler).HandleRETR
+	commandsMap["STOR"] = (*ClientHandler).HandleSTOR
+	commandsMap["APPE"] = (*ClientHandler).HandleAPPE
+	commandsMap["DELE"] = (*ClientHandler).HandleDELE
+	commandsMap["RNFR"] = (*ClientHandler).HandleRNFR
+	commandsMap["RNTO"] = (*ClientHandler).HandleRNTO
 
 	// Directory handling
-	commandsMap["CWD"] = (*ClientHandler).HandleCwd
-	commandsMap["PWD"] = (*ClientHandler).HandlePwd
-	commandsMap["CDUP"] = (*ClientHandler).HandleCdUp
-	commandsMap["NLST"] = (*ClientHandler).HandleList
-	commandsMap["LIST"] = (*ClientHandler).HandleList
-	commandsMap["MKD"] = (*ClientHandler).HandleMkd
-	commandsMap["RMD"] = (*ClientHandler).HandleRmd
+	commandsMap["CWD"] = (*ClientHandler).HandleCWD
+	commandsMap["PWD"] = (*ClientHandler).HandlePWD
+	commandsMap["CDUP"] = (*ClientHandler).HandleCDUP
+	commandsMap["NLST"] = (*ClientHandler).HandleLIST
+	commandsMap["LIST"] = (*ClientHandler).HandleLIST
+	commandsMap["MKD"] = (*ClientHandler).HandleMKD
+	commandsMap["RMD"] = (*ClientHandler).HandleRMD
 
 	// Connection handling
-	commandsMap["TYPE"] = (*ClientHandler).HandleType
+	commandsMap["TYPE"] = (*ClientHandler).HandleTYPE
 	commandsMap["PASV"] = (*ClientHandler).HandlePASV
 	commandsMap["EPSV"] = (*ClientHandler).HandlePASV
-	commandsMap["QUIT"] = (*ClientHandler).HandleQuit
+	commandsMap["QUIT"] = (*ClientHandler).HandleQUIT
 
 	// Misc
-	commandsMap["SYST"] = (*ClientHandler).HandleSyst
+	commandsMap["SYST"] = (*ClientHandler).HandleSYST
 }
 
 type FtpServer struct {
