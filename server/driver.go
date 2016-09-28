@@ -7,12 +7,46 @@ import (
 
 // This file is the driver part of the server. It must be implemented by anyone wanting to use the server.
 
+// Server driver
+type Driver interface {
+	// Load some general settings around the server setup
+	GetSettings() *Settings
+
+	// When a user connects
+	WelcomeUser(cc ClientContext) (string, error)
+
+	// When a user disconnects
+	UserLeft(cc ClientContext)
+
+	// Authenticate an user
+	// Return nil to accept the user
+	CheckUser(cc ClientContext, user, pass string) error
+
+	// Change current working directory
+	ChangeDirectory(cc ClientContext, directory string) error
+
+	// Create a directory
+	MakeDirectory(cc ClientContext, directory string) error
+
+	// List the files of the current working directory
+	ListFiles(cc ClientContext) ([]os.FileInfo, error)
+
+	// Upload a file
+	OpenFile(cc ClientContext, path string, flag int) (FileContext, error)
+
+	// Delete a file
+	DeleteFile(cc ClientContext, path string) error
+
+	// Get some info about a file
+	GetFileInfo(cc ClientContext, path string) (os.FileInfo, error)
+
+	// Move a file
+	RenameFile(cc ClientContext, from, to string) error
+}
+
 // Adding the ClientContext concept to be able to handle more than just UserInfo
 // Implemented by the server
 type ClientContext interface {
-	// Get userInfo
-	UserInfo() map[string]string
-
 	// Get current path
 	Path() string
 
@@ -32,48 +66,7 @@ type FileContext interface {
 	io.Seeker
 }
 
-// Server driver
-// Implemented by the driver
-type Driver interface {
-	// Load some general settings around the server setup
-	GetSettings() *Settings
-
-	// Welcome a user
-	WelcomeUser(cc ClientContext) (string, error)
-
-	// Authenticate an user
-	// Returns nil if the user could be authenticated
-	CheckUser(cc ClientContext, user, pass string) error
-
-	// Request to use a directory
-	ChangeDirectory(cc ClientContext, directory string) error
-
-	// Create a directory
-	MakeDirectory(cc ClientContext, directory string) error
-
-	// List the files of a given directory
-	ListFiles(cc ClientContext) ([]os.FileInfo, error)
-
-	// Called when a user disconnects
-	UserLeft(cc ClientContext)
-
-	// Upload a file
-	OpenFile(cc ClientContext, path string, flag int) (FileContext, error)
-
-	// Delete a file
-	DeleteFile(cc ClientContext, path string) error
-
-	// Get some info about a file
-	GetFileInfo(cc ClientContext, path string) (os.FileInfo, error)
-
-	// Move a file
-	RenameFile(cc ClientContext, from, to string) error
-
-	// Change file mode - Let's not make it part of the driver actually, it's not that useful
-	// ChmodFile(cc ClientContext, path string, mode os.FileMode) error
-}
-
-// Settings are part of the driver
+// Server settings
 type Settings struct {
 	Host           string // Host to receive connections on
 	Port           int    // Port to listen on

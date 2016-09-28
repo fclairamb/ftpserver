@@ -130,6 +130,7 @@ func (c *ClientHandler) writeMessage(code int, message string) {
 
 func (c *ClientHandler) TransferOpen() (net.Conn, error) {
 	if c.transfer != nil {
+		c.writeMessage(150, "Using transfer connection")
 		return c.transfer.Open()
 	} else {
 		return nil, errors.New("No passive connection declared")

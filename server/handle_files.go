@@ -65,15 +65,7 @@ func (c *ClientHandler) storeOrAppend(conn net.Conn, name string, append bool) (
 
 	if file, err := c.daddy.driver.OpenFile(c, name, flag); err == nil {
 		defer file.Close()
-		// We copy 512 bytes for type identification
-		if first, err := io.CopyN(file, conn, 512); err == nil {
-			// And then everything else
-			total, err := io.Copy(file, conn)
-			total += first
-			return total, err
-		} else {
-			return first, err
-		}
+		return io.Copy(file, conn)
 	} else {
 		return 0, err
 	}

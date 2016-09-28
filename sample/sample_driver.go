@@ -19,7 +19,7 @@ type SampleDriver struct {
 
 func (driver SampleDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 	// This will remain the official name for now
-	return "Welcome on PARADISE FTP !", nil
+	return "Welcome on https://github.com/fclairamb/ftpserver", nil
 }
 
 func (driver SampleDriver) CheckUser(cc server.ClientContext, user, pass string) error {

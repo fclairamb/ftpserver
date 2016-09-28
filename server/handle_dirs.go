@@ -86,7 +86,6 @@ func (c *ClientHandler) HandlePWD() {
 
 func (c *ClientHandler) HandleLIST() {
 	if files, err := c.daddy.driver.ListFiles(c); err == nil {
-		c.writeMessage(150, "Opening ASCII mode data connection for file list")
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
 			c.dirList(tr, files)
