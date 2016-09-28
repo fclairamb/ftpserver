@@ -11,39 +11,38 @@ import (
 )
 
 type ClientHandler struct {
-	Id             string              // Id of the client
-	daddy          *FtpServer          // Server on which the connection was accepted
-	writer         *bufio.Writer       // Writer on the TCP connection
-	reader         *bufio.Reader       // Reader on the TCP connection
-	conn           net.Conn            // TCP connection
-	user           string              // Authenticated user
-	path           string              // Current path
-	command        string              // Command received on the connection
-	param          string              // Param of the FTP command
-	connectedAt    int64               // Date of connection
-	lastPassCid    string              // Last Passive connection Id
-	userInfo       map[string]string   // Various user information (shared between server and driver)
-	debug          bool                // Show debugging info on the server side
-	driverInstance interface{}         // Instance of the driver's matching object
-	transfer       TransferHandler     // Transfer connection (passive one)
+	Id             uint32            // Id of the client
+	daddy          *FtpServer        // Server on which the connection was accepted
+	conn           net.Conn          // TCP connection
+	writer         *bufio.Writer     // Writer on the TCP connection
+	reader         *bufio.Reader     // Reader on the TCP connection
+	user           string            // Authenticated user
+	path           string            // Current path
+	command        string            // Command received on the connection
+	param          string            // Param of the FTP command
+	connectedAt    time.Time         // Date of connection
+	userInfo       map[string]string // Various user information (shared between server and driver)
+	debug          bool              // Show debugging info on the server side
+	driverInstance interface{}       // Instance of the driver's matching object
+	transfer       TransferHandler   // Transfer connection (passive one)
 }
 
 func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
 
+	server.clientCounter += 1
+
 	p := &ClientHandler{
 		daddy: server,
 		conn: connection,
-		Id: genClientID(),
+		Id: server.clientCounter,
 		writer: bufio.NewWriter(connection),
 		reader: bufio.NewReader(connection),
-		connectedAt: time.Now().UTC().UnixNano(),
+		connectedAt: time.Now().UTC(),
 		path: "/",
 		userInfo: make(map[string]string),
-		debug: true,
 	}
 
 	// Just respecting the existing logic here, this could be probably be dropped at some point
-	p.userInfo["path"] = p.path
 
 	return p
 }
@@ -58,11 +57,11 @@ func (p *ClientHandler) UserInfo() map[string]string {
 }
 
 func (p *ClientHandler) Path() string {
-	return p.userInfo["path"]
+	return p.path
 }
 
 func (p *ClientHandler) SetPath(path string) {
-	p.userInfo["path"] = path
+	p.path = path
 }
 
 func (p *ClientHandler) MyInstance() interface{} {
@@ -80,9 +79,12 @@ func (p *ClientHandler) end() {
 }
 
 func (p *ClientHandler) HandleCommands() {
-	p.daddy.ClientArrival(p)
 	defer p.daddy.ClientDeparture(p)
 	defer p.end()
+
+	if err := p.daddy.ClientArrival(p); err != nil {
+		p.writeMessage(500, "Can't accept you - "+err.Error() )
+	}
 
 	//fmt.Println(p.id, " Got client on: ", p.ip)
 	if msg, err := p.daddy.driver.WelcomeUser(p); err == nil {

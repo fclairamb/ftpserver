@@ -4,6 +4,9 @@ import (
 	"time"
 	"net"
 	"sync"
+	"gopkg.in/inconshreveable/log15.v2"
+	"errors"
+	"fmt"
 )
 
 var commandsMap map[string]func(*ClientHandler)
@@ -51,18 +54,18 @@ func init() {
 type FtpServer struct {
 	Settings         *Settings                 // General settings
 	Listener         net.Listener              // Listener used to receive files
-	ConnectionsById  map[string]*ClientHandler // Connections map
-	PassiveCount     int                       // Number of passive connections opened
-	StartTime        int64                     // Time when the server was started
+	StartTime        time.Time                 // Time when the server was started
+	connectionsById  map[uint32]*ClientHandler // Connections map
 	connectionsMutex sync.RWMutex              // Connections map sync
+	clientCounter    uint32                    // Clients counter
 	driver           Driver                    // Driver to handle all the actual authentication and files access logic
 }
 
 func NewFtpServer(driver Driver) *FtpServer {
 	return &FtpServer{
 		driver: driver,
-		StartTime: time.Now().Unix(), // Might make sense to put it in Start method
-		ConnectionsById: make(map[string]*ClientHandler),
+		StartTime: time.Now().UTC(), // Might make sense to put it in Start method
+		connectionsById: make(map[uint32]*ClientHandler),
 	}
 }
 
@@ -71,9 +74,17 @@ func (server *FtpServer) ClientArrival(c *ClientHandler) error {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 
-	server.ConnectionsById[c.Id] = c
+	nb := len(server.connectionsById)
 
-	return nil
+	log15.Info("Client connected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", nb)
+
+	server.connectionsById[c.Id] = c
+
+	if nb > server.Settings.MaxConnections {
+		return errors.New(fmt.Sprintf("Too many clients %d > %d", nb, server.Settings.MaxConnections))
+	} else {
+		return nil
+	}
 }
 
 // When a client leaves
@@ -81,5 +92,7 @@ func (server *FtpServer) ClientDeparture(c *ClientHandler) {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 
-	delete(server.ConnectionsById, c.Id)
+	log15.Info("Client disconnected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", len(server.connectionsById))
+
+	delete(server.connectionsById, c.Id)
 }

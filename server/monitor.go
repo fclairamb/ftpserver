@@ -7,26 +7,20 @@ import (
 	"gopkg.in/inconshreveable/log15.v2"
 )
 
-func countdown(upsince int64) string {
-	secs := time.Now().Unix() - upsince
-	us := time.Unix(secs, 0)
-	str := us.UTC().String()
-	return str[11:19]
-}
-
-func trimGuid(guid string) string {
-	return guid[0:6]
-}
-
 func (server *FtpServer) handler(w http.ResponseWriter, r *http.Request) {
+	now := time.Now().UTC()
+
+	fmt.Fprintf(w,
+		"%d client(s), Up for %s\n",
+		len(server.connectionsById),
+		now.Sub(server.StartTime),
+	)
+
 	server.connectionsMutex.RLock()
 	defer server.connectionsMutex.RUnlock()
 
-	fmt.Fprintf(w, "%d client(s), %d passive(s), Up for %s\n",
-		len(server.ConnectionsById), server.PassiveCount, countdown(server.StartTime))
-
-	for k, v := range server.ConnectionsById {
-		fmt.Fprintf(w, "   %s %s, %s\n", trimGuid(k), countdown(v.connectedAt), v.user)
+	for k, v := range server.connectionsById {
+		fmt.Fprintf(w, "   %s %s, %s\n", k, now.Sub(v.connectedAt), v.user)
 	}
 }
 
