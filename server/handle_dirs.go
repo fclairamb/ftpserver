@@ -39,7 +39,7 @@ func (c *ClientHandler) handleCWD() {
 		return
 	}
 
-	if err := c.daddy.driver.ChangeDirectory(c, path); err == nil {
+	if err := c.driver.ChangeDirectory(c, path); err == nil {
 		c.SetPath(path)
 		c.writeMessage(250, fmt.Sprintf("CD worked on %s", path))
 	} else {
@@ -49,7 +49,7 @@ func (c *ClientHandler) handleCWD() {
 
 func (c *ClientHandler) handleMKD() {
 	path := c.absPath(c.param)
-	if err := c.daddy.driver.MakeDirectory(c, path); err == nil {
+	if err := c.driver.MakeDirectory(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Created dir %s", path))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Could not create %s : %s", path, err.Error()))
@@ -58,7 +58,7 @@ func (c *ClientHandler) handleMKD() {
 
 func (c *ClientHandler) handleRMD() {
 	path := c.absPath(c.param)
-	if err := c.daddy.driver.DeleteFile(c, path); err == nil {
+	if err := c.driver.DeleteFile(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Deleted dir %s", path))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Could not delete dir %s : %s", path, err.Error()))
@@ -72,7 +72,7 @@ func (c *ClientHandler) handleCDUP() {
 	if path == "" {
 		path = "/"
 	}
-	if err := c.daddy.driver.ChangeDirectory(c, path); err == nil {
+	if err := c.driver.ChangeDirectory(c, path); err == nil {
 		c.SetPath(path)
 		c.writeMessage(250, fmt.Sprintf("CDUP worked on %s", path))
 	} else {
@@ -85,7 +85,7 @@ func (c *ClientHandler) handlePWD() {
 }
 
 func (c *ClientHandler) handleLIST() {
-	if files, err := c.daddy.driver.ListFiles(c); err == nil {
+	if files, err := c.driver.ListFiles(c); err == nil {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
 			c.dirList(tr, files)

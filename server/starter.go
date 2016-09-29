@@ -79,8 +79,8 @@ func (server *FtpServer) ListenAndServe(gracefulChild bool) error {
 			log15.Error("Accept error", "err", err)
 			break
 		} else {
-			p := server.NewClientHandler(connection)
-			go p.HandleCommands()
+			c := server.NewClientHandler(connection)
+			go c.HandleCommands()
 		}
 	}
 

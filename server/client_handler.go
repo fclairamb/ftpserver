@@ -12,20 +12,21 @@ import (
 )
 
 type ClientHandler struct {
-	Id             uint32            // Id of the client
-	daddy          *FtpServer        // Server on which the connection was accepted
-	conn           net.Conn          // TCP connection
-	writer         *bufio.Writer     // Writer on the TCP connection
-	reader         *bufio.Reader     // Reader on the TCP connection
-	user           string            // Authenticated user
-	path           string            // Current path
-	command        string            // Command received on the connection
-	param          string            // Param of the FTP command
-	connectedAt    time.Time         // Date of connection
-	userInfo       map[string]string // Various user information (shared between server and driver)
-	debug          bool              // Show debugging info on the server side
-	driverInstance interface{}       // Instance of the driver's matching object
-	transfer       TransferHandler   // Transfer connection (passive one)
+	Id             uint32               // Id of the client
+	daddy          *FtpServer           // Server on which the connection was accepted
+	driver         ClientHandlingDriver // Client handling driver
+	conn           net.Conn             // TCP connection
+	writer         *bufio.Writer        // Writer on the TCP connection
+	reader         *bufio.Reader        // Reader on the TCP connection
+	user           string               // Authenticated user
+	path           string               // Current path
+	command        string               // Command received on the connection
+	param          string               // Param of the FTP command
+	connectedAt    time.Time            // Date of connection
+	userInfo       map[string]string    // Various user information (shared between server and driver)
+	debug          bool                 // Show debugging info on the server side
+	driverInstance interface{}          // Instance of the driver's matching object
+	transfer       TransferHandler      // Transfer connection (passive one)
 }
 
 func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
@@ -48,65 +49,65 @@ func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
 	return p
 }
 
-func (p *ClientHandler) disconnect() {
-	p.conn.Close()
+func (c *ClientHandler) disconnect() {
+	c.conn.Close()
 }
 
-func (p *ClientHandler) UserInfo() map[string]string {
-	return p.userInfo
+func (c *ClientHandler) UserInfo() map[string]string {
+	return c.userInfo
 }
 
-func (p *ClientHandler) Path() string {
-	return p.path
+func (c *ClientHandler) Path() string {
+	return c.path
 }
 
-func (p *ClientHandler) SetPath(path string) {
-	p.path = path
+func (c *ClientHandler) SetPath(path string) {
+	c.path = path
 }
 
-func (p *ClientHandler) MyInstance() interface{} {
-	return p.driverInstance
+func (c *ClientHandler) MyInstance() interface{} {
+	return c.driverInstance
 }
 
-func (p *ClientHandler) SetMyInstance(value interface{}) {
-	p.driverInstance = value
+func (c *ClientHandler) SetMyInstance(value interface{}) {
+	c.driverInstance = value
 }
 
-func (p *ClientHandler) end() {
-	if p.transfer != nil {
-		p.transfer.Close()
+func (c *ClientHandler) end() {
+	if c.transfer != nil {
+		c.transfer.Close()
 	}
 }
 
-func (p *ClientHandler) HandleCommands() {
-	defer p.daddy.clientDeparture(p)
-	defer p.end()
+func (c *ClientHandler) HandleCommands() {
+	defer c.daddy.clientDeparture(c)
+	defer c.end()
 
-	if err := p.daddy.clientArrival(p); err != nil {
-		p.writeMessage(500, "Can't accept you - "+err.Error() )
+	if err := c.daddy.clientArrival(c); err != nil {
+		c.writeMessage(500, "Can't accept you - " + err.Error())
 		return
 	}
 
-	defer p.daddy.driver.UserLeft(p)
+	defer c.daddy.driver.UserLeft(c)
 
 	//fmt.Println(p.id, " Got client on: ", p.ip)
-	if msg, err := p.daddy.driver.WelcomeUser(p); err == nil {
-		p.writeMessage(220, msg)
+	if msg, err := c.daddy.driver.WelcomeUser(c); err == nil {
+		c.writeMessage(220, msg)
 	} else {
-		p.writeMessage(500, msg)
+		c.writeMessage(500, msg)
 		return
 	}
 
 	for {
-		line, err := p.reader.ReadString('\n')
+		line, err := c.reader.ReadString('\n')
 
-		if p.debug {
+		if c.debug {
 			log15.Info("FTP RECV", "action", "ftp.cmd_recv", "line", line)
 		}
 
 		if err != nil {
 			if err == io.EOF {
-				log15.Info("Client disconnected", "id", p.Id)
+				log15.Info("Client disconnected", "id", c.Id)
 			} else {
 				log15.Error("TCP error", "err", err)
 			}
@@ -114,14 +115,14 @@ func (p *ClientHandler) HandleCommands() {
 		}
 
 		command, param := parseLine(line)
-		p.command = command
-		p.param = param
+		c.command = command
+		c.param = param
 
 		fn := commandsMap[command]
 		if fn == nil {
-			p.writeMessage(550, "not allowed")
+			c.writeMessage(550, "not allowed")
 		} else {
-			fn(p)
+			fn(c)
 		}
 	}
 }

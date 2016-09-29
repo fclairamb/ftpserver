@@ -7,45 +7,46 @@ import (
 
 // This file is the driver part of the server. It must be implemented by anyone wanting to use the server.
 
-// Server driver
-type Driver interface {
+// ServerDriver handles the authentication and ClientHandlingDriver selection
+type ServerDriver interface {
 	// Load some general settings around the server setup
 	GetSettings() *Settings
 
-	// When a user connects
+	// WelcomeUser is called to send the very first welcome message
 	WelcomeUser(cc ClientContext) (string, error)
 
-	// When a user disconnects
+	// UserLeft is called when the user disconnects, even if he never authenticated
 	UserLeft(cc ClientContext)
 
-	// Authenticate an user
-	// Return nil to accept the user
-	CheckUser(cc ClientContext, user, pass string) error
+	// AuthUser authenticates the user and selects an handling driver
+	AuthUser(cc ClientContext, user, pass string) (ClientHandlingDriver, error)
+}
 
-	// Change current working directory
+// ClientHandlingDriver handles the file system access logic
+type ClientHandlingDriver interface {
+	// ChangeDirectory changes the current working directory
 	ChangeDirectory(cc ClientContext, directory string) error
 
-	// Create a directory
+	// MakeDirectory creates a directory
 	MakeDirectory(cc ClientContext, directory string) error
 
-	// List the files of the current working directory
+	// ListFiles lists the files around a directory
 	ListFiles(cc ClientContext) ([]os.FileInfo, error)
 
-	// Upload a file
+	// OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
 	OpenFile(cc ClientContext, path string, flag int) (FileContext, error)
 
-	// Delete a file
+	// DeleteFile deletes a file or a directory
 	DeleteFile(cc ClientContext, path string) error
 
-	// Get some info about a file
+	// GetFileInfo gets some info around a file or a directory
 	GetFileInfo(cc ClientContext, path string) (os.FileInfo, error)
 
-	// Move a file
+	// RenameFile renames a file or a directory
 	RenameFile(cc ClientContext, from, to string) error
 }
 
-// Adding the ClientContext concept to be able to handle more than just UserInfo
-// Implemented by the server
+// ClientContext is implemented on the server side to provide some access to few data around the client
 type ClientContext interface {
 	// Get current path
 	Path() string
@@ -58,15 +59,15 @@ type ClientContext interface {
 	SetMyInstance(interface{})
 }
 
-// FileContext to use
+// FileContext is read or write closeable stream
 type FileContext interface {
 	io.Writer
 	io.Reader
 	io.Closer
-	io.Seeker
+	// io.Seeker <-- Not use at that stage
 }
 
-// Server settings
+// Settings define all the server settings
 type Settings struct {
 	Host           string // Host to receive connections on
 	Port           int    // Port to listen on

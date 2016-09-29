@@ -49,7 +49,7 @@ func (c *ClientHandler) handleRETR() {
 }
 
 func (c *ClientHandler) download(conn net.Conn, name string) (int64, error) {
-	if file, err := c.daddy.driver.OpenFile(c, name, os.O_RDONLY); err == nil {
+	if file, err := c.driver.OpenFile(c, name, os.O_RDONLY); err == nil {
 		defer file.Close()
 		return io.Copy(conn, file)
 	} else {
@@ -63,7 +63,7 @@ func (c *ClientHandler) storeOrAppend(conn net.Conn, name string, append bool) (
 		flag |= os.O_APPEND
 	}
 
-	if file, err := c.daddy.driver.OpenFile(c, name, flag); err == nil {
+	if file, err := c.driver.OpenFile(c, name, flag); err == nil {
 		defer file.Close()
 		return io.Copy(file, conn)
 	} else {
@@ -73,7 +73,7 @@ func (c *ClientHandler) storeOrAppend(conn net.Conn, name string, append bool) (
 
 func (c *ClientHandler) handleDELE() {
 	path := c.absPath(c.param)
-	if err := c.daddy.driver.DeleteFile(c, path); err == nil {
+	if err := c.driver.DeleteFile(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Removed file %s", path))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't delete %s: %s", path, err.Error()))
@@ -82,7 +82,7 @@ func (c *ClientHandler) handleDELE() {
 
 func (c *ClientHandler) handleRNFR() {
 	path := c.absPath(c.param)
-	if _, err := c.daddy.driver.GetFileInfo(c, path); err == nil {
+	if _, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(250, "Sure, give me a target")
 		c.UserInfo()["rnfr"] = path
 	} else {
@@ -93,7 +93,7 @@ func (c *ClientHandler) handleRNFR() {
 func (c *ClientHandler) handleRNTO() {
 	dst := c.absPath(c.param)
 	if src := c.UserInfo()["rnfr"]; src != "" {
-		if err := c.daddy.driver.RenameFile(c, src, dst); err == nil {
+		if err := c.driver.RenameFile(c, src, dst); err == nil {
 			c.writeMessage(250, "Done !")
 			delete(c.UserInfo(), "rnfr")
 		} else {
@@ -104,7 +104,7 @@ func (c *ClientHandler) handleRNTO() {
 
 func (c *ClientHandler) handleSIZE() {
 	path := c.absPath(c.param)
-	if info, err := c.daddy.driver.GetFileInfo(c, path); err == nil {
+	if info, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(213, fmt.Sprintf("%d", info.Size()))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
@@ -113,7 +113,7 @@ func (c *ClientHandler) handleSIZE() {
 
 func (c *ClientHandler) handleMDTM() {
 	path := c.absPath(c.param)
-	if info, err := c.daddy.driver.GetFileInfo(c, path); err == nil {
+	if info, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(250, info.ModTime().UTC().Format("20060102150405"))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))

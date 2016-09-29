@@ -58,10 +58,10 @@ type FtpServer struct {
 	connectionsById  map[uint32]*ClientHandler // Connections map
 	connectionsMutex sync.RWMutex              // Connections map sync
 	clientCounter    uint32                    // Clients counter
-	driver           Driver                    // Driver to handle all the actual authentication and files access logic
+	driver           ServerDriver              // Driver to handle the client authentication and the file access driver selection
 }
 
-func NewFtpServer(driver Driver) *FtpServer {
+func NewFtpServer(driver ServerDriver) *FtpServer {
 	return &FtpServer{
 		driver: driver,
 		StartTime: time.Now().UTC(), // Might make sense to put it in Start method
@@ -74,11 +74,11 @@ func (server *FtpServer) clientArrival(c *ClientHandler) error {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 
+
+	server.connectionsById[c.Id] = c
 	nb := len(server.connectionsById)
 
 	log15.Info("Client connected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", nb)
-
-	server.connectionsById[c.Id] = c
 
 	if nb > server.Settings.MaxConnections {
 		return errors.New(fmt.Sprintf("Too many clients %d > %d", nb, server.Settings.MaxConnections))
