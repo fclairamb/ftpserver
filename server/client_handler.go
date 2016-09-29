@@ -18,15 +18,15 @@ type clientHandler struct {
 	conn           net.Conn             // TCP connection
 	writer         *bufio.Writer        // Writer on the TCP connection
 	reader         *bufio.Reader        // Reader on the TCP connection
-	user           string               // Authenticated user
-	path           string               // Current path
-	command        string               // Command received on the connection
-	param          string               // Param of the FTP command
-	connectedAt    time.Time            // Date of connection
-	userInfo       map[string]string    // Various user information (shared between server and driver)
-	debug          bool                 // Show debugging info on the server side
-	driverInstance interface{}          // Instance of the driver's matching object
-	transfer       transferHandler      // Transfer connection (passive one)
+	user        string                  // Authenticated user
+	path        string                  // Current path
+	command     string                  // Command received on the connection
+	param       string                  // Param of the FTP command
+	connectedAt time.Time               // Date of connection
+	userInfo    map[string]string       // Various user information (shared between server and driver)
+	debug       bool                    // Show debugging info on the server side
+	mine        interface{}             // Instance of the driver's matching object
+	transfer    transferHandler         // Transfer connection (passive one)
 }
 
 func (server *FtpServer) NewClientHandler(connection net.Conn) *clientHandler {
@@ -65,12 +65,12 @@ func (c *clientHandler) SetPath(path string) {
 	c.path = path
 }
 
-func (c *clientHandler) MyInstance() interface{} {
-	return c.driverInstance
+func (c *clientHandler) Mine() interface{} {
+	return c.mine
 }
 
-func (c *clientHandler) SetMyInstance(value interface{}) {
-	c.driverInstance = value
+func (c *clientHandler) SetMine(value interface{}) {
+	c.mine = value
 }
 
 func (c *clientHandler) end() {
