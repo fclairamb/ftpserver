@@ -9,7 +9,7 @@ import (
 	"io"
 )
 
-func (c *ClientHandler) absPath(p string) string {
+func (c *clientHandler) absPath(p string) string {
 	path := c.Path()
 
 	if strings.HasPrefix(p, "/") {
@@ -24,7 +24,7 @@ func (c *ClientHandler) absPath(p string) string {
 	return path
 }
 
-func (c *ClientHandler) handleCWD() {
+func (c *clientHandler) handleCWD() {
 	if c.param == ".." {
 		c.handleCDUP()
 		return
@@ -47,7 +47,7 @@ func (c *ClientHandler) handleCWD() {
 	}
 }
 
-func (c *ClientHandler) handleMKD() {
+func (c *clientHandler) handleMKD() {
 	path := c.absPath(c.param)
 	if err := c.driver.MakeDirectory(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Created dir %s", path))
@@ -56,7 +56,7 @@ func (c *ClientHandler) handleMKD() {
 	}
 }
 
-func (c *ClientHandler) handleRMD() {
+func (c *clientHandler) handleRMD() {
 	path := c.absPath(c.param)
 	if err := c.driver.DeleteFile(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Deleted dir %s", path))
@@ -65,7 +65,7 @@ func (c *ClientHandler) handleRMD() {
 	}
 }
 
-func (c *ClientHandler) handleCDUP() {
+func (c *clientHandler) handleCDUP() {
 	dirs := filepath.SplitList(c.Path())
 	dirs = dirs[0:len(dirs) - 1]
 	path := filepath.Join(dirs...)
@@ -80,11 +80,11 @@ func (c *ClientHandler) handleCDUP() {
 	}
 }
 
-func (c *ClientHandler) handlePWD() {
+func (c *clientHandler) handlePWD() {
 	c.writeMessage(257, "\"" + c.Path() + "\" is the current directory")
 }
 
-func (c *ClientHandler) handleLIST() {
+func (c *clientHandler) handleLIST() {
 	if files, err := c.driver.ListFiles(c); err == nil {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
@@ -96,7 +96,7 @@ func (c *ClientHandler) handleLIST() {
 	}
 }
 
-func (c *ClientHandler) dirList(w io.Writer, files []os.FileInfo) error {
+func (c *clientHandler) dirList(w io.Writer, files []os.FileInfo) error {
 	for _, file := range files {
 		fmt.Fprint(w, file.Mode().String())
 		fmt.Fprintf(w, " 1 %s %s ", "ftp", "ftp")

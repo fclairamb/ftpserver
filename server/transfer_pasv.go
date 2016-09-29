@@ -9,7 +9,7 @@ import (
 )
 
 // Active/Passive transfer connection handler
-type TransferHandler interface {
+type transferHandler interface {
 	// Get the connection to transfer data on
 	Open() (net.Conn, error)
 
@@ -18,13 +18,13 @@ type TransferHandler interface {
 }
 
 // Passive connection
-type Passive struct {
+type passiveTransferHandler struct {
 	listener   *net.TCPListener // TCP Listener
 	Port       int              // TCP Port we are listening on
 	connection net.Conn         // TCP Connection established
 }
 
-func (c *ClientHandler) handlePASV() {
+func (c *clientHandler) handlePASV() {
 	addr, _ := net.ResolveTCPAddr("tcp", ":0")
 	listener, err := net.ListenTCP("tcp", addr)
 	if err != nil {
@@ -32,7 +32,7 @@ func (c *ClientHandler) handlePASV() {
 		return
 	}
 
-	p := &Passive{
+	p := &passiveTransferHandler{
 		listener: listener,
 		Port: listener.Addr().(*net.TCPAddr).Port,
 	}
@@ -53,7 +53,7 @@ func (c *ClientHandler) handlePASV() {
 	c.transfer = p
 }
 
-func (p *Passive) ConnectionWait(wait time.Duration) (net.Conn, error) {
+func (p *passiveTransferHandler) ConnectionWait(wait time.Duration) (net.Conn, error) {
 	if p.connection == nil {
 		p.listener.SetDeadline(time.Now().Add(wait))
 		var err error
@@ -67,12 +67,12 @@ func (p *Passive) ConnectionWait(wait time.Duration) (net.Conn, error) {
 	return p.connection, nil
 }
 
-func (p *Passive) Open() (net.Conn, error) {
+func (p *passiveTransferHandler) Open() (net.Conn, error) {
 	return p.ConnectionWait(time.Minute)
 }
 
 // Closing only the client connection is not supported at that time
-func (p *Passive) Close() error {
+func (p *passiveTransferHandler) Close() error {
 	if p.listener != nil {
 		p.listener.Close()
 	}

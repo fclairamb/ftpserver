@@ -9,53 +9,53 @@ import (
 	"fmt"
 )
 
-var commandsMap map[string]func(*ClientHandler)
+var commandsMap map[string]func(*clientHandler)
 
 func init() {
 	// This is shared between FtpServer instances as there's no point in making the FTP commands behave differently
 	// between them.
 
-	commandsMap = make(map[string]func(*ClientHandler))
+	commandsMap = make(map[string]func(*clientHandler))
 
 	// Authentication
-	commandsMap["USER"] = (*ClientHandler).handleUSER
-	commandsMap["PASS"] = (*ClientHandler).handlePASS
+	commandsMap["USER"] = (*clientHandler).handleUSER
+	commandsMap["PASS"] = (*clientHandler).handlePASS
 
 	// File access
-	commandsMap["STAT"] = (*ClientHandler).handleSTAT
-	commandsMap["SIZE"] = (*ClientHandler).handleSIZE
-	commandsMap["MDTM"] = (*ClientHandler).handleMDTM
-	commandsMap["RETR"] = (*ClientHandler).handleRETR
-	commandsMap["STOR"] = (*ClientHandler).handleSTOR
-	commandsMap["APPE"] = (*ClientHandler).handleAPPE
-	commandsMap["DELE"] = (*ClientHandler).handleDELE
-	commandsMap["RNFR"] = (*ClientHandler).handleRNFR
-	commandsMap["RNTO"] = (*ClientHandler).handleRNTO
+	commandsMap["STAT"] = (*clientHandler).handleSTAT
+	commandsMap["SIZE"] = (*clientHandler).handleSIZE
+	commandsMap["MDTM"] = (*clientHandler).handleMDTM
+	commandsMap["RETR"] = (*clientHandler).handleRETR
+	commandsMap["STOR"] = (*clientHandler).handleSTOR
+	commandsMap["APPE"] = (*clientHandler).handleAPPE
+	commandsMap["DELE"] = (*clientHandler).handleDELE
+	commandsMap["RNFR"] = (*clientHandler).handleRNFR
+	commandsMap["RNTO"] = (*clientHandler).handleRNTO
 
 	// Directory handling
-	commandsMap["CWD"] = (*ClientHandler).handleCWD
-	commandsMap["PWD"] = (*ClientHandler).handlePWD
-	commandsMap["CDUP"] = (*ClientHandler).handleCDUP
-	commandsMap["NLST"] = (*ClientHandler).handleLIST
-	commandsMap["LIST"] = (*ClientHandler).handleLIST
-	commandsMap["MKD"] = (*ClientHandler).handleMKD
-	commandsMap["RMD"] = (*ClientHandler).handleRMD
+	commandsMap["CWD"] = (*clientHandler).handleCWD
+	commandsMap["PWD"] = (*clientHandler).handlePWD
+	commandsMap["CDUP"] = (*clientHandler).handleCDUP
+	commandsMap["NLST"] = (*clientHandler).handleLIST
+	commandsMap["LIST"] = (*clientHandler).handleLIST
+	commandsMap["MKD"] = (*clientHandler).handleMKD
+	commandsMap["RMD"] = (*clientHandler).handleRMD
 
 	// Connection handling
-	commandsMap["TYPE"] = (*ClientHandler).handleTYPE
-	commandsMap["PASV"] = (*ClientHandler).handlePASV
-	commandsMap["EPSV"] = (*ClientHandler).handlePASV
-	commandsMap["QUIT"] = (*ClientHandler).handleQUIT
+	commandsMap["TYPE"] = (*clientHandler).handleTYPE
+	commandsMap["PASV"] = (*clientHandler).handlePASV
+	commandsMap["EPSV"] = (*clientHandler).handlePASV
+	commandsMap["QUIT"] = (*clientHandler).handleQUIT
 
 	// Misc
-	commandsMap["SYST"] = (*ClientHandler).handleSYST
+	commandsMap["SYST"] = (*clientHandler).handleSYST
 }
 
 type FtpServer struct {
 	Settings         *Settings                 // General settings
 	Listener         net.Listener              // Listener used to receive files
 	StartTime        time.Time                 // Time when the server was started
-	connectionsById  map[uint32]*ClientHandler // Connections map
+	connectionsById  map[uint32]*clientHandler // Connections map
 	connectionsMutex sync.RWMutex              // Connections map sync
 	clientCounter    uint32                    // Clients counter
 	driver           ServerDriver              // Driver to handle the client authentication and the file access driver selection
@@ -65,12 +65,12 @@ func NewFtpServer(driver ServerDriver) *FtpServer {
 	return &FtpServer{
 		driver: driver,
 		StartTime: time.Now().UTC(), // Might make sense to put it in Start method
-		connectionsById: make(map[uint32]*ClientHandler),
+		connectionsById: make(map[uint32]*clientHandler),
 	}
 }
 
 // When a client connects, the server could refuse the connection
-func (server *FtpServer) clientArrival(c *ClientHandler) error {
+func (server *FtpServer) clientArrival(c *clientHandler) error {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 
@@ -88,7 +88,7 @@ func (server *FtpServer) clientArrival(c *ClientHandler) error {
 }
 
 // When a client leaves
-func (server *FtpServer) clientDeparture(c *ClientHandler) {
+func (server *FtpServer) clientDeparture(c *clientHandler) {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 

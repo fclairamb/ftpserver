@@ -83,7 +83,7 @@ func (driver *SampleDriver) UserLeft(cc server.ClientContext) {
 
 }
 
-func (driver *SampleDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileContext, error) {
+func (driver *SampleDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
 
 	if path == "/virtual/localpath.txt" {
 		return &VirtualFile{content: []byte(driver.baseDir), }, nil

@@ -11,7 +11,7 @@ import (
 	"io"
 )
 
-type ClientHandler struct {
+type clientHandler struct {
 	Id             uint32               // Id of the client
 	daddy          *FtpServer           // Server on which the connection was accepted
 	driver         ClientHandlingDriver // Client handling driver
@@ -26,14 +26,14 @@ type ClientHandler struct {
 	userInfo       map[string]string    // Various user information (shared between server and driver)
 	debug          bool                 // Show debugging info on the server side
 	driverInstance interface{}          // Instance of the driver's matching object
-	transfer       TransferHandler      // Transfer connection (passive one)
+	transfer       transferHandler      // Transfer connection (passive one)
 }
 
-func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
+func (server *FtpServer) NewClientHandler(connection net.Conn) *clientHandler {
 
 	server.clientCounter += 1
 
-	p := &ClientHandler{
+	p := &clientHandler{
 		daddy: server,
 		conn: connection,
 		Id: server.clientCounter,
@@ -49,37 +49,37 @@ func (server *FtpServer) NewClientHandler(connection net.Conn) *ClientHandler {
 	return p
 }
 
-func (c *ClientHandler) disconnect() {
+func (c *clientHandler) disconnect() {
 	c.conn.Close()
 }
 
-func (c *ClientHandler) UserInfo() map[string]string {
+func (c *clientHandler) UserInfo() map[string]string {
 	return c.userInfo
 }
 
-func (c *ClientHandler) Path() string {
+func (c *clientHandler) Path() string {
 	return c.path
 }
 
-func (c *ClientHandler) SetPath(path string) {
+func (c *clientHandler) SetPath(path string) {
 	c.path = path
 }
 
-func (c *ClientHandler) MyInstance() interface{} {
+func (c *clientHandler) MyInstance() interface{} {
 	return c.driverInstance
 }
 
-func (c *ClientHandler) SetMyInstance(value interface{}) {
+func (c *clientHandler) SetMyInstance(value interface{}) {
 	c.driverInstance = value
 }
 
-func (c *ClientHandler) end() {
+func (c *clientHandler) end() {
 	if c.transfer != nil {
 		c.transfer.Close()
 	}
 }
 
-func (c *ClientHandler) HandleCommands() {
+func (c *clientHandler) HandleCommands() {
 	defer c.daddy.clientDeparture(c)
 	defer c.end()
 
@@ -127,7 +127,7 @@ func (c *ClientHandler) HandleCommands() {
 	}
 }
 
-func (c *ClientHandler) writeMessage(code int, message string) {
+func (c *clientHandler) writeMessage(code int, message string) {
 	line := fmt.Sprintf("%d %s\r\n", code, message)
 	if c.debug {
 		log15.Info("FTP SEND", "action", "ftp.cmd_send", "line", line)
@@ -136,7 +136,7 @@ func (c *ClientHandler) writeMessage(code int, message string) {
 	c.writer.Flush()
 }
 
-func (c *ClientHandler) TransferOpen() (net.Conn, error) {
+func (c *clientHandler) TransferOpen() (net.Conn, error) {
 	if c.transfer != nil {
 		c.writeMessage(150, "Using transfer connection")
 		return c.transfer.Open()
@@ -145,7 +145,7 @@ func (c *ClientHandler) TransferOpen() (net.Conn, error) {
 	}
 }
 
-func (c *ClientHandler) TransferClose() {
+func (c *clientHandler) TransferClose() {
 	if c.transfer != nil {
 		c.transfer.Close()
 		c.transfer = nil

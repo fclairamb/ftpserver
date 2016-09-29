@@ -7,16 +7,16 @@ import (
 	"net"
 )
 
-func (c *ClientHandler) handleSTOR() {
+func (c *clientHandler) handleSTOR() {
 	c.handleStoreAndAppend(false)
 }
 
-func (c *ClientHandler) handleAPPE() {
+func (c *clientHandler) handleAPPE() {
 	c.handleStoreAndAppend(true)
 }
 
 // Handles both the "STOR" and "APPE" commands
-func (c *ClientHandler) handleStoreAndAppend(append bool) {
+func (c *clientHandler) handleStoreAndAppend(append bool) {
 
 	path := c.absPath(c.param)
 
@@ -32,7 +32,7 @@ func (c *ClientHandler) handleStoreAndAppend(append bool) {
 	}
 }
 
-func (c *ClientHandler) handleRETR() {
+func (c *clientHandler) handleRETR() {
 
 	path := c.absPath(c.param)
 
@@ -48,7 +48,7 @@ func (c *ClientHandler) handleRETR() {
 	}
 }
 
-func (c *ClientHandler) download(conn net.Conn, name string) (int64, error) {
+func (c *clientHandler) download(conn net.Conn, name string) (int64, error) {
 	if file, err := c.driver.OpenFile(c, name, os.O_RDONLY); err == nil {
 		defer file.Close()
 		return io.Copy(conn, file)
@@ -57,7 +57,7 @@ func (c *ClientHandler) download(conn net.Conn, name string) (int64, error) {
 	}
 }
 
-func (c *ClientHandler) storeOrAppend(conn net.Conn, name string, append bool) (int64, error) {
+func (c *clientHandler) storeOrAppend(conn net.Conn, name string, append bool) (int64, error) {
 	flag := os.O_WRONLY
 	if append {
 		flag |= os.O_APPEND
@@ -71,7 +71,7 @@ func (c *ClientHandler) storeOrAppend(conn net.Conn, name string, append bool) (
 	}
 }
 
-func (c *ClientHandler) handleDELE() {
+func (c *clientHandler) handleDELE() {
 	path := c.absPath(c.param)
 	if err := c.driver.DeleteFile(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Removed file %s", path))
@@ -80,7 +80,7 @@ func (c *ClientHandler) handleDELE() {
 	}
 }
 
-func (c *ClientHandler) handleRNFR() {
+func (c *clientHandler) handleRNFR() {
 	path := c.absPath(c.param)
 	if _, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(250, "Sure, give me a target")
@@ -90,7 +90,7 @@ func (c *ClientHandler) handleRNFR() {
 	}
 }
 
-func (c *ClientHandler) handleRNTO() {
+func (c *clientHandler) handleRNTO() {
 	dst := c.absPath(c.param)
 	if src := c.UserInfo()["rnfr"]; src != "" {
 		if err := c.driver.RenameFile(c, src, dst); err == nil {
@@ -102,7 +102,7 @@ func (c *ClientHandler) handleRNTO() {
 	}
 }
 
-func (c *ClientHandler) handleSIZE() {
+func (c *clientHandler) handleSIZE() {
 	path := c.absPath(c.param)
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(213, fmt.Sprintf("%d", info.Size()))
@@ -111,7 +111,7 @@ func (c *ClientHandler) handleSIZE() {
 	}
 }
 
-func (c *ClientHandler) handleMDTM() {
+func (c *clientHandler) handleMDTM() {
 	path := c.absPath(c.param)
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(250, info.ModTime().UTC().Format("20060102150405"))

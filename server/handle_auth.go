@@ -3,13 +3,13 @@ package server
 import "fmt"
 
 // Handle the "USER" command
-func (p *ClientHandler) handleUSER() {
+func (p *clientHandler) handleUSER() {
 	p.user = p.param
 	p.writeMessage(331, "OK")
 }
 
 // Handle the "PASS" command
-func (p *ClientHandler) handlePASS() {
+func (p *clientHandler) handlePASS() {
 	var err error
 	if p.driver, err = p.daddy.driver.AuthUser(p, p.user, p.param); err == nil {
 		p.writeMessage(230, "Password ok, continue")

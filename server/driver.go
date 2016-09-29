@@ -34,7 +34,7 @@ type ClientHandlingDriver interface {
 	ListFiles(cc ClientContext) ([]os.FileInfo, error)
 
 	// OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
-	OpenFile(cc ClientContext, path string, flag int) (FileContext, error)
+	OpenFile(cc ClientContext, path string, flag int) (FileStream, error)
 
 	// DeleteFile deletes a file or a directory
 	DeleteFile(cc ClientContext, path string) error
@@ -51,16 +51,15 @@ type ClientContext interface {
 	// Get current path
 	Path() string
 
-	// Custom value. This avoids having to create a mapping between the client.Id and our own internal system. We can
-	// just store the driver's instance in the ClientContext
-	MyInstance() interface{}
+	// Mine provides your per-connection context
+	Mine() interface{}
 
-	// Set the custom value
-	SetMyInstance(interface{})
+	// SetMine sets a per-connection context
+	SetMine(interface{})
 }
 
-// FileContext is read or write closeable stream
-type FileContext interface {
+// FileStream is a read or write closeable stream
+type FileStream interface {
 	io.Writer
 	io.Reader
 	io.Closer
