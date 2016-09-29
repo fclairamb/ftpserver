@@ -92,7 +92,7 @@ func (server *FtpServer) clientDeparture(c *ClientHandler) {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 
-	log15.Info("Client disconnected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", len(server.connectionsById))
-
 	delete(server.connectionsById, c.Id)
+
+	log15.Info("Client disconnected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", len(server.connectionsById))
 }
