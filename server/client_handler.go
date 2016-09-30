@@ -141,12 +141,14 @@ func (c *clientHandler) TransferOpen() (net.Conn, error) {
 		c.writeMessage(150, "Using transfer connection")
 		return c.transfer.Open()
 	} else {
+		c.writeMessage(550, "No passive connection declared")
 		return nil, errors.New("No passive connection declared")
 	}
 }
 
 func (c *clientHandler) TransferClose() {
 	if c.transfer != nil {
+		c.writeMessage(226, "Closing transfer connection")
 		c.transfer.Close()
 		c.transfer = nil
 	}

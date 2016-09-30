@@ -89,10 +89,9 @@ func (c *clientHandler) handleLIST() {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
 			c.dirList(tr, files)
-			c.writeMessage(226, "Closing data connection, sent some bytes")
-		} else {
-			c.writeMessage(550, err.Error())
 		}
+	} else {
+		c.writeMessage(500, "Could not list - "+err.Error())
 	}
 }
 

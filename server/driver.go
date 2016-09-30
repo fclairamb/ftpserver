@@ -63,7 +63,7 @@ type FileStream interface {
 	io.Writer
 	io.Reader
 	io.Closer
-	// io.Seeker <-- Not use at that stage
+	io.Seeker // <-- Will be used for "REST" command
 }
 
 // Settings define all the server settings
