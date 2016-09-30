@@ -17,7 +17,7 @@ type SampleDriver struct {
 	baseDir string
 }
 
-func (driver SampleDriver) WelcomeUser(cc server.ClientContext) (string, error) {
+func (driver *SampleDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 	// This will remain the official name for now
 	return "Welcome on https://github.com/fclairamb/ftpserver", nil
 }

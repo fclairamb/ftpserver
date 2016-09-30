@@ -13,11 +13,11 @@ func (p *clientHandler) handlePASS() {
 	var err error
 	if p.driver, err = p.daddy.driver.AuthUser(p, p.user, p.param); err == nil {
 		p.writeMessage(230, "Password ok, continue")
-	} else if p.driver == nil {
-		p.writeMessage(530, "I can't deal with you (nil driver)")
+	} else if err != nil {
+		p.writeMessage(530, fmt.Sprintf("Authentication problem: %s", err))
 		p.disconnect()
 	} else {
-		p.writeMessage(530, fmt.Sprintf("Authentication problem: %s", err))
+		p.writeMessage(530, "I can't deal with you (nil driver)")
 		p.disconnect()
 	}
 }

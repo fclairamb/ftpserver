@@ -83,7 +83,7 @@ func (c *clientHandler) handleDELE() {
 func (c *clientHandler) handleRNFR() {
 	path := c.absPath(c.param)
 	if _, err := c.driver.GetFileInfo(c, path); err == nil {
-		c.writeMessage(250, "Sure, give me a target")
+		c.writeMessage(350, "Sure, give me a target")
 		c.UserInfo()["rnfr"] = path
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
