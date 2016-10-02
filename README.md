@@ -1,6 +1,6 @@
 # Golang FTP Server library
 
-This is a consistent and comprehensive library to create your own FTP server.
+The goal is to provide a comprehensive FTP Server library.
 
 Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) but many things have been changed since then.
 
@@ -16,10 +16,6 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
  * Small memory footprint
  * graceful restarts by sending kill -USR2 pid
  * TLS is not supported (but will probably be)
-
-### Goal
-
-The goal is to make it a reference FTP server library. Any feature request or design idea is welcome.
 
 ## The driver
 
@@ -146,7 +142,7 @@ $ shasum iMX7D_RM_Rev_B.pdf
 
 ## History of the project
 
-I wanted to make a system which would accept files through FTP and redirect them to something else. Go seemed like the obvious choice and there seemed to be a lot of libraries available but it turns out it's not that simple.
+I wanted to make a system which would accept files through FTP and redirect them to something else. Go seemed like the obvious choice and there seemed to be a lot of libraries available but it turns out none of them were in a useable state.
 
 * [micahhausler/go-ftp](https://github.com/micahhausler/go-ftp) is a  minimalistic implementation 
 * [shenfeng/ftpd.go](https://github.com/shenfeng/ftpd.go) is very basic and 4 years old.
@@ -155,4 +151,3 @@ I wanted to make a system which would accept files through FTP and redirect them
 * [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) - Was the only one of the list I could test right away. But it turns out there's many features missing and I found that there was many things I could improve.
 
 That's why I forked from this last one.
-
