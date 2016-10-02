@@ -32,13 +32,6 @@ func (c *clientHandler) handleCWD() {
 
 	path := c.absPath(c.param)
 
-	// TODO: Find something smarter, this is obviously quite limitating...
-	if path == "/debug" {
-		c.writeMessage(250, "Debug activated !")
-		c.debug = true
-		return
-	}
-
 	if err := c.driver.ChangeDirectory(c, path); err == nil {
 		c.SetPath(path)
 		c.writeMessage(250, fmt.Sprintf("CD worked on %s", path))

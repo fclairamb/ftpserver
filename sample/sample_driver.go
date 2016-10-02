@@ -3,7 +3,6 @@ package sample
 import (
 	"github.com/fclairamb/ftpserver/server"
 	"errors"
-	"strings"
 	"os"
 	"io/ioutil"
 	"github.com/naoina/toml"
@@ -32,8 +31,9 @@ func (driver *SampleDriver) AuthUser(cc server.ClientContext, user, pass string)
 }
 
 func (driver *SampleDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
-	if strings.HasPrefix(directory, "/root") {
-		return errors.New("This doesn't look good !")
+	if directory == "/debug" {
+		cc.SetDebug(!cc.Debug())
+		return nil
 	} else if directory == "/virtual" {
 		return nil
 	}
