@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/jehiah/go-strftime"
-	"path/filepath"
+	"path"
 	"strings"
 	"fmt"
 	"os"
@@ -66,15 +66,13 @@ func (c *clientHandler) handleRMD() {
 }
 
 func (c *clientHandler) handleCDUP() {
-	dirs := filepath.SplitList(c.Path())
-	dirs = dirs[0:len(dirs) - 1]
-	path := filepath.Join(dirs...)
-	if path == "" {
-		path = "/"
+	parent, _ := path.Split(c.Path())
+	if parent != "/" && strings.HasSuffix(parent, "/") {
+		parent = parent[0:len(parent)-1]
 	}
-	if err := c.driver.ChangeDirectory(c, path); err == nil {
-		c.SetPath(path)
-		c.writeMessage(250, fmt.Sprintf("CDUP worked on %s", path))
+	if err := c.driver.ChangeDirectory(c, parent); err == nil {
+		c.SetPath(parent)
+		c.writeMessage(250, fmt.Sprintf("CDUP worked on %s", parent))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("CDUP issue: %s", err.Error()))
 	}
