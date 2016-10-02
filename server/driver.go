@@ -51,11 +51,11 @@ type ClientContext interface {
 	// Get current path
 	Path() string
 
-	// Mine provides your per-connection context
-	Mine() interface{}
+	// SetDebug activates the debugging of this connection commands
+	SetDebug(debug bool)
 
-	// SetMine sets a per-connection context
-	SetMine(interface{})
+	// Debug returns the current debugging status of this connection commands
+	Debug() bool
 }
 
 // FileStream is a read or write closeable stream
@@ -71,7 +71,6 @@ type Settings struct {
 	Host           string // Host to receive connections on
 	Port           int    // Port to listen on
 	MaxConnections int    // Max number of connections to accept
-	MaxPassive     int    // Max number of passive connections per control connections to accept
 	MonitorOn      bool   // To activate the monitor
 	MonitorPort    int    // Port for the monitor to listen on
 }

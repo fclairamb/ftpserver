@@ -18,6 +18,7 @@ type SampleDriver struct {
 }
 
 func (driver *SampleDriver) WelcomeUser(cc server.ClientContext) (string, error) {
+	cc.SetDebug(true)
 	// This will remain the official name for now
 	return "Welcome on https://github.com/fclairamb/ftpserver", nil
 }

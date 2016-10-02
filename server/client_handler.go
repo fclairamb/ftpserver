@@ -25,8 +25,7 @@ type clientHandler struct {
 	connectedAt time.Time               // Date of connection
 	userInfo    map[string]string       // Various user information (shared between server and driver)
 	debug       bool                    // Show debugging info on the server side
-	mine        interface{}             // Instance of the driver's matching object
-	transfer    transferHandler         // Transfer connection (passive one)
+	transfer    transferHandler         // Transfer connection (only passive is implemented at this stage)
 }
 
 func (server *FtpServer) NewClientHandler(connection net.Conn) *clientHandler {
@@ -65,12 +64,12 @@ func (c *clientHandler) SetPath(path string) {
 	c.path = path
 }
 
-func (c *clientHandler) Mine() interface{} {
-	return c.mine
+func (c *clientHandler) Debug() bool {
+	return c.debug
 }
 
-func (c *clientHandler) SetMine(value interface{}) {
-	c.mine = value
+func (c *clientHandler) SetDebug(debug bool) {
+	c.debug = debug
 }
 
 func (c *clientHandler) end() {

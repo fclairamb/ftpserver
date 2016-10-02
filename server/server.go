@@ -48,6 +48,7 @@ func init() {
 	commandsMap["QUIT"] = (*clientHandler).handleQUIT
 
 	// Misc
+	commandsMap["FEAT"] = (*clientHandler).handleFEAT
 	commandsMap["SYST"] = (*clientHandler).handleSYST
 }
 
