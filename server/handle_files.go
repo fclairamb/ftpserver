@@ -36,7 +36,7 @@ func (c *clientHandler) handleRETR() {
 
 	if tr, err := c.TransferOpen(); err == nil {
 		defer c.TransferClose()
-		if _, err := c.download(tr, path); err != nil || err != io.EOF {
+		if _, err := c.download(tr, path); err != nil && err != io.EOF {
 			c.writeMessage(550, err.Error())
 		}
 	} else {
