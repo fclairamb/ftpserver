@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"github.com/fclairamb/ftpserver/client"
 	"github.com/fclairamb/ftpserver/sample"
 	"github.com/fclairamb/ftpserver/server"
 	"os/signal"
@@ -13,15 +12,11 @@ import (
 
 var (
 	gracefulChild = flag.Bool("graceful", false, "listen on fd open 3 (internal use only)")
-	stressTest = flag.Bool("stressTest", false, "start a client making connections")
 	ftpServer *server.FtpServer
 )
 
 func main() {
 	flag.Parse()
-	if *stressTest {
-		go client.StressTest()
-	}
 	ftpServer = server.NewFtpServer(sample.NewSampleDriver())
 
 	go signalHandler()
