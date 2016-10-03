@@ -62,6 +62,53 @@ type FtpServer struct {
 	driver           ServerDriver              // Driver to handle the client authentication and the file access driver selection
 }
 
+func (server *FtpServer) ListenAndServe() error {
+	server.Settings = server.driver.GetSettings()
+	var err error
+	log15.Info("Starting...")
+
+	server.Listener, err = net.Listen(
+		"tcp",
+		fmt.Sprintf("%s:%d", server.Settings.Host, server.Settings.Port),
+	)
+
+	if err != nil {
+		log15.Error("Cannot listen", "err", err)
+		return err
+	}
+
+	if err != nil {
+		log15.Error("cannot listen: ", err)
+		return err
+	}
+	log15.Info("Listening...")
+
+	if server.Settings.MonitorOn {
+		go server.Monitor()
+	}
+
+	// The actual signal handler of the core program will do that (if he wants to)
+	// go signalHandler()
+
+	for {
+		connection, err := server.Listener.Accept()
+		if err != nil {
+			log15.Error("Accept error", "err", err)
+			break
+		} else {
+			c := server.NewClientHandler(connection)
+			go c.HandleCommands()
+		}
+	}
+
+	// Note: At this precise time, the clients are still connected. We are just not accepting clients anymore.
+
+	// TODO add wait group for still active connections to finish up
+	// otherwise, this will just exit and kill them
+	// defeating whole point of gracefulChild restart
+	return nil
+}
+
 func NewFtpServer(driver ServerDriver) *FtpServer {
 	return &FtpServer{
 		driver: driver,
@@ -70,11 +117,15 @@ func NewFtpServer(driver ServerDriver) *FtpServer {
 	}
 }
 
+func (server *FtpServer) Stop() {
+	server.Listener.Close()
+}
+
+
 // When a client connects, the server could refuse the connection
 func (server *FtpServer) clientArrival(c *clientHandler) error {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
-
 
 	server.connectionsById[c.Id] = c
 	nb := len(server.connectionsById)

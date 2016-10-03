@@ -11,7 +11,6 @@ import (
 )
 
 var (
-	gracefulChild = flag.Bool("graceful", false, "listen on fd open 3 (internal use only)")
 	ftpServer *server.FtpServer
 )
 
@@ -21,7 +20,7 @@ func main() {
 
 	go signalHandler()
 
-	err := ftpServer.ListenAndServe(*gracefulChild)
+	err := ftpServer.ListenAndServe()
 	if err != nil {
 		log15.Error("Problem listening", "err", err)
 	}
@@ -29,8 +28,12 @@ func main() {
 
 func signalHandler() {
 	ch := make(chan os.Signal)
-	signal.Notify(ch, syscall.SIGTERM, syscall.SIGUSR2)
+	signal.Notify(ch, syscall.SIGTERM)
 	for {
-		ftpServer.HandleSignal(<- ch)
+		switch <-ch {
+		case syscall.SIGTERM:
+			ftpServer.Stop()
+			break
+		}
 	}
 }
