@@ -148,6 +148,6 @@ I wanted to make a system which would accept files through FTP and redirect them
 * [shenfeng/ftpd.go](https://github.com/shenfeng/ftpd.go) is very basic and 4 years old.
 * [yob/graval](https://github.com/yob/graval) is 3 years old and “experimental”.
 * [goftp/server](https://github.com/goftp/server) seemed OK but I couldn't use it both Filezilla and the MacOs ftp client.
-* [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) - Was the only one of the list I could test right away. But it turns out there's many features missing and I found that there was many things I could improve.
+* [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) - Was the only one of the list I could test right away. But it turns out there's many features missing and I wanted to architecture it a bit differently.
 
 That's why I forked from this last one.

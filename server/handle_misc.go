@@ -35,6 +35,7 @@ func (c *clientHandler) handleFEAT() {
 	c.writer.WriteString("211- These are my features\r\n")
 
 	c.writer.WriteString(" UTF8\r\n")
+	c.writer.WriteString(" SIZE\r\n")
 
 	c.writeMessage(211, "end")
 }
