@@ -47,6 +47,11 @@ func init() {
 	commandsMap["EPSV"] = (*clientHandler).handlePASV
 	commandsMap["QUIT"] = (*clientHandler).handleQUIT
 
+	// TLS handling
+	commandsMap["AUTH"] = (*clientHandler).handleAUTH
+ 	commandsMap["PROT"] = (*clientHandler).handlePROT
+ 	commandsMap["PBSZ"] = (*clientHandler).handlePBSZ
+
 	// Misc
 	commandsMap["FEAT"] = (*clientHandler).handleFEAT
 	commandsMap["SYST"] = (*clientHandler).handleSYST

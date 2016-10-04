@@ -36,7 +36,7 @@ func (c *clientHandler) handleCWD() {
 		c.SetPath(path)
 		c.writeMessage(250, fmt.Sprintf("CD worked on %s", path))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("CD issue: %s", err.Error()))
+		c.writeMessage(550, fmt.Sprintf("CD issue: %v", err))
 	}
 }
 
@@ -45,7 +45,7 @@ func (c *clientHandler) handleMKD() {
 	if err := c.driver.MakeDirectory(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Created dir %s", path))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Could not create %s : %s", path, err.Error()))
+		c.writeMessage(550, fmt.Sprintf("Could not create %s : %v", path, err))
 	}
 }
 
@@ -54,7 +54,7 @@ func (c *clientHandler) handleRMD() {
 	if err := c.driver.DeleteFile(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Deleted dir %s", path))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Could not delete dir %s : %s", path, err.Error()))
+		c.writeMessage(550, fmt.Sprintf("Could not delete dir %s: %v", path, err))
 	}
 }
 
@@ -67,7 +67,7 @@ func (c *clientHandler) handleCDUP() {
 		c.SetPath(parent)
 		c.writeMessage(250, fmt.Sprintf("CDUP worked on %s", parent))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("CDUP issue: %s", err.Error()))
+		c.writeMessage(550, fmt.Sprintf("CDUP issue: %v", err))
 	}
 }
 
@@ -82,8 +82,13 @@ func (c *clientHandler) handleLIST() {
 			c.dirList(tr, files)
 		}
 	} else {
-		c.writeMessage(500, "Could not list - "+err.Error())
+		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
 	}
+}
+
+// TODO: Implement this
+func (c *clientHandler) handleSTAT() {
+	c.writeMessage(500, "STAT not implement")
 }
 
 func (c *clientHandler) dirList(w io.Writer, files []os.FileInfo) error {

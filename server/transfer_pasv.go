@@ -6,6 +6,7 @@ import (
 	"strings"
 	"fmt"
 	"gopkg.in/inconshreveable/log15.v2"
+	"crypto/tls"
 )
 
 // Active/Passive transfer connection handler
@@ -19,22 +20,37 @@ type transferHandler interface {
 
 // Passive connection
 type passiveTransferHandler struct {
-	listener   *net.TCPListener // TCP Listener
-	Port       int              // TCP Port we are listening on
-	connection net.Conn         // TCP Connection established
+	listener    net.Listener     // TCP or SSL Listener
+	tcpListener *net.TCPListener // TCP Listener (only keeping it to define a deadline during the accept)
+	Port        int              // TCP Port we are listening on
+	connection  net.Conn         // TCP Connection established
 }
 
 func (c *clientHandler) handlePASV() {
 	addr, _ := net.ResolveTCPAddr("tcp", ":0")
-	listener, err := net.ListenTCP("tcp", addr)
+	tcpListener, err := net.ListenTCP("tcp", addr)
 	if err != nil {
 		log15.Error("Could not listen", "err", err)
 		return
 	}
 
+	// The listener will either be plain TCP or TLS
+	var listener net.Listener
+	if c.transferTls {
+		if tlsConfig, err := c.daddy.driver.GetTLSConfig(); err == nil {
+			listener = tls.NewListener(tcpListener, tlsConfig)
+		} else {
+			c.writeMessage(550, fmt.Sprintf("Cannot get a TLS config: %v", err))
+			return
+		}
+	} else {
+		listener = tcpListener
+	}
+
 	p := &passiveTransferHandler{
+		tcpListener: tcpListener,
 		listener: listener,
-		Port: listener.Addr().(*net.TCPAddr).Port,
+		Port: tcpListener.Addr().(*net.TCPAddr).Port,
 	}
 
 	// We should rewrite this part
@@ -55,7 +71,7 @@ func (c *clientHandler) handlePASV() {
 
 func (p *passiveTransferHandler) ConnectionWait(wait time.Duration) (net.Conn, error) {
 	if p.connection == nil {
-		p.listener.SetDeadline(time.Now().Add(wait))
+		p.tcpListener.SetDeadline(time.Now().Add(wait))
 		var err error
 		if p.connection, err = p.listener.Accept(); err == nil {
 			return p.connection, nil
@@ -73,8 +89,8 @@ func (p *passiveTransferHandler) Open() (net.Conn, error) {
 
 // Closing only the client connection is not supported at that time
 func (p *passiveTransferHandler) Close() error {
-	if p.listener != nil {
-		p.listener.Close()
+	if p.tcpListener != nil {
+		p.tcpListener.Close()
 	}
 	if p.connection != nil {
 		p.connection.Close()

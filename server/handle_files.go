@@ -72,7 +72,7 @@ func (c *clientHandler) handleDELE() {
 	if err := c.driver.DeleteFile(c, path); err == nil {
 		c.writeMessage(250, fmt.Sprintf("Removed file %s", path))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Couldn't delete %s: %s", path, err.Error()))
+		c.writeMessage(550, fmt.Sprintf("Couldn't delete %s: %v", path, err))
 	}
 }
 
@@ -82,7 +82,7 @@ func (c *clientHandler) handleRNFR() {
 		c.writeMessage(350, "Sure, give me a target")
 		c.UserInfo()["rnfr"] = path
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
+		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %v", path, err))
 	}
 }
 
@@ -103,7 +103,7 @@ func (c *clientHandler) handleSIZE() {
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(213, fmt.Sprintf("%d", info.Size()))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
+		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %v", path, err))
 	}
 }
 

@@ -12,20 +12,21 @@ import (
 )
 
 type clientHandler struct {
-	Id             uint32               // Id of the client
-	daddy          *FtpServer           // Server on which the connection was accepted
-	driver         ClientHandlingDriver // Client handling driver
-	conn           net.Conn             // TCP connection
-	writer         *bufio.Writer        // Writer on the TCP connection
-	reader         *bufio.Reader        // Reader on the TCP connection
-	user        string                  // Authenticated user
-	path        string                  // Current path
-	command     string                  // Command received on the connection
-	param       string                  // Param of the FTP command
-	connectedAt time.Time               // Date of connection
-	userInfo    map[string]string       // Various user information (shared between server and driver)
-	debug       bool                    // Show debugging info on the server side
-	transfer    transferHandler         // Transfer connection (only passive is implemented at this stage)
+	Id          uint32               // Id of the client
+	daddy       *FtpServer           // Server on which the connection was accepted
+	driver      ClientHandlingDriver // Client handling driver
+	conn        net.Conn             // TCP connection
+	writer      *bufio.Writer        // Writer on the TCP connection
+	reader      *bufio.Reader        // Reader on the TCP connection
+	user        string               // Authenticated user
+	path        string               // Current path
+	command     string               // Command received on the connection
+	param       string               // Param of the FTP command
+	connectedAt time.Time            // Date of connection
+	userInfo    map[string]string    // Various user information (shared between server and driver)
+	debug       bool                 // Show debugging info on the server side
+	transfer    transferHandler      // Transfer connection (only passive is implemented at this stage)
+	transferTls bool                 // Use TLS for transfer connection
 }
 
 func (server *FtpServer) NewClientHandler(connection net.Conn) *clientHandler {

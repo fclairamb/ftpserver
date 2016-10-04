@@ -11,11 +11,11 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
  * Uploading and downloading files
  * Directory listing
  * File and directory deletion and renaming
+ * TLS support
  * Complete driver for all the above features
  * Passive socket connections (EPSV and PASV commands, no active connections)
  * Small memory footprint
  * graceful restarts by sending kill -USR2 pid
- * TLS is not supported (but will probably be)
 
 ## The driver
 

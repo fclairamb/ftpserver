@@ -9,11 +9,13 @@ import (
 	"time"
 	"gopkg.in/inconshreveable/log15.v2"
 	"io"
+	"crypto/tls"
 )
 
 // SampleDriver defines a very basic serverftp driver
 type SampleDriver struct {
-	baseDir string
+	baseDir   string
+	tlsConfig *tls.Config
 }
 
 func (driver *SampleDriver) WelcomeUser(cc server.ClientContext) (string, error) {
@@ -28,6 +30,21 @@ func (driver *SampleDriver) AuthUser(cc server.ClientContext, user, pass string)
 	} else {
 		return driver, nil
 	}
+}
+
+func (driver *SampleDriver) GetTLSConfig() (*tls.Config, error) {
+	if driver.tlsConfig == nil {
+		log15.Info("Loading certificate")
+		if cert, err := tls.LoadX509KeyPair("sample/certs/mycert.crt", "sample/certs/mycert.key"); err == nil {
+			driver.tlsConfig = &tls.Config{
+				NextProtos: []string{"ftp"},
+				Certificates: []tls.Certificate{cert},
+			}
+		} else {
+			return nil, err
+		}
+	}
+	return driver.tlsConfig, nil
 }
 
 func (driver *SampleDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
@@ -129,7 +146,7 @@ func (driver *SampleDriver) RenameFile(cc server.ClientContext, from, to string)
 }
 
 func (driver *SampleDriver) GetSettings() *server.Settings {
-	f, err := os.Open("conf/settings.toml")
+	f, err := os.Open("sample/conf/settings.toml")
 	if err != nil {
 		panic(err)
 	}
