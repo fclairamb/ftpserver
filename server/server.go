@@ -54,6 +54,7 @@ func init() {
 	// Misc
 	commandsMap["FEAT"] = (*clientHandler).handleFEAT
 	commandsMap["SYST"] = (*clientHandler).handleSYST
+	commandsMap["NOOP"] = (*clientHandler).handleNOOP
 }
 
 type FtpServer struct {

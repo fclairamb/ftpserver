@@ -31,6 +31,10 @@ func (c *clientHandler) handleSYST() {
 	c.writeMessage(215, "UNIX Type: L8")
 }
 
+func (c *clientHandler) handleNOOP() {
+	c.writeMessage(200, "OK")
+}
+
 func (c *clientHandler) handleFEAT() {
 	c.writer.WriteString("211- These are my features\r\n")
 
