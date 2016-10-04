@@ -86,11 +86,6 @@ func (c *clientHandler) handleLIST() {
 	}
 }
 
-// TODO: Implement this
-func (c *clientHandler) handleSTAT() {
-	c.writeMessage(500, "STAT not implement")
-}
-
 func (c *clientHandler) dirList(w io.Writer, files []os.FileInfo) error {
 	for _, file := range files {
 		fmt.Fprint(w, file.Mode().String())
