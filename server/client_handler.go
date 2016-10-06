@@ -23,7 +23,8 @@ type clientHandler struct {
 	command     string               // Command received on the connection
 	param       string               // Param of the FTP command
 	connectedAt time.Time            // Date of connection
-	userInfo    map[string]string    // Various user information (shared between server and driver)
+	ctx_rnfr    string               // Rename from
+	ctx_rest    int64                // Restart point
 	debug       bool                 // Show debugging info on the server side
 	transfer    transferHandler      // Transfer connection (only passive is implemented at this stage)
 	transferTls bool                 // Use TLS for transfer connection
@@ -41,7 +42,6 @@ func (server *FtpServer) NewClientHandler(connection net.Conn) *clientHandler {
 		reader: bufio.NewReader(connection),
 		connectedAt: time.Now().UTC(),
 		path: "/",
-		userInfo: make(map[string]string),
 	}
 
 	// Just respecting the existing logic here, this could be probably be dropped at some point
@@ -51,10 +51,6 @@ func (server *FtpServer) NewClientHandler(connection net.Conn) *clientHandler {
 
 func (c *clientHandler) disconnect() {
 	c.conn.Close()
-}
-
-func (c *clientHandler) UserInfo() map[string]string {
-	return c.userInfo
 }
 
 func (c *clientHandler) Path() string {
@@ -115,12 +111,12 @@ func (c *clientHandler) HandleCommands() {
 		}
 
 		command, param := parseLine(line)
-		c.command = command
+		c.command = strings.ToUpper(command)
 		c.param = param
 
-		fn := commandsMap[command]
+		fn := commandsMap[c.command]
 		if fn == nil {
-			c.writeMessage(550, "not allowed")
+			c.writeMessage(550, "Not handled")
 		} else {
 			fn(c)
 		}

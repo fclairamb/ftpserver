@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strconv"
 )
 
 func (c *clientHandler) handleSTOR() {
@@ -46,6 +47,10 @@ func (c *clientHandler) handleRETR() {
 
 func (c *clientHandler) download(conn net.Conn, name string) (int64, error) {
 	if file, err := c.driver.OpenFile(c, name, os.O_RDONLY); err == nil {
+		if c.ctx_rest != 0 {
+			file.Seek(c.ctx_rest, 0)
+			c.ctx_rest = 0
+		}
 		defer file.Close()
 		return io.Copy(conn, file)
 	} else {
@@ -60,6 +65,10 @@ func (c *clientHandler) storeOrAppend(conn net.Conn, name string, append bool) (
 	}
 
 	if file, err := c.driver.OpenFile(c, name, flag); err == nil {
+		if c.ctx_rest != 0 {
+			file.Seek(c.ctx_rest, 0)
+			c.ctx_rest = 0
+		}
 		defer file.Close()
 		return io.Copy(file, conn)
 	} else {
@@ -80,7 +89,7 @@ func (c *clientHandler) handleRNFR() {
 	path := c.absPath(c.param)
 	if _, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(350, "Sure, give me a target")
-		c.UserInfo()["rnfr"] = path
+		c.ctx_rnfr = path
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %v", path, err))
 	}
@@ -88,12 +97,12 @@ func (c *clientHandler) handleRNFR() {
 
 func (c *clientHandler) handleRNTO() {
 	dst := c.absPath(c.param)
-	if src := c.UserInfo()["rnfr"]; src != "" {
-		if err := c.driver.RenameFile(c, src, dst); err == nil {
+	if c.ctx_rnfr != "" {
+		if err := c.driver.RenameFile(c, c.ctx_rnfr, dst); err == nil {
 			c.writeMessage(250, "Done !")
-			delete(c.UserInfo(), "rnfr")
+			c.ctx_rnfr = ""
 		} else {
-			c.writeMessage(550, fmt.Sprintf("Couldn't rename %s to %s: %s", src, dst, err.Error()))
+			c.writeMessage(550, fmt.Sprintf("Couldn't rename %s to %s: %s", c.ctx_rnfr, dst, err.Error()))
 		}
 	}
 }
@@ -104,6 +113,32 @@ func (c *clientHandler) handleSIZE() {
 		c.writeMessage(213, fmt.Sprintf("%d", info.Size()))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %v", path, err))
+	}
+}
+
+func (c *clientHandler) handleALLO() {
+	// We should probably add a method in the driver
+	if size, err := strconv.Atoi(c.param); err == nil {
+		if ok, err := c.driver.CanAllocate(c, size); err == nil {
+			if ok {
+				c.writeMessage(202, "OK, we have the free space")
+			} else {
+				c.writeMessage(550, "NOT OK, we don't have the free space")
+			}
+		} else {
+			c.writeMessage(500, fmt.Sprintf("Driver issue: %v", err))
+		}
+	} else {
+		c.writeMessage(501, fmt.Sprintf("Couldn't parse size: %v", err))
+	}
+}
+
+func (c *clientHandler) handleREST() {
+	if size, err := strconv.ParseInt(c.param, 10, 0); err == nil {
+		c.ctx_rest = size
+		c.writeMessage(350, "OK")
+	} else {
+		c.writeMessage(550, fmt.Sprintf("Couldn't parse size: %v", err))
 	}
 }
 

@@ -126,6 +126,10 @@ func (driver *SampleDriver) GetFileInfo(cc server.ClientContext, path string) (o
 	return os.Stat(path)
 }
 
+func (driver *SampleDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
+	return true, nil
+}
+
 func (driver *SampleDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
 	path = driver.baseDir + path
 

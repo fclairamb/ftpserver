@@ -34,6 +34,10 @@ type ServerDriver interface {
 
 	// AuthUser authenticates the user and selects an handling driver
 	AuthUser(cc ClientContext, user, pass string) (ClientHandlingDriver, error)
+
+	// GetCertificate returns a TLS Certificate to use
+	// The certificate could frequently change if we use something like "let's encrypt"
+	GetTLSConfig() (*tls.Config, error)
 }
 
 // ClientHandlingDriver handles the file system access logic
@@ -44,7 +48,7 @@ type ClientHandlingDriver interface {
 	// MakeDirectory creates a directory
 	MakeDirectory(cc ClientContext, directory string) error
 
-	// ListFiles lists the files around a directory
+	// ListFiles lists the files of a directory
 	ListFiles(cc ClientContext) ([]os.FileInfo, error)
 
 	// OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
@@ -58,6 +62,9 @@ type ClientHandlingDriver interface {
 
 	// RenameFile renames a file or a directory
 	RenameFile(cc ClientContext, from, to string) error
+
+	// CanAllocate gives the approval to allocate some data
+	CanAllocate(cc ClientContext, size int) (bool, error)
 }
 
 // ClientContext is implemented on the server side to provide some access to few data around the client

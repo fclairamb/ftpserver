@@ -30,6 +30,8 @@ func init() {
 	commandsMap["DELE"] = (*clientHandler).handleDELE
 	commandsMap["RNFR"] = (*clientHandler).handleRNFR
 	commandsMap["RNTO"] = (*clientHandler).handleRNTO
+	commandsMap["ALLO"] = (*clientHandler).handleALLO
+	commandsMap["REST"] = (*clientHandler).handleREST
 
 	// Directory handling
 	commandsMap["CWD"] = (*clientHandler).handleCWD

@@ -49,6 +49,9 @@ type ClientHandlingDriver interface {
 
 	// RenameFile renames a file or a directory
 	RenameFile(cc ClientContext, from, to string) error
+
+	// CanAllocate gives the approval to allocate some data
+	CanAllocate(cc ClientContext, size int) (bool, error)
 }
 
 // ClientContext is implemented on the server side to provide some access to few data around the client
