@@ -1,9 +1,9 @@
 package server
 
 import (
+	"crypto/tls"
 	"io"
 	"os"
-	"crypto/tls"
 )
 
 // This file is the driver part of the server. It must be implemented by anyone wanting to use the server.

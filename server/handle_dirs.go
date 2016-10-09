@@ -1,11 +1,11 @@
 package server
 
 import (
+	"fmt"
+	"io"
+	"os"
 	"path"
 	"strings"
-	"fmt"
-	"os"
-	"io"
 )
 
 func (c *clientHandler) absPath(p string) string {
@@ -60,7 +60,7 @@ func (c *clientHandler) handleRMD() {
 func (c *clientHandler) handleCDUP() {
 	parent, _ := path.Split(c.Path())
 	if parent != "/" && strings.HasSuffix(parent, "/") {
-		parent = parent[0:len(parent)-1]
+		parent = parent[0 : len(parent)-1]
 	}
 	if err := c.driver.ChangeDirectory(c, parent); err == nil {
 		c.SetPath(parent)
@@ -71,7 +71,7 @@ func (c *clientHandler) handleCDUP() {
 }
 
 func (c *clientHandler) handlePWD() {
-	c.writeMessage(257, "\"" + c.Path() + "\" is the current directory")
+	c.writeMessage(257, "\""+c.Path()+"\" is the current directory")
 }
 
 func (c *clientHandler) handleLIST() {

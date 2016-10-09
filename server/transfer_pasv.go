@@ -1,12 +1,12 @@
 package server
 
 import (
-	"time"
-	"net"
-	"strings"
+	"crypto/tls"
 	"fmt"
 	"gopkg.in/inconshreveable/log15.v2"
-	"crypto/tls"
+	"net"
+	"strings"
+	"time"
 )
 
 // Active/Passive transfer connection handler
@@ -49,8 +49,8 @@ func (c *clientHandler) handlePASV() {
 
 	p := &passiveTransferHandler{
 		tcpListener: tcpListener,
-		listener: listener,
-		Port: tcpListener.Addr().(*net.TCPAddr).Port,
+		listener:    listener,
+		Port:        tcpListener.Addr().(*net.TCPAddr).Port,
 	}
 
 	// We should rewrite this part

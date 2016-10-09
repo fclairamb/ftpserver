@@ -4,10 +4,10 @@ import (
 	"flag"
 	"github.com/fclairamb/ftpserver/sample"
 	"github.com/fclairamb/ftpserver/server"
+	"gopkg.in/inconshreveable/log15.v2"
+	"os"
 	"os/signal"
 	"syscall"
-	"os"
-	"gopkg.in/inconshreveable/log15.v2"
 )
 
 var (

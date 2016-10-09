@@ -1,12 +1,12 @@
 package server
 
 import (
-	"time"
-	"net"
-	"sync"
-	"gopkg.in/inconshreveable/log15.v2"
 	"errors"
 	"fmt"
+	"gopkg.in/inconshreveable/log15.v2"
+	"net"
+	"sync"
+	"time"
 )
 
 var commandsMap map[string]func(*clientHandler)
@@ -50,8 +50,8 @@ func init() {
 
 	// TLS handling
 	commandsMap["AUTH"] = (*clientHandler).handleAUTH
- 	commandsMap["PROT"] = (*clientHandler).handlePROT
- 	commandsMap["PBSZ"] = (*clientHandler).handlePBSZ
+	commandsMap["PROT"] = (*clientHandler).handlePROT
+	commandsMap["PBSZ"] = (*clientHandler).handlePBSZ
 
 	// Misc
 	commandsMap["FEAT"] = (*clientHandler).handleFEAT
@@ -118,8 +118,8 @@ func (server *FtpServer) ListenAndServe() error {
 
 func NewFtpServer(driver ServerDriver) *FtpServer {
 	return &FtpServer{
-		driver: driver,
-		StartTime: time.Now().UTC(), // Might make sense to put it in Start method
+		driver:          driver,
+		StartTime:       time.Now().UTC(), // Might make sense to put it in Start method
 		connectionsById: make(map[uint32]*clientHandler),
 	}
 }
@@ -127,7 +127,6 @@ func NewFtpServer(driver ServerDriver) *FtpServer {
 func (server *FtpServer) Stop() {
 	server.Listener.Close()
 }
-
 
 // When a client connects, the server could refuse the connection
 func (server *FtpServer) clientArrival(c *clientHandler) error {

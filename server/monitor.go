@@ -1,10 +1,10 @@
 package server
 
-import "fmt"
-import "time"
 import (
-	"net/http"
+	"fmt"
 	"gopkg.in/inconshreveable/log15.v2"
+	"net/http"
+	"time"
 )
 
 func oneSPrecision(d time.Duration) time.Duration {

@@ -1,15 +1,15 @@
 package sample
 
 import (
-	"github.com/fclairamb/ftpserver/server"
+	"crypto/tls"
 	"errors"
-	"os"
-	"io/ioutil"
+	"github.com/fclairamb/ftpserver/server"
 	"github.com/naoina/toml"
-	"time"
 	"gopkg.in/inconshreveable/log15.v2"
 	"io"
-	"crypto/tls"
+	"io/ioutil"
+	"os"
+	"time"
 )
 
 // SampleDriver defines a very basic serverftp driver
@@ -37,7 +37,7 @@ func (driver *SampleDriver) GetTLSConfig() (*tls.Config, error) {
 		log15.Info("Loading certificate")
 		if cert, err := tls.LoadX509KeyPair("sample/certs/mycert.crt", "sample/certs/mycert.key"); err == nil {
 			driver.tlsConfig = &tls.Config{
-				NextProtos: []string{"ftp"},
+				NextProtos:   []string{"ftp"},
 				Certificates: []tls.Certificate{cert},
 			}
 		} else {
@@ -59,12 +59,12 @@ func (driver *SampleDriver) ChangeDirectory(cc server.ClientContext, directory s
 }
 
 func (driver *SampleDriver) MakeDirectory(cc server.ClientContext, directory string) error {
-	return os.Mkdir(driver.baseDir + directory, 0777)
+	return os.Mkdir(driver.baseDir+directory, 0777)
 }
 
 func (driver *SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
 
-	if ( cc.Path() == "/virtual") {
+	if cc.Path() == "/virtual" {
 		files := make([]os.FileInfo, 0)
 		files = append(files,
 			VirtualFileInfo{
@@ -104,13 +104,13 @@ func (driver *SampleDriver) UserLeft(cc server.ClientContext) {
 func (driver *SampleDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
 
 	if path == "/virtual/localpath.txt" {
-		return &VirtualFile{content: []byte(driver.baseDir), }, nil
+		return &VirtualFile{content: []byte(driver.baseDir)}, nil
 	}
 
 	path = driver.baseDir + path
 
 	// If we are writing and we are not in append mode, we should remove the file
-	if ( flag & os.O_WRONLY) != 0 {
+	if (flag & os.O_WRONLY) != 0 {
 		flag |= os.O_CREATE
 		if (flag & os.O_APPEND) == 0 {
 			os.Remove(path)
@@ -165,7 +165,6 @@ func (driver *SampleDriver) GetSettings() *server.Settings {
 	}
 	return &config
 }
-
 
 // Note: This is not a mistake. Interface can be pointers. There seems to be a lot of confusion around this in the
 //       server_ftp original code.

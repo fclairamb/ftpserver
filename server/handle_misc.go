@@ -1,8 +1,8 @@
 package server
 
 import (
-	"crypto/tls"
 	"bufio"
+	"crypto/tls"
 	"fmt"
 )
 

@@ -1,14 +1,14 @@
 package server
 
 import (
-	"gopkg.in/inconshreveable/log15.v2"
-	"fmt"
-	"net"
 	"bufio"
-	"time"
-	"strings"
 	"errors"
+	"fmt"
+	"gopkg.in/inconshreveable/log15.v2"
 	"io"
+	"net"
+	"strings"
+	"time"
 )
 
 type clientHandler struct {
@@ -35,13 +35,13 @@ func (server *FtpServer) NewClientHandler(connection net.Conn) *clientHandler {
 	server.clientCounter += 1
 
 	p := &clientHandler{
-		daddy: server,
-		conn: connection,
-		Id: server.clientCounter,
-		writer: bufio.NewWriter(connection),
-		reader: bufio.NewReader(connection),
+		daddy:       server,
+		conn:        connection,
+		Id:          server.clientCounter,
+		writer:      bufio.NewWriter(connection),
+		reader:      bufio.NewReader(connection),
 		connectedAt: time.Now().UTC(),
-		path: "/",
+		path:        "/",
 	}
 
 	// Just respecting the existing logic here, this could be probably be dropped at some point
@@ -80,7 +80,7 @@ func (c *clientHandler) HandleCommands() {
 	defer c.end()
 
 	if err := c.daddy.clientArrival(c); err != nil {
-		c.writeMessage(500, "Can't accept you - " + err.Error())
+		c.writeMessage(500, "Can't accept you - "+err.Error())
 		return
 	}
 
