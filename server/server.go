@@ -90,10 +90,6 @@ func (server *FtpServer) ListenAndServe() error {
 	}
 	log15.Info("Listening...")
 
-	if server.Settings.MonitorOn {
-		go server.Monitor()
-	}
-
 	// The actual signal handler of the core program will do that (if he wants to)
 	// go signalHandler()
 

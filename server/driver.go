@@ -79,6 +79,4 @@ type Settings struct {
 	Host           string // Host to receive connections on
 	Port           int    // Port to listen on
 	MaxConnections int    // Max number of connections to accept
-	MonitorOn      bool   // To activate the monitor
-	MonitorPort    int    // Port for the monitor to listen on
 }
