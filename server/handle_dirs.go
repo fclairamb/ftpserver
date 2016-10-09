@@ -1,7 +1,6 @@
 package server
 
 import (
-	"github.com/jehiah/go-strftime"
 	"path"
 	"strings"
 	"fmt"
@@ -91,7 +90,9 @@ func (c *clientHandler) dirList(w io.Writer, files []os.FileInfo) error {
 		fmt.Fprint(w, file.Mode().String())
 		fmt.Fprintf(w, " 1 %s %s ", "ftp", "ftp")
 		fmt.Fprintf(w, "%12d", file.Size())
-		fmt.Fprintf(w, strftime.Format(" %b %d %H:%M ", file.ModTime()))
+		// There's no real reason to keep this strftime dependency
+		// fmt.Fprintf(w, strftime.Format(" %b %d %H:%M ", file.ModTime()))
+		fmt.Fprintf(w, file.ModTime().Format(" Jan _2 15:04 "))
 		fmt.Fprintf(w, "%s\r\n", file.Name())
 	}
 	fmt.Fprint(w, "\r\n")
