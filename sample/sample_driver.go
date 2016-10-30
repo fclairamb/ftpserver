@@ -1,3 +1,6 @@
+// Sample driver implementation of the ftpserver library.
+//
+// This sample is very limited.
 package sample
 
 import (

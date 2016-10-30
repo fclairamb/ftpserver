@@ -1,3 +1,4 @@
+// ftpserver allows to create your own FTP(S) server
 package main
 
 import (
