@@ -42,7 +42,7 @@ func (c *clientHandler) handleCWD() {
 func (c *clientHandler) handleMKD() {
 	path := c.absPath(c.param)
 	if err := c.driver.MakeDirectory(c, path); err == nil {
-		c.writeMessage(250, fmt.Sprintf("Created dir %s", path))
+		c.writeMessage(257, fmt.Sprintf("Created dir %s", path))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Could not create %s : %v", path, err))
 	}
