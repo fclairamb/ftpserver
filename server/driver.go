@@ -56,7 +56,7 @@ type ClientHandlingDriver interface {
 
 // ClientContext is implemented on the server side to provide some access to few data around the client
 type ClientContext interface {
-	// Get current path
+	// Path provides the path of the current connection
 	Path() string
 
 	// SetDebug activates the debugging of this connection commands
