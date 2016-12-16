@@ -77,7 +77,7 @@ func (server *FtpServer) ListenAndServe() error {
 
 	server.Listener, err = net.Listen(
 		"tcp",
-		fmt.Sprintf("%s:%d", server.Settings.Host, server.Settings.Port),
+		fmt.Sprintf("%s:%d", server.Settings.ListenHost, server.Settings.ListenPort),
 	)
 
 	if err != nil {

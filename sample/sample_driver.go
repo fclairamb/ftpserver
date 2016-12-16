@@ -13,6 +13,8 @@ import (
 	"io/ioutil"
 	"os"
 	"time"
+	"net/http"
+	"bytes"
 )
 
 // SampleDriver defines a very basic serverftp driver
@@ -166,6 +168,17 @@ func (driver *SampleDriver) GetSettings() *server.Settings {
 	if err := toml.Unmarshal(buf, &config); err != nil {
 		panic(err)
 	}
+
+	// This is the new IP loading change coming from Ray
+	if config.PublicHost == "" {
+		log15.Debug("Fetching our external IP address...")
+		if config.PublicHost, err = externalIP(); err != nil {
+			log15.Warn("Couldn't fetch an external IP", "err", err)
+		} else {
+			log15.Debug("Fetched our external IP address", "ipAddress", config.PublicHost)
+		}
+	}
+
 	return &config
 }
 
@@ -239,4 +252,20 @@ func (f VirtualFileInfo) ModTime() time.Time {
 
 func (f VirtualFileInfo) Sys() interface{} {
 	return nil
+}
+
+func externalIP() (string, error) {
+	// If you need to take a bet, amazon is about as reliable & sustainable a service as you can get
+	rsp, err := http.Get("http://checkip.amazonaws.com")
+	if err != nil {
+		return "", err
+	}
+	defer rsp.Body.Close()
+
+	buf, err := ioutil.ReadAll(rsp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes.TrimSpace(buf)), nil
 }

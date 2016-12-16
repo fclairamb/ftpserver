@@ -1,43 +1,13 @@
 package server
 
 import (
-	"bytes"
 	"crypto/tls"
 	"fmt"
 	"gopkg.in/inconshreveable/log15.v2"
-	"io/ioutil"
 	"net"
-	"net/http"
 	"strings"
 	"time"
 )
-
-// externalIP is a function to retrieve this machine's external IP address as a string
-var thisIP string = ""
-
-func externalIP() (string, error) {
-
-	// Cache the IP after the first time we've fetched it
-	if thisIP != "" {
-		return thisIP, nil
-	}
-
-	// If you need to take a bet, amazon is about as reliable & sustainable a service as you can get
-	rsp, err := http.Get("http://checkip.amazonaws.com")
-	if err != nil {
-		return "", err
-	}
-	defer rsp.Body.Close()
-
-	buf, err := ioutil.ReadAll(rsp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	thisIP = string(bytes.TrimSpace(buf))
-	return thisIP, nil
-
-}
 
 // Active/Passive transfer connection handler
 type transferHandler interface {
@@ -88,11 +58,13 @@ func (c *clientHandler) handlePASV() {
 		p1 := p.Port / 256
 		p2 := p.Port - (p1 * 256)
 		// Provide our external IP address so the ftp client can connect back to us
-		ip, err := externalIP()
-		if err != nil {
-			log15.Error("Could not fetch external IP address", "err", err)
-			return
+		ip := c.daddy.Settings.PublicHost
+
+		// If we don't have an IP address, we can take the one that was used for the current connection
+		if ip == "" {
+			ip = strings.Split(c.conn.LocalAddr().String(), ":")[0]
 		}
+
 		quads := strings.Split(ip, ".")
 		c.writeMessage(227, fmt.Sprintf("Entering Passive Mode (%s,%s,%s,%s,%d,%d)", quads[0], quads[1], quads[2], quads[3], p1, p2))
 	} else {
