@@ -56,7 +56,7 @@ type ClientHandlingDriver interface {
 
 // ClientContext is implemented on the server side to provide some access to few data around the client
 type ClientContext interface {
-	// Get current path
+	// Path provides the path of the current connection
 	Path() string
 
 	// SetDebug activates the debugging of this connection commands
@@ -76,7 +76,8 @@ type FileStream interface {
 
 // Settings define all the server settings
 type Settings struct {
-	Host           string // Host to receive connections on
-	Port           int    // Port to listen on
+	ListenHost     string // Host to receive connections on
+	ListenPort     int    // Port to listen on
+	PublicHost     string // Public IP to expose (only an IP address is accepted at this stage)
 	MaxConnections int    // Max number of connections to accept
 }

@@ -1,3 +1,4 @@
-port = 2121
-host = "0.0.0.0"
+listen_host = "0.0.0.0"
+listen_port = 2121
+#public_host = "149.202.153.236"
 max_connections = 20000

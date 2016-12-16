@@ -57,10 +57,15 @@ func (c *clientHandler) handlePASV() {
 	if c.command == "PASV" {
 		p1 := p.Port / 256
 		p2 := p.Port - (p1 * 256)
-		addr := c.conn.LocalAddr()
-		tokens := strings.Split(addr.String(), ":")
-		host := tokens[0]
-		quads := strings.Split(host, ".")
+		// Provide our external IP address so the ftp client can connect back to us
+		ip := c.daddy.Settings.PublicHost
+
+		// If we don't have an IP address, we can take the one that was used for the current connection
+		if ip == "" {
+			ip = strings.Split(c.conn.LocalAddr().String(), ":")[0]
+		}
+
+		quads := strings.Split(ip, ".")
 		c.writeMessage(227, fmt.Sprintf("Entering Passive Mode (%s,%s,%s,%s,%d,%d)", quads[0], quads[1], quads[2], quads[3], p1, p2))
 	} else {
 		c.writeMessage(229, fmt.Sprintf("Entering Extended Passive Mode (|||%d|)", p.Port))
