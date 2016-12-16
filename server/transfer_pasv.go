@@ -2,12 +2,12 @@ package server
 
 import (
 	"bytes"
-	"io/ioutil"
-	"net/http"
 	"crypto/tls"
 	"fmt"
 	"gopkg.in/inconshreveable/log15.v2"
+	"io/ioutil"
 	"net"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -18,7 +18,7 @@ var thisIP string = ""
 func externalIP() (string, error) {
 
 	// Cache the IP after the first time we've fetched it
-	if (thisIP != "") {
+	if thisIP != "" {
 		return thisIP, nil
 	}
 
@@ -89,7 +89,7 @@ func (c *clientHandler) handlePASV() {
 		p2 := p.Port - (p1 * 256)
 		// Provide our external IP address so the ftp client can connect back to us
 		ip, err := externalIP()
-		if (err != nil) {
+		if err != nil {
 			log15.Error("Could not fetch external IP address", "err", err)
 			return
 		}
