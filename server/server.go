@@ -58,6 +58,7 @@ func init() {
 	commandsMap["FEAT"] = (*clientHandler).handleFEAT
 	commandsMap["SYST"] = (*clientHandler).handleSYST
 	commandsMap["NOOP"] = (*clientHandler).handleNOOP
+	commandsMap["OPTS"] = (*clientHandler).handleOPTS
 }
 
 type FtpServer struct {
@@ -70,8 +71,22 @@ type FtpServer struct {
 	driver           ServerDriver              // Driver to handle the client authentication and the file access driver selection
 }
 
+func (server *FtpServer) loadSettings() {
+	s := server.driver.GetSettings()
+	if s.ListenHost == "" {
+		s.ListenHost = "0.0.0.0"
+	}
+	if s.ListenPort == 0 {
+		s.ListenPort = 2121
+	}
+	if s.MaxConnections == 0 {
+		s.MaxConnections = 10000
+	}
+	server.Settings = s
+}
+
 func (server *FtpServer) ListenAndServe() error {
-	server.Settings = server.driver.GetSettings()
+	server.loadSettings()
 	var err error
 	log15.Info("Starting...")
 
@@ -85,14 +100,7 @@ func (server *FtpServer) ListenAndServe() error {
 		return err
 	}
 
-	if err != nil {
-		log15.Error("cannot listen: ", err)
-		return err
-	}
-	log15.Info("Listening...")
-
-	// The actual signal handler of the core program will do that (if he wants to)
-	// go signalHandler()
+	log15.Info("Listening...", "address", server.Listener.Addr())
 
 	for {
 		connection, err := server.Listener.Accept()
@@ -107,9 +115,6 @@ func (server *FtpServer) ListenAndServe() error {
 
 	// Note: At this precise time, the clients are still connected. We are just not accepting clients anymore.
 
-	// TODO add wait group for still active connections to finish up
-	// otherwise, this will just exit and kill them
-	// defeating whole point of gracefulChild restart
 	return nil
 }
 
@@ -133,7 +138,7 @@ func (server *FtpServer) clientArrival(c *clientHandler) error {
 	server.connectionsById[c.Id] = c
 	nb := len(server.connectionsById)
 
-	log15.Info("Client connected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", nb)
+	log15.Info("FTP Client connected", "action", "ftp.connected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", nb)
 
 	if nb > server.Settings.MaxConnections {
 		return errors.New(fmt.Sprintf("Too many clients %d > %d", nb, server.Settings.MaxConnections))
@@ -149,5 +154,5 @@ func (server *FtpServer) clientDeparture(c *clientHandler) {
 
 	delete(server.connectionsById, c.Id)
 
-	log15.Info("Client disconnected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", len(server.connectionsById))
+	log15.Info("FTP Client disconnected", "action", "ftp.disconnected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", len(server.connectionsById))
 }

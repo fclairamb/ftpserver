@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"crypto/tls"
 	"fmt"
+	"strings"
 )
 
 func (c *clientHandler) handleAUTH() {
@@ -31,25 +32,48 @@ func (c *clientHandler) handleSYST() {
 	c.writeMessage(215, "UNIX Type: L8")
 }
 
+func (c *clientHandler) handleOPTS() {
+	args := strings.SplitN(c.param, " ", 2)
+	if args[0] == "UTF8" {
+		c.writeMessage(200, "I'm in UTF8 only anyway")
+	} else {
+		c.writeMessage(500, "Don't know this option")
+	}
+}
+
 func (c *clientHandler) handleNOOP() {
 	c.writeMessage(200, "OK")
 }
 
 func (c *clientHandler) handleFEAT() {
-	c.writer.WriteString("211- These are my features\r\n")
+	c.writeLine("211- These are my features")
+	defer c.writeMessage(211, "end")
 
-	c.writer.WriteString(" UTF8\r\n")
-	c.writer.WriteString(" SIZE\r\n")
+	features := []string{
+		"UTF8",
+		"SIZE",
+		"MDTM",
+		"REST STREAM",
+	}
 
-	c.writeMessage(211, "end")
+	for _, f := range features {
+		c.writeLine(" " + f)
+	}
 }
 
 func (c *clientHandler) handleTYPE() {
-	c.writeMessage(200, "Type set to binary")
+	switch c.param {
+	case "I":
+		c.writeMessage(200, "Type set to binary")
+	case "A":
+		c.writeMessage(200, "WARNING: ASCII isn't correctly supported")
+	default:
+		c.writeMessage(500, "Not understood")
+	}
 }
 
 func (c *clientHandler) handleQUIT() {
-	//fmt.Println("Goodbye")
 	c.writeMessage(221, "Goodbye")
 	c.disconnect()
+	c.reader = nil
 }

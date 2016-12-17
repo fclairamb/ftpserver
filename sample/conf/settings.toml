@@ -1,4 +1,15 @@
-listen_host = "0.0.0.0"
-listen_port = 2121
-#public_host = "149.202.153.236"
-max_connections = 20000
+# ftpserver configuration file
+#
+# These are all the config parameters with their default values. If not present,
+
+# Address to listen on
+# listen_host = "0.0.0.0"
+
+# Port to listen on
+# listen_port = 2121
+
+# Public host to expose in the passive connection
+# public_host = ""
+
+# Max number of connections to accept
+# max_connections = #0000
