@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/inconshreveable/log15.v2"
+	"io"
 	"net"
 	"strings"
 	"time"
-	"io"
 )
 
 type clientHandler struct {
@@ -80,7 +80,7 @@ func (c *clientHandler) HandleCommands() {
 	defer c.end()
 
 	if err := c.daddy.clientArrival(c); err != nil {
-		c.writeMessage(500, "Can't accept you - " + err.Error())
+		c.writeMessage(500, "Can't accept you - "+err.Error())
 		return
 	}
 
