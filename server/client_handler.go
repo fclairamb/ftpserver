@@ -80,7 +80,7 @@ func (c *clientHandler) HandleCommands() {
 	defer c.end()
 
 	if err := c.daddy.clientArrival(c); err != nil {
-		c.writeMessage(500, "Can't accept you - "+err.Error())
+		c.writeMessage(500, "Can't accept you - " + err.Error())
 		return
 	}
 

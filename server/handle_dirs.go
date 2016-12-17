@@ -20,8 +20,8 @@ func (c *clientHandler) absPath(p string) string {
 		p2 += p
 	}
 
-	if ( p2 != "/" && strings.HasSuffix(p2, "/")) {
-		p2 = p2[0:len(p2) - 1]
+	if p2 != "/" && strings.HasSuffix(p2, "/") {
+		p2 = p2[0 : len(p2) - 1]
 	}
 
 	return p2
