@@ -9,18 +9,22 @@ import (
 )
 
 func (c *clientHandler) absPath(p string) string {
-	path := c.Path()
+	p2 := c.Path()
 
 	if strings.HasPrefix(p, "/") {
-		path = p
+		p2 = p
 	} else {
-		if path != "/" {
-			path += "/"
+		if p2 != "/" {
+			p2 += "/"
 		}
-		path += p
+		p2 += p
 	}
 
-	return path
+	if ( p2 != "/" && strings.HasSuffix(p2, "/")) {
+		p2 = p2[0:len(p2) - 1]
+	}
+
+	return p2
 }
 
 func (c *clientHandler) handleCWD() {
@@ -29,38 +33,38 @@ func (c *clientHandler) handleCWD() {
 		return
 	}
 
-	path := c.absPath(c.param)
+	p := c.absPath(c.param)
 
-	if err := c.driver.ChangeDirectory(c, path); err == nil {
-		c.SetPath(path)
-		c.writeMessage(250, fmt.Sprintf("CD worked on %s", path))
+	if err := c.driver.ChangeDirectory(c, p); err == nil {
+		c.SetPath(p)
+		c.writeMessage(250, fmt.Sprintf("CD worked on %s", p))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("CD issue: %v", err))
 	}
 }
 
 func (c *clientHandler) handleMKD() {
-	path := c.absPath(c.param)
-	if err := c.driver.MakeDirectory(c, path); err == nil {
-		c.writeMessage(257, fmt.Sprintf("Created dir %s", path))
+	p := c.absPath(c.param)
+	if err := c.driver.MakeDirectory(c, p); err == nil {
+		c.writeMessage(257, fmt.Sprintf("Created dir %s", p))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Could not create %s : %v", path, err))
+		c.writeMessage(550, fmt.Sprintf("Could not create %s : %v", p, err))
 	}
 }
 
 func (c *clientHandler) handleRMD() {
-	path := c.absPath(c.param)
-	if err := c.driver.DeleteFile(c, path); err == nil {
-		c.writeMessage(250, fmt.Sprintf("Deleted dir %s", path))
+	p := c.absPath(c.param)
+	if err := c.driver.DeleteFile(c, p); err == nil {
+		c.writeMessage(250, fmt.Sprintf("Deleted dir %s", p))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Could not delete dir %s: %v", path, err))
+		c.writeMessage(550, fmt.Sprintf("Could not delete dir %s: %v", p, err))
 	}
 }
 
 func (c *clientHandler) handleCDUP() {
 	parent, _ := path.Split(c.Path())
 	if parent != "/" && strings.HasSuffix(parent, "/") {
-		parent = parent[0 : len(parent)-1]
+		parent = parent[0 : len(parent) - 1]
 	}
 	if err := c.driver.ChangeDirectory(c, parent); err == nil {
 		c.SetPath(parent)
@@ -71,7 +75,7 @@ func (c *clientHandler) handleCDUP() {
 }
 
 func (c *clientHandler) handlePWD() {
-	c.writeMessage(257, "\""+c.Path()+"\" is the current directory")
+	c.writeMessage(257, "\"" + c.Path() + "\" is the current directory")
 }
 
 func (c *clientHandler) handleLIST() {
