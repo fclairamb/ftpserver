@@ -4,6 +4,7 @@
 package sample
 
 import (
+	"bytes"
 	"crypto/tls"
 	"errors"
 	"github.com/fclairamb/ftpserver/server"
@@ -11,10 +12,9 @@ import (
 	"gopkg.in/inconshreveable/log15.v2"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"time"
-	"net/http"
-	"bytes"
 )
 
 // SampleDriver defines a very basic serverftp driver
@@ -64,7 +64,7 @@ func (driver *SampleDriver) ChangeDirectory(cc server.ClientContext, directory s
 }
 
 func (driver *SampleDriver) MakeDirectory(cc server.ClientContext, directory string) error {
-	return os.Mkdir(driver.baseDir+directory, 0777)
+	return os.Mkdir(driver.baseDir + directory, 0777)
 }
 
 func (driver *SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
