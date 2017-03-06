@@ -4,10 +4,11 @@ package server
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/inconshreveable/log15.v2"
 	"net"
 	"sync"
 	"time"
+
+	"gopkg.in/inconshreveable/log15.v2"
 )
 
 var commandsMap map[string]func(*clientHandler)

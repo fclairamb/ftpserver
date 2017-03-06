@@ -3,10 +3,12 @@ package server
 import (
 	"crypto/tls"
 	"fmt"
-	"gopkg.in/inconshreveable/log15.v2"
+	"math/rand"
 	"net"
 	"strings"
 	"time"
+
+	"gopkg.in/inconshreveable/log15.v2"
 )
 
 // Active/Passive transfer connection handler
@@ -28,7 +30,29 @@ type passiveTransferHandler struct {
 
 func (c *clientHandler) handlePASV() {
 	addr, _ := net.ResolveTCPAddr("tcp", ":0")
-	tcpListener, err := net.ListenTCP("tcp", addr)
+	var tcpListener *net.TCPListener
+	var err error
+
+	portRange := c.daddy.Settings.DataPortRange
+
+	if portRange != nil {
+		for {
+			port := portRange.Start + rand.Intn(portRange.End-portRange.Start)
+			laddr, err := net.ResolveTCPAddr("tcp", "0.0.0.0:"+fmt.Sprintf("%d", port))
+			if err != nil {
+				continue
+			}
+
+			tcpListener, err = net.ListenTCP("tcp", laddr)
+			if err == nil {
+				break
+			}
+		}
+
+	} else {
+		tcpListener, err = net.ListenTCP("tcp", addr)
+	}
+
 	if err != nil {
 		log15.Error("Could not listen", "err", err)
 		return
