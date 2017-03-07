@@ -90,11 +90,11 @@ type FileStream interface {
 
 // Settings define all the server settings
 type Settings struct {
-	ListenHost     string // Host to receive connections on
-	ListenPort     int    // Port to listen on
-	PublicHost     string //Public IP to expose (only an IP address is accepted at this stage)
-	MaxConnections int    // Max number of connections to accept
-	DataPortRange PortRange // Port range for data connections. Random one will be used if not specified
+	ListenHost     string     // Host to receive connections on
+	ListenPort     int        // Port to listen on
+	PublicHost     string     // Public IP to expose (only an IP address is accepted at this stage)
+	MaxConnections int        // Max number of connections to accept
+	DataPortRange  *PortRange // Port Range for data connections. Random one will be used if not specified
 }
 ```
 

@@ -12,4 +12,9 @@
 # public_host = ""
 
 # Max number of connections to accept
-# max_connections = #0000
+# max_connections = 0
+
+# Data port range from 10000 to 15000
+# [dataPortRange]
+# start = 10000
+# end = 15000
