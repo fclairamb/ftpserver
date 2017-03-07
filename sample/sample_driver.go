@@ -64,7 +64,7 @@ func (driver *SampleDriver) ChangeDirectory(cc server.ClientContext, directory s
 }
 
 func (driver *SampleDriver) MakeDirectory(cc server.ClientContext, directory string) error {
-	return os.Mkdir(driver.baseDir + directory, 0777)
+	return os.Mkdir(driver.baseDir+directory, 0777)
 }
 
 func (driver *SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {

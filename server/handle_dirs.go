@@ -21,7 +21,7 @@ func (c *clientHandler) absPath(p string) string {
 	}
 
 	if p2 != "/" && strings.HasSuffix(p2, "/") {
-		p2 = p2[0 : len(p2) - 1]
+		p2 = p2[0 : len(p2)-1]
 	}
 
 	return p2
@@ -64,7 +64,7 @@ func (c *clientHandler) handleRMD() {
 func (c *clientHandler) handleCDUP() {
 	parent, _ := path.Split(c.Path())
 	if parent != "/" && strings.HasSuffix(parent, "/") {
-		parent = parent[0 : len(parent) - 1]
+		parent = parent[0 : len(parent)-1]
 	}
 	if err := c.driver.ChangeDirectory(c, parent); err == nil {
 		c.SetPath(parent)
@@ -75,7 +75,7 @@ func (c *clientHandler) handleCDUP() {
 }
 
 func (c *clientHandler) handlePWD() {
-	c.writeMessage(257, "\"" + c.Path() + "\" is the current directory")
+	c.writeMessage(257, "\""+c.Path()+"\" is the current directory")
 }
 
 func (c *clientHandler) handleLIST() {

@@ -36,7 +36,7 @@ func (c *clientHandler) handlePASV() {
 	portRange := c.daddy.Settings.DataPortRange
 
 	if portRange != nil {
-		for {
+		for start := portRange.Start; start < portRange.End; start++ {
 			port := portRange.Start + rand.Intn(portRange.End-portRange.Start)
 			laddr, err := net.ResolveTCPAddr("tcp", "0.0.0.0:"+fmt.Sprintf("%d", port))
 			if err != nil {

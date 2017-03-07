@@ -80,13 +80,13 @@ func (c *clientHandler) HandleCommands() {
 	defer c.end()
 
 	if err := c.daddy.clientArrival(c); err != nil {
-		c.writeMessage(500, "Can't accept you - " + err.Error())
+		c.writeMessage(500, "Can't accept you - "+err.Error())
 		return
 	}
 
 	defer c.daddy.driver.UserLeft(c)
 
-	//fmt.Println(p.id, " Got client on: ", p.ip)
+	//fmt.Println(c.id, " Got client on: ", c.ip)
 	if msg, err := c.daddy.driver.WelcomeUser(c); err == nil {
 		c.writeMessage(220, msg)
 	} else {
