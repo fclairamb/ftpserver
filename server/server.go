@@ -48,6 +48,7 @@ func init() {
 	commandsMap["TYPE"] = (*clientHandler).handleTYPE
 	commandsMap["PASV"] = (*clientHandler).handlePASV
 	commandsMap["EPSV"] = (*clientHandler).handlePASV
+	commandsMap["PORT"] = (*clientHandler).handlePORT
 	commandsMap["QUIT"] = (*clientHandler).handleQUIT
 
 	// TLS handling
