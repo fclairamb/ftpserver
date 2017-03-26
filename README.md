@@ -14,7 +14,8 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
  * TLS support
  * File download/upload resume support
  * Complete driver for all the above features
- * Passive socket connections (EPSV and PASV commands, no active connections)
+ * Passive socket connections (EPSV and PASV commands)
+ * Active socket connections (PORT command)
  * Small memory footprint
  * Only relies on the standard library except for logging which uses [log15](https://github.com/inconshreveable/log15)
  

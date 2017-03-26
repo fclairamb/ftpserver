@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"gopkg.in/inconshreveable/log15.v2"
 	"io"
 	"net"
 	"strings"
 	"time"
+
+	"gopkg.in/inconshreveable/log15.v2"
 )
 
 type clientHandler struct {
