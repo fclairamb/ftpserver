@@ -1,5 +1,6 @@
 language: go
 
+# We're building for the two last versions
 go:
   - 1.7.x
   - 1.8.x
