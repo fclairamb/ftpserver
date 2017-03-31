@@ -1,6 +1,6 @@
 # Golang FTP Server library
 
-The goal is to provide a comprehensive FTP Server library.
+The goal is to provide a simple & comprehensive FTP Server library.
 
 Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) but many things have been changed since then.
 
@@ -17,7 +17,7 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
  * Passive socket connections (EPSV and PASV commands)
  * Active socket connections (PORT command)
  * Small memory footprint
- * Only relies on the standard library except for logging which uses [log15](https://github.com/inconshreveable/log15)
+ * Only relies on the standard library except for logging which uses [log15](https://github.com/inconshreveable/log15) ([which could change](https://github.com/fclairamb/ftpserver/issues/7)).
  
 ## The driver
 
@@ -101,8 +101,7 @@ type Settings struct {
 
 ### Sample implementation
 
-Have a look at the [sample driver](https://github.com/fclairamb/ftpserver/tree/master/sample). It shows how you can plug your FTP server to your file system.
-
+Have a look at the [sample driver](https://github.com/fclairamb/ftpserver/tree/master/sample). It shows how you can plug your FTP server to something else, in this case your file system.
 
 ## Sample run
 ```
@@ -151,12 +150,12 @@ $ shasum iMX7D_RM_Rev_B.pdf
 
 ## History of the project
 
-I wanted to make a system which would accept files through FTP and redirect them to something else. Go seemed like the obvious choice and there seemed to be a lot of libraries available but it turns out none of them were in a useable state.
+I wanted to make a system which would accept files through FTP and redirect them to something else. Go seemed like the obvious choice and it seemed there was a lot of libraries available but it turns out none of them were in a useable state.
 
 * [micahhausler/go-ftp](https://github.com/micahhausler/go-ftp) is a  minimalistic implementation 
 * [shenfeng/ftpd.go](https://github.com/shenfeng/ftpd.go) is very basic and 4 years old.
 * [yob/graval](https://github.com/yob/graval) is 3 years old and “experimental”.
 * [goftp/server](https://github.com/goftp/server) seemed OK but I couldn't use it on both Filezilla and the MacOs ftp client.
-* [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) - Was the only one of the list I could test right away. But it turns out there's many features missing and I wanted to architecture it a bit differently.
+* [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) - Was the only one of the list I could test right away. Still, it missed few features, had some unecessary ones and I wanted to architecture it a bit differently.
 
 That's why I forked from this last one.
