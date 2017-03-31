@@ -76,6 +76,7 @@ func (c *clientHandler) end() {
 	}
 }
 
+// HandleCommands reads the stream of commands
 func (c *clientHandler) HandleCommands() {
 	defer c.daddy.clientDeparture(c)
 	defer c.end()
@@ -120,17 +121,29 @@ func (c *clientHandler) HandleCommands() {
 			log15.Debug("FTP RECV", "action", "ftp.cmd_recv", "id", c.Id, "line", line)
 		}
 
-		command, param := parseLine(line)
-		c.command = strings.ToUpper(command)
-		c.param = param
-
-		fn := commandsMap[c.command]
-		if fn == nil {
-			c.writeMessage(550, "Not handled")
-		} else {
-			fn(c)
-		}
+		c.handleCommand(line)
 	}
+}
+
+// handleCommand takes care of executing the received line
+func (c *clientHandler) handleCommand(line string) {
+	command, param := parseLine(line)
+	c.command = strings.ToUpper(command)
+	c.param = param
+
+	fn := commandsMap[c.command]
+	if fn == nil {
+		c.writeMessage(500, "Unknown command")
+		return
+	}
+
+	// Let's prepare to recover in case there's a command error
+	defer func() {
+		if r := recover(); r != nil {
+			c.writeMessage(500, fmt.Sprintf("Internal error: %s", r))
+		}
+	}()
+	fn(c)
 }
 
 func (c *clientHandler) writeLine(line string) {
