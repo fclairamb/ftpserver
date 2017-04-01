@@ -1,5 +1,9 @@
 # Golang FTP Server library
 
+[![Build status](https://travis-ci.org/fclairamb/ftpserver.svg?branch=master)](https://travis-ci.org/fclairamb/ftpserver)
+[![Go Report Card](https://goreportcard.com/badge/fclairamb/ftpserver)](https://goreportcard.com/report/fclairamb/ftpserver)
+[![GoDoc](https://godoc.org/github.com/fclairamb/ftpserver?status.svg)](https://godoc.org/github.com/fclairamb/ftpserver/server)
+
 The goal is to provide a simple & comprehensive FTP Server library.
 
 Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) but many things have been changed since then.
