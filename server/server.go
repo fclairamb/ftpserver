@@ -26,8 +26,8 @@ func init() {
 	commandsMap = make(map[string]*CommandDescription)
 
 	// Authentication
-	commandsMap["USER"] = &CommandDescription{Fn: (*clientHandler).handleUSER, Open: true }
-	commandsMap["PASS"] = &CommandDescription{Fn: (*clientHandler).handlePASS, Open: true }
+	commandsMap["USER"] = &CommandDescription{Fn: (*clientHandler).handleUSER, Open: true}
+	commandsMap["PASS"] = &CommandDescription{Fn: (*clientHandler).handlePASS, Open: true}
 
 	// TLS handling
 	commandsMap["AUTH"] = &CommandDescription{Fn: (*clientHandler).handleAUTH, Open: true}

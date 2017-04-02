@@ -137,7 +137,7 @@ func (c *clientHandler) handleCommand(line string) {
 		return
 	}
 
-	if c.driver == nil && ! cmdDesc.Open {
+	if c.driver == nil && !cmdDesc.Open {
 		c.writeMessage(530, "Please login with USER and PASS")
 		return
 	}
