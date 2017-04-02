@@ -1,6 +1,7 @@
-before_install:
-- sudo apt-get update -qq
-- sudo apt-get install ftp -qq
+# We don't really need it (at least for now)
+# before_install:
+# - sudo apt-get update -qq
+# - sudo apt-get install ftp -qq
 
 language: go
 
@@ -11,3 +12,4 @@ go:
 
 script:
   - ./.check-fmt.sh
+  - go test -v ./...

@@ -78,8 +78,13 @@ func (server *FtpServer) loadSettings() {
 	if s.ListenHost == "" {
 		s.ListenHost = "0.0.0.0"
 	}
-	if s.ListenPort == 0 {
+
+	if s.ListenPort == 0 { // For the default value (0)
+		// We take the default port (2121)
 		s.ListenPort = 2121
+	} else if s.ListenPort == -1 { // For the automatic value
+		// We let the system decide (0)
+		s.ListenPort = 0
 	}
 	if s.MaxConnections == 0 {
 		s.MaxConnections = 10000
@@ -87,10 +92,9 @@ func (server *FtpServer) loadSettings() {
 	server.Settings = s
 }
 
-func (server *FtpServer) ListenAndServe() error {
+func (server *FtpServer) Listen() error {
 	server.loadSettings()
 	var err error
-	log15.Info("Starting...")
 
 	server.Listener, err = net.Listen(
 		"tcp",
@@ -104,16 +108,32 @@ func (server *FtpServer) ListenAndServe() error {
 
 	log15.Info("Listening...", "address", server.Listener.Addr())
 
+	return err
+}
+
+func (server *FtpServer) Serve() {
 	for {
 		connection, err := server.Listener.Accept()
 		if err != nil {
-			log15.Error("Accept error", "err", err)
+			if server.Listener != nil {
+				log15.Error("Accept error", "err", err)
+			}
 			break
 		} else {
 			c := server.NewClientHandler(connection)
 			go c.HandleCommands()
 		}
 	}
+}
+
+func (server *FtpServer) ListenAndServe() error {
+	if err := server.Listen(); err != nil {
+		return err
+	}
+
+	log15.Info("Starting...")
+
+	server.Serve()
 
 	// Note: At this precise time, the clients are still connected. We are just not accepting clients anymore.
 
@@ -129,7 +149,11 @@ func NewFtpServer(driver ServerDriver) *FtpServer {
 }
 
 func (server *FtpServer) Stop() {
-	server.Listener.Close()
+	if server.Listener != nil {
+		l := server.Listener
+		server.Listener = nil
+		l.Close()
+	}
 }
 
 // When a client connects, the server could refuse the connection
