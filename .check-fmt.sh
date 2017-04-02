@@ -7,10 +7,5 @@ if [ "$DIFF" != "" ]; then
   exit 1
 fi
 
-ERRORS=$(golint server)
+golint -set_exit_status=1 ./...
 
-if [ "$ERRORS" != "" ]; then
-    echo "Problem with golint:"
-    echo $ERRORS
-    exit 1
-fi

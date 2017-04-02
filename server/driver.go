@@ -10,7 +10,7 @@ import (
 
 // MainDriver handles the authentication and ClientHandlingDriver selection
 type MainDriver interface {
-	// Load some general settings around the server setup
+	// GetSettings returns some general settings around the server setup
 	GetSettings() *Settings
 
 	// WelcomeUser is called to send the very first welcome message
@@ -22,7 +22,7 @@ type MainDriver interface {
 	// AuthUser authenticates the user and selects an handling driver
 	AuthUser(cc ClientContext, user, pass string) (ClientHandlingDriver, error)
 
-	// GetCertificate returns a TLS Certificate to use
+	// GetTLSConfig returns a TLS Certificate to use
 	// The certificate could frequently change if we use something like "let's encrypt"
 	GetTLSConfig() (*tls.Config, error)
 }
