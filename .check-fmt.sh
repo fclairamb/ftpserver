@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 DIFF=$(gofmt -d -e -s .)
 
 if [ "$DIFF" != "" ]; then
