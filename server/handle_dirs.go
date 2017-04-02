@@ -21,7 +21,7 @@ func (c *clientHandler) absPath(p string) string {
 	}
 
 	if p2 != "/" && strings.HasSuffix(p2, "/") {
-		p2 = p2[0: len(p2)-1]
+		p2 = p2[0 : len(p2)-1]
 	}
 
 	return p2
@@ -64,7 +64,7 @@ func (c *clientHandler) handleRMD() {
 func (c *clientHandler) handleCDUP() {
 	parent, _ := path.Split(c.Path())
 	if parent != "/" && strings.HasSuffix(parent, "/") {
-		parent = parent[0: len(parent)-1]
+		parent = parent[0 : len(parent)-1]
 	}
 	if err := c.driver.ChangeDirectory(c, parent); err == nil {
 		c.SetPath(parent)
@@ -103,11 +103,11 @@ func (c *clientHandler) dirList(w io.Writer, files []os.FileInfo) error {
 	for _, file := range files {
 		fmt.Fprintf(w, "%s\r\n", fileStat(file))
 		/*
-		fmt.Fprint(w, file.Mode().String())
-		fmt.Fprintf(w, " 1 %s %s ", "ftp", "ftp")
-		fmt.Fprintf(w, "%12d", file.Size())
-		fmt.Fprintf(w, file.ModTime().Format(" Jan _2 15:04 "))
-		fmt.Fprintf(w, "%s\r\n", file.Name())
+			fmt.Fprint(w, file.Mode().String())
+			fmt.Fprintf(w, " 1 %s %s ", "ftp", "ftp")
+			fmt.Fprintf(w, "%12d", file.Size())
+			fmt.Fprintf(w, file.ModTime().Format(" Jan _2 15:04 "))
+			fmt.Fprintf(w, "%s\r\n", file.Name())
 		*/
 	}
 	fmt.Fprint(w, "\r\n")

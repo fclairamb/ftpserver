@@ -48,11 +48,11 @@ func (c *clientHandler) handleSTATServer() {
 	duration := time.Now().UTC().Sub(c.connectedAt)
 	duration -= duration % time.Second
 	c.writeLine(fmt.Sprintf(
-			"Connected to %s:%d from %s for %s",
-			c.daddy.Settings.ListenHost, c.daddy.Settings.ListenPort,
-			c.conn.RemoteAddr(),
-			duration,
-		))
+		"Connected to %s:%d from %s for %s",
+		c.daddy.Settings.ListenHost, c.daddy.Settings.ListenPort,
+		c.conn.RemoteAddr(),
+		duration,
+	))
 	if c.user != "" {
 		c.writeLine(fmt.Sprintf("Logged in as %s", c.user))
 	} else {

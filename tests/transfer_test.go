@@ -8,8 +8,8 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
-	"testing"
 	"strings"
+	"testing"
 )
 
 func TestTransfer(t *testing.T) {
@@ -83,7 +83,7 @@ func TestTransfer(t *testing.T) {
 					found = true
 				}
 			}
-			if ! found {
+			if !found {
 				t.Fatal("STAT: Couldn't find file !")
 			}
 		}
