@@ -115,6 +115,7 @@ func (driver *ClientDriver) CanAllocate(cc server.ClientContext, size int) (bool
 	return true, nil
 }
 
+// ChmodFile changes the attributes of the file
 func (driver *ClientDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
 	path = driver.baseDir + path
 	return os.Chmod(path, mode)
