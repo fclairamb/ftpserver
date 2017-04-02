@@ -7,7 +7,7 @@ import (
 )
 
 func TestDirAccess(t *testing.T) {
-	s := getServer(true)
+	s := NewTestServer(true)
 	defer s.Stop()
 
 	var connErr error

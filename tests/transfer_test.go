@@ -12,7 +12,7 @@ import (
 )
 
 func TestTransfer(t *testing.T) {
-	s := getServer(true)
+	s := NewTestServer(true)
 	defer s.Stop()
 
 	var connErr error

@@ -10,7 +10,8 @@ import (
 	"time"
 )
 
-func getServer(debug bool) *server.FtpServer {
+// NewTestServer provides a test server with or without debugging
+func NewTestServer(debug bool) *server.FtpServer {
 	s := server.NewFtpServer(NewServerDriver(debug))
 	if err := s.Listen(); err != nil {
 		return nil

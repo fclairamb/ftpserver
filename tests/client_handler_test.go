@@ -7,7 +7,7 @@ import (
 )
 
 func TestConcurrency(t *testing.T) {
-	s := getServer(false)
+	s := NewTestServer(false)
 	defer s.Stop()
 
 	nbClients := 100

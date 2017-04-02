@@ -6,7 +6,7 @@ import (
 )
 
 func TestLoginSuccess(t *testing.T) {
-	s := getServer(true)
+	s := NewTestServer(true)
 	defer s.Stop()
 
 	var err error
@@ -35,7 +35,7 @@ func TestLoginSuccess(t *testing.T) {
 }
 
 func TestLoginFailure(t *testing.T) {
-	s := getServer(true)
+	s := NewTestServer(true)
 	defer s.Stop()
 
 	var err error
