@@ -143,13 +143,12 @@ func (driver *MainDriver) CanAllocate(cc server.ClientContext, size int) (bool, 
 	return true, nil
 }
 
-/*
+// ChmodFile changes the attributes of the file
 func (driver *MainDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
 	path = driver.baseDir + path
 
 	return os.Chmod(path, mode)
 }
-*/
 
 // DeleteFile deletes a file or a directory
 func (driver *MainDriver) DeleteFile(cc server.ClientContext, path string) error {
