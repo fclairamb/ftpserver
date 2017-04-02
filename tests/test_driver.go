@@ -4,10 +4,8 @@ import (
 	"crypto/tls"
 	"errors"
 	"github.com/fclairamb/ftpserver/server"
-	"io"
 	"io/ioutil"
 	"os"
-	"time"
 )
 
 // NewTestServer provides a test server with or without debugging
