@@ -8,8 +8,8 @@ import (
 
 // This file is the driver part of the server. It must be implemented by anyone wanting to use the server.
 
-// ServerDriver handles the authentication and ClientHandlingDriver selection
-type ServerDriver interface {
+// MainDriver handles the authentication and ClientHandlingDriver selection
+type MainDriver interface {
 	// Load some general settings around the server setup
 	GetSettings() *Settings
 
