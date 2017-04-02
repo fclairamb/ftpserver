@@ -35,8 +35,10 @@ func TestTransfer(t *testing.T) {
 			t.Fatal("Temporary creation error:", fileErr)
 		}
 
+		targetSize := 10 * 1024 * 1024
+
 		src := rand.New(rand.NewSource(0))
-		if _, err := io.CopyN(file, src, 10*1024*1024); err != nil {
+		if _, err := io.CopyN(file, src, int64(targetSize)); err != nil {
 			t.Fatal("Couldn't copy:", err)
 		}
 
@@ -54,8 +56,29 @@ func TestTransfer(t *testing.T) {
 			t.Fatal("Couldn't seek:", err)
 		}
 
-		if err := ftp.Stor("file.bin", file); err != nil {
+		if err := ftp.Stor("file1.bin", file); err != nil {
 			t.Fatal("Couldn't upload bin:", err)
+		}
+
+		if size, err := ftp.Size("file1.bin"); err != nil {
+			t.Fatal("Couldn't get the size of file1.bin:", err)
+		} else {
+			if size != targetSize {
+				t.Fatalf("Size is %d instead of %d", size, targetSize)
+			}
+		}
+
+		if err := ftp.Rename("file1.bin", "file2.bin"); err != nil {
+			t.Fatal("Can't rename file:", err)
+		}
+
+		if stats, err := ftp.Stat("file2.bin"); err != nil {
+			// That's acceptable for now
+			t.Log("Couldn't stat file:", err)
+		} else {
+			for s := range stats {
+				t.Log("s = ", s)
+			}
 		}
 	}
 
@@ -71,8 +94,16 @@ func TestTransfer(t *testing.T) {
 			return nil
 		}
 
-		if _, err := ftp.Retr("file.bin", readFunc); err != nil {
+		if _, err := ftp.Retr("file2.bin", readFunc); err != nil {
 			t.Fatal("Couldn't fetch file:", err)
+		}
+
+		if err := ftp.Dele("file2.bin"); err != nil {
+			t.Fatal("Couldn't delete file", err)
+		}
+
+		if err := ftp.Dele("file2.bin"); err == nil {
+			t.Fatal("Should have had a problem deleting file2.bin")
 		}
 	}
 
