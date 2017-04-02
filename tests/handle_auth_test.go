@@ -17,6 +17,10 @@ func TestLoginSuccess(t *testing.T) {
 	}
 	defer ftp.Quit()
 
+	if err = ftp.Noop(); err != nil {
+		t.Fatal("Couldn't NOOP before login:", err)
+	}
+
 	if err = ftp.Login("test", "test"); err != nil {
 		t.Fatal("Failed to login:", err)
 	}

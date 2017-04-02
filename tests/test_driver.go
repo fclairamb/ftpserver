@@ -4,10 +4,8 @@ import (
 	"crypto/tls"
 	"errors"
 	"github.com/fclairamb/ftpserver/server"
-	"io"
 	"io/ioutil"
 	"os"
-	"time"
 )
 
 // NewTestServer provides a test server with or without debugging
@@ -72,21 +70,25 @@ func (driver *ServerDriver) GetTLSConfig() (*tls.Config, error) {
 	return nil, nil
 }
 
+// ChangeDirectory changes the current working directory
 func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
 	_, err := os.Stat(driver.baseDir + directory)
 	return err
 }
 
+// MakeDirectory creates a directory
 func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory string) error {
 	return os.Mkdir(driver.baseDir+directory, 0777)
 }
 
+// ListFiles lists the files of a directory
 func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
 	path := driver.baseDir + cc.Path()
 	files, err := ioutil.ReadDir(path)
 	return files, err
 }
 
+// OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
 func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
 	path = driver.baseDir + path
 
@@ -101,85 +103,34 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 	return os.OpenFile(path, flag, 0666)
 }
 
+// GetFileInfo gets some info around a file or a directory
 func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
 	path = driver.baseDir + path
 
 	return os.Stat(path)
 }
 
+// CanAllocate gives the approval to allocate some data
 func (driver *ClientDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
 	return true, nil
 }
 
+/*
 func (driver *ClientDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
 	path = driver.baseDir + path
 	return os.Chmod(path, mode)
 }
+*/
 
+// DeleteFile deletes a file or a directory
 func (driver *ClientDriver) DeleteFile(cc server.ClientContext, path string) error {
 	path = driver.baseDir + path
 	return os.Remove(path)
 }
 
+// RenameFile renames a file or a directory
 func (driver *ClientDriver) RenameFile(cc server.ClientContext, from, to string) error {
 	from = driver.baseDir + from
 	to = driver.baseDir + to
 	return os.Rename(from, to)
-}
-
-type VirtualFile struct {
-	content    []byte // Content of the file
-	readOffset int    // Reading offset
-}
-
-func (f *VirtualFile) Close() error {
-	return nil
-}
-
-func (f *VirtualFile) Read(buffer []byte) (int, error) {
-	n := copy(buffer, f.content[f.readOffset:])
-	f.readOffset += n
-	if n == 0 {
-		return 0, io.EOF
-	}
-
-	return n, nil
-}
-
-func (f *VirtualFile) Seek(n int64, w int) (int64, error) {
-	return 0, nil
-}
-
-func (f *VirtualFile) Write(buffer []byte) (int, error) {
-	return 0, nil
-}
-
-type VirtualFileInfo struct {
-	name string
-	size int64
-	mode os.FileMode
-}
-
-func (f VirtualFileInfo) Name() string {
-	return f.name
-}
-
-func (f VirtualFileInfo) Size() int64 {
-	return f.size
-}
-
-func (f VirtualFileInfo) Mode() os.FileMode {
-	return f.mode
-}
-
-func (f VirtualFileInfo) IsDir() bool {
-	return f.mode.IsDir()
-}
-
-func (f VirtualFileInfo) ModTime() time.Time {
-	return time.Now().UTC()
-}
-
-func (f VirtualFileInfo) Sys() interface{} {
-	return nil
 }

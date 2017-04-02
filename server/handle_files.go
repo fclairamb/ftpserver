@@ -46,16 +46,19 @@ func (c *clientHandler) handleRETR() {
 }
 
 func (c *clientHandler) download(conn net.Conn, name string) (int64, error) {
-	if file, err := c.driver.OpenFile(c, name, os.O_RDONLY); err == nil {
-		if c.ctx_rest != 0 {
-			file.Seek(c.ctx_rest, 0)
-			c.ctx_rest = 0
-		}
-		defer file.Close()
-		return io.Copy(conn, file)
-	} else {
+	file, err := c.driver.OpenFile(c, name, os.O_RDONLY)
+
+	if err != nil {
 		return 0, err
 	}
+
+	if c.ctxRest != 0 {
+		file.Seek(c.ctxRest, 0)
+		c.ctxRest = 0
+	}
+
+	defer file.Close()
+	return io.Copy(conn, file)
 }
 
 func (c *clientHandler) storeOrAppend(conn net.Conn, name string, append bool) (int64, error) {
@@ -64,16 +67,19 @@ func (c *clientHandler) storeOrAppend(conn net.Conn, name string, append bool) (
 		flag |= os.O_APPEND
 	}
 
-	if file, err := c.driver.OpenFile(c, name, flag); err == nil {
-		if c.ctx_rest != 0 {
-			file.Seek(c.ctx_rest, 0)
-			c.ctx_rest = 0
-		}
-		defer file.Close()
-		return io.Copy(file, conn)
-	} else {
+	file, err := c.driver.OpenFile(c, name, flag)
+
+	if err != nil {
 		return 0, err
 	}
+
+	if c.ctxRest != 0 {
+		file.Seek(c.ctxRest, 0)
+		c.ctxRest = 0
+	}
+
+	defer file.Close()
+	return io.Copy(file, conn)
 }
 
 func (c *clientHandler) handleDELE() {
@@ -89,7 +95,7 @@ func (c *clientHandler) handleRNFR() {
 	path := c.absPath(c.param)
 	if _, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(350, "Sure, give me a target")
-		c.ctx_rnfr = path
+		c.ctxRnfr = path
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %v", path, err))
 	}
@@ -97,12 +103,12 @@ func (c *clientHandler) handleRNFR() {
 
 func (c *clientHandler) handleRNTO() {
 	dst := c.absPath(c.param)
-	if c.ctx_rnfr != "" {
-		if err := c.driver.RenameFile(c, c.ctx_rnfr, dst); err == nil {
+	if c.ctxRnfr != "" {
+		if err := c.driver.RenameFile(c, c.ctxRnfr, dst); err == nil {
 			c.writeMessage(250, "Done !")
-			c.ctx_rnfr = ""
+			c.ctxRnfr = ""
 		} else {
-			c.writeMessage(550, fmt.Sprintf("Couldn't rename %s to %s: %s", c.ctx_rnfr, dst, err.Error()))
+			c.writeMessage(550, fmt.Sprintf("Couldn't rename %s to %s: %s", c.ctxRnfr, dst, err.Error()))
 		}
 	}
 }
@@ -153,7 +159,7 @@ func (c *clientHandler) handleALLO() {
 
 func (c *clientHandler) handleREST() {
 	if size, err := strconv.ParseInt(c.param, 10, 0); err == nil {
-		c.ctx_rest = size
+		c.ctxRest = size
 		c.writeMessage(350, "OK")
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't parse size: %v", err))

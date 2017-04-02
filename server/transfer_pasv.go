@@ -60,7 +60,7 @@ func (c *clientHandler) handlePASV() {
 
 	// The listener will either be plain TCP or TLS
 	var listener net.Listener
-	if c.transferTls {
+	if c.transferTLS {
 		if tlsConfig, err := c.daddy.driver.GetTLSConfig(); err == nil {
 			listener = tls.NewListener(tcpListener, tlsConfig)
 		} else {
@@ -102,9 +102,9 @@ func (p *passiveTransferHandler) ConnectionWait(wait time.Duration) (net.Conn, e
 	if p.connection == nil {
 		p.tcpListener.SetDeadline(time.Now().Add(wait))
 		var err error
-		if p.connection, err = p.listener.Accept(); err == nil {
-			return p.connection, nil
-		} else {
+		p.connection, err = p.listener.Accept()
+
+		if err != nil {
 			return nil, err
 		}
 	}

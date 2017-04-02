@@ -2,7 +2,6 @@
 package server
 
 import (
-	"errors"
 	"fmt"
 	"net"
 	"sync"
@@ -70,14 +69,16 @@ func init() {
 	commandsMap["QUIT"] = &CommandDescription{Fn: (*clientHandler).handleQUIT, Open: true}
 }
 
+// FtpServer is where everything is stored
+// We want to keep it as simple as possible
 type FtpServer struct {
 	Settings         *Settings                 // General settings
 	Listener         net.Listener              // Listener used to receive files
 	StartTime        time.Time                 // Time when the server was started
-	connectionsById  map[uint32]*clientHandler // Connections map
+	connectionsByID  map[uint32]*clientHandler // Connections map
 	connectionsMutex sync.RWMutex              // Connections map sync
 	clientCounter    uint32                    // Clients counter
-	driver           ServerDriver              // Driver to handle the client authentication and the file access driver selection
+	driver           MainDriver                // Driver to handle the client authentication and the file access driver selection
 }
 
 func (server *FtpServer) loadSettings() {
@@ -99,6 +100,8 @@ func (server *FtpServer) loadSettings() {
 	server.Settings = s
 }
 
+// Listen starts the listening
+// It's not a blocking call
 func (server *FtpServer) Listen() error {
 	server.loadSettings()
 	var err error
@@ -118,6 +121,7 @@ func (server *FtpServer) Listen() error {
 	return err
 }
 
+// Serve accepts and process any new client coming
 func (server *FtpServer) Serve() {
 	for {
 		connection, err := server.Listener.Accept()
@@ -126,13 +130,14 @@ func (server *FtpServer) Serve() {
 				log15.Error("Accept error", "err", err)
 			}
 			break
-		} else {
-			c := server.NewClientHandler(connection)
-			go c.HandleCommands()
 		}
+
+		c := server.newClientHandler(connection)
+		go c.HandleCommands()
 	}
 }
 
+// ListenAndServe simply chains the Listen and Serve method calls
 func (server *FtpServer) ListenAndServe() error {
 	if err := server.Listen(); err != nil {
 		return err
@@ -147,14 +152,16 @@ func (server *FtpServer) ListenAndServe() error {
 	return nil
 }
 
-func NewFtpServer(driver ServerDriver) *FtpServer {
+// NewFtpServer creates a new FtpServer instance
+func NewFtpServer(driver MainDriver) *FtpServer {
 	return &FtpServer{
 		driver:          driver,
 		StartTime:       time.Now().UTC(), // Might make sense to put it in Start method
-		connectionsById: make(map[uint32]*clientHandler),
+		connectionsByID: make(map[uint32]*clientHandler),
 	}
 }
 
+// Stop closes the listener
 func (server *FtpServer) Stop() {
 	if server.Listener != nil {
 		l := server.Listener
@@ -168,16 +175,16 @@ func (server *FtpServer) clientArrival(c *clientHandler) error {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 
-	server.connectionsById[c.Id] = c
-	nb := len(server.connectionsById)
+	server.connectionsByID[c.ID] = c
+	nb := len(server.connectionsByID)
 
-	log15.Info("FTP Client connected", "action", "ftp.connected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", nb)
+	log15.Info("FTP Client connected", "action", "ftp.connected", "id", c.ID, "src", c.conn.RemoteAddr(), "total", nb)
 
 	if nb > server.Settings.MaxConnections {
-		return errors.New(fmt.Sprintf("Too many clients %d > %d", nb, server.Settings.MaxConnections))
-	} else {
-		return nil
+		return fmt.Errorf("Too many clients %d > %d", nb, server.Settings.MaxConnections)
 	}
+
+	return nil
 }
 
 // When a client leaves
@@ -185,7 +192,7 @@ func (server *FtpServer) clientDeparture(c *clientHandler) {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 
-	delete(server.connectionsById, c.Id)
+	delete(server.connectionsByID, c.ID)
 
-	log15.Info("FTP Client disconnected", "action", "ftp.disconnected", "id", c.Id, "src", c.conn.RemoteAddr(), "total", len(server.connectionsById))
+	log15.Info("FTP Client disconnected", "action", "ftp.disconnected", "id", c.ID, "src", c.conn.RemoteAddr(), "total", len(server.connectionsByID))
 }

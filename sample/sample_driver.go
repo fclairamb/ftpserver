@@ -1,6 +1,4 @@
-// Sample driver implementation of the ftpserver library.
-//
-// This sample is very limited.
+// Package sample is a sample server driver
 package sample
 
 import (
@@ -17,27 +15,30 @@ import (
 	"time"
 )
 
-// SampleDriver defines a very basic serverftp driver
-type SampleDriver struct {
+// MainDriver defines a very basic serverftp driver
+type MainDriver struct {
 	baseDir   string
 	tlsConfig *tls.Config
 }
 
-func (driver *SampleDriver) WelcomeUser(cc server.ClientContext) (string, error) {
+// WelcomeUser is called to send the very first welcome message
+func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 	cc.SetDebug(true)
 	// This will remain the official name for now
 	return "Welcome on https://github.com/fclairamb/ftpserver", nil
 }
 
-func (driver *SampleDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
+// AuthUser authenticates the user and selects an handling driver
+func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
 	if user == "bad" || pass == "bad" {
-		return nil, errors.New("BAD username or password !")
-	} else {
-		return driver, nil
+		return nil, errors.New("Bad username or password")
 	}
+
+	return driver, nil
 }
 
-func (driver *SampleDriver) GetTLSConfig() (*tls.Config, error) {
+// GetTLSConfig returns a TLS Certificate to use
+func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 	if driver.tlsConfig == nil {
 		log15.Info("Loading certificate")
 		if cert, err := tls.LoadX509KeyPair("sample/certs/mycert.crt", "sample/certs/mycert.key"); err == nil {
@@ -52,7 +53,8 @@ func (driver *SampleDriver) GetTLSConfig() (*tls.Config, error) {
 	return driver.tlsConfig, nil
 }
 
-func (driver *SampleDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
+// ChangeDirectory changes the current working directory
+func (driver *MainDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
 	if directory == "/debug" {
 		cc.SetDebug(!cc.Debug())
 		return nil
@@ -63,21 +65,23 @@ func (driver *SampleDriver) ChangeDirectory(cc server.ClientContext, directory s
 	return err
 }
 
-func (driver *SampleDriver) MakeDirectory(cc server.ClientContext, directory string) error {
+// MakeDirectory creates a directory
+func (driver *MainDriver) MakeDirectory(cc server.ClientContext, directory string) error {
 	return os.Mkdir(driver.baseDir+directory, 0777)
 }
 
-func (driver *SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
+// ListFiles lists the files of a directory
+func (driver *MainDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
 
 	if cc.Path() == "/virtual" {
 		files := make([]os.FileInfo, 0)
 		files = append(files,
-			VirtualFileInfo{
+			virtualFileInfo{
 				name: "localpath.txt",
 				mode: os.FileMode(0666),
 				size: 1024,
 			},
-			VirtualFileInfo{
+			virtualFileInfo{
 				name: "file2.txt",
 				mode: os.FileMode(0666),
 				size: 2048,
@@ -92,7 +96,7 @@ func (driver *SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, e
 
 	// We add a virtual dir
 	if cc.Path() == "/" && err == nil {
-		files = append(files, VirtualFileInfo{
+		files = append(files, virtualFileInfo{
 			name: "virtual",
 			mode: os.FileMode(0666) | os.ModeDir,
 			size: 4096,
@@ -102,14 +106,16 @@ func (driver *SampleDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, e
 	return files, err
 }
 
-func (driver *SampleDriver) UserLeft(cc server.ClientContext) {
+// UserLeft is called when the user disconnects, even if he never authenticated
+func (driver *MainDriver) UserLeft(cc server.ClientContext) {
 
 }
 
-func (driver *SampleDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
+// OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
+func (driver *MainDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
 
 	if path == "/virtual/localpath.txt" {
-		return &VirtualFile{content: []byte(driver.baseDir)}, nil
+		return &virtualFile{content: []byte(driver.baseDir)}, nil
 	}
 
 	path = driver.baseDir + path
@@ -125,36 +131,43 @@ func (driver *SampleDriver) OpenFile(cc server.ClientContext, path string, flag 
 	return os.OpenFile(path, flag, 0666)
 }
 
-func (driver *SampleDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
+// GetFileInfo gets some info around a file or a directory
+func (driver *MainDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
 	path = driver.baseDir + path
 
 	return os.Stat(path)
 }
 
-func (driver *SampleDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
+// CanAllocate gives the approval to allocate some data
+func (driver *MainDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
 	return true, nil
 }
 
-func (driver *SampleDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
+/*
+func (driver *MainDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
 	path = driver.baseDir + path
 
 	return os.Chmod(path, mode)
 }
+*/
 
-func (driver *SampleDriver) DeleteFile(cc server.ClientContext, path string) error {
+// DeleteFile deletes a file or a directory
+func (driver *MainDriver) DeleteFile(cc server.ClientContext, path string) error {
 	path = driver.baseDir + path
 
 	return os.Remove(path)
 }
 
-func (driver *SampleDriver) RenameFile(cc server.ClientContext, from, to string) error {
+// RenameFile renames a file or a directory
+func (driver *MainDriver) RenameFile(cc server.ClientContext, from, to string) error {
 	from = driver.baseDir + from
 	to = driver.baseDir + to
 
 	return os.Rename(from, to)
 }
 
-func (driver *SampleDriver) GetSettings() *server.Settings {
+// GetSettings returns some general settings around the server setup
+func (driver *MainDriver) GetSettings() *server.Settings {
 	f, err := os.Open("sample/conf/settings.toml")
 	if err != nil {
 		panic(err)
@@ -182,31 +195,32 @@ func (driver *SampleDriver) GetSettings() *server.Settings {
 	return &config
 }
 
+// NewSampleDriver creates a sample driver
 // Note: This is not a mistake. Interface can be pointers. There seems to be a lot of confusion around this in the
 //       server_ftp original code.
-func NewSampleDriver() *SampleDriver {
+func NewSampleDriver() *MainDriver {
 	dir, err := ioutil.TempDir("", "ftpserver")
 	if err != nil {
 		log15.Error("Could not find a temporary dir", "err", err)
 	}
 
-	driver := &SampleDriver{
+	driver := &MainDriver{
 		baseDir: dir,
 	}
 	os.MkdirAll(driver.baseDir, 0777)
 	return driver
 }
 
-type VirtualFile struct {
+type virtualFile struct {
 	content    []byte // Content of the file
 	readOffset int    // Reading offset
 }
 
-func (f *VirtualFile) Close() error {
+func (f *virtualFile) Close() error {
 	return nil
 }
 
-func (f *VirtualFile) Read(buffer []byte) (int, error) {
+func (f *virtualFile) Read(buffer []byte) (int, error) {
 	n := copy(buffer, f.content[f.readOffset:])
 	f.readOffset += n
 	if n == 0 {
@@ -216,41 +230,41 @@ func (f *VirtualFile) Read(buffer []byte) (int, error) {
 	return n, nil
 }
 
-func (f *VirtualFile) Seek(n int64, w int) (int64, error) {
+func (f *virtualFile) Seek(n int64, w int) (int64, error) {
 	return 0, nil
 }
 
-func (f *VirtualFile) Write(buffer []byte) (int, error) {
+func (f *virtualFile) Write(buffer []byte) (int, error) {
 	return 0, nil
 }
 
-type VirtualFileInfo struct {
+type virtualFileInfo struct {
 	name string
 	size int64
 	mode os.FileMode
 }
 
-func (f VirtualFileInfo) Name() string {
+func (f virtualFileInfo) Name() string {
 	return f.name
 }
 
-func (f VirtualFileInfo) Size() int64 {
+func (f virtualFileInfo) Size() int64 {
 	return f.size
 }
 
-func (f VirtualFileInfo) Mode() os.FileMode {
+func (f virtualFileInfo) Mode() os.FileMode {
 	return f.mode
 }
 
-func (f VirtualFileInfo) IsDir() bool {
+func (f virtualFileInfo) IsDir() bool {
 	return f.mode.IsDir()
 }
 
-func (f VirtualFileInfo) ModTime() time.Time {
+func (f virtualFileInfo) ModTime() time.Time {
 	return time.Now().UTC()
 }
 
-func (f VirtualFileInfo) Sys() interface{} {
+func (f virtualFileInfo) Sys() interface{} {
 	return nil
 }
 
