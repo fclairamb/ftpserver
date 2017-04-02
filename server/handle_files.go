@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func (c *clientHandler) handleSTOR() {
@@ -59,6 +60,25 @@ func (c *clientHandler) download(conn net.Conn, name string) (int64, error) {
 
 	defer file.Close()
 	return io.Copy(conn, file)
+}
+
+func (c *clientHandler) handleCHMOD(params string) {
+	spl := strings.SplitN(params, " ", 2)
+	modeNb, err := strconv.ParseUint(spl[0], 10, 32)
+
+	mode := os.FileMode(modeNb)
+	path := c.absPath(spl[1])
+
+	if err == nil {
+		err = c.driver.ChmodFile(c, path, mode)
+	}
+
+	if err != nil {
+		c.writeMessage(550, err.Error())
+		return
+	}
+
+	c.writeMessage(200, "SITE CHMOD command successful")
 }
 
 func (c *clientHandler) storeOrAppend(conn net.Conn, name string, append bool) (int64, error) {

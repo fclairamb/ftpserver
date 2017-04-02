@@ -43,6 +43,15 @@ func (c *clientHandler) handleSTAT() {
 	}
 }
 
+func (c *clientHandler) handleSITE() {
+	spl := strings.SplitN(c.param, " ", 2)
+	if len(spl) > 1 {
+		if strings.ToUpper(spl[0]) == "CHMOD" {
+			c.handleCHMOD(spl[1])
+		}
+	}
+}
+
 func (c *clientHandler) handleSTATServer() {
 	c.writeLine("213- FTP server status:")
 	duration := time.Now().UTC().Sub(c.connectedAt)

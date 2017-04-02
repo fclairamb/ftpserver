@@ -115,12 +115,10 @@ func (driver *ClientDriver) CanAllocate(cc server.ClientContext, size int) (bool
 	return true, nil
 }
 
-/*
 func (driver *ClientDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
 	path = driver.baseDir + path
 	return os.Chmod(path, mode)
 }
-*/
 
 // DeleteFile deletes a file or a directory
 func (driver *ClientDriver) DeleteFile(cc server.ClientContext, path string) error {

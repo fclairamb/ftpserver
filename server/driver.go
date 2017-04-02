@@ -52,6 +52,9 @@ type ClientHandlingDriver interface {
 
 	// CanAllocate gives the approval to allocate some data
 	CanAllocate(cc ClientContext, size int) (bool, error)
+
+	// ChmodFile changes the attributes of the file
+	ChmodFile(cc ClientContext, path string, mode os.FileMode) error
 }
 
 // ClientContext is implemented on the server side to provide some access to few data around the client
