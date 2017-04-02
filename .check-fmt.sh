@@ -12,4 +12,5 @@ ERRORS=$(golint server)
 if [ "$ERRORS" != "" ]; then
     echo "Problem with golint:"
     echo $ERRORS
+    exit 1
 fi
