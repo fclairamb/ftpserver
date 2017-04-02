@@ -2,7 +2,6 @@
 package server
 
 import (
-	"errors"
 	"fmt"
 	"net"
 	"sync"
