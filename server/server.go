@@ -25,6 +25,7 @@ func init() {
 
 	// File access
 	commandsMap["SIZE"] = (*clientHandler).handleSIZE
+	commandsMap["STAT"] = (*clientHandler).handleSTAT
 	commandsMap["MDTM"] = (*clientHandler).handleMDTM
 	commandsMap["RETR"] = (*clientHandler).handleRETR
 	commandsMap["STOR"] = (*clientHandler).handleSTOR

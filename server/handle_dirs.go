@@ -89,15 +89,26 @@ func (c *clientHandler) handleLIST() {
 	}
 }
 
+func fileStat(file os.FileInfo) string {
+	return fmt.Sprintf(
+		"%s 1 ftp ftp %12d %s %s",
+		file.Mode(),
+		file.Size(),
+		file.ModTime().Format(" Jan _2 15:04 "),
+		file.Name(),
+	)
+}
+
 func (c *clientHandler) dirList(w io.Writer, files []os.FileInfo) error {
 	for _, file := range files {
-		fmt.Fprint(w, file.Mode().String())
-		fmt.Fprintf(w, " 1 %s %s ", "ftp", "ftp")
-		fmt.Fprintf(w, "%12d", file.Size())
-		// There's no real reason to keep this strftime dependency
-		// fmt.Fprintf(w, strftime.Format(" %b %d %H:%M ", file.ModTime()))
-		fmt.Fprintf(w, file.ModTime().Format(" Jan _2 15:04 "))
-		fmt.Fprintf(w, "%s\r\n", file.Name())
+		fmt.Fprintf(w, "%s\r\n", fileStat(file))
+		/*
+			fmt.Fprint(w, file.Mode().String())
+			fmt.Fprintf(w, " 1 %s %s ", "ftp", "ftp")
+			fmt.Fprintf(w, "%12d", file.Size())
+			fmt.Fprintf(w, file.ModTime().Format(" Jan _2 15:04 "))
+			fmt.Fprintf(w, "%s\r\n", file.Name())
+		*/
 	}
 	fmt.Fprint(w, "\r\n")
 	return nil

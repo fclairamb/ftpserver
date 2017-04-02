@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"strings"
+	"time"
 )
 
 func (c *clientHandler) handleAUTH() {
@@ -30,6 +31,35 @@ func (c *clientHandler) handlePBSZ() {
 
 func (c *clientHandler) handleSYST() {
 	c.writeMessage(215, "UNIX Type: L8")
+}
+
+func (c *clientHandler) handleSTAT() {
+	// STAT is a bit tricky
+
+	if c.param == "" { // Without a file, it's the server stat
+		c.handleSTATServer()
+	} else { // With a file/dir it's the file or the dir's files stat
+		c.handleSTATFile()
+	}
+}
+
+func (c *clientHandler) handleSTATServer() {
+	c.writeLine("213- FTP server status:")
+	duration := time.Now().UTC().Sub(c.connectedAt)
+	duration -= duration % time.Second
+	c.writeLine(fmt.Sprintf(
+		"Connected to %s:%d from %s for %s",
+		c.daddy.Settings.ListenHost, c.daddy.Settings.ListenPort,
+		c.conn.RemoteAddr(),
+		duration,
+	))
+	if c.user != "" {
+		c.writeLine(fmt.Sprintf("Logged in as %s", c.user))
+	} else {
+		c.writeLine("Not logged in yet")
+	}
+	c.writeLine("ftpserver - golang FTP server")
+	defer c.writeMessage(213, "End")
 }
 
 func (c *clientHandler) handleOPTS() {

@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -76,8 +77,14 @@ func TestTransfer(t *testing.T) {
 			// That's acceptable for now
 			t.Log("Couldn't stat file:", err)
 		} else {
-			for s := range stats {
-				t.Log("s = ", s)
+			found := false
+			for _, l := range stats {
+				if strings.HasSuffix(l, "file2.bin") {
+					found = true
+				}
+			}
+			if !found {
+				t.Fatal("STAT: Couldn't find file !")
 			}
 		}
 	}
