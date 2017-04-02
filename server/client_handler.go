@@ -131,9 +131,14 @@ func (c *clientHandler) handleCommand(line string) {
 	c.command = strings.ToUpper(command)
 	c.param = param
 
-	fn := commandsMap[c.command]
-	if fn == nil {
+	cmdDesc := commandsMap[c.command]
+	if cmdDesc == nil {
 		c.writeMessage(500, "Unknown command")
+		return
+	}
+
+	if c.driver == nil && ! cmdDesc.Open {
+		c.writeMessage(530, "Please login with USER and PASS")
 		return
 	}
 
@@ -143,7 +148,7 @@ func (c *clientHandler) handleCommand(line string) {
 			c.writeMessage(500, fmt.Sprintf("Internal error: %s", r))
 		}
 	}()
-	fn(c)
+	cmdDesc.Fn(c)
 }
 
 func (c *clientHandler) writeLine(line string) {
