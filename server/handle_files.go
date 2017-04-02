@@ -116,6 +116,24 @@ func (c *clientHandler) handleSIZE() {
 	}
 }
 
+func (c *clientHandler) handleSTATFile() {
+	path := c.absPath(c.param)
+
+	c.writeLine("213-Status follows:")
+	if info, err := c.driver.GetFileInfo(c, path); err == nil {
+		if info.IsDir() {
+			if files, err := c.driver.ListFiles(c); err == nil {
+				for _, f := range files {
+					c.writeLine(fileStat(f))
+				}
+			}
+		} else {
+			c.writeLine(fileStat(info))
+		}
+	}
+	c.writeLine("213 End of status")
+}
+
 func (c *clientHandler) handleALLO() {
 	// We should probably add a method in the driver
 	if size, err := strconv.Atoi(c.param); err == nil {
