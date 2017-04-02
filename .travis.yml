@@ -12,3 +12,4 @@ go:
 
 script:
   - ./.check-fmt.sh
+  - go test -v ./...
