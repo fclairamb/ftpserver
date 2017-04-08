@@ -59,10 +59,10 @@ func TestDirAccess(t *testing.T) {
 	}
 
 	if err := ftp.Rmd("/known"); err != nil {
-		t.Fatal("Couldn't delete the known dir:", err)
+		t.Fatal("Couldn't ftpDelete the known dir:", err)
 	}
 
 	if err := ftp.Rmd("/known"); err == nil {
-		t.Fatal("We shouldn't have been able to delete known again")
+		t.Fatal("We shouldn't have been able to ftpDelete known again")
 	}
 }
