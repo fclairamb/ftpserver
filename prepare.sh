@@ -6,4 +6,4 @@ which -s gocyclo || go get github.com/fzipp/gocyclo
 go get -t -v
 gofmt -e -s -l -w .
 golint ./...
-gocyclo -over 25 .
+gocyclo -over 15 .
