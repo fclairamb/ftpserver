@@ -125,8 +125,8 @@ func TestTransfer(t *testing.T) {
 	}
 
 	var hashUpload, hashDownload string
-	{ // We create a 10MB file and ftpUpload it
-		file := createTemporaryFile(t, 10 * 1024 * 1024)
+	{ // We create a 10MB file and upload it
+		file := createTemporaryFile(t, 10*1024*1024)
 		hashUpload = hashFile(t, file)
 		ftpUpload(t, ftp, file, "file.bin")
 	}
