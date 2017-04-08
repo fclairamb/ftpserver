@@ -32,7 +32,6 @@ func createTemporaryFile(t *testing.T, targetSize int) *os.File {
 func hashFile(t *testing.T, file *os.File) string {
 	if _, err := file.Seek(0, 0); err != nil {
 		t.Fatal("Couldn't seek:", err)
-		return nil
 	}
 	hashser := sha256.New()
 	if _, err := io.Copy(hashser, file); err != nil {
@@ -58,17 +57,17 @@ func ftpUpload(t *testing.T, ftp *goftp.FTP, file *os.File, filename string) {
 		t.Fatal("Can't rename file:", err)
 	}
 
-	if _S, err := ftp.Size("file1.bin"); err != nil {
+	if _, err := ftp.Size(filename); err != nil {
 		t.Fatal("Couldn't get the size of file1.bin:", err)
 	}
 
-	if stats, err := ftp.Stat("file1.bin"); err != nil {
+	if stats, err := ftp.Stat(filename); err != nil {
 		// That's acceptable for now
 		t.Log("Couldn't stat file:", err)
 	} else {
 		found := false
 		for _, l := range stats {
-			if strings.HasSuffix(l, "file1.bin") {
+			if strings.HasSuffix(l, filename) {
 				found = true
 			}
 		}
@@ -99,11 +98,11 @@ func ftpDownloadAndHash(t *testing.T, ftp *goftp.FTP, filename string) string {
 }
 
 func ftpDelete(t *testing.T, ftp *goftp.FTP, filename string) {
-	if err := ftp.Dele("file2.bin"); err != nil {
+	if err := ftp.Dele(filename); err != nil {
 		t.Fatal("Couldn't ftpDelete file", err)
 	}
 
-	if err := ftp.Dele("file2.bin"); err == nil {
+	if err := ftp.Dele(filename); err == nil {
 		t.Fatal("Should have had a problem deleting file2.bin")
 	}
 }
