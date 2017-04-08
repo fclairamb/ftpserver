@@ -50,7 +50,7 @@ func ftpUpload(t *testing.T, ftp *goftp.FTP, file *os.File, filename string) {
 		t.Fatal("Couldn't seek:", err)
 	}
 	if err := ftp.Stor(filename+".tmp", file); err != nil {
-		t.Fatal("Couldn't ftpUpload bin:", err)
+		t.Fatal("Couldn't upload bin:", err)
 	}
 
 	if err := ftp.Rename(filename+".tmp", filename); err != nil {
@@ -99,11 +99,11 @@ func ftpDownloadAndHash(t *testing.T, ftp *goftp.FTP, filename string) string {
 
 func ftpDelete(t *testing.T, ftp *goftp.FTP, filename string) {
 	if err := ftp.Dele(filename); err != nil {
-		t.Fatal("Couldn't ftpDelete file", err)
+		t.Fatal("Couldn't delete file "+filename+":", err)
 	}
 
 	if err := ftp.Dele(filename); err == nil {
-		t.Fatal("Should have had a problem deleting file2.bin")
+		t.Fatal("Should have had a problem deleting " + filename)
 	}
 }
 
@@ -111,12 +111,15 @@ func TestTransfer(t *testing.T) {
 	s := NewTestServer(true)
 	defer s.Stop()
 
-	var connErr error
 	var ftp *goftp.FTP
 
-	if ftp, connErr = goftp.Connect(s.Listener.Addr().String()); connErr != nil {
-		t.Fatal("Couldn't connect", connErr)
+	{
+		var err error
+		if ftp, err = goftp.Connect(s.Listener.Addr().String()); err != nil {
+			t.Fatal("Couldn't connect:", err)
+		}
 	}
+
 	defer ftp.Quit()
 
 	if err := ftp.Login("test", "test"); err != nil {
