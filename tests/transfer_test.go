@@ -50,7 +50,7 @@ func ftpUpload(t *testing.T, ftp *goftp.FTP, file *os.File, filename string) {
 		t.Fatal("Couldn't seek:", err)
 	}
 	if err := ftp.Stor(filename+".tmp", file); err != nil {
-		t.Fatal("Couldn't ftpUpload bin:", err)
+		t.Fatal("Couldn't upload bin:", err)
 	}
 
 	if err := ftp.Rename(filename+".tmp", filename); err != nil {
@@ -99,7 +99,7 @@ func ftpDownloadAndHash(t *testing.T, ftp *goftp.FTP, filename string) string {
 
 func ftpDelete(t *testing.T, ftp *goftp.FTP, filename string) {
 	if err := ftp.Dele(filename); err != nil {
-		t.Fatal("Couldn't ftpDelete file", err)
+		t.Fatal("Couldn't delete file", err)
 	}
 
 	if err := ftp.Dele(filename); err == nil {
