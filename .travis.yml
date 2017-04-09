@@ -9,7 +9,6 @@ script:
 - ./.check-fmt.sh
 - gocyclo -over 15 .
 - go test -v ./...
-- go get -v
 - go build -v
 deploy:
   provider: releases
