@@ -1,20 +1,18 @@
-# We don't really need it (at least for now)
-# before_install:
-# - sudo apt-get update -qq
-# - sudo apt-get install ftp -qq
-
 before_install:
-  - go get github.com/golang/lint/golint
-  - go get github.com/fzipp/gocyclo
-
+- go get github.com/golang/lint/golint
+- go get github.com/fzipp/gocyclo
 language: go
-
-# We're building for the two last versions
 go:
-  - 1.7.x
-  - 1.8.x
-
+- 1.7.x
+- 1.8.x
 script:
-  - ./.check-fmt.sh
-  - gocyclo -over 15 .
-  - go test -v ./...
+- ./.check-fmt.sh
+- gocyclo -over 15 .
+- go test -v ./...
+deploy:
+  provider: releases
+  api_key:
+    secure: K2o6tz2pw9OeIqVMu0sO01+9QFXA6GxG90PG3les4FOMqOUxyYZDPorMqlXpmAKD0mJWzP8PuWPSBfT9zSN3FkUHsjKA3mwvpab04rjFGr5ccmm90EfVttFyzAY45fokSA3fJo5T3iGjPbmg8Qtey2ST7X8dmuTt2i2kzv30cE2rmCE2wUfGWmq2r43ygaJBTjYtUCowxkDYsm/86qx0NB9SAD7LRDEWc62bcc0+CJZtRE5XXG4YhDJxDJWgMSEdwPt3i/c4NqYhOGCoLpBAh77mgHLJKf0NaThLa3Z6vVKog4/dBxJGSu+QvqA7jS6S6Pm72wWvcUqSPzL2TMk8zvD2KND9q6RPdTn1MuzvARn+IZOf5ndGgDjilcNgCXuC2adOzuo7rbecmTSkbzgux+RGRixr93p13Vn4Nt/WqLMq2ftqAv/gvmAi3OntShcKv9487zML/tDIxdvXXf7fmJDKl59eBKVddrY1GjzdcNVU8l+UoenrXIJh6+sTKcxLDVoqGb34T9QLWLYEK9bqGcmSHy9MFmjE/vh4vu8K8Fgrcpb/GHruRCqpFWIS2SxQaPawc8zVtBMXOvpnb8839Bi0HtdbInE6FynOUgHQ87UyFgwwB6v5YFAOgSpStpPqVX5O4UWZ2vNI1N83qSnxZfOmiayAA1Z7zlPPZTNq4rY=
+  file: ftppserver
+  on:
+    repo: fclairamb/ftpserver
