@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/naoina/toml"
 	"gopkg.in/inconshreveable/log15.v2"
@@ -25,7 +26,7 @@ type MainDriver struct {
 func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 	cc.SetDebug(true)
 	// This will remain the official name for now
-	return "Welcome on https://github.com/fclairamb/ftpserver", nil
+	return fmt.Sprintf("Welcome on ftpserver, you're on dir %s", driver.baseDir), nil
 }
 
 // AuthUser authenticates the user and selects an handling driver
