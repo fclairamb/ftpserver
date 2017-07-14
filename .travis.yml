@@ -1,6 +1,7 @@
 before_install:
 - go get github.com/golang/lint/golint
 - go get github.com/fzipp/gocyclo
+- go get golang.org/x/tools/cmd/goimports
 language: go
 go:
 - 1.7.x
