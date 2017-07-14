@@ -8,6 +8,7 @@ go:
 script:
 - ./.check-fmt.sh
 - gocyclo -over 15 .
+- goimports -l -e .
 - go test -v ./...
 - go build -v
 deploy:

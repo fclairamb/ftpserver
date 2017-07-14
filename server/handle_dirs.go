@@ -91,6 +91,10 @@ func (c *clientHandler) handleLIST() {
 }
 
 func (c *clientHandler) handleMLSD() {
+	if c.daddy.Settings.DisableMLSD {
+		c.writeMessage(500, "MLSD has been disabled")
+		return
+	}
 	if files, err := c.driver.ListFiles(c); err == nil {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
@@ -102,10 +106,10 @@ func (c *clientHandler) handleMLSD() {
 }
 
 const (
-	dateFormatStatTime      = "Jan _2 15:04"          // Format with hour and minute
-	dateFormatStatYear      = "Jan _2  2006"          // Format with year
+	dateFormatStatTime      = "Jan _2 15:04"          // LIST date formatting with hour and minute
+	dateFormatStatYear      = "Jan _2  2006"          // LIST date formatting with year
 	dateFormatStatOldSwitch = time.Hour * 24 * 30 * 6 // 6 months ago
-	dateFormatMLSD          = "20060102150405"
+	dateFormatMLSD          = "20060102150405"        // MLSD date formatting
 )
 
 func (c *clientHandler) fileStat(file os.FileInfo) string {
@@ -147,7 +151,7 @@ func (c *clientHandler) dirTransferMLSD(w io.Writer, files []os.FileInfo) error 
 		}
 		fmt.Fprintf(
 			w,
-			"Type=%s;Size=%d;Modify=%d; %s\r\n",
+			"Type=%s;Size=%d;Modify=%s; %s\r\n",
 			listType,
 			file.Size(),
 			file.ModTime().Format(dateFormatMLSD),

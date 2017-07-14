@@ -6,14 +6,15 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/fclairamb/ftpserver/server"
-	"github.com/naoina/toml"
-	"gopkg.in/inconshreveable/log15.v2"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/fclairamb/ftpserver/server"
+	"github.com/naoina/toml"
+	"gopkg.in/inconshreveable/log15.v2"
 )
 
 // MainDriver defines a very basic serverftp driver

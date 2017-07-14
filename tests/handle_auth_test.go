@@ -1,8 +1,9 @@
 package tests
 
 import (
-	"gopkg.in/dutchcoders/goftp.v1"
 	"testing"
+
+	"gopkg.in/dutchcoders/goftp.v1"
 )
 
 func TestLoginSuccess(t *testing.T) {

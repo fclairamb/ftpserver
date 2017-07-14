@@ -93,7 +93,10 @@ func (c *clientHandler) handleFEAT() {
 		"SIZE",
 		"MDTM",
 		"REST STREAM",
-		"MLSD",
+	}
+
+	if !c.daddy.Settings.DisableMLSD {
+		features = append(features, "MLSD")
 	}
 
 	for _, f := range features {
