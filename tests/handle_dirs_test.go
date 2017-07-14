@@ -45,6 +45,7 @@ func TestDirAccess(t *testing.T) {
 	} else {
 		found := false
 		for _, f := range files {
+			// t.Logf("File: %s", f)
 			if strings.HasSuffix(strings.TrimSpace(f), "known") {
 				found = true
 			}

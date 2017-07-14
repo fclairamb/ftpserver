@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 func (c *clientHandler) absPath(p string) string {
@@ -89,12 +90,29 @@ func (c *clientHandler) handleLIST() {
 	}
 }
 
+const (
+	dateFormatTime = "Jan _2 15:04"          // Format with hour and minute
+	dateFormatYear = "Jan _2  2006"          // Format with year
+	dateOld        = time.Hour * 24 * 30 * 6 // 6 months ago
+)
+
 func fileStat(file os.FileInfo) string {
+
+	modTime := file.ModTime()
+
+	var dateFormat string
+
+	if time.Now().Sub(modTime) > dateOld {
+		dateFormat = dateFormatYear
+	} else {
+		dateFormat = dateFormatTime
+	}
+
 	return fmt.Sprintf(
 		"%s 1 ftp ftp %12d %s %s",
 		file.Mode(),
 		file.Size(),
-		file.ModTime().Format(" Jan _2 15:04 "),
+		file.ModTime().Format(dateFormat),
 		file.Name(),
 	)
 }
@@ -102,13 +120,6 @@ func fileStat(file os.FileInfo) string {
 func (c *clientHandler) dirList(w io.Writer, files []os.FileInfo) error {
 	for _, file := range files {
 		fmt.Fprintf(w, "%s\r\n", fileStat(file))
-		/*
-			fmt.Fprint(w, file.Mode().String())
-			fmt.Fprintf(w, " 1 %s %s ", "ftp", "ftp")
-			fmt.Fprintf(w, "%12d", file.Size())
-			fmt.Fprintf(w, file.ModTime().Format(" Jan _2 15:04 "))
-			fmt.Fprintf(w, "%s\r\n", file.Name())
-		*/
 	}
 	fmt.Fprint(w, "\r\n")
 	return nil
