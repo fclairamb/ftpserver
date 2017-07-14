@@ -96,13 +96,13 @@ const (
 	dateOld        = time.Hour * 24 * 30 * 6 // 6 months ago
 )
 
-func fileStat(file os.FileInfo) string {
+func (c *clientHandler) fileStat(file os.FileInfo) string {
 
 	modTime := file.ModTime()
 
 	var dateFormat string
 
-	if time.Now().Sub(modTime) > dateOld {
+	if c.connectedAt.Sub(modTime) > dateOld {
 		dateFormat = dateFormatYear
 	} else {
 		dateFormat = dateFormatTime
@@ -119,7 +119,7 @@ func fileStat(file os.FileInfo) string {
 
 func (c *clientHandler) dirList(w io.Writer, files []os.FileInfo) error {
 	for _, file := range files {
-		fmt.Fprintf(w, "%s\r\n", fileStat(file))
+		fmt.Fprintf(w, "%s\r\n", c.fileStat(file))
 	}
 	fmt.Fprint(w, "\r\n")
 	return nil
