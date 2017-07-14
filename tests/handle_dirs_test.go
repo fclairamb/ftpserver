@@ -53,7 +53,7 @@ func TestDirAccess(t *testing.T) {
 				break
 			}
 			fileName := line[47:]
-			t.Logf("Line: \"%s\", File: \"%s\"", line, fileName)
+			//t.Logf("Line: \"%s\", File: \"%s\"", line, fileName)
 			switch fileName {
 			case " with spaces ":
 			case "known":
