@@ -189,7 +189,7 @@ func (c *clientHandler) handleREST() {
 func (c *clientHandler) handleMDTM() {
 	path := c.absPath(c.param)
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
-		c.writeMessage(250, info.ModTime().UTC().Format("20060102150405"))
+		c.writeMessage(250, info.ModTime().UTC().Format(dateFormatMLSD))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
 	}

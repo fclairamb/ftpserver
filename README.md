@@ -14,16 +14,23 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
 ### Features
 
  * Uploading and downloading files
- * Directory listing
+ * Directory listing (LIST + MLST)
  * File and directory deletion and renaming
- * TLS support
- * File download/upload resume support
+ * TLS support (AUTH + PROT)
+ * File download/upload resume support (REST)
  * Complete driver for all the above features
  * Passive socket connections (EPSV and PASV commands)
  * Active socket connections (PORT command)
  * Small memory footprint
  * Only relies on the standard library except for logging which uses [log15](https://github.com/inconshreveable/log15) ([which could change](https://github.com/fclairamb/ftpserver/issues/7)).
- 
+ * Supported extensions:
+   * [MDTM](https://tools.ietf.org/html/rfc3659#page-8) - File Modification Time
+   * [MLST](https://tools.ietf.org/html/rfc3659#page-23) - Directory listing for maching processing
+   * [REST](https://tools.ietf.org/html/rfc3659#page-13) - Restart of interrupted transfer
+   * [SIZE](https://tools.ietf.org/html/rfc3659#page-11) - Size of a string
+   * [AUTH](https://tools.ietf.org/html/rfc2228#page-6) - Control session protection
+   * [PROT](https://tools.ietf.org/html/rfc2228#page-8) - Transfer protection
+
 ## The driver
 
 ### The API

@@ -21,7 +21,7 @@ func (c *clientHandler) handleAUTH() {
 
 func (c *clientHandler) handlePROT() {
 	// P for Private, C for Clear
-	c.transferTLS = (c.param == "P")
+	c.transferTLS = c.param == "P"
 	c.writeMessage(200, "OK")
 }
 
