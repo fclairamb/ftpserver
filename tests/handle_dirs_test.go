@@ -2,7 +2,6 @@ package tests
 
 import (
 	"gopkg.in/dutchcoders/goftp.v1"
-	"strings"
 	"testing"
 )
 
@@ -40,17 +39,28 @@ func TestDirAccess(t *testing.T) {
 		t.Fatal("Couldn't create dir:", err)
 	}
 
-	if files, err := ftp.List("/"); err != nil {
+	if err := ftp.Mkd("/ with spaces "); err != nil {
+		t.Fatal("Couldn't create dir:", err)
+	}
+
+	if lines, err := ftp.List("/"); err != nil {
 		t.Fatal("Couldn't list files:", err)
 	} else {
-		found := false
-		for _, f := range files {
-			// t.Logf("File: %s", f)
-			if strings.HasSuffix(strings.TrimSpace(f), "known") {
-				found = true
+		found := 0
+		for _, line := range lines {
+			line = line[0 : len(line)-2]
+			if len(line) < 47 {
+				break
+			}
+			fileName := line[47:]
+			t.Logf("Line: \"%s\", File: \"%s\"", line, fileName)
+			switch fileName {
+			case " with spaces ":
+			case "known":
+				found += 1
 			}
 		}
-		if !found {
+		if found == 2 {
 			t.Fatal("Couldn't find the known dir")
 		}
 	}
