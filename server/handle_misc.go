@@ -93,6 +93,7 @@ func (c *clientHandler) handleFEAT() {
 		"SIZE",
 		"MDTM",
 		"REST STREAM",
+		"MLSD",
 	}
 
 	for _, f := range features {

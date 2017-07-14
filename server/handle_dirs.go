@@ -83,7 +83,18 @@ func (c *clientHandler) handleLIST() {
 	if files, err := c.driver.ListFiles(c); err == nil {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
-			c.dirList(tr, files)
+			c.dirTransferLIST(tr, files)
+		}
+	} else {
+		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
+	}
+}
+
+func (c *clientHandler) handleMLSD() {
+	if files, err := c.driver.ListFiles(c); err == nil {
+		if tr, err := c.TransferOpen(); err == nil {
+			defer c.TransferClose()
+			c.dirTransferMLSD(tr, files)
 		}
 	} else {
 		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
@@ -91,9 +102,10 @@ func (c *clientHandler) handleLIST() {
 }
 
 const (
-	dateFormatTime = "Jan _2 15:04"          // Format with hour and minute
-	dateFormatYear = "Jan _2  2006"          // Format with year
-	dateOld        = time.Hour * 24 * 30 * 6 // 6 months ago
+	dateFormatStatTime      = "Jan _2 15:04"          // Format with hour and minute
+	dateFormatStatYear      = "Jan _2  2006"          // Format with year
+	dateFormatStatOldSwitch = time.Hour * 24 * 30 * 6 // 6 months ago
+	dateFormatMLSD          = "20060102150405"
 )
 
 func (c *clientHandler) fileStat(file os.FileInfo) string {
@@ -102,10 +114,10 @@ func (c *clientHandler) fileStat(file os.FileInfo) string {
 
 	var dateFormat string
 
-	if c.connectedAt.Sub(modTime) > dateOld {
-		dateFormat = dateFormatYear
+	if c.connectedAt.Sub(modTime) > dateFormatStatOldSwitch {
+		dateFormat = dateFormatStatYear
 	} else {
-		dateFormat = dateFormatTime
+		dateFormat = dateFormatStatTime
 	}
 
 	return fmt.Sprintf(
@@ -117,9 +129,30 @@ func (c *clientHandler) fileStat(file os.FileInfo) string {
 	)
 }
 
-func (c *clientHandler) dirList(w io.Writer, files []os.FileInfo) error {
+func (c *clientHandler) dirTransferLIST(w io.Writer, files []os.FileInfo) error {
 	for _, file := range files {
 		fmt.Fprintf(w, "%s\r\n", c.fileStat(file))
+	}
+	fmt.Fprint(w, "\r\n")
+	return nil
+}
+
+func (c *clientHandler) dirTransferMLSD(w io.Writer, files []os.FileInfo) error {
+	for _, file := range files {
+		var listType string
+		if file.IsDir() {
+			listType = "dir"
+		} else {
+			listType = "file"
+		}
+		fmt.Fprintf(
+			w,
+			"Type=%s;Size=%d;Modify=%d; %s\r\n",
+			listType,
+			file.Size(),
+			file.ModTime().Format(dateFormatMLSD),
+			file.Name(),
+		)
 	}
 	fmt.Fprint(w, "\r\n")
 	return nil
