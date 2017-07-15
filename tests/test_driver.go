@@ -3,14 +3,20 @@ package tests
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/fclairamb/ftpserver/server"
 	"io/ioutil"
 	"os"
+
+	"github.com/fclairamb/ftpserver/server"
 )
 
 // NewTestServer provides a test server with or without debugging
 func NewTestServer(debug bool) *server.FtpServer {
-	s := server.NewFtpServer(NewServerDriver(debug))
+	return NewTestServerWithDriver(&ServerDriver{Debug: debug})
+}
+
+// NewTestServerWithDriver provides a server instantiated with some settings
+func NewTestServerWithDriver(driver *ServerDriver) *server.FtpServer {
+	s := server.NewFtpServer(driver)
 	if err := s.Listen(); err != nil {
 		return nil
 	}
@@ -18,14 +24,10 @@ func NewTestServer(debug bool) *server.FtpServer {
 	return s
 }
 
-// NewServerDriver creates a server driver
-func NewServerDriver(debug bool) *ServerDriver {
-	return &ServerDriver{Debug: debug}
-}
-
 // ServerDriver defines a minimal serverftp server driver
 type ServerDriver struct {
-	Debug bool // To display connection logs information
+	Debug       bool // To display connection logs information
+	DisableMLSD bool // Disable MLSD
 }
 
 // ClientDriver defines a minimal serverftp client driver
@@ -62,7 +64,7 @@ func (driver *ServerDriver) UserLeft(cc server.ClientContext) {
 
 // GetSettings fetches the basic server settings
 func (driver *ServerDriver) GetSettings() *server.Settings {
-	return &server.Settings{ListenHost: "127.0.0.1", ListenPort: -1}
+	return &server.Settings{ListenHost: "127.0.0.1", ListenPort: -1, DisableMLSD: driver.DisableMLSD}
 }
 
 // GetTLSConfig fetches the TLS config

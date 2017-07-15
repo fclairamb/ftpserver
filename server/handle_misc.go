@@ -21,7 +21,7 @@ func (c *clientHandler) handleAUTH() {
 
 func (c *clientHandler) handlePROT() {
 	// P for Private, C for Clear
-	c.transferTLS = (c.param == "P")
+	c.transferTLS = c.param == "P"
 	c.writeMessage(200, "OK")
 }
 
@@ -93,6 +93,10 @@ func (c *clientHandler) handleFEAT() {
 		"SIZE",
 		"MDTM",
 		"REST STREAM",
+	}
+
+	if !c.daddy.Settings.DisableMLSD {
+		features = append(features, "MLSD")
 	}
 
 	for _, f := range features {

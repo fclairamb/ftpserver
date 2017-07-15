@@ -3,12 +3,13 @@ package main
 
 import (
 	"flag"
-	"github.com/fclairamb/ftpserver/sample"
-	"github.com/fclairamb/ftpserver/server"
-	"gopkg.in/inconshreveable/log15.v2"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/fclairamb/ftpserver/sample"
+	"github.com/fclairamb/ftpserver/server"
+	"gopkg.in/inconshreveable/log15.v2"
 )
 
 var (

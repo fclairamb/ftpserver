@@ -1,13 +1,15 @@
 package tests
 
 import (
-	"gopkg.in/dutchcoders/goftp.v1"
 	"strings"
 	"testing"
+
+	"gopkg.in/dutchcoders/goftp.v1"
 )
 
-func TestDirAccess(t *testing.T) {
-	s := NewTestServer(true)
+// TestDirAccess relies on LIST of files listing
+func TestDirListing(t *testing.T) {
+	s := NewTestServerWithDriver(&ServerDriver{Debug: true, DisableMLSD: true})
 	defer s.Stop()
 
 	var connErr error
@@ -21,6 +23,48 @@ func TestDirAccess(t *testing.T) {
 	if _, err := ftp.List("/"); err == nil {
 		t.Fatal("We could list files before login")
 	}
+
+	if err := ftp.Login("test", "test"); err != nil {
+		t.Fatal("Failed to login:", err)
+	}
+
+	if err := ftp.Mkd("/known"); err != nil {
+		t.Fatal("Couldn't create dir:", err)
+	}
+
+	if lines, err := ftp.List("/"); err != nil {
+		t.Fatal("Couldn't list files:", err)
+	} else {
+		found := false
+		for _, line := range lines {
+			line = line[0 : len(line)-2]
+			if len(line) < 47 {
+				break
+			}
+			fileName := line[47:]
+			t.Logf("Line: \"%s\", File: \"%s\"", line, fileName)
+			if fileName == "known" {
+				found = true
+			}
+		}
+		if !found {
+			t.Fatal("Couldn't find the dir")
+		}
+	}
+}
+
+// TestDirAccess relies on LIST of files listing
+func TestDirHandling(t *testing.T) {
+	s := NewTestServer(true)
+	defer s.Stop()
+
+	var connErr error
+	var ftp *goftp.FTP
+
+	if ftp, connErr = goftp.Connect(s.Listener.Addr().String()); connErr != nil {
+		t.Fatal("Couldn't connect", connErr)
+	}
+	defer ftp.Quit()
 
 	if err := ftp.Login("test", "test"); err != nil {
 		t.Fatal("Failed to login:", err)
@@ -40,20 +84,6 @@ func TestDirAccess(t *testing.T) {
 		t.Fatal("Couldn't create dir:", err)
 	}
 
-	if files, err := ftp.List("/"); err != nil {
-		t.Fatal("Couldn't list files:", err)
-	} else {
-		found := false
-		for _, f := range files {
-			if strings.HasSuffix(strings.TrimSpace(f), "known") {
-				found = true
-			}
-		}
-		if !found {
-			t.Fatal("Couldn't find the known dir")
-		}
-	}
-
 	if err := ftp.Cwd("/known"); err != nil {
 		t.Fatal("Couldn't access the known dir:", err)
 	}
@@ -64,5 +94,55 @@ func TestDirAccess(t *testing.T) {
 
 	if err := ftp.Rmd("/known"); err == nil {
 		t.Fatal("We shouldn't have been able to ftpDelete known again")
+	}
+}
+
+// TestDirListingWithSpace uses the MLSD for files listing
+func TestDirListingWithSpace(t *testing.T) {
+	s := NewTestServer(true)
+	defer s.Stop()
+
+	var connErr error
+	var ftp *goftp.FTP
+	const debug = true
+
+	if ftp, connErr = goftp.Connect(s.Listener.Addr().String()); connErr != nil {
+		t.Fatal("Couldn't connect", connErr)
+	}
+	defer ftp.Quit()
+
+	if err := ftp.Login("test", "test"); err != nil {
+		t.Fatal("Failed to login:", err)
+	}
+
+	if err := ftp.Mkd("/ with spaces "); err != nil {
+		t.Fatal("Couldn't create dir:", err)
+	}
+
+	if lines, err := ftp.List("/"); err != nil {
+		t.Fatal("Couldn't list files:", err)
+	} else {
+		found := false
+		for _, line := range lines {
+			line = line[0 : len(line)-2]
+			if len(line) < 47 {
+				break
+			}
+			spl := strings.SplitN(line, "; ", 2)
+			fileName := spl[1]
+			if debug {
+				t.Logf("Line: %s", line)
+			}
+			if fileName == " with spaces " {
+				found = true
+			}
+		}
+		if !found {
+			t.Fatal("Couldn't find the dir")
+		}
+	}
+
+	if err := ftp.Cwd("/ with spaces "); err != nil {
+		t.Fatal("Couldn't access the known dir:", err)
 	}
 }

@@ -150,11 +150,11 @@ func (c *clientHandler) handleSTATFile() {
 		if info.IsDir() {
 			if files, err := c.driver.ListFiles(c); err == nil {
 				for _, f := range files {
-					c.writeLine(fileStat(f))
+					c.writeLine(c.fileStat(f))
 				}
 			}
 		} else {
-			c.writeLine(fileStat(info))
+			c.writeLine(c.fileStat(info))
 		}
 	}
 	c.writeLine("213 End of status")
@@ -189,7 +189,7 @@ func (c *clientHandler) handleREST() {
 func (c *clientHandler) handleMDTM() {
 	path := c.absPath(c.param)
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
-		c.writeMessage(250, info.ModTime().UTC().Format("20060102150405"))
+		c.writeMessage(250, info.ModTime().UTC().Format(dateFormatMLSD))
 	} else {
 		c.writeMessage(550, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
 	}

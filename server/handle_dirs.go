@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 func (c *clientHandler) absPath(p string) string {
@@ -82,33 +83,80 @@ func (c *clientHandler) handleLIST() {
 	if files, err := c.driver.ListFiles(c); err == nil {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
-			c.dirList(tr, files)
+			c.dirTransferLIST(tr, files)
 		}
 	} else {
 		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
 	}
 }
 
-func fileStat(file os.FileInfo) string {
+func (c *clientHandler) handleMLSD() {
+	if c.daddy.Settings.DisableMLSD {
+		c.writeMessage(500, "MLSD has been disabled")
+		return
+	}
+	if files, err := c.driver.ListFiles(c); err == nil {
+		if tr, err := c.TransferOpen(); err == nil {
+			defer c.TransferClose()
+			c.dirTransferMLSD(tr, files)
+		}
+	} else {
+		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
+	}
+}
+
+const (
+	dateFormatStatTime      = "Jan _2 15:04"          // LIST date formatting with hour and minute
+	dateFormatStatYear      = "Jan _2  2006"          // LIST date formatting with year
+	dateFormatStatOldSwitch = time.Hour * 24 * 30 * 6 // 6 months ago
+	dateFormatMLSD          = "20060102150405"        // MLSD date formatting
+)
+
+func (c *clientHandler) fileStat(file os.FileInfo) string {
+
+	modTime := file.ModTime()
+
+	var dateFormat string
+
+	if c.connectedAt.Sub(modTime) > dateFormatStatOldSwitch {
+		dateFormat = dateFormatStatYear
+	} else {
+		dateFormat = dateFormatStatTime
+	}
+
 	return fmt.Sprintf(
 		"%s 1 ftp ftp %12d %s %s",
 		file.Mode(),
 		file.Size(),
-		file.ModTime().Format(" Jan _2 15:04 "),
+		file.ModTime().Format(dateFormat),
 		file.Name(),
 	)
 }
 
-func (c *clientHandler) dirList(w io.Writer, files []os.FileInfo) error {
+func (c *clientHandler) dirTransferLIST(w io.Writer, files []os.FileInfo) error {
 	for _, file := range files {
-		fmt.Fprintf(w, "%s\r\n", fileStat(file))
-		/*
-			fmt.Fprint(w, file.Mode().String())
-			fmt.Fprintf(w, " 1 %s %s ", "ftp", "ftp")
-			fmt.Fprintf(w, "%12d", file.Size())
-			fmt.Fprintf(w, file.ModTime().Format(" Jan _2 15:04 "))
-			fmt.Fprintf(w, "%s\r\n", file.Name())
-		*/
+		fmt.Fprintf(w, "%s\r\n", c.fileStat(file))
+	}
+	fmt.Fprint(w, "\r\n")
+	return nil
+}
+
+func (c *clientHandler) dirTransferMLSD(w io.Writer, files []os.FileInfo) error {
+	for _, file := range files {
+		var listType string
+		if file.IsDir() {
+			listType = "dir"
+		} else {
+			listType = "file"
+		}
+		fmt.Fprintf(
+			w,
+			"Type=%s;Size=%d;Modify=%s; %s\r\n",
+			listType,
+			file.Size(),
+			file.ModTime().Format(dateFormatMLSD),
+			file.Name(),
+		)
 	}
 	fmt.Fprint(w, "\r\n")
 	return nil

@@ -3,13 +3,14 @@ package tests
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"gopkg.in/dutchcoders/goftp.v1"
 	"io"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"strings"
 	"testing"
+
+	"gopkg.in/dutchcoders/goftp.v1"
 )
 
 func createTemporaryFile(t *testing.T, targetSize int) *os.File {

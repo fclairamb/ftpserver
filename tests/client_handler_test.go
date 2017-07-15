@@ -1,9 +1,10 @@
 package tests
 
 import (
-	"gopkg.in/dutchcoders/goftp.v1"
 	"sync"
 	"testing"
+
+	"gopkg.in/dutchcoders/goftp.v1"
 )
 
 func TestConcurrency(t *testing.T) {
