@@ -75,7 +75,7 @@ func (c *clientHandler) handleSTATServer() {
 
 func (c *clientHandler) handleOPTS() {
 	args := strings.SplitN(c.param, " ", 2)
-	if args[0] == "UTF8" {
+	if strings.ToUpper(args[0]) == "UTF8" {
 		c.writeMessage(200, "I'm in UTF8 only anyway")
 	} else {
 		c.writeMessage(500, "Don't know this option")
