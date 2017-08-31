@@ -48,8 +48,10 @@ func (c *clientHandler) handleSITE() {
 	if len(spl) > 1 {
 		if strings.ToUpper(spl[0]) == "CHMOD" {
 			c.handleCHMOD(spl[1])
+			return
 		}
 	}
+	c.writeMessage(500, "Not understood SITE subcommand")
 }
 
 func (c *clientHandler) handleSTATServer() {
