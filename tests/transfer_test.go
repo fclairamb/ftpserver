@@ -98,6 +98,7 @@ func ftpDelete(t *testing.T, ftp *goftp.Client, filename string) {
 
 func TestTransfer(t *testing.T) {
 	s := NewTestServer(true)
+	s.Settings.NonStandardActiveDataPort = true
 	defer s.Stop()
 
 	testTransferOnConnection(t, s, false)

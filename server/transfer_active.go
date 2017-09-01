@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"strconv"
@@ -8,23 +9,32 @@ import (
 )
 
 func (c *clientHandler) handlePORT() {
-	raddr := parseRemoteAddr(c.param)
+	raddr, err := parseRemoteAddr(c.param)
+
+	if err != nil {
+		c.writeMessage(500, fmt.Sprintf("Problem parsing PORT: %v", err))
+		return
+	}
 
 	c.writeMessage(200, "PORT command successful")
 
-	c.transfer = &activeTransferHandler{raddr: raddr}
+	c.transfer = &activeTransferHandler{raddr: raddr, nonStandardPort: c.daddy.Settings.NonStandardActiveDataPort}
 }
 
 // Active connection
 type activeTransferHandler struct {
-	// remote address of the client
-	raddr *net.TCPAddr
-
-	conn net.Conn
+	raddr *net.TCPAddr // Remote address of the client
+	conn  net.Conn     // Connection used to connect to him
+	nonStandardPort bool // Allow to use an other port than the 20 one
 }
 
 func (a *activeTransferHandler) Open() (net.Conn, error) {
-	laddr, _ := net.ResolveTCPAddr("tcp", ":20")
+	var laddr *net.TCPAddr
+	if a.nonStandardPort {
+		laddr = nil
+	} else {
+		laddr, _ = net.ResolveTCPAddr("tcp", ":20")
+	}
 	// TODO(mgenov): support dialing with timeout
 	// Issues:
 	//	https://github.com/golang/go/issues/3097
@@ -55,15 +65,23 @@ func (a *activeTransferHandler) Close() error {
 // Param Format: 192,168,150,80,14,178
 // Host: 192.168.150.80
 // Port: (14 * 256) + 148
-func parseRemoteAddr(param string) *net.TCPAddr {
+func parseRemoteAddr(param string) (*net.TCPAddr, error) {
 	//TODO(mgenov): ensure that format of the params is valid
 	params := strings.Split(param, ",")
+	if len(params) != 6 {
+		return nil, errors.New("Bad number of args")
+	}
 	ip := strings.Join(params[0:4], ".")
 
-	p1, _ := strconv.Atoi(params[4])
-	p2, _ := strconv.Atoi(params[5])
-	port := (p1 * 256) + p2
+	p1, err := strconv.Atoi(params[4])
+	if err != nil {
+		return nil, err
+	}
+	p2, err := strconv.Atoi(params[5])
+	if err != nil {
+		return nil, err
+	}
+	port := p1<<8 + p2
 
-	addr, _ := net.ResolveTCPAddr("tcp", fmt.Sprintf("%s:%d", ip, port))
-	return addr
+	return net.ResolveTCPAddr("tcp", fmt.Sprintf("%s:%d", ip, port))
 }
