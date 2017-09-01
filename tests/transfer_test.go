@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fclairamb/ftpserver/server"
 	"github.com/fclairamb/goftp"
 )
 
@@ -99,15 +100,21 @@ func TestTransfer(t *testing.T) {
 	s := NewTestServer(true)
 	defer s.Stop()
 
+	testTransferOnConnection(t, s, false)
+	testTransferOnConnection(t, s, true)
+}
+
+func testTransferOnConnection(t *testing.T, server *server.FtpServer, active bool) {
 	conf := goftp.Config{
-		User:     "test",
-		Password: "test",
+		User:            "test",
+		Password:        "test",
+		ActiveTransfers: active,
 	}
 
 	var err error
 	var c *goftp.Client
 
-	if c, err = goftp.DialConfig(conf, s.Listener.Addr().String()); err != nil {
+	if c, err = goftp.DialConfig(conf, server.Listener.Addr().String()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
 	defer c.Close()
