@@ -4,8 +4,8 @@ before_install:
 - go get golang.org/x/tools/cmd/goimports
 language: go
 go:
-- 1.7.x
 - 1.8.x
+- 1.9.x
 script:
 - ./.check-fmt.sh
 - gocyclo -over 15 .
