@@ -105,6 +105,24 @@ func (c *clientHandler) handleMLSD() {
 	}
 }
 
+func (c *clientHandler) handleMLST() {
+	if c.daddy.Settings.DisableMLST {
+		c.writeMessage(500, "MLST has been disabled")
+		return
+	}
+	if files, err := c.driver.ListFiles(c); err == nil {
+		if len(files) == 0 {
+			c.writeMessage(400, "Could not find a file by this name")
+			return
+		}
+		c.writer.Write([]byte("250-File details\r\n"))
+		c.writeMLSxOutput(c.writer, files[0])
+		c.writeMessage(250, "End of file details")
+	} else {
+		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
+	}
+}
+
 const (
 	dateFormatStatTime      = "Jan _2 15:04"          // LIST date formatting with hour and minute
 	dateFormatStatYear      = "Jan _2  2006"          // LIST date formatting with year
@@ -143,21 +161,24 @@ func (c *clientHandler) dirTransferLIST(w io.Writer, files []os.FileInfo) error 
 
 func (c *clientHandler) dirTransferMLSD(w io.Writer, files []os.FileInfo) error {
 	for _, file := range files {
-		var listType string
-		if file.IsDir() {
-			listType = "dir"
-		} else {
-			listType = "file"
-		}
-		fmt.Fprintf(
-			w,
-			"Type=%s;Size=%d;Modify=%s; %s\r\n",
-			listType,
-			file.Size(),
-			file.ModTime().Format(dateFormatMLSD),
-			file.Name(),
-		)
+		c.writeMLSxOutput(w, file)
 	}
 	fmt.Fprint(w, "\r\n")
 	return nil
+}
+func (c *clientHandler) writeMLSxOutput(w io.Writer, file os.FileInfo) {
+	var listType string
+	if file.IsDir() {
+		listType = "dir"
+	} else {
+		listType = "file"
+	}
+	fmt.Fprintf(
+		w,
+		"Type=%s;Size=%d;Modify=%s; %s\r\n",
+		listType,
+		file.Size(),
+		file.ModTime().Format(dateFormatMLSD),
+		file.Name(),
+	)
 }

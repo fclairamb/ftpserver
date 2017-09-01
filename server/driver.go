@@ -91,5 +91,6 @@ type Settings struct {
 	MaxConnections            int        // Max number of connections to accept
 	DataPortRange             *PortRange // Port Range for data connections. Random one will be used if not specified
 	DisableMLSD               bool       // Disable MLSD support
+	DisableMLST               bool       // Disable MLST support
 	NonStandardActiveDataPort bool       // Allow to use a non-standard active data port
 }
