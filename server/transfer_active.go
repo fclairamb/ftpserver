@@ -23,9 +23,9 @@ func (c *clientHandler) handlePORT() {
 
 // Active connection
 type activeTransferHandler struct {
-	raddr *net.TCPAddr // Remote address of the client
-	conn  net.Conn     // Connection used to connect to him
-	nonStandardPort bool // Allow to use an other port than the 20 one
+	raddr           *net.TCPAddr // Remote address of the client
+	conn            net.Conn     // Connection used to connect to him
+	nonStandardPort bool         // Allow to use an other port than the 20 one
 }
 
 func (a *activeTransferHandler) Open() (net.Conn, error) {
