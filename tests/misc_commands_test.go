@@ -1,8 +1,8 @@
 package tests
 
 import (
-	"github.com/secsy/goftp"
 	"testing"
+	"github.com/secsy/goftp"
 )
 
 func TestSiteCommand(t *testing.T) {
