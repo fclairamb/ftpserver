@@ -204,7 +204,7 @@ func (driver *MainDriver) GetSettings() *server.Settings {
 func NewSampleDriver() (*MainDriver, error) {
 	dir, err := ioutil.TempDir("", "ftpserver")
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("could not find a temporary dir, err: %v", err))
+		return nil, fmt.Errorf("could not find a temporary dir, err: %v", err)
 	}
 
 	driver := &MainDriver{
