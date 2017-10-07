@@ -9,7 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/inconshreveable/log15.v2"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 )
 
 type clientHandler struct {
@@ -29,21 +30,25 @@ type clientHandler struct {
 	debug       bool                 // Show debugging info on the server side
 	transfer    transferHandler      // Transfer connection (only passive is implemented at this stage)
 	transferTLS bool                 // Use TLS for transfer connection
+	logger log.Logger                // Client handler logging
 }
 
 // newClientHandler initializes a client handler when someone connects
 func (server *FtpServer) newClientHandler(connection net.Conn) *clientHandler {
+
+	id := server.clientCounter
 
 	server.clientCounter++
 
 	p := &clientHandler{
 		daddy:       server,
 		conn:        connection,
-		ID:          server.clientCounter,
+		ID:          id,
 		writer:      bufio.NewWriter(connection),
 		reader:      bufio.NewReader(connection),
 		connectedAt: time.Now().UTC(),
 		path:        "/",
+		logger:      log.With(server.Logger, "clientId", id),
 	}
 
 	// Just respecting the existing logic here, this could be probably be dropped at some point
@@ -104,7 +109,7 @@ func (c *clientHandler) HandleCommands() {
 	for {
 		if c.reader == nil {
 			if c.debug {
-				log15.Debug("Clean disconnect", "action", "ftp.disconnect", "id", c.ID, "clean", true)
+				level.Debug(c.logger).Log("msg", "Clean disconnect", "action", "ftp.disconnect", "clean", true)
 			}
 			return
 		}
@@ -114,16 +119,16 @@ func (c *clientHandler) HandleCommands() {
 		if err != nil {
 			if err == io.EOF {
 				if c.debug {
-					log15.Debug("TCP disconnect", "action", "ftp.disconnect", "id", c.ID, "clean", false)
+					level.Debug(c.logger).Log("msg", "TCP disconnect", "action", "ftp.disconnect", "clean", false)
 				}
 			} else {
-				log15.Error("Read error", "action", "ftp.read_error", "id", c.ID, "err", err)
+				level.Error(c.logger).Log("msg", "Read error", "action", "ftp.read_error", "err", err)
 			}
 			return
 		}
 
 		if c.debug {
-			log15.Debug("FTP RECV", "action", "ftp.cmd_recv", "id", c.ID, "line", line)
+			level.Debug(c.logger).Log("msg", "FTP RECV", "action", "ftp.cmd_recv", "line", line)
 		}
 
 		c.handleCommand(line)
@@ -158,7 +163,7 @@ func (c *clientHandler) handleCommand(line string) {
 
 func (c *clientHandler) writeLine(line string) {
 	if c.debug {
-		log15.Debug("FTP SEND", "action", "ftp.cmd_send", "id", c.ID, "line", line)
+		level.Debug(c.logger).Log("msg", "FTP SEND", "action", "ftp.cmd_send", "line", line)
 	}
 	c.writer.Write([]byte(line))
 	c.writer.Write([]byte("\r\n"))
@@ -172,12 +177,12 @@ func (c *clientHandler) writeMessage(code int, message string) {
 func (c *clientHandler) TransferOpen() (net.Conn, error) {
 	if c.transfer == nil {
 		c.writeMessage(550, "No passive connection declared")
-		return nil, errors.New("No passive connection declared")
+		return nil, errors.New("no passive connection declared")
 	}
 	c.writeMessage(150, "Using transfer connection")
 	conn, err := c.transfer.Open()
 	if err == nil && c.debug {
-		log15.Debug("FTP Transfer connection opened", "action", "ftp.transfer_open", "id", c.ID, "remoteAddr", conn.RemoteAddr().String(), "localAddr", conn.LocalAddr().String())
+		level.Debug(c.logger).Log("msg", "FTP Transfer connection opened", "action", "ftp.transfer_open", "remoteAddr", conn.RemoteAddr().String(), "localAddr", conn.LocalAddr().String())
 	}
 	return conn, err
 }
@@ -188,7 +193,7 @@ func (c *clientHandler) TransferClose() {
 		c.transfer.Close()
 		c.transfer = nil
 		if c.debug {
-			log15.Debug("FTP Transfer connection closed", "action", "ftp.transfer_close", "id", c.ID)
+			level.Debug(c.logger).Log("msg", "FTP Transfer connection closed", "action", "ftp.transfer_close")
 		}
 	}
 }

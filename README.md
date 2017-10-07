@@ -22,7 +22,7 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
  * Passive socket connections (EPSV and PASV commands)
  * Active socket connections (PORT command)
  * Small memory footprint
- * Only relies on the standard library except for logging which uses [log15](https://github.com/inconshreveable/log15) ([which could change](https://github.com/fclairamb/ftpserver/issues/7)).
+ * Only relies on the standard library except for logging which uses [go-kit log](https://github.com/go-kit/kit/tree/master/log).
  * Supported extensions:
    * [MDTM](https://tools.ietf.org/html/rfc3659#page-8) - File Modification Time
    * [MLST](https://tools.ietf.org/html/rfc3659#page-23) - Directory listing for maching processing
