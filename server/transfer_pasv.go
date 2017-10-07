@@ -3,11 +3,11 @@ package server
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/go-kit/kit/log/level"
 	"math/rand"
 	"net"
 	"strings"
 	"time"
-	"github.com/go-kit/kit/log/level"
 )
 
 // Active/Passive transfer connection handler

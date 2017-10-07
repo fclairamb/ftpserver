@@ -30,7 +30,7 @@ type clientHandler struct {
 	debug       bool                 // Show debugging info on the server side
 	transfer    transferHandler      // Transfer connection (only passive is implemented at this stage)
 	transferTLS bool                 // Use TLS for transfer connection
-	logger log.Logger                // Client handler logging
+	logger      log.Logger           // Client handler logging
 }
 
 // newClientHandler initializes a client handler when someone connects

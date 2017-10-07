@@ -14,8 +14,8 @@ import (
 
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/go-kit/kit/log"
-	"github.com/naoina/toml"
 	"github.com/go-kit/kit/log/level"
+	"github.com/naoina/toml"
 )
 
 // MainDriver defines a very basic serverftp driver
