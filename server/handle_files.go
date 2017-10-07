@@ -19,17 +19,30 @@ func (c *clientHandler) handleAPPE() {
 
 // Handles both the "STOR" and "APPE" commands
 func (c *clientHandler) handleStoreAndAppend(append bool) {
+	file, err := c.openFile(c.absPath(c.param), append)
 
-	path := c.absPath(c.param)
+	if err != nil {
+		c.writeMessage(550, "Could not open file: "+err.Error())
+		return
+	}
 
 	if tr, err := c.TransferOpen(); err == nil {
 		defer c.TransferClose()
-		if _, err := c.storeOrAppend(tr, path, append); err != nil && err != io.EOF {
+		if _, err := c.storeOrAppend(tr, file); err != nil && err != io.EOF {
 			c.writeMessage(550, err.Error())
 		}
 	} else {
-		c.writeMessage(550, err.Error())
+		c.writeMessage(550, "Could not open transfer: "+err.Error())
 	}
+}
+
+func (c *clientHandler) openFile(path string, append bool) (FileStream, error) {
+	flag := os.O_WRONLY
+	if append {
+		flag |= os.O_APPEND
+	}
+
+	return c.driver.OpenFile(c, path, flag)
 }
 
 func (c *clientHandler) handleRETR() {
@@ -81,18 +94,7 @@ func (c *clientHandler) handleCHMOD(params string) {
 	c.writeMessage(200, "SITE CHMOD command successful")
 }
 
-func (c *clientHandler) storeOrAppend(conn net.Conn, name string, append bool) (int64, error) {
-	flag := os.O_WRONLY
-	if append {
-		flag |= os.O_APPEND
-	}
-
-	file, err := c.driver.OpenFile(c, name, flag)
-
-	if err != nil {
-		return 0, err
-	}
-
+func (c *clientHandler) storeOrAppend(conn net.Conn, file FileStream) (int64, error) {
 	if c.ctxRest != 0 {
 		file.Seek(c.ctxRest, 0)
 		c.ctxRest = 0
