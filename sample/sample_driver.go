@@ -13,12 +13,14 @@ import (
 	"time"
 
 	"github.com/fclairamb/ftpserver/server"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/naoina/toml"
-	"gopkg.in/inconshreveable/log15.v2"
 )
 
 // MainDriver defines a very basic serverftp driver
 type MainDriver struct {
+	Logger    log.Logger
 	baseDir   string
 	tlsConfig *tls.Config
 }
@@ -33,7 +35,7 @@ func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 // AuthUser authenticates the user and selects an handling driver
 func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
 	if user == "bad" || pass == "bad" {
-		return nil, errors.New("Bad username or password")
+		return nil, errors.New("bad username or password")
 	}
 
 	return driver, nil
@@ -42,7 +44,7 @@ func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (
 // GetTLSConfig returns a TLS Certificate to use
 func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 	if driver.tlsConfig == nil {
-		log15.Info("Loading certificate")
+		level.Info(driver.Logger).Log("msg", "Loading certificate")
 		if cert, err := tls.LoadX509KeyPair("sample/certs/mycert.crt", "sample/certs/mycert.key"); err == nil {
 			driver.tlsConfig = &tls.Config{
 				NextProtos:   []string{"ftp"},
@@ -185,11 +187,11 @@ func (driver *MainDriver) GetSettings() *server.Settings {
 
 	// This is the new IP loading change coming from Ray
 	if config.PublicHost == "" {
-		log15.Debug("Fetching our external IP address...")
+		level.Debug(driver.Logger).Log("msg", "Fetching our external IP address...")
 		if config.PublicHost, err = externalIP(); err != nil {
-			log15.Warn("Couldn't fetch an external IP", "err", err)
+			level.Warn(driver.Logger).Log("msg", "Couldn't fetch an external IP", "err", err)
 		} else {
-			log15.Debug("Fetched our external IP address", "ipAddress", config.PublicHost)
+			level.Debug(driver.Logger).Log("msg", "Fetched our external IP address", "ipAddress", config.PublicHost)
 		}
 	}
 
@@ -199,17 +201,18 @@ func (driver *MainDriver) GetSettings() *server.Settings {
 // NewSampleDriver creates a sample driver
 // Note: This is not a mistake. Interface can be pointers. There seems to be a lot of confusion around this in the
 //       server_ftp original code.
-func NewSampleDriver() *MainDriver {
+func NewSampleDriver() (*MainDriver, error) {
 	dir, err := ioutil.TempDir("", "ftpserver")
 	if err != nil {
-		log15.Error("Could not find a temporary dir", "err", err)
+		return nil, fmt.Errorf("could not find a temporary dir, err: %v", err)
 	}
 
 	driver := &MainDriver{
 		baseDir: dir,
+		Logger:  log.NewNopLogger(),
 	}
 	os.MkdirAll(driver.baseDir, 0777)
-	return driver
+	return driver, nil
 }
 
 type virtualFile struct {
