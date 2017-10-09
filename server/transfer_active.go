@@ -69,7 +69,7 @@ func parseRemoteAddr(param string) (*net.TCPAddr, error) {
 	//TODO(mgenov): ensure that format of the params is valid
 	params := strings.Split(param, ",")
 	if len(params) != 6 {
-		return nil, errors.New("Bad number of args")
+		return nil, errors.New("bad number of args")
 	}
 	ip := strings.Join(params[0:4], ".")
 

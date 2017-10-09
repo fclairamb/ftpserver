@@ -7,7 +7,15 @@ import (
 	"sync"
 	"time"
 
-	"gopkg.in/inconshreveable/log15.v2"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
+)
+
+const (
+	// logKeyMsg is the human-readable part of the log
+	logKeyMsg = "msg"
+	// logKeyAction is the machine-readable part of the log
+	logKeyAction = "action"
 )
 
 // CommandDescription defines which function should be used and if it should be open to anyone or only logged in users
@@ -74,6 +82,7 @@ func init() {
 // FtpServer is where everything is stored
 // We want to keep it as simple as possible
 type FtpServer struct {
+	Logger           log.Logger                // Go-Kit logger
 	Settings         *Settings                 // General settings
 	Listener         net.Listener              // Listener used to receive files
 	StartTime        time.Time                 // Time when the server was started
@@ -114,11 +123,11 @@ func (server *FtpServer) Listen() error {
 	)
 
 	if err != nil {
-		log15.Error("Cannot listen", "err", err)
+		level.Error(server.Logger).Log(logKeyMsg, "Cannot listen", "err", err)
 		return err
 	}
 
-	log15.Info("Listening...", "address", server.Listener.Addr())
+	level.Info(server.Logger).Log(logKeyMsg, "Listening...", logKeyAction, "ftp.listening", "address", server.Listener.Addr())
 
 	return err
 }
@@ -129,7 +138,7 @@ func (server *FtpServer) Serve() {
 		connection, err := server.Listener.Accept()
 		if err != nil {
 			if server.Listener != nil {
-				log15.Error("Accept error", "err", err)
+				level.Error(server.Logger).Log(logKeyMsg, "Accept error", "err", err)
 			}
 			break
 		}
@@ -145,7 +154,7 @@ func (server *FtpServer) ListenAndServe() error {
 		return err
 	}
 
-	log15.Info("Starting...")
+	level.Info(server.Logger).Log(logKeyMsg, "Starting...", logKeyAction, "ftp.starting")
 
 	server.Serve()
 
@@ -160,6 +169,7 @@ func NewFtpServer(driver MainDriver) *FtpServer {
 		driver:          driver,
 		StartTime:       time.Now().UTC(), // Might make sense to put it in Start method
 		connectionsByID: make(map[uint32]*clientHandler),
+		Logger:          log.NewNopLogger(),
 	}
 }
 
@@ -180,10 +190,10 @@ func (server *FtpServer) clientArrival(c *clientHandler) error {
 	server.connectionsByID[c.ID] = c
 	nb := len(server.connectionsByID)
 
-	log15.Info("FTP Client connected", "action", "ftp.connected", "id", c.ID, "src", c.conn.RemoteAddr(), "total", nb)
+	level.Info(c.logger).Log(logKeyMsg, "FTP Client connected", logKeyAction, "ftp.connected", "clientIp", c.conn.RemoteAddr(), "total", nb)
 
 	if nb > server.Settings.MaxConnections {
-		return fmt.Errorf("Too many clients %d > %d", nb, server.Settings.MaxConnections)
+		return fmt.Errorf("too many clients %d > %d", nb, server.Settings.MaxConnections)
 	}
 
 	return nil
@@ -196,5 +206,5 @@ func (server *FtpServer) clientDeparture(c *clientHandler) {
 
 	delete(server.connectionsByID, c.ID)
 
-	log15.Info("FTP Client disconnected", "action", "ftp.disconnected", "id", c.ID, "src", c.conn.RemoteAddr(), "total", len(server.connectionsByID))
+	level.Info(c.logger).Log(logKeyMsg, "FTP Client disconnected", logKeyAction, "ftp.disconnected", "clientIp", c.conn.RemoteAddr(), "total", len(server.connectionsByID))
 }

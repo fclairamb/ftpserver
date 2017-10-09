@@ -54,7 +54,7 @@ func (driver *ServerDriver) AuthUser(cc server.ClientContext, user, pass string)
 	if user == "test" && pass == "test" {
 		return NewClientDriver(), nil
 	}
-	return nil, errors.New("Bad username or password")
+	return nil, errors.New("bad username or password")
 }
 
 // UserLeft is called when the user disconnects

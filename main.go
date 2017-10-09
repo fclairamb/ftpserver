@@ -9,7 +9,8 @@ import (
 
 	"github.com/fclairamb/ftpserver/sample"
 	"github.com/fclairamb/ftpserver/server"
-	"gopkg.in/inconshreveable/log15.v2"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 )
 
 var (
@@ -18,13 +19,30 @@ var (
 
 func main() {
 	flag.Parse()
-	ftpServer = server.NewFtpServer(sample.NewSampleDriver())
+
+	logger := log.With(
+		log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout)),
+		"ts", log.DefaultTimestampUTC,
+		"caller", log.DefaultCaller,
+	)
+
+	level.Info(logger).Log("msg", "Sample server")
+
+	driver, err := sample.NewSampleDriver()
+	if err != nil {
+		level.Error(logger).Log("msg", "Could not load the driver", "err", err)
+		return
+	}
+	driver.Logger = log.With(logger, "component", "driver")
+
+	ftpServer = server.NewFtpServer(driver)
+	ftpServer.Logger = log.With(logger, "component", "server")
 
 	go signalHandler()
 
-	err := ftpServer.ListenAndServe()
+	err = ftpServer.ListenAndServe()
 	if err != nil {
-		log15.Error("Problem listening", "err", err)
+		level.Error(logger).Log("msg", "Problem listening", "err", err)
 	}
 }
 
