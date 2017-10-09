@@ -11,6 +11,13 @@ import (
 	"github.com/go-kit/kit/log/level"
 )
 
+const (
+	// logKeyMsg is the human-readable part of the log
+	logKeyMsg = "msg"
+	// logKeyAction is the machine-readable part of the log
+	logKeyAction = "action"
+)
+
 // CommandDescription defines which function should be used and if it should be open to anyone or only logged in users
 type CommandDescription struct {
 	Open bool                 // Open to clients without auth
@@ -116,11 +123,11 @@ func (server *FtpServer) Listen() error {
 	)
 
 	if err != nil {
-		level.Error(server.Logger).Log("msg", "Cannot listen", "err", err)
+		level.Error(server.Logger).Log(logKeyMsg, "Cannot listen", "err", err)
 		return err
 	}
 
-	level.Info(server.Logger).Log("msg", "Listening...", "action", "ftp.listening", "address", server.Listener.Addr())
+	level.Info(server.Logger).Log(logKeyMsg, "Listening...", logKeyAction, "ftp.listening", "address", server.Listener.Addr())
 
 	return err
 }
@@ -131,7 +138,7 @@ func (server *FtpServer) Serve() {
 		connection, err := server.Listener.Accept()
 		if err != nil {
 			if server.Listener != nil {
-				level.Error(server.Logger).Log("msg", "Accept error", "err", err)
+				level.Error(server.Logger).Log(logKeyMsg, "Accept error", "err", err)
 			}
 			break
 		}
@@ -147,7 +154,7 @@ func (server *FtpServer) ListenAndServe() error {
 		return err
 	}
 
-	level.Info(server.Logger).Log("msg", "Starting...", "action", "ftp.starting")
+	level.Info(server.Logger).Log(logKeyMsg, "Starting...", logKeyAction, "ftp.starting")
 
 	server.Serve()
 
@@ -183,7 +190,7 @@ func (server *FtpServer) clientArrival(c *clientHandler) error {
 	server.connectionsByID[c.ID] = c
 	nb := len(server.connectionsByID)
 
-	level.Info(c.logger).Log("msg", "FTP Client connected", "action", "ftp.connected", "clientIp", c.conn.RemoteAddr(), "total", nb)
+	level.Info(c.logger).Log(logKeyMsg, "FTP Client connected", logKeyAction, "ftp.connected", "clientIp", c.conn.RemoteAddr(), "total", nb)
 
 	if nb > server.Settings.MaxConnections {
 		return fmt.Errorf("too many clients %d > %d", nb, server.Settings.MaxConnections)
@@ -199,5 +206,5 @@ func (server *FtpServer) clientDeparture(c *clientHandler) {
 
 	delete(server.connectionsByID, c.ID)
 
-	level.Info(c.logger).Log("msg", "FTP Client disconnected", "action", "ftp.disconnected", "clientIp", c.conn.RemoteAddr(), "total", len(server.connectionsByID))
+	level.Info(c.logger).Log(logKeyMsg, "FTP Client disconnected", logKeyAction, "ftp.disconnected", "clientIp", c.conn.RemoteAddr(), "total", len(server.connectionsByID))
 }

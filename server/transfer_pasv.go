@@ -54,7 +54,7 @@ func (c *clientHandler) handlePASV() {
 	}
 
 	if err != nil {
-		level.Error(c.logger).Log("msg", "Could not listen", "err", err)
+		level.Error(c.logger).Log(logKeyMsg, "Could not listen", "err", err)
 		return
 	}
 

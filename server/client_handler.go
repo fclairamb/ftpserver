@@ -109,7 +109,7 @@ func (c *clientHandler) HandleCommands() {
 	for {
 		if c.reader == nil {
 			if c.debug {
-				level.Debug(c.logger).Log("msg", "Clean disconnect", "action", "ftp.disconnect", "clean", true)
+				level.Debug(c.logger).Log(logKeyMsg, "Clean disconnect", logKeyAction, "ftp.disconnect", "clean", true)
 			}
 			return
 		}
@@ -119,16 +119,16 @@ func (c *clientHandler) HandleCommands() {
 		if err != nil {
 			if err == io.EOF {
 				if c.debug {
-					level.Debug(c.logger).Log("msg", "TCP disconnect", "action", "ftp.disconnect", "clean", false)
+					level.Debug(c.logger).Log(logKeyMsg, "TCP disconnect", logKeyAction, "ftp.disconnect", "clean", false)
 				}
 			} else {
-				level.Error(c.logger).Log("msg", "Read error", "action", "ftp.read_error", "err", err)
+				level.Error(c.logger).Log(logKeyMsg, "Read error", logKeyAction, "ftp.read_error", "err", err)
 			}
 			return
 		}
 
 		if c.debug {
-			level.Debug(c.logger).Log("msg", "FTP RECV", "action", "ftp.cmd_recv", "line", line)
+			level.Debug(c.logger).Log(logKeyMsg, "FTP RECV", logKeyAction, "ftp.cmd_recv", "line", line)
 		}
 
 		c.handleCommand(line)
@@ -163,7 +163,7 @@ func (c *clientHandler) handleCommand(line string) {
 
 func (c *clientHandler) writeLine(line string) {
 	if c.debug {
-		level.Debug(c.logger).Log("msg", "FTP SEND", "action", "ftp.cmd_send", "line", line)
+		level.Debug(c.logger).Log(logKeyMsg, "FTP SEND", logKeyAction, "ftp.cmd_send", "line", line)
 	}
 	c.writer.Write([]byte(line))
 	c.writer.Write([]byte("\r\n"))
@@ -182,7 +182,7 @@ func (c *clientHandler) TransferOpen() (net.Conn, error) {
 	c.writeMessage(150, "Using transfer connection")
 	conn, err := c.transfer.Open()
 	if err == nil && c.debug {
-		level.Debug(c.logger).Log("msg", "FTP Transfer connection opened", "action", "ftp.transfer_open", "remoteAddr", conn.RemoteAddr().String(), "localAddr", conn.LocalAddr().String())
+		level.Debug(c.logger).Log(logKeyMsg, "FTP Transfer connection opened", logKeyAction, "ftp.transfer_open", "remoteAddr", conn.RemoteAddr().String(), "localAddr", conn.LocalAddr().String())
 	}
 	return conn, err
 }
@@ -193,7 +193,7 @@ func (c *clientHandler) TransferClose() {
 		c.transfer.Close()
 		c.transfer = nil
 		if c.debug {
-			level.Debug(c.logger).Log("msg", "FTP Transfer connection closed", "action", "ftp.transfer_close")
+			level.Debug(c.logger).Log(logKeyMsg, "FTP Transfer connection closed", logKeyAction, "ftp.transfer_close")
 		}
 	}
 }
