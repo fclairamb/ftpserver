@@ -18,17 +18,29 @@ var (
 )
 
 func main() {
-	flag.Parse()
-
 	logger := log.With(
 		log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout)),
 		"ts", log.DefaultTimestampUTC,
 		"caller", log.DefaultCaller,
 	)
 
+	driver, err := sample.NewSampleDriver()
+
+	confFile := flag.String("conf", "", "Configuration file")
+	dataDir := flag.String("data", "", "Data directory")
+
+	flag.Parse()
+
+	if *confFile != "" {
+		driver.SettingsFile = *confFile
+	}
+
+	if *dataDir != "" {
+		driver.BaseDir = *dataDir
+	}
+
 	level.Info(logger).Log("msg", "Sample server")
 
-	driver, err := sample.NewSampleDriver()
 	if err != nil {
 		level.Error(logger).Log("msg", "Could not load the driver", "err", err)
 		return

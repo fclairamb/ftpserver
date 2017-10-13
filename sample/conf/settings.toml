@@ -16,5 +16,8 @@
 
 # Data port range from 10000 to 15000
 # [dataPortRange]
-# start = 10000
-# end = 15000
+# start = 2122
+# end = 2200
+[dataPortRange]
+start = 2122
+end = 2200
