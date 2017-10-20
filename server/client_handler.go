@@ -80,6 +80,16 @@ func (c *clientHandler) SetDebug(debug bool) {
 	c.debug = debug
 }
 
+// Conn provides access to the TCP connection
+func (c *clientHandler) Conn() net.Conn {
+	return c.conn
+}
+
+// Logger provides a go-kit logger
+func (c *clientHandler) Logger() log.Logger {
+	return c.logger
+}
+
 func (c *clientHandler) end() {
 	if c.transfer != nil {
 		c.transfer.Close()
