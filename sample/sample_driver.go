@@ -20,26 +20,44 @@ import (
 
 // MainDriver defines a very basic ftpserver driver
 type MainDriver struct {
-	Logger       log.Logger  // Logger (probably shared with other components)
+	Logger       log.Logger  // Logger
 	SettingsFile string      // Settings file
 	BaseDir      string      // Base directory from which to serve file
 	tlsConfig    *tls.Config // TLS config (if applies)
 }
 
-// WelcomeUser is called to send the very first welcome message
-func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
-	cc.SetDebug(true)
-	// This will remain the official name for now
-	return fmt.Sprintf("Welcome on ftpserver, you're on dir %s", driver.BaseDir), nil
+// ClientDriver defines a very basic client driver
+type ClientDriver struct {
+	BaseDir string // Base directory from which to server file
 }
 
-// AuthUser authenticates the user and selects an handling driver
-func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
-	if user == "bad" || pass == "bad" {
-		return nil, errors.New("bad username or password")
+// GetSettings returns some general settings around the server setup
+func (driver *MainDriver) GetSettings() *server.Settings {
+	f, err := os.Open(driver.SettingsFile)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	buf, err := ioutil.ReadAll(f)
+	if err != nil {
+		panic(err)
+	}
+	var config server.Settings
+	if err := toml.Unmarshal(buf, &config); err != nil {
+		panic(err)
 	}
 
-	return driver, nil
+	// This is the new IP loading change coming from Ray
+	if config.PublicHost == "" {
+		level.Debug(driver.Logger).Log("msg", "Fetching our external IP address...")
+		if config.PublicHost, err = externalIP(); err != nil {
+			level.Warn(driver.Logger).Log("msg", "Couldn't fetch an external IP", "err", err)
+		} else {
+			level.Debug(driver.Logger).Log("msg", "Fetched our external IP address", "ipAddress", config.PublicHost)
+		}
+	}
+
+	return &config
 }
 
 // GetTLSConfig returns a TLS Certificate to use
@@ -58,8 +76,29 @@ func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 	return driver.tlsConfig, nil
 }
 
+// WelcomeUser is called to send the very first welcome message
+func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
+	cc.SetDebug(true)
+	// This will remain the official name for now
+	return fmt.Sprintf("Welcome on ftpserver, you're on dir %s", driver.BaseDir), nil
+}
+
+// AuthUser authenticates the user and selects an handling driver
+func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
+	if user == "bad" || pass == "bad" {
+		return nil, errors.New("bad username or password")
+	}
+
+	return &ClientDriver{BaseDir: driver.BaseDir}, nil
+}
+
+// UserLeft is called when the user disconnects, even if he never authenticated
+func (driver *MainDriver) UserLeft(cc server.ClientContext) {
+
+}
+
 // ChangeDirectory changes the current working directory
-func (driver *MainDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
+func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
 	if directory == "/debug" {
 		cc.SetDebug(!cc.Debug())
 		return nil
@@ -71,12 +110,12 @@ func (driver *MainDriver) ChangeDirectory(cc server.ClientContext, directory str
 }
 
 // MakeDirectory creates a directory
-func (driver *MainDriver) MakeDirectory(cc server.ClientContext, directory string) error {
+func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory string) error {
 	return os.Mkdir(driver.BaseDir+directory, 0777)
 }
 
 // ListFiles lists the files of a directory
-func (driver *MainDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
+func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
 
 	if cc.Path() == "/virtual" {
 		files := make([]os.FileInfo, 0)
@@ -111,13 +150,8 @@ func (driver *MainDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, err
 	return files, err
 }
 
-// UserLeft is called when the user disconnects, even if he never authenticated
-func (driver *MainDriver) UserLeft(cc server.ClientContext) {
-
-}
-
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
-func (driver *MainDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
+func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
 
 	if path == "/virtual/localpath.txt" {
 		return &virtualFile{content: []byte(driver.BaseDir)}, nil
@@ -137,66 +171,37 @@ func (driver *MainDriver) OpenFile(cc server.ClientContext, path string, flag in
 }
 
 // GetFileInfo gets some info around a file or a directory
-func (driver *MainDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
+func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
 	path = driver.BaseDir + path
 
 	return os.Stat(path)
 }
 
 // CanAllocate gives the approval to allocate some data
-func (driver *MainDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
+func (driver *ClientDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
 	return true, nil
 }
 
 // ChmodFile changes the attributes of the file
-func (driver *MainDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
+func (driver *ClientDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
 	path = driver.BaseDir + path
 
 	return os.Chmod(path, mode)
 }
 
 // DeleteFile deletes a file or a directory
-func (driver *MainDriver) DeleteFile(cc server.ClientContext, path string) error {
+func (driver *ClientDriver) DeleteFile(cc server.ClientContext, path string) error {
 	path = driver.BaseDir + path
 
 	return os.Remove(path)
 }
 
 // RenameFile renames a file or a directory
-func (driver *MainDriver) RenameFile(cc server.ClientContext, from, to string) error {
+func (driver *ClientDriver) RenameFile(cc server.ClientContext, from, to string) error {
 	from = driver.BaseDir + from
 	to = driver.BaseDir + to
 
 	return os.Rename(from, to)
-}
-
-// GetSettings returns some general settings around the server setup
-func (driver *MainDriver) GetSettings() *server.Settings {
-	f, err := os.Open(driver.SettingsFile)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	buf, err := ioutil.ReadAll(f)
-	if err != nil {
-		panic(err)
-	}
-	var config server.Settings
-	if err := toml.Unmarshal(buf, &config); err != nil {
-		panic(err)
-	}
-
-	// This is the new IP loading change coming from Ray
-	if config.PublicHost == "" {
-		level.Debug(driver.Logger).Log("msg", "Fetching our external IP address...")
-		if config.PublicHost, err = externalIP(); err != nil {
-			level.Warn(driver.Logger).Log("msg", "Couldn't fetch an external IP", "err", err)
-		} else {
-			level.Debug(driver.Logger).Log("msg", "Fetched our external IP address", "ipAddress", config.PublicHost)
-		}
-	}
-
-	return &config
 }
 
 // NewSampleDriver creates a sample driver
