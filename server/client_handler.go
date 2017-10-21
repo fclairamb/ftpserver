@@ -80,7 +80,7 @@ func (c *clientHandler) SetDebug(debug bool) {
 	c.debug = debug
 }
 
-// Conn provides access to the TCP connection's remote address
+// RemoteAddr returns the remote network address.
 func (c *clientHandler) RemoteAddr() net.Addr {
 	return c.conn.RemoteAddr()
 }

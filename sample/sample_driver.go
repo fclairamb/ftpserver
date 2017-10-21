@@ -18,7 +18,7 @@ import (
 	"github.com/naoina/toml"
 )
 
-// MainDriver defines a very basic serverftp driver
+// MainDriver defines a very basic ftpserver driver
 type MainDriver struct {
 	Logger       log.Logger  // Logger (probably shared with other components)
 	SettingsFile string      // Settings file
@@ -200,26 +200,25 @@ func (driver *MainDriver) GetSettings() *server.Settings {
 }
 
 // NewSampleDriver creates a sample driver
-// Note: This is not a mistake. Interface can be pointers. There seems to be a lot of confusion around this in the
-//       server_ftp original code.
-func NewSampleDriver() (*MainDriver, error) {
-	dir, err := ioutil.TempDir("", "ftpserver")
-	if err != nil {
-		return nil, fmt.Errorf("could not find a temporary dir, err: %v", err)
+func NewSampleDriver(dir string, settingsFile string) (*MainDriver, error) {
+	if dir == "" {
+		var err error
+		dir, err = ioutil.TempDir("", "ftpserver")
+		if err != nil {
+			return nil, fmt.Errorf("could not find a temporary dir, err: %v", err)
+		}
 	}
 
-	driver := &MainDriver{
+	drv := &MainDriver{
 		Logger:       log.NewNopLogger(),
-		SettingsFile: "sample/conf/settings.toml",
+		SettingsFile: settingsFile,
 		BaseDir:      dir,
 	}
 
-	// This is also a good time to create our dir
-	os.MkdirAll(driver.BaseDir, 0777)
-
-	return driver, nil
+	return drv, nil
 }
 
+// The virtual file is an example of how you can implement a purely virtual file
 type virtualFile struct {
 	content    []byte // Content of the file
 	readOffset int    // Reading offset
