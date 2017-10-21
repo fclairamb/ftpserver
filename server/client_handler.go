@@ -34,11 +34,7 @@ type clientHandler struct {
 }
 
 // newClientHandler initializes a client handler when someone connects
-func (server *FtpServer) newClientHandler(connection net.Conn) *clientHandler {
-
-	id := server.clientCounter
-
-	server.clientCounter++
+func (server *FtpServer) newClientHandler(connection net.Conn, id uint32) *clientHandler {
 
 	p := &clientHandler{
 		daddy:       server,
@@ -93,6 +89,7 @@ func (c *clientHandler) HandleCommands() {
 
 	if err := c.daddy.clientArrival(c); err != nil {
 		c.writeMessage(500, "Can't accept you - "+err.Error())
+		c.conn.Close()
 		return
 	}
 
