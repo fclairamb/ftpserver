@@ -80,14 +80,9 @@ func (c *clientHandler) SetDebug(debug bool) {
 	c.debug = debug
 }
 
-// Conn provides access to the TCP connection
-func (c *clientHandler) Conn() net.Conn {
-	return c.conn
-}
-
-// Logger provides a go-kit logger
-func (c *clientHandler) Logger() log.Logger {
-	return c.logger
+// Conn provides access to the TCP connection's remote address
+func (c *clientHandler) RemoteAddr() net.Addr {
+	return c.conn.RemoteAddr()
 }
 
 func (c *clientHandler) end() {
@@ -108,7 +103,6 @@ func (c *clientHandler) HandleCommands() {
 
 	defer c.daddy.driver.UserLeft(c)
 
-	//fmt.Println(c.id, " Got client on: ", c.ip)
 	if msg, err := c.daddy.driver.WelcomeUser(c); err == nil {
 		c.writeMessage(220, msg)
 	} else {

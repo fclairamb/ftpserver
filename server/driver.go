@@ -5,8 +5,6 @@ import (
 	"io"
 	"net"
 	"os"
-
-	"github.com/go-kit/kit/log"
 )
 
 // This file is the driver part of the server. It must be implemented by anyone wanting to use the server.
@@ -71,11 +69,8 @@ type ClientContext interface {
 	// Debug returns the current debugging status of this connection commands
 	Debug() bool
 
-	// TCP Connection
-	Conn() net.Conn
-
-	// Logger
-	Logger() log.Logger
+	// Client's address
+	RemoteAddr() net.Addr
 }
 
 // FileStream is a read or write closeable stream
