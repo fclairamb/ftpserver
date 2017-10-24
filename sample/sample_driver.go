@@ -80,7 +80,7 @@ func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 	cc.SetDebug(true)
 	// This will remain the official name for now
-	return fmt.Sprintf("Welcome on ftpserver, you're on dir %s", driver.BaseDir), nil
+	return fmt.Sprintf("Welcome on ftpserver, you're on dir %s, your ID is %d, your IP:port is %s", driver.BaseDir, cc.ID(), cc.RemoteAddr()), nil
 }
 
 // AuthUser authenticates the user and selects an handling driver
