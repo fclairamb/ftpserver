@@ -187,7 +187,7 @@ func (server *FtpServer) clientArrival(c *clientHandler) error {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 
-	server.connectionsByID[c.ID] = c
+	server.connectionsByID[c.id] = c
 	nb := len(server.connectionsByID)
 
 	level.Info(c.logger).Log(logKeyMsg, "FTP Client connected", logKeyAction, "ftp.connected", "clientIp", c.conn.RemoteAddr(), "total", nb)
@@ -204,7 +204,7 @@ func (server *FtpServer) clientDeparture(c *clientHandler) {
 	server.connectionsMutex.Lock()
 	defer server.connectionsMutex.Unlock()
 
-	delete(server.connectionsByID, c.ID)
+	delete(server.connectionsByID, c.id)
 
 	level.Info(c.logger).Log(logKeyMsg, "FTP Client disconnected", logKeyAction, "ftp.disconnected", "clientIp", c.conn.RemoteAddr(), "total", len(server.connectionsByID))
 }
