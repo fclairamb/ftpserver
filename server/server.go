@@ -4,8 +4,9 @@ package server
 import (
 	"fmt"
 	"net"
-	"sync"
 	"time"
+
+	"sync/atomic"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -83,14 +84,13 @@ func init() {
 // FtpServer is where everything is stored
 // We want to keep it as simple as possible
 type FtpServer struct {
-	Logger           log.Logger                // Go-Kit logger
-	Settings         *Settings                 // General settings
-	Listener         net.Listener              // Listener used to receive files
-	StartTime        time.Time                 // Time when the server was started
-	connectionsByID  map[uint32]*clientHandler // Connections map
-	connectionsMutex sync.RWMutex              // Connections map sync
-	clientCounter    uint32                    // Clients counter
-	driver           MainDriver                // Driver to handle the client authentication and the file access driver selection
+	Logger        log.Logger   // Go-Kit logger
+	Settings      *Settings    // General settings
+	Listener      net.Listener // Listener used to receive files
+	StartTime     time.Time    // Time when the server was started
+	clientCounter uint32       // Clients counter
+	clientsNb     int32        // Clients number
+	driver        MainDriver   // Driver to handle the client authentication and the file access driver selection
 }
 
 func (server *FtpServer) loadSettings() {
@@ -144,8 +144,7 @@ func (server *FtpServer) Serve() {
 			break
 		}
 
-		c := server.newClientHandler(connection)
-		go c.HandleCommands()
+		server.receiveConnection(connection)
 	}
 }
 
@@ -167,10 +166,9 @@ func (server *FtpServer) ListenAndServe() error {
 // NewFtpServer creates a new FtpServer instance
 func NewFtpServer(driver MainDriver) *FtpServer {
 	return &FtpServer{
-		driver:          driver,
-		StartTime:       time.Now().UTC(), // Might make sense to put it in Start method
-		connectionsByID: make(map[uint32]*clientHandler),
-		Logger:          log.NewNopLogger(),
+		driver:    driver,
+		StartTime: time.Now().UTC(), // Might make sense to put it in Start method
+		Logger:    log.NewNopLogger(),
 	}
 }
 
@@ -184,28 +182,29 @@ func (server *FtpServer) Stop() {
 }
 
 // When a client connects, the server could refuse the connection
-func (server *FtpServer) clientArrival(c *clientHandler) error {
-	server.connectionsMutex.Lock()
-	defer server.connectionsMutex.Unlock()
+func (server *FtpServer) receiveConnection(conn net.Conn) error {
+	nb := int(atomic.AddInt32(&server.clientsNb, 1))
+	id := atomic.AddUint32(&server.clientCounter, 1)
 
-	server.connectionsByID[c.ID] = c
-	nb := len(server.connectionsByID)
+	c := server.newClientHandler(conn, id)
+	go c.HandleCommands()
 
 	level.Info(c.logger).Log(logKeyMsg, "FTP Client connected", logKeyAction, "ftp.connected", "clientIp", c.conn.RemoteAddr(), "total", nb)
 
-	if nb > server.Settings.MaxConnections {
-		return fmt.Errorf("too many clients %d > %d", nb, server.Settings.MaxConnections)
+	return nil
+}
+
+// clientArrival does last minute checks after the client has arrived
+func (server *FtpServer) clientArrival(c *clientHandler) error {
+	if int(server.clientsNb) > server.Settings.MaxConnections {
+		return fmt.Errorf("too many clients %d > %d", server.clientsNb, server.Settings.MaxConnections)
 	}
 
 	return nil
 }
 
-// When a client leaves
+// clientDeparture
 func (server *FtpServer) clientDeparture(c *clientHandler) {
-	server.connectionsMutex.Lock()
-	defer server.connectionsMutex.Unlock()
-
-	delete(server.connectionsByID, c.ID)
-
-	level.Info(c.logger).Log(logKeyMsg, "FTP Client disconnected", logKeyAction, "ftp.disconnected", "clientIp", c.conn.RemoteAddr(), "total", len(server.connectionsByID))
+	nb := int(atomic.AddInt32(&server.clientsNb, -1))
+	level.Info(c.logger).Log(logKeyMsg, "FTP Client disconnected", logKeyAction, "ftp.disconnected", "clientIp", c.conn.RemoteAddr(), "total", nb)
 }
