@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-version=$(go version|grep -Eo go[0-9\.]+)
+version=$(go version|grep -Eo go[0-9]\.[0-9])
 
 if [ "$version" != "go1.9" ]; then
     echo "Docker images are only generated for Go 1.9 and you have ${version}."
@@ -68,4 +68,5 @@ fi
 # Check the file listing is working fine
 curl -s ftp://test:test@localhost:2121/
 
-docker push ${DOCKER_REPO}
+# florent(2017-10-27): Docker hub is becoming dirty. Let's only keep the branches and tags
+docker push ${DOCKER_REPO}:${DOCKER_TAG}
