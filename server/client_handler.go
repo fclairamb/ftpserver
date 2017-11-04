@@ -14,7 +14,7 @@ import (
 )
 
 type clientHandler struct {
-	ID          uint32               // ID of the client
+	id          uint32               // ID of the client
 	daddy       *FtpServer           // Server on which the connection was accepted
 	driver      ClientHandlingDriver // Client handling driver
 	conn        net.Conn             // TCP connection
@@ -39,7 +39,7 @@ func (server *FtpServer) newClientHandler(connection net.Conn, id uint32) *clien
 	p := &clientHandler{
 		daddy:       server,
 		conn:        connection,
-		ID:          id,
+		id:          id,
 		writer:      bufio.NewWriter(connection),
 		reader:      bufio.NewReader(connection),
 		connectedAt: time.Now().UTC(),
@@ -76,6 +76,16 @@ func (c *clientHandler) SetDebug(debug bool) {
 	c.debug = debug
 }
 
+// ID provides the client's ID
+func (c *clientHandler) ID() uint32 {
+	return c.id
+}
+
+// RemoteAddr returns the remote network address.
+func (c *clientHandler) RemoteAddr() net.Addr {
+	return c.conn.RemoteAddr()
+}
+
 func (c *clientHandler) end() {
 	if c.transfer != nil {
 		c.transfer.Close()
@@ -95,7 +105,6 @@ func (c *clientHandler) HandleCommands() {
 
 	defer c.daddy.driver.UserLeft(c)
 
-	//fmt.Println(c.id, " Got client on: ", c.ip)
 	if msg, err := c.daddy.driver.WelcomeUser(c); err == nil {
 		c.writeMessage(220, msg)
 	} else {
