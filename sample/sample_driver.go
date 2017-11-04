@@ -24,6 +24,7 @@ type MainDriver struct {
 	SettingsFile string      // Settings file
 	BaseDir      string      // Base directory from which to serve file
 	tlsConfig    *tls.Config // TLS config (if applies)
+	config       OurSettings // Our settings
 }
 
 // ClientDriver defines a very basic client driver
@@ -31,8 +32,21 @@ type ClientDriver struct {
 	BaseDir string // Base directory from which to server file
 }
 
+// Account defines a user/pass password
+type Account struct {
+	User string // Username
+	Pass string // Password
+	Dir  string // Directory
+}
+
+// OurSettings defines our settings
+type OurSettings struct {
+	Server server.Settings // Server settings (shouldn't need to be filled)
+	Users  []Account       // Credentials
+}
+
 // GetSettings returns some general settings around the server setup
-func (driver *MainDriver) GetSettings() *server.Settings {
+func (driver *MainDriver) GetSettings() (*server.Settings, error) {
 	f, err := os.Open(driver.SettingsFile)
 	if err != nil {
 		panic(err)
@@ -42,22 +56,26 @@ func (driver *MainDriver) GetSettings() *server.Settings {
 	if err != nil {
 		panic(err)
 	}
-	var config server.Settings
-	if err := toml.Unmarshal(buf, &config); err != nil {
-		panic(err)
+	//var config OurSettings
+	if err := toml.Unmarshal(buf, &driver.config); err != nil {
+		return nil, fmt.Errorf("problem loading \"%s\": %v", driver.SettingsFile, err)
 	}
 
 	// This is the new IP loading change coming from Ray
-	if config.PublicHost == "" {
+	if driver.config.Server.PublicHost == "" {
 		level.Debug(driver.Logger).Log("msg", "Fetching our external IP address...")
-		if config.PublicHost, err = externalIP(); err != nil {
+		if driver.config.Server.PublicHost, err = externalIP(); err != nil {
 			level.Warn(driver.Logger).Log("msg", "Couldn't fetch an external IP", "err", err)
 		} else {
-			level.Debug(driver.Logger).Log("msg", "Fetched our external IP address", "ipAddress", config.PublicHost)
+			level.Debug(driver.Logger).Log("msg", "Fetched our external IP address", "ipAddress", driver.config.Server.PublicHost)
 		}
 	}
 
-	return &config
+	if len(driver.config.Users) == 0 {
+		return nil, errors.New("you must have at least one user defined")
+	}
+
+	return &driver.config.Server, nil
 }
 
 // GetTLSConfig returns a TLS Certificate to use
@@ -85,11 +103,17 @@ func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 
 // AuthUser authenticates the user and selects an handling driver
 func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
-	if user == "bad" || pass == "bad" {
-		return nil, errors.New("bad username or password")
+
+	for _, act := range driver.config.Users {
+		if act.User == user && act.Pass == pass {
+			// If we are authenticated, we can return a client driver containing *our* basedir
+			baseDir := driver.BaseDir + string(os.PathSeparator) + act.Dir
+			os.MkdirAll(baseDir, 0777)
+			return &ClientDriver{BaseDir: baseDir}, nil
+		}
 	}
 
-	return &ClientDriver{BaseDir: driver.BaseDir}, nil
+	return nil, fmt.Errorf("could not authenticate you")
 }
 
 // UserLeft is called when the user disconnects, even if he never authenticated

@@ -4,9 +4,8 @@ package server
 import (
 	"fmt"
 	"net"
-	"time"
-
 	"sync/atomic"
+	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -92,8 +91,13 @@ type FtpServer struct {
 	driver        MainDriver   // Driver to handle the client authentication and the file access driver selection
 }
 
-func (server *FtpServer) loadSettings() {
-	s := server.driver.GetSettings()
+func (server *FtpServer) loadSettings() error {
+	s, err := server.driver.GetSettings()
+
+	if err != nil {
+		return err
+	}
+
 	if s.ListenHost == "" {
 		s.ListenHost = "0.0.0.0"
 	}
@@ -109,13 +113,18 @@ func (server *FtpServer) loadSettings() {
 		s.MaxConnections = 10000
 	}
 	server.Settings = s
+
+	return nil
 }
 
 // Listen starts the listening
 // It's not a blocking call
 func (server *FtpServer) Listen() error {
-	server.loadSettings()
-	var err error
+	err := server.loadSettings()
+
+	if err != nil {
+		return fmt.Errorf("could not load settings: %v", err)
+	}
 
 	server.Listener, err = net.Listen(
 		"tcp",
