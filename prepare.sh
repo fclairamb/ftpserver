@@ -10,4 +10,4 @@ goimports -l -w .
 go vet
 golint ./...
 gocyclo -over 15 .
-go test ./tests
+go test -race ./tests

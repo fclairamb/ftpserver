@@ -12,7 +12,7 @@ script:
 - ./.check-fmt.sh
 - gocyclo -over 15 .
 - goimports -l -e .
-- go test -v ./...
+- go test -race -v ./...
 - go build -v
 - ./.docker-create-upload.sh
 deploy:
