@@ -12,7 +12,7 @@ import (
 // MainDriver handles the authentication and ClientHandlingDriver selection
 type MainDriver interface {
 	// GetSettings returns some general settings around the server setup
-	GetSettings() *Settings
+	GetSettings() (*Settings, error)
 
 	// WelcomeUser is called to send the very first welcome message
 	WelcomeUser(cc ClientContext) (string, error)
