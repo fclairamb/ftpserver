@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"sync/atomic"
-	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -83,9 +82,8 @@ func init() {
 // We want to keep it as simple as possible
 type FtpServer struct {
 	Logger        log.Logger   // Go-Kit logger
-	Settings      *Settings    // General settings
-	Listener      net.Listener // Listener used to receive files
-	StartTime     time.Time    // Time when the server was started
+	settings      *Settings    // General settings
+	listener      net.Listener // listener used to receive files
 	clientCounter uint32       // Clients counter
 	clientsNb     int32        // Clients number
 	driver        MainDriver   // Driver to handle the client authentication and the file access driver selection
@@ -98,21 +96,15 @@ func (server *FtpServer) loadSettings() error {
 		return err
 	}
 
-	if s.ListenHost == "" {
-		s.ListenHost = "0.0.0.0"
+	if s.ListenAddr == "" {
+		s.ListenAddr = "0.0.0.0:2121"
 	}
 
-	if s.ListenPort == 0 { // For the default value (0)
-		// We take the default port (2121)
-		s.ListenPort = 2121
-	} else if s.ListenPort == -1 { // For the automatic value
-		// We let the system decide (0)
-		s.ListenPort = 0
-	}
 	if s.MaxConnections == 0 {
 		s.MaxConnections = 10000
 	}
-	server.Settings = s
+
+	server.settings = s
 
 	return nil
 }
@@ -126,9 +118,9 @@ func (server *FtpServer) Listen() error {
 		return fmt.Errorf("could not load settings: %v", err)
 	}
 
-	server.Listener, err = net.Listen(
+	server.listener, err = net.Listen(
 		"tcp",
-		fmt.Sprintf("%s:%d", server.Settings.ListenHost, server.Settings.ListenPort),
+		server.settings.ListenAddr,
 	)
 
 	if err != nil {
@@ -136,7 +128,7 @@ func (server *FtpServer) Listen() error {
 		return err
 	}
 
-	level.Info(server.Logger).Log(logKeyMsg, "Listening...", logKeyAction, "ftp.listening", "address", server.Listener.Addr())
+	level.Info(server.Logger).Log(logKeyMsg, "Listening...", logKeyAction, "ftp.listening", "address", server.listener.Addr())
 
 	return err
 }
@@ -144,9 +136,9 @@ func (server *FtpServer) Listen() error {
 // Serve accepts and process any new client coming
 func (server *FtpServer) Serve() {
 	for {
-		connection, err := server.Listener.Accept()
+		connection, err := server.listener.Accept()
 		if err != nil {
-			if server.Listener != nil {
+			if server.listener != nil {
 				level.Error(server.Logger).Log(logKeyMsg, "Accept error", "err", err)
 			}
 			break
@@ -174,16 +166,23 @@ func (server *FtpServer) ListenAndServe() error {
 // NewFtpServer creates a new FtpServer instance
 func NewFtpServer(driver MainDriver) *FtpServer {
 	return &FtpServer{
-		driver:    driver,
-		StartTime: time.Now().UTC(), // Might make sense to put it in Start method
-		Logger:    log.NewNopLogger(),
+		driver: driver,
+		Logger: log.NewNopLogger(),
 	}
+}
+
+// Addr shows the listening address
+func (server *FtpServer) Addr() string {
+	if server.listener != nil {
+		return server.listener.Addr().String()
+	}
+	return ""
 }
 
 // Stop closes the listener
 func (server *FtpServer) Stop() {
-	if server.Listener != nil {
-		server.Listener.Close()
+	if server.listener != nil {
+		server.listener.Close()
 	}
 }
 
@@ -202,8 +201,8 @@ func (server *FtpServer) receiveConnection(conn net.Conn) error {
 
 // clientArrival does last minute checks after the client has arrived
 func (server *FtpServer) clientArrival(c *clientHandler) error {
-	if int(atomic.LoadInt32(&server.clientsNb)) > server.Settings.MaxConnections {
-		return fmt.Errorf("too many clients %d > %d", server.clientsNb, server.Settings.MaxConnections)
+	if int(atomic.LoadInt32(&server.clientsNb)) > server.settings.MaxConnections {
+		return fmt.Errorf("too many clients %d > %d", server.clientsNb, server.settings.MaxConnections)
 	}
 
 	return nil
