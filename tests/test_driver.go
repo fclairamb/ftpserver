@@ -63,8 +63,8 @@ func (driver *ServerDriver) UserLeft(cc server.ClientContext) {
 }
 
 // GetSettings fetches the basic server settings
-func (driver *ServerDriver) GetSettings() *server.Settings {
-	return &server.Settings{ListenHost: "127.0.0.1", ListenPort: -1, DisableMLSD: driver.DisableMLSD}
+func (driver *ServerDriver) GetSettings() (*server.Settings, error) {
+	return &server.Settings{ListenHost: "127.0.0.1", ListenPort: -1, DisableMLSD: driver.DisableMLSD}, nil
 }
 
 // GetTLSConfig fetches the TLS config
