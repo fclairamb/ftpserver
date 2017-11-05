@@ -183,9 +183,7 @@ func NewFtpServer(driver MainDriver) *FtpServer {
 // Stop closes the listener
 func (server *FtpServer) Stop() {
 	if server.Listener != nil {
-		l := server.Listener
-		server.Listener = nil
-		l.Close()
+		server.Listener.Close()
 	}
 }
 
@@ -204,7 +202,7 @@ func (server *FtpServer) receiveConnection(conn net.Conn) error {
 
 // clientArrival does last minute checks after the client has arrived
 func (server *FtpServer) clientArrival(c *clientHandler) error {
-	if int(server.clientsNb) > server.Settings.MaxConnections {
+	if int(atomic.LoadInt32(&server.clientsNb)) > server.Settings.MaxConnections {
 		return fmt.Errorf("too many clients %d > %d", server.clientsNb, server.Settings.MaxConnections)
 	}
 
