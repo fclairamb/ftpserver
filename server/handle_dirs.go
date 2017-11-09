@@ -91,7 +91,7 @@ func (c *clientHandler) handleLIST() {
 }
 
 func (c *clientHandler) handleMLSD() {
-	if c.daddy.Settings.DisableMLSD {
+	if c.daddy.settings.DisableMLSD {
 		c.writeMessage(500, "MLSD has been disabled")
 		return
 	}

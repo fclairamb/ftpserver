@@ -21,7 +21,7 @@ func TestConcurrency(t *testing.T) {
 			var err error
 			var ftp *goftp.FTP
 
-			if ftp, err = goftp.Connect(s.Listener.Addr().String()); err != nil {
+			if ftp, err = goftp.Connect(s.Addr()); err != nil {
 				panic(err)
 			}
 			defer ftp.Close()

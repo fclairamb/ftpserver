@@ -98,8 +98,7 @@ func ftpDelete(t *testing.T, ftp *goftp.Client, filename string) {
 
 // TestTransfer validates the upload of file in both active and passive mode
 func TestTransfer(t *testing.T) {
-	s := NewTestServer(true)
-	s.Settings.NonStandardActiveDataPort = true
+	s := NewTestServerWithDriver(&ServerDriver{Debug: true, Settings: &server.Settings{NonStandardActiveDataPort: true}})
 	defer s.Stop()
 
 	testTransferOnConnection(t, s, false)
@@ -116,7 +115,7 @@ func testTransferOnConnection(t *testing.T, server *server.FtpServer, active boo
 	var err error
 	var c *goftp.Client
 
-	if c, err = goftp.DialConfig(conf, server.Listener.Addr().String()); err != nil {
+	if c, err = goftp.DialConfig(conf, server.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
 	defer c.Close()
@@ -152,7 +151,7 @@ func TestFailedTransfer(t *testing.T) {
 	var err error
 	var c *goftp.Client
 
-	if c, err = goftp.DialConfig(conf, s.Listener.Addr().String()); err != nil {
+	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
 	defer c.Close()
