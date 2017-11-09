@@ -59,8 +59,8 @@ func (c *clientHandler) handleSTATServer() {
 	duration := time.Now().UTC().Sub(c.connectedAt)
 	duration -= duration % time.Second
 	c.writeLine(fmt.Sprintf(
-		"Connected to %s:%d from %s for %s",
-		c.daddy.Settings.ListenHost, c.daddy.Settings.ListenPort,
+		"Connected to %s from %s for %s",
+		c.daddy.settings.ListenAddr,
 		c.conn.RemoteAddr(),
 		duration,
 	))
@@ -97,7 +97,7 @@ func (c *clientHandler) handleFEAT() {
 		"REST STREAM",
 	}
 
-	if !c.daddy.Settings.DisableMLSD {
+	if !c.daddy.settings.DisableMLSD {
 		features = append(features, "MLSD")
 	}
 
