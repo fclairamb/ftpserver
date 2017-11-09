@@ -10,8 +10,6 @@ fi
 GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -installsuffix cgo
 # GOOS=linux GOARCH=arm CGO_ENABLED=0 go build -a -installsuffix cgo
 
-docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
-
 echo "Docker repo: ${DOCKER_REPO}:${TRAVIS_COMMIT}"
 
 DOCKER_NAME=${DOCKER_REPO}:${TRAVIS_COMMIT}
@@ -67,6 +65,14 @@ fi
 
 # Check the file listing is working fine
 curl -s ftp://test:test@localhost:2121/
+
+if [[ "${DOCKER_PASSWORD}" = "" ]]; then
+    echo "Probably a PR"
+    exit 0
+fi
+
+# florent(2017-10-27): Issue 47: Pull requests should pass tests
+docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
 
 # florent(2017-10-27): Docker hub is becoming dirty. Let's only keep the branches and tags
 docker push ${DOCKER_REPO}:${DOCKER_TAG}
