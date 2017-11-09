@@ -111,6 +111,12 @@ type ClientContext interface {
 
 	// Debug returns the current debugging status of this connection commands
 	Debug() bool
+	
+	// Client's ID on the server
+	ID() uint32
+
+	// Client's address
+	RemoteAddr() net.Addr
 }
 
 // FileStream is a read or write closeable stream
