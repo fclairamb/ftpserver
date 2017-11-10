@@ -101,7 +101,7 @@ func (c *clientHandler) handleFEAT() {
 		features = append(features, "MLSD")
 	}
 
-	if !c.daddy.Settings.DisableMLST {
+	if !c.daddy.settings.DisableMLST {
 		features = append(features, "MLST")
 	}
 
