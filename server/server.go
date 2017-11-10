@@ -4,10 +4,17 @@ package server
 import (
 	"fmt"
 	"net"
-	"sync"
-	"time"
+	"sync/atomic"
 
-	"gopkg.in/inconshreveable/log15.v2"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
+)
+
+const (
+	// logKeyMsg is the human-readable part of the log
+	logKeyMsg = "msg"
+	// logKeyAction is the machine-readable part of the log
+	logKeyAction = "action"
 )
 
 // CommandDescription defines which function should be used and if it should be open to anyone or only logged in users
@@ -75,51 +82,54 @@ func init() {
 // FtpServer is where everything is stored
 // We want to keep it as simple as possible
 type FtpServer struct {
-	Settings         *Settings                 // General settings
-	Listener         net.Listener              // Listener used to receive files
-	StartTime        time.Time                 // Time when the server was started
-	connectionsByID  map[uint32]*clientHandler // Connections map
-	connectionsMutex sync.RWMutex              // Connections map sync
-	clientCounter    uint32                    // Clients counter
-	driver           MainDriver                // Driver to handle the client authentication and the file access driver selection
+	Logger        log.Logger   // Go-Kit logger
+	settings      *Settings    // General settings
+	listener      net.Listener // listener used to receive files
+	clientCounter uint32       // Clients counter
+	clientsNb     int32        // Clients number
+	driver        MainDriver   // Driver to handle the client authentication and the file access driver selection
 }
 
-func (server *FtpServer) loadSettings() {
-	s := server.driver.GetSettings()
-	if s.ListenHost == "" {
-		s.ListenHost = "0.0.0.0"
+func (server *FtpServer) loadSettings() error {
+	s, err := server.driver.GetSettings()
+
+	if err != nil {
+		return err
 	}
 
-	if s.ListenPort == 0 { // For the default value (0)
-		// We take the default port (2121)
-		s.ListenPort = 2121
-	} else if s.ListenPort == -1 { // For the automatic value
-		// We let the system decide (0)
-		s.ListenPort = 0
+	if s.ListenAddr == "" {
+		s.ListenAddr = "0.0.0.0:2121"
 	}
+
 	if s.MaxConnections == 0 {
 		s.MaxConnections = 10000
 	}
-	server.Settings = s
+
+	server.settings = s
+
+	return nil
 }
 
 // Listen starts the listening
 // It's not a blocking call
 func (server *FtpServer) Listen() error {
-	server.loadSettings()
-	var err error
+	err := server.loadSettings()
 
-	server.Listener, err = net.Listen(
+	if err != nil {
+		return fmt.Errorf("could not load settings: %v", err)
+	}
+
+	server.listener, err = net.Listen(
 		"tcp",
-		fmt.Sprintf("%s:%d", server.Settings.ListenHost, server.Settings.ListenPort),
+		server.settings.ListenAddr,
 	)
 
 	if err != nil {
-		log15.Error("Cannot listen", "err", err)
+		level.Error(server.Logger).Log(logKeyMsg, "Cannot listen", "err", err)
 		return err
 	}
 
-	log15.Info("Listening...", "address", server.Listener.Addr())
+	level.Info(server.Logger).Log(logKeyMsg, "Listening...", logKeyAction, "ftp.listening", "address", server.listener.Addr())
 
 	return err
 }
@@ -127,16 +137,15 @@ func (server *FtpServer) Listen() error {
 // Serve accepts and process any new client coming
 func (server *FtpServer) Serve() {
 	for {
-		connection, err := server.Listener.Accept()
+		connection, err := server.listener.Accept()
 		if err != nil {
-			if server.Listener != nil {
-				log15.Error("Accept error", "err", err)
+			if server.listener != nil {
+				level.Error(server.Logger).Log(logKeyMsg, "Accept error", "err", err)
 			}
 			break
 		}
 
-		c := server.newClientHandler(connection)
-		go c.HandleCommands()
+		server.receiveConnection(connection)
 	}
 }
 
@@ -146,7 +155,7 @@ func (server *FtpServer) ListenAndServe() error {
 		return err
 	}
 
-	log15.Info("Starting...")
+	level.Info(server.Logger).Log(logKeyMsg, "Starting...", logKeyAction, "ftp.starting")
 
 	server.Serve()
 
@@ -158,44 +167,50 @@ func (server *FtpServer) ListenAndServe() error {
 // NewFtpServer creates a new FtpServer instance
 func NewFtpServer(driver MainDriver) *FtpServer {
 	return &FtpServer{
-		driver:          driver,
-		StartTime:       time.Now().UTC(), // Might make sense to put it in Start method
-		connectionsByID: make(map[uint32]*clientHandler),
+		driver: driver,
+		Logger: log.NewNopLogger(),
 	}
+}
+
+// Addr shows the listening address
+func (server *FtpServer) Addr() string {
+	if server.listener != nil {
+		return server.listener.Addr().String()
+	}
+	return ""
 }
 
 // Stop closes the listener
 func (server *FtpServer) Stop() {
-	if server.Listener != nil {
-		l := server.Listener
-		server.Listener = nil
-		l.Close()
+	if server.listener != nil {
+		server.listener.Close()
 	}
 }
 
 // When a client connects, the server could refuse the connection
+func (server *FtpServer) receiveConnection(conn net.Conn) error {
+	nb := int(atomic.AddInt32(&server.clientsNb, 1))
+	id := atomic.AddUint32(&server.clientCounter, 1)
+
+	c := server.newClientHandler(conn, id)
+	go c.HandleCommands()
+
+	level.Info(c.logger).Log(logKeyMsg, "FTP Client connected", logKeyAction, "ftp.connected", "clientIp", c.conn.RemoteAddr(), "total", nb)
+
+	return nil
+}
+
+// clientArrival does last minute checks after the client has arrived
 func (server *FtpServer) clientArrival(c *clientHandler) error {
-	server.connectionsMutex.Lock()
-	defer server.connectionsMutex.Unlock()
-
-	server.connectionsByID[c.ID] = c
-	nb := len(server.connectionsByID)
-
-	log15.Info("FTP Client connected", "action", "ftp.connected", "id", c.ID, "src", c.conn.RemoteAddr(), "total", nb)
-
-	if nb > server.Settings.MaxConnections {
-		return fmt.Errorf("Too many clients %d > %d", nb, server.Settings.MaxConnections)
+	if int(atomic.LoadInt32(&server.clientsNb)) > server.settings.MaxConnections {
+		return fmt.Errorf("too many clients %d > %d", server.clientsNb, server.settings.MaxConnections)
 	}
 
 	return nil
 }
 
-// When a client leaves
+// clientDeparture
 func (server *FtpServer) clientDeparture(c *clientHandler) {
-	server.connectionsMutex.Lock()
-	defer server.connectionsMutex.Unlock()
-
-	delete(server.connectionsByID, c.ID)
-
-	log15.Info("FTP Client disconnected", "action", "ftp.disconnected", "id", c.ID, "src", c.conn.RemoteAddr(), "total", len(server.connectionsByID))
+	nb := int(atomic.AddInt32(&server.clientsNb, -1))
+	level.Info(c.logger).Log(logKeyMsg, "FTP Client disconnected", logKeyAction, "ftp.disconnected", "clientIp", c.conn.RemoteAddr(), "total", nb)
 }

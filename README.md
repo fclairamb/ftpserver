@@ -22,7 +22,7 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
  * Passive socket connections (EPSV and PASV commands)
  * Active socket connections (PORT command)
  * Small memory footprint
- * Only relies on the standard library except for logging which uses [log15](https://github.com/inconshreveable/log15) ([which could change](https://github.com/fclairamb/ftpserver/issues/7)).
+ * Only relies on the standard library except for logging which uses [go-kit log](https://github.com/go-kit/kit/tree/master/log).
  * Supported extensions:
    * [MDTM](https://tools.ietf.org/html/rfc3659#page-8) - File Modification Time
    * [MLST](https://tools.ietf.org/html/rfc3659#page-23) - Directory listing for maching processing
@@ -30,6 +30,26 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
    * [SIZE](https://tools.ietf.org/html/rfc3659#page-11) - Size of a string
    * [AUTH](https://tools.ietf.org/html/rfc2228#page-6) - Control session protection
    * [PROT](https://tools.ietf.org/html/rfc2228#page-8) - Transfer protection
+
+## Quick test with docker
+
+A demo server is shipped so that you can fully understand how you can use it, you can test it with the following
+container (less than 15MB image, based on alpine):
+
+```
+# Creating a storage dir
+mkdir data
+
+# Starting the sample FTP server
+docker run -d -p 2121-2200:2121-2200 -v $(pwd)/data:/data fclairamb/ftpserver:travis-171
+
+# Connecting to it and uploading a file
+ftp ftp://test:test@localhost:2121
+!wget -c -O ftpserver-v0.3 https://github.com/fclairamb/ftpserver/releases/download/v0.3/ftpserver
+put ftpserver-v0.3 ftpserver-v0.3
+quit
+ls -lh data/ftpserver-v0.3
+```
 
 ## The driver
 
@@ -91,6 +111,12 @@ type ClientContext interface {
 
 	// Debug returns the current debugging status of this connection commands
 	Debug() bool
+	
+	// Client's ID on the server
+	ID() uint32
+
+	// Client's address
+	RemoteAddr() net.Addr
 }
 
 // FileStream is a read or write closeable stream

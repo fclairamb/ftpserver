@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/inconshreveable/log15.v2"
+	"github.com/go-kit/kit/log/level"
 )
 
 // Active/Passive transfer connection handler
@@ -33,7 +33,7 @@ func (c *clientHandler) handlePASV() {
 	var tcpListener *net.TCPListener
 	var err error
 
-	portRange := c.daddy.Settings.DataPortRange
+	portRange := c.daddy.settings.DataPortRange
 
 	if portRange != nil {
 		for start := portRange.Start; start < portRange.End; start++ {
@@ -54,7 +54,7 @@ func (c *clientHandler) handlePASV() {
 	}
 
 	if err != nil {
-		log15.Error("Could not listen", "err", err)
+		level.Error(c.logger).Log(logKeyMsg, "Could not listen", "err", err)
 		return
 	}
 
@@ -82,7 +82,7 @@ func (c *clientHandler) handlePASV() {
 		p1 := p.Port / 256
 		p2 := p.Port - (p1 * 256)
 		// Provide our external IP address so the ftp client can connect back to us
-		ip := c.daddy.Settings.PublicHost
+		ip := c.daddy.settings.PublicHost
 
 		// If we don't have an IP address, we can take the one that was used for the current connection
 		if ip == "" {

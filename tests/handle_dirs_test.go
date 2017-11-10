@@ -4,18 +4,19 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/fclairamb/ftpserver/server"
 	"gopkg.in/dutchcoders/goftp.v1"
 )
 
 // TestDirAccess relies on LIST of files listing
 func TestDirListing(t *testing.T) {
-	s := NewTestServerWithDriver(&ServerDriver{Debug: true, DisableMLSD: true})
+	s := NewTestServerWithDriver(&ServerDriver{Debug: true, Settings: &server.Settings{DisableMLSD: true}})
 	defer s.Stop()
 
 	var connErr error
 	var ftp *goftp.FTP
 
-	if ftp, connErr = goftp.Connect(s.Listener.Addr().String()); connErr != nil {
+	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
 		t.Fatal("Couldn't connect", connErr)
 	}
 	defer ftp.Quit()
@@ -61,7 +62,7 @@ func TestDirHandling(t *testing.T) {
 	var connErr error
 	var ftp *goftp.FTP
 
-	if ftp, connErr = goftp.Connect(s.Listener.Addr().String()); connErr != nil {
+	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
 		t.Fatal("Couldn't connect", connErr)
 	}
 	defer ftp.Quit()
@@ -106,7 +107,7 @@ func TestDirListingWithSpace(t *testing.T) {
 	var ftp *goftp.FTP
 	const debug = true
 
-	if ftp, connErr = goftp.Connect(s.Listener.Addr().String()); connErr != nil {
+	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
 		t.Fatal("Couldn't connect", connErr)
 	}
 	defer ftp.Quit()

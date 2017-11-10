@@ -13,7 +13,7 @@ func TestLoginSuccess(t *testing.T) {
 	var err error
 	var ftp *goftp.FTP
 
-	if ftp, err = goftp.Connect(s.Listener.Addr().String()); err != nil {
+	if ftp, err = goftp.Connect(s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
 	defer ftp.Quit()
@@ -46,7 +46,7 @@ func TestLoginFailure(t *testing.T) {
 	var err error
 	var ftp *goftp.FTP
 
-	if ftp, err = goftp.Connect(s.Listener.Addr().String()); err != nil {
+	if ftp, err = goftp.Connect(s.Addr()); err != nil {
 		t.Fatal("Couldn't connect:", err)
 	}
 

@@ -1,8 +1,9 @@
 package tests
 
 import (
-	"github.com/secsy/goftp"
 	"testing"
+
+	"github.com/secsy/goftp"
 )
 
 func TestSiteCommand(t *testing.T) {
@@ -17,7 +18,7 @@ func TestSiteCommand(t *testing.T) {
 	var err error
 	var c *goftp.Client
 
-	if c, err = goftp.DialConfig(conf, s.Listener.Addr().String()); err != nil {
+	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
 	defer c.Close()

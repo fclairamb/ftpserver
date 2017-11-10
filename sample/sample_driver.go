@@ -13,36 +13,75 @@ import (
 	"time"
 
 	"github.com/fclairamb/ftpserver/server"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/naoina/toml"
-	"gopkg.in/inconshreveable/log15.v2"
 )
 
-// MainDriver defines a very basic serverftp driver
+// MainDriver defines a very basic ftpserver driver
 type MainDriver struct {
-	baseDir   string
-	tlsConfig *tls.Config
+	Logger       log.Logger  // Logger
+	SettingsFile string      // Settings file
+	BaseDir      string      // Base directory from which to serve file
+	tlsConfig    *tls.Config // TLS config (if applies)
+	config       OurSettings // Our settings
 }
 
-// WelcomeUser is called to send the very first welcome message
-func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
-	cc.SetDebug(true)
-	// This will remain the official name for now
-	return fmt.Sprintf("Welcome on ftpserver, you're on dir %s", driver.baseDir), nil
+// ClientDriver defines a very basic client driver
+type ClientDriver struct {
+	BaseDir string // Base directory from which to server file
 }
 
-// AuthUser authenticates the user and selects an handling driver
-func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
-	if user == "bad" || pass == "bad" {
-		return nil, errors.New("Bad username or password")
+// Account defines a user/pass password
+type Account struct {
+	User string // Username
+	Pass string // Password
+	Dir  string // Directory
+}
+
+// OurSettings defines our settings
+type OurSettings struct {
+	Server server.Settings // Server settings (shouldn't need to be filled)
+	Users  []Account       // Credentials
+}
+
+// GetSettings returns some general settings around the server setup
+func (driver *MainDriver) GetSettings() (*server.Settings, error) {
+	f, err := os.Open(driver.SettingsFile)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	buf, err := ioutil.ReadAll(f)
+	if err != nil {
+		panic(err)
+	}
+	//var config OurSettings
+	if err := toml.Unmarshal(buf, &driver.config); err != nil {
+		return nil, fmt.Errorf("problem loading \"%s\": %v", driver.SettingsFile, err)
 	}
 
-	return driver, nil
+	// This is the new IP loading change coming from Ray
+	if driver.config.Server.PublicHost == "" {
+		level.Debug(driver.Logger).Log("msg", "Fetching our external IP address...")
+		if driver.config.Server.PublicHost, err = externalIP(); err != nil {
+			level.Warn(driver.Logger).Log("msg", "Couldn't fetch an external IP", "err", err)
+		} else {
+			level.Debug(driver.Logger).Log("msg", "Fetched our external IP address", "ipAddress", driver.config.Server.PublicHost)
+		}
+	}
+
+	if len(driver.config.Users) == 0 {
+		return nil, errors.New("you must have at least one user defined")
+	}
+
+	return &driver.config.Server, nil
 }
 
 // GetTLSConfig returns a TLS Certificate to use
 func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 	if driver.tlsConfig == nil {
-		log15.Info("Loading certificate")
+		level.Info(driver.Logger).Log("msg", "Loading certificate")
 		if cert, err := tls.LoadX509KeyPair("sample/certs/mycert.crt", "sample/certs/mycert.key"); err == nil {
 			driver.tlsConfig = &tls.Config{
 				NextProtos:   []string{"ftp"},
@@ -55,25 +94,52 @@ func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 	return driver.tlsConfig, nil
 }
 
+// WelcomeUser is called to send the very first welcome message
+func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
+	cc.SetDebug(true)
+	// This will remain the official name for now
+	return fmt.Sprintf("Welcome on ftpserver, you're on dir %s, your ID is %d, your IP:port is %s", driver.BaseDir, cc.ID(), cc.RemoteAddr()), nil
+}
+
+// AuthUser authenticates the user and selects an handling driver
+func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
+
+	for _, act := range driver.config.Users {
+		if act.User == user && act.Pass == pass {
+			// If we are authenticated, we can return a client driver containing *our* basedir
+			baseDir := driver.BaseDir + string(os.PathSeparator) + act.Dir
+			os.MkdirAll(baseDir, 0777)
+			return &ClientDriver{BaseDir: baseDir}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("could not authenticate you")
+}
+
+// UserLeft is called when the user disconnects, even if he never authenticated
+func (driver *MainDriver) UserLeft(cc server.ClientContext) {
+
+}
+
 // ChangeDirectory changes the current working directory
-func (driver *MainDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
+func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
 	if directory == "/debug" {
 		cc.SetDebug(!cc.Debug())
 		return nil
 	} else if directory == "/virtual" {
 		return nil
 	}
-	_, err := os.Stat(driver.baseDir + directory)
+	_, err := os.Stat(driver.BaseDir + directory)
 	return err
 }
 
 // MakeDirectory creates a directory
-func (driver *MainDriver) MakeDirectory(cc server.ClientContext, directory string) error {
-	return os.Mkdir(driver.baseDir+directory, 0777)
+func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory string) error {
+	return os.Mkdir(driver.BaseDir+directory, 0777)
 }
 
 // ListFiles lists the files of a directory
-func (driver *MainDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
+func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
 
 	if cc.Path() == "/virtual" {
 		files := make([]os.FileInfo, 0)
@@ -92,7 +158,7 @@ func (driver *MainDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, err
 		return files, nil
 	}
 
-	path := driver.baseDir + cc.Path()
+	path := driver.BaseDir + cc.Path()
 
 	files, err := ioutil.ReadDir(path)
 
@@ -108,19 +174,14 @@ func (driver *MainDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, err
 	return files, err
 }
 
-// UserLeft is called when the user disconnects, even if he never authenticated
-func (driver *MainDriver) UserLeft(cc server.ClientContext) {
-
-}
-
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
-func (driver *MainDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
+func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
 
 	if path == "/virtual/localpath.txt" {
-		return &virtualFile{content: []byte(driver.baseDir)}, nil
+		return &virtualFile{content: []byte(driver.BaseDir)}, nil
 	}
 
-	path = driver.baseDir + path
+	path = driver.BaseDir + path
 
 	// If we are writing and we are not in append mode, we should remove the file
 	if (flag & os.O_WRONLY) != 0 {
@@ -134,84 +195,59 @@ func (driver *MainDriver) OpenFile(cc server.ClientContext, path string, flag in
 }
 
 // GetFileInfo gets some info around a file or a directory
-func (driver *MainDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
-	path = driver.baseDir + path
+func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
+	path = driver.BaseDir + path
 
 	return os.Stat(path)
 }
 
 // CanAllocate gives the approval to allocate some data
-func (driver *MainDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
+func (driver *ClientDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
 	return true, nil
 }
 
 // ChmodFile changes the attributes of the file
-func (driver *MainDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
-	path = driver.baseDir + path
+func (driver *ClientDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
+	path = driver.BaseDir + path
 
 	return os.Chmod(path, mode)
 }
 
 // DeleteFile deletes a file or a directory
-func (driver *MainDriver) DeleteFile(cc server.ClientContext, path string) error {
-	path = driver.baseDir + path
+func (driver *ClientDriver) DeleteFile(cc server.ClientContext, path string) error {
+	path = driver.BaseDir + path
 
 	return os.Remove(path)
 }
 
 // RenameFile renames a file or a directory
-func (driver *MainDriver) RenameFile(cc server.ClientContext, from, to string) error {
-	from = driver.baseDir + from
-	to = driver.baseDir + to
+func (driver *ClientDriver) RenameFile(cc server.ClientContext, from, to string) error {
+	from = driver.BaseDir + from
+	to = driver.BaseDir + to
 
 	return os.Rename(from, to)
 }
 
-// GetSettings returns some general settings around the server setup
-func (driver *MainDriver) GetSettings() *server.Settings {
-	f, err := os.Open("sample/conf/settings.toml")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	buf, err := ioutil.ReadAll(f)
-	if err != nil {
-		panic(err)
-	}
-	var config server.Settings
-	if err := toml.Unmarshal(buf, &config); err != nil {
-		panic(err)
-	}
-
-	// This is the new IP loading change coming from Ray
-	if config.PublicHost == "" {
-		log15.Debug("Fetching our external IP address...")
-		if config.PublicHost, err = externalIP(); err != nil {
-			log15.Warn("Couldn't fetch an external IP", "err", err)
-		} else {
-			log15.Debug("Fetched our external IP address", "ipAddress", config.PublicHost)
+// NewSampleDriver creates a sample driver
+func NewSampleDriver(dir string, settingsFile string) (*MainDriver, error) {
+	if dir == "" {
+		var err error
+		dir, err = ioutil.TempDir("", "ftpserver")
+		if err != nil {
+			return nil, fmt.Errorf("could not find a temporary dir, err: %v", err)
 		}
 	}
 
-	return &config
-}
-
-// NewSampleDriver creates a sample driver
-// Note: This is not a mistake. Interface can be pointers. There seems to be a lot of confusion around this in the
-//       server_ftp original code.
-func NewSampleDriver() *MainDriver {
-	dir, err := ioutil.TempDir("", "ftpserver")
-	if err != nil {
-		log15.Error("Could not find a temporary dir", "err", err)
+	drv := &MainDriver{
+		Logger:       log.NewNopLogger(),
+		SettingsFile: settingsFile,
+		BaseDir:      dir,
 	}
 
-	driver := &MainDriver{
-		baseDir: dir,
-	}
-	os.MkdirAll(driver.baseDir, 0777)
-	return driver
+	return drv, nil
 }
 
+// The virtual file is an example of how you can implement a purely virtual file
 type virtualFile struct {
 	content    []byte // Content of the file
 	readOffset int    // Reading offset

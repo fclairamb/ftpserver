@@ -16,6 +16,14 @@ func NewTestServer(debug bool) *server.FtpServer {
 
 // NewTestServerWithDriver provides a server instantiated with some settings
 func NewTestServerWithDriver(driver *ServerDriver) *server.FtpServer {
+	if driver.Settings == nil {
+		driver.Settings = &server.Settings{}
+	}
+
+	if driver.Settings.ListenAddr == "" {
+		driver.Settings.ListenAddr = "127.0.0.1:0"
+	}
+
 	s := server.NewFtpServer(driver)
 	if err := s.Listen(); err != nil {
 		return nil
@@ -26,8 +34,8 @@ func NewTestServerWithDriver(driver *ServerDriver) *server.FtpServer {
 
 // ServerDriver defines a minimal serverftp server driver
 type ServerDriver struct {
-	Debug       bool // To display connection logs information
-	DisableMLSD bool // Disable MLSD
+	Debug    bool             // To display connection logs information
+	Settings *server.Settings // Settings
 }
 
 // ClientDriver defines a minimal serverftp client driver
@@ -54,7 +62,7 @@ func (driver *ServerDriver) AuthUser(cc server.ClientContext, user, pass string)
 	if user == "test" && pass == "test" {
 		return NewClientDriver(), nil
 	}
-	return nil, errors.New("Bad username or password")
+	return nil, errors.New("bad username or password")
 }
 
 // UserLeft is called when the user disconnects
@@ -63,8 +71,8 @@ func (driver *ServerDriver) UserLeft(cc server.ClientContext) {
 }
 
 // GetSettings fetches the basic server settings
-func (driver *ServerDriver) GetSettings() *server.Settings {
-	return &server.Settings{ListenHost: "127.0.0.1", ListenPort: -1, DisableMLSD: driver.DisableMLSD}
+func (driver *ServerDriver) GetSettings() (*server.Settings, error) {
+	return driver.Settings, nil
 }
 
 // GetTLSConfig fetches the TLS config

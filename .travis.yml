@@ -1,3 +1,5 @@
+services:
+- dockers
 before_install:
 - go get github.com/golang/lint/golint
 - go get github.com/fzipp/gocyclo
@@ -10,8 +12,9 @@ script:
 - ./.check-fmt.sh
 - gocyclo -over 15 .
 - goimports -l -e .
-- go test -v ./...
+- go test -race -v ./...
 - go build -v
+- ./.docker-create-upload.sh
 deploy:
   provider: releases
   api_key:
@@ -20,3 +23,8 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+env:
+  global:
+  - DOCKER_REPO=fclairamb/ftpserver
+  - DOCKER_USERNAME=ftpserver
+  - secure: oSO/8894LogIINfv341dA69Ugj7MQZJ0qhijQdHJA7uSoOK4566lcbQ6pgYo9aSmmmoJQAYdqTHvmegI9qjboGviPTtaomd/Bg9rhxJ46FzclpES9EhjAhKWwT95lHvvv3uVToNvdu0BrQjJidi2G9mJfgtESHBnMoe3IJYj22Y8hhF6Su252qU+gc4lyVSl8YiIPochhRgR1jF03z+M0UtnsAa33LB8dbtC+ZZeGOrpoJymJ4DOpZH9VeBd9cv0QXCSggGC59zEGrmwuyFCdKNwSO5m86FkqiHWaOj/e5r394B4kLs6wBVzedtQGZSvQoR8JSKae6QQ6COu1Pv8hwQe3yJp48Yv0oDIpNsRcEpTKZW6UF7Nqkxxtxxg7qwEuYFJOfqwGCRGnK80gpl003oFn2u6CY/J5n6yAye96y95TMTfDBOnUp3Euy9pFlV0Qg9jy+vc3ayzJvmWIG8Hv7suO5AkJH0MUL+8LNLjXchDieYh9bb9CuCstELdsWuJkceIgsaOCHhrnY66EOmHIyKXhHHgdSmAWdoOvh2gvo6G1VKy22g6eCiNEquCa80IatN5atRIPtjVMsARYfSZKK3Qx3tBgy0n2k9vv0X/rfHA3PtD1p1x1mXKM3xsdTKYx4dWJDgVw0PbWlgG9j22B5ty8dFatZmcSYCuy8h5ZIk=

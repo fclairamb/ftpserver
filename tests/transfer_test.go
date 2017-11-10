@@ -96,9 +96,9 @@ func ftpDelete(t *testing.T, ftp *goftp.Client, filename string) {
 	}
 }
 
+// TestTransfer validates the upload of file in both active and passive mode
 func TestTransfer(t *testing.T) {
-	s := NewTestServer(true)
-	s.Settings.NonStandardActiveDataPort = true
+	s := NewTestServerWithDriver(&ServerDriver{Debug: true, Settings: &server.Settings{NonStandardActiveDataPort: true}})
 	defer s.Stop()
 
 	testTransferOnConnection(t, s, false)
@@ -115,7 +115,7 @@ func testTransferOnConnection(t *testing.T, server *server.FtpServer, active boo
 	var err error
 	var c *goftp.Client
 
-	if c, err = goftp.DialConfig(conf, server.Listener.Addr().String()); err != nil {
+	if c, err = goftp.DialConfig(conf, server.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
 	defer c.Close()
@@ -135,5 +135,34 @@ func testTransferOnConnection(t *testing.T, server *server.FtpServer, active boo
 	// We make sure the hashes of the two files match
 	if hashUpload != hashDownload {
 		t.Fatal("The two files don't have the same hash:", hashUpload, "!=", hashDownload)
+	}
+}
+
+// TestFailedTransfer validates the handling of failed transfer caused by file access issues
+func TestFailedTransfer(t *testing.T) {
+	s := NewTestServer(true)
+	defer s.Stop()
+
+	conf := goftp.Config{
+		User:     "test",
+		Password: "test",
+	}
+
+	var err error
+	var c *goftp.Client
+
+	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
+		t.Fatal("Couldn't connect", err)
+	}
+	defer c.Close()
+
+	// We create a 1KB file and upload it
+	file := createTemporaryFile(t, 1*1024)
+	if err = c.Store("/non/existing/path/file.bin", file); err == nil {
+		t.Fatal("This upload should have failed")
+	}
+
+	if err = c.Store("file.bin", file); err != nil {
+		t.Fatal("This upload should have succeeded", err)
 	}
 }
