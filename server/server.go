@@ -194,7 +194,7 @@ func (server *FtpServer) receiveConnection(conn net.Conn) error {
 	c := server.newClientHandler(conn, id)
 	go c.HandleCommands()
 
-	level.Info(c.logger).Log(logKeyMsg, "FTP Client connected", logKeyAction, "ftp.connected", "clientIp", c.conn.RemoteAddr(), "total", nb)
+	level.Info(c.logger).Log(logKeyMsg, "FTP Client connected", logKeyAction, "ftp.connected", "clientIp", conn.RemoteAddr(), "total", nb)
 
 	return nil
 }
