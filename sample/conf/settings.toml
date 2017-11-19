@@ -2,6 +2,10 @@
 #
 # These are all the config parameters with their default values. If not present,
 
+# Max number of control connections to accept
+# max_connections = 0
+max_connections = 10
+
 [server]
 # Address to listen on
 # listen_host = "0.0.0.0"
@@ -11,9 +15,6 @@
 
 # Public host to expose in the passive connection
 # public_host = ""
-
-# Max number of connections to accept
-# max_connections = 0
 
 # Data port range from 10000 to 15000
 # [dataPortRange]
