@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"crypto/tls"
 	"testing"
 
 	"gopkg.in/dutchcoders/goftp.v1"
@@ -54,5 +55,27 @@ func TestLoginFailure(t *testing.T) {
 
 	if err = ftp.Login("test", "test2"); err == nil {
 		t.Fatal("We should have failed to login")
+	}
+}
+
+func TestAuthTLS(t *testing.T) {
+	s := NewTestServerWithDriver(&ServerDriver{
+		Debug: true,
+		TLS:   true,
+	})
+	defer s.Stop()
+
+	ftp, err := goftp.Connect(s.Addr())
+	if err != nil {
+		t.Fatal("Couldn't connect:", err)
+	}
+	defer ftp.Quit()
+
+	config := &tls.Config{
+		InsecureSkipVerify: true,
+		ClientAuth:         tls.RequestClientCert,
+	}
+	if err := ftp.AuthTLS(config); err != nil {
+		t.Fatal("Couldn't upgrade connection to TLS:", err)
 	}
 }
