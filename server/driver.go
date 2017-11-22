@@ -94,7 +94,6 @@ type PortRange struct {
 type Settings struct {
 	ListenAddr                string     // Listening address
 	PublicHost                string     // Public IP to expose (only an IP address is accepted at this stage)
-	MaxConnections            int        // Max number of connections to accept
 	DataPortRange             *PortRange // Port Range for data connections. Random one will be used if not specified
 	DisableMLSD               bool       // Disable MLSD support
 	NonStandardActiveDataPort bool       // Allow to use a non-standard active data port

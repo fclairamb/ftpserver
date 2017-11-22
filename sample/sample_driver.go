@@ -12,6 +12,8 @@ import (
 	"os"
 	"time"
 
+	"sync/atomic"
+
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -25,6 +27,7 @@ type MainDriver struct {
 	BaseDir      string      // Base directory from which to serve file
 	tlsConfig    *tls.Config // TLS config (if applies)
 	config       OurSettings // Our settings
+	nbClients    int32       // Number of clients
 }
 
 // ClientDriver defines a very basic client driver
@@ -41,8 +44,9 @@ type Account struct {
 
 // OurSettings defines our settings
 type OurSettings struct {
-	Server server.Settings // Server settings (shouldn't need to be filled)
-	Users  []Account       // Credentials
+	Server         server.Settings // Server settings (shouldn't need to be filled)
+	Users          []Account       // Credentials
+	MaxConnections int32           // Maximum number of clients that are allowed to connect at the same time
 }
 
 // GetSettings returns some general settings around the server setup
@@ -96,9 +100,20 @@ func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 
 // WelcomeUser is called to send the very first welcome message
 func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
+	nbClients := atomic.AddInt32(&driver.nbClients, 1)
+	if nbClients > driver.config.MaxConnections {
+		return "Cannot accept any additional client", fmt.Errorf("too many clients: %d > % d", driver.nbClients, driver.config.MaxConnections)
+	}
+
 	cc.SetDebug(true)
 	// This will remain the official name for now
-	return fmt.Sprintf("Welcome on ftpserver, you're on dir %s, your ID is %d, your IP:port is %s", driver.BaseDir, cc.ID(), cc.RemoteAddr()), nil
+	return fmt.Sprintf(
+			"Welcome on ftpserver, you're on dir %s, your ID is %d, your IP:port is %s, we currently have %d clients connected",
+			driver.BaseDir,
+			cc.ID(),
+			cc.RemoteAddr(),
+			nbClients),
+		nil
 }
 
 // AuthUser authenticates the user and selects an handling driver
@@ -118,7 +133,7 @@ func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (
 
 // UserLeft is called when the user disconnects, even if he never authenticated
 func (driver *MainDriver) UserLeft(cc server.ClientContext) {
-
+	atomic.AddInt32(&driver.nbClients, -1)
 }
 
 // ChangeDirectory changes the current working directory
