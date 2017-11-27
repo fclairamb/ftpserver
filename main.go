@@ -11,6 +11,7 @@ import (
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"io/ioutil"
 )
 
 var (
@@ -19,7 +20,7 @@ var (
 
 func main() {
 	// Parsing arguments
-	confFile := flag.String("conf", "sample/conf/settings.toml", "Configuration file")
+	confFile := flag.String("conf", "", "Configuration file")
 	dataDir := flag.String("data", "", "Data directory")
 	flag.Parse()
 
@@ -29,6 +30,23 @@ func main() {
 		"ts", log.DefaultTimestampUTC,
 		"caller", log.DefaultCaller,
 	)
+
+	autoCreate := false
+
+	if *confFile == "" {
+		*confFile = "settings.toml"
+		autoCreate = true
+	}
+
+	if autoCreate {
+		if _, err := os.Stat(*confFile); err != nil && os.IsNotExist(err) {
+			level.Info(logger).Log("msg", "Not config file, creating one", "action", "conf_file.create", "confFile", *confFile)
+
+			if err := ioutil.WriteFile(*confFile, confFileContent(), 0644); err != nil {
+				level.Error(logger).Log("msg", "Couldn't create config file", "action", "conf_file.could_not_create", "confFile", *confFile)
+			}
+		}
+	}
 
 	// Loading the driver
 	driver, err := sample.NewSampleDriver(*dataDir, *confFile)
@@ -66,4 +84,50 @@ func signalHandler() {
 			break
 		}
 	}
+}
+
+func confFileContent() []byte {
+	str := `# ftpserver configuration file
+#
+# These are all the config parameters with their default values. If not present,
+
+# Max number of control connections to accept
+# max_connections = 0
+max_connections = 10
+
+[server]
+# Address to listen on
+# listen_host = "0.0.0.0"
+
+# Port to listen on
+# listen_port = 2121
+
+# Public host to expose in the passive connection
+# public_host = ""
+
+# Data port range from 10000 to 15000
+# [dataPortRange]
+# start = 2122
+# end = 2200
+
+[server.dataPortRange]
+start = 2122
+end = 2200
+
+[[users]]
+user="fclairamb"
+pass="floflo"
+dir="shared"
+
+[[users]]
+user="test"
+pass="test"
+dir="shared"
+
+[[users]]
+user="mcardon"
+pass="marmar"
+dir="marie"
+`
+	return []byte(str)
 }

@@ -15,11 +15,13 @@ script:
 - go test -race -v ./...
 - go build -v
 - ./.docker-create-upload.sh
+- ./.build-all-archs.sh
 deploy:
   provider: releases
   api_key:
     secure: K2o6tz2pw9OeIqVMu0sO01+9QFXA6GxG90PG3les4FOMqOUxyYZDPorMqlXpmAKD0mJWzP8PuWPSBfT9zSN3FkUHsjKA3mwvpab04rjFGr5ccmm90EfVttFyzAY45fokSA3fJo5T3iGjPbmg8Qtey2ST7X8dmuTt2i2kzv30cE2rmCE2wUfGWmq2r43ygaJBTjYtUCowxkDYsm/86qx0NB9SAD7LRDEWc62bcc0+CJZtRE5XXG4YhDJxDJWgMSEdwPt3i/c4NqYhOGCoLpBAh77mgHLJKf0NaThLa3Z6vVKog4/dBxJGSu+QvqA7jS6S6Pm72wWvcUqSPzL2TMk8zvD2KND9q6RPdTn1MuzvARn+IZOf5ndGgDjilcNgCXuC2adOzuo7rbecmTSkbzgux+RGRixr93p13Vn4Nt/WqLMq2ftqAv/gvmAi3OntShcKv9487zML/tDIxdvXXf7fmJDKl59eBKVddrY1GjzdcNVU8l+UoenrXIJh6+sTKcxLDVoqGb34T9QLWLYEK9bqGcmSHy9MFmjE/vh4vu8K8Fgrcpb/GHruRCqpFWIS2SxQaPawc8zVtBMXOvpnb8839Bi0HtdbInE6FynOUgHQ87UyFgwwB6v5YFAOgSpStpPqVX5O4UWZ2vNI1N83qSnxZfOmiayAA1Z7zlPPZTNq4rY=
-  file: ftpserver
+  file_glob: true
+  file: ftpserver-*
   skip_cleanup: true
   on:
     tags: true
