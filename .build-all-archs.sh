@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -e
+#!/usr/bin/env bash
 
 version=$(go version|grep -Eo go[0-9]\.[0-9])
 
