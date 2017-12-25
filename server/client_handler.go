@@ -86,6 +86,11 @@ func (c *clientHandler) RemoteAddr() net.Addr {
 	return c.conn.RemoteAddr()
 }
 
+// LocalAddr returns the local network address.
+func (c *clientHandler) LocalAddr() net.Addr {
+	return c.conn.LocalAddr()
+}
+
 func (c *clientHandler) end() {
 	c.daddy.driver.UserLeft(c)
 	c.daddy.clientDeparture(c)
