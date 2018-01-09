@@ -14,6 +14,9 @@ echo "Docker repo: ${DOCKER_REPO}:${TRAVIS_COMMIT}"
 
 DOCKER_NAME=${DOCKER_REPO}:${TRAVIS_COMMIT}
 
+# Creating the settings.toml file
+./ftpserver -conf-only -conf=settings.toml
+
 docker build -t ${DOCKER_NAME} .
 
 docker tag ${DOCKER_NAME} ${DOCKER_REPO}:travis-${TRAVIS_BUILD_NUMBER}

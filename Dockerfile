@@ -3,6 +3,6 @@
 FROM alpine:latest
 EXPOSE 2121-2200
 RUN mkdir -p /data
-COPY sample/conf/settings.toml /etc/ftpserver.conf
+COPY settings.toml /etc/ftpserver.conf
 COPY ftpserver /bin/ftpserver
 ENTRYPOINT [ "/bin/ftpserver", "-conf=/etc/ftpserver.conf", "-data=/data" ]

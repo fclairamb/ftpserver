@@ -19,9 +19,14 @@ var (
 )
 
 func main() {
+	// Arguments vars
+	var confFile, dataDir string
+	var onlyConf bool
+
 	// Parsing arguments
-	confFile := flag.String("conf", "", "Configuration file")
-	dataDir := flag.String("data", "", "Data directory")
+	flag.StringVar(&confFile, "conf", "", "Configuration file")
+	flag.StringVar(&dataDir, "data", "", "Data directory")
+	flag.BoolVar(&onlyConf, "only-conf", false, "Only create the config")
 	flag.Parse()
 
 	// Setting up the logger
@@ -31,25 +36,27 @@ func main() {
 		"caller", log.DefaultCaller,
 	)
 
-	autoCreate := false
+	autoCreate := onlyConf
 
-	if *confFile == "" {
-		*confFile = "settings.toml"
+	// The general idea here is that if you start it without any arg, you're probably doing a local quick&dirty run
+	// possibly on a windows machine, so we're better of just using a default file name and create the file.
+	if confFile == "" {
+		confFile = "settings.toml"
 		autoCreate = true
 	}
 
 	if autoCreate {
-		if _, err := os.Stat(*confFile); err != nil && os.IsNotExist(err) {
-			level.Info(logger).Log("msg", "Not config file, creating one", "action", "conf_file.create", "confFile", *confFile)
+		if _, err := os.Stat(confFile); err != nil && os.IsNotExist(err) {
+			level.Info(logger).Log("msg", "Not config file, creating one", "action", "conf_file.create", "confFile", confFile)
 
-			if err := ioutil.WriteFile(*confFile, confFileContent(), 0644); err != nil {
-				level.Error(logger).Log("msg", "Couldn't create config file", "action", "conf_file.could_not_create", "confFile", *confFile)
+			if err := ioutil.WriteFile(confFile, confFileContent(), 0644); err != nil {
+				level.Error(logger).Log("msg", "Couldn't create config file", "action", "conf_file.could_not_create", "confFile", confFile)
 			}
 		}
 	}
 
 	// Loading the driver
-	driver, err := sample.NewSampleDriver(*dataDir, *confFile)
+	driver, err := sample.NewSampleDriver(dataDir, confFile)
 
 	if err != nil {
 		level.Error(logger).Log("msg", "Could not load the driver", "err", err)
@@ -69,6 +76,11 @@ func main() {
 	go signalHandler()
 
 	// Blocking call, behaving similarly to the http.ListenAndServe
+	if onlyConf {
+		level.Error(logger).Log("msg", "Only creating conf")
+		return
+	}
+
 	if err := ftpServer.ListenAndServe(); err != nil {
 		level.Error(logger).Log("msg", "Problem listening", "err", err)
 	}
