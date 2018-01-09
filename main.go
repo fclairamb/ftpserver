@@ -26,7 +26,7 @@ func main() {
 	// Parsing arguments
 	flag.StringVar(&confFile, "conf", "", "Configuration file")
 	flag.StringVar(&dataDir, "data", "", "Data directory")
-	flag.BoolVar(&onlyConf, "only-conf", false, "Only create the config")
+	flag.BoolVar(&onlyConf, "conf-only", false, "Only create the config")
 	flag.Parse()
 
 	// Setting up the logger
