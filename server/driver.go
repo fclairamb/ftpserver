@@ -74,6 +74,9 @@ type ClientContext interface {
 
 	// Client's address
 	RemoteAddr() net.Addr
+
+	// Servers's address
+	LocalAddr() net.Addr
 }
 
 // FileStream is a read or write closeable stream
@@ -90,13 +93,18 @@ type PortRange struct {
 	End   int // Range end
 }
 
+// PublicIPResolver takes a ClientContext for a connection and returns the public IP
+// to use in the response to the PASV command, or an error if a public IP cannot be determined.
+type PublicIPResolver func(ClientContext) (string, error)
+
 // Settings defines all the server settings
 type Settings struct {
-	ListenAddr                string     // Listening address
-	PublicHost                string     // Public IP to expose (only an IP address is accepted at this stage)
-	MaxConnections            int        // Max number of connections to accept
-	DataPortRange             *PortRange // Port Range for data connections. Random one will be used if not specified
-	DisableMLSD               bool       // Disable MLSD support
+	Listener                  net.Listener     // Allow providing an already initialized listener. Mutually exclusive with ListenAddr
+	ListenAddr                string           // Listening address
+	PublicHost                string           // Public IP to expose (only an IP address is accepted at this stage)
+	PublicIPResolver          PublicIPResolver // Optional function that can perform a public ip lookup for the given CientContext.
+	DataPortRange             *PortRange       // Port Range for data connections. Random one will be used if not specified
+	DisableMLSD               bool             // Disable MLSD support
 	DisableMLST               bool       // Disable MLST support
-	NonStandardActiveDataPort bool       // Allow to use a non-standard active data port
+	NonStandardActiveDataPort bool             // Allow to use a non-standard active data port
 }

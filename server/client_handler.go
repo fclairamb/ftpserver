@@ -86,7 +86,14 @@ func (c *clientHandler) RemoteAddr() net.Addr {
 	return c.conn.RemoteAddr()
 }
 
+// LocalAddr returns the local network address.
+func (c *clientHandler) LocalAddr() net.Addr {
+	return c.conn.LocalAddr()
+}
+
 func (c *clientHandler) end() {
+	c.daddy.driver.UserLeft(c)
+	c.daddy.clientDeparture(c)
 	if c.transfer != nil {
 		c.transfer.Close()
 	}
@@ -94,16 +101,7 @@ func (c *clientHandler) end() {
 
 // HandleCommands reads the stream of commands
 func (c *clientHandler) HandleCommands() {
-	defer c.daddy.clientDeparture(c)
 	defer c.end()
-
-	if err := c.daddy.clientArrival(c); err != nil {
-		c.writeMessage(500, "Can't accept you - "+err.Error())
-		c.conn.Close()
-		return
-	}
-
-	defer c.daddy.driver.UserLeft(c)
 
 	if msg, err := c.daddy.driver.WelcomeUser(c); err == nil {
 		c.writeMessage(220, msg)

@@ -86,7 +86,19 @@ func (c *clientHandler) handlePASV() {
 
 		// If we don't have an IP address, we can take the one that was used for the current connection
 		if ip == "" {
-			ip = strings.Split(c.conn.LocalAddr().String(), ":")[0]
+			// Defer to the user provided resolver.
+			if c.daddy.settings.PublicIPResolver != nil {
+				var err error
+				ip, err = c.daddy.settings.PublicIPResolver(c)
+				if err != nil {
+					// Not sure if there is better desired behavior than this.
+					// If we can't resolve the public ip to return to the client, is there any actual
+					// fallback that is better than erroring.
+					panic(err)
+				}
+			} else {
+				ip = strings.Split(c.conn.LocalAddr().String(), ":")[0]
+			}
 		}
 
 		quads := strings.Split(ip, ".")
