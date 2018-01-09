@@ -94,7 +94,7 @@ func (server *FtpServer) loadSettings() error {
 		return err
 	}
 
-	if s.ListenAddr == "" {
+	if s.Listener == nil && s.ListenAddr == "" {
 		s.ListenAddr = "0.0.0.0:2121"
 	}
 
@@ -112,14 +112,15 @@ func (server *FtpServer) Listen() error {
 		return fmt.Errorf("could not load settings: %v", err)
 	}
 
-	server.listener, err = net.Listen(
-		"tcp",
-		server.settings.ListenAddr,
-	)
+	if server.settings.Listener != nil {
+		server.listener = server.settings.Listener
+	} else {
+		server.listener, err = net.Listen("tcp", server.settings.ListenAddr)
 
-	if err != nil {
-		level.Error(server.Logger).Log(logKeyMsg, "Cannot listen", "err", err)
-		return err
+		if err != nil {
+			level.Error(server.Logger).Log(logKeyMsg, "Cannot listen", "err", err)
+			return err
+		}
 	}
 
 	level.Info(server.Logger).Log(logKeyMsg, "Listening...", logKeyAction, "ftp.listening", "address", server.listener.Addr())
