@@ -41,7 +41,7 @@ container (less than 15MB image, based on alpine):
 mkdir data
 
 # Starting the sample FTP server
-docker run -d -p 2121-2200:2121-2200 -v $(pwd)/data:/data fclairamb/ftpserver:travis-171
+docker run --rm -d -p 2121-2200:2121-2200 -v $(pwd)/data:/data fclairamb/ftpserver
 
 # Connecting to it and uploading a file
 ftp ftp://test:test@localhost:2121
