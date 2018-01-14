@@ -70,10 +70,8 @@ func TestIdleTimeout(t *testing.T) {
 
 	time.Sleep(time.Second * 1) // < 2s : OK
 
-	if rc, _, err := raw.SendCommand("NOOP"); err != nil {
-		t.Fatal("Command not accepted", err)
-	} else if rc != 200 {
-		t.Fatalf("Bad response: %d", rc)
+	if rc, _, err := raw.SendCommand("NOOP"); err != nil || rc != 200 {
+		t.Fatal("Command not accepted", rc, err)
 	}
 
 	time.Sleep(time.Second * 3) // > 2s : Timeout
