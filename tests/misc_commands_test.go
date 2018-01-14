@@ -78,7 +78,7 @@ func TestIdleTimeout(t *testing.T) {
 
 	time.Sleep(time.Second * 3) // > 2s : Timeout
 
-	if _, _, err := raw.SendCommand("NOOP"); err == nil {
+	if rc, _, err := raw.SendCommand("NOOP"); err != nil || rc != 421 {
 		t.Fatal("Command should have failed !")
 	}
 }
