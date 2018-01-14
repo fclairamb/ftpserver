@@ -98,6 +98,11 @@ func (server *FtpServer) loadSettings() error {
 		s.ListenAddr = "0.0.0.0:2121"
 	}
 
+	// florent(2018-01-14): #58: IDLE timeout: Default idle timeout will be set at 900 seconds
+	if s.IdleTimeout == 0 {
+		s.IdleTimeout = 900
+	}
+
 	server.settings = s
 
 	return nil

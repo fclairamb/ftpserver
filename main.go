@@ -3,6 +3,7 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,7 +12,6 @@ import (
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"io/ioutil"
 )
 
 var (
@@ -116,6 +116,9 @@ max_connections = 10
 
 # Public host to expose in the passive connection
 # public_host = ""
+
+# Idle timeout time
+# idle_timeout = 900
 
 # Data port range from 10000 to 15000
 # [dataPortRange]
