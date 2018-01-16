@@ -107,4 +107,5 @@ type Settings struct {
 	DisableMLSD               bool             // Disable MLSD support
 	DisableMLST               bool             // Disable MLST support
 	NonStandardActiveDataPort bool             // Allow to use a non-standard active data port
+	IdleTimeout               int              // Maximum inactivity time before disconnecting (#58)
 }

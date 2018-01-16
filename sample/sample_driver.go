@@ -19,11 +19,12 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"math/big"
+
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/naoina/toml"
-	"math/big"
 )
 
 // MainDriver defines a very basic ftpserver driver
