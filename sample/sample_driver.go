@@ -228,6 +228,8 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, e
 			},
 		)
 		return files, nil
+	} else if cc.Path() == "/debug" {
+		return make([]os.FileInfo, 0), nil
 	}
 
 	path := driver.BaseDir + cc.Path()
@@ -268,6 +270,13 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 
 // GetFileInfo gets some info around a file or a directory
 func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
+	switch path {
+	case "/virtual":
+		return &virtualFileInfo{name: "virtual", size: 4096, mode: os.ModeDir}, nil
+	case "/debug":
+		return &virtualFileInfo{name: "debug", size: 4096, mode: os.ModeDir}, nil
+	}
+
 	path = driver.BaseDir + path
 
 	return os.Stat(path)
