@@ -12,6 +12,10 @@ import (
 func (c *clientHandler) absPath(p string) string {
 	p2 := c.Path()
 
+	if p == "." {
+		return p2
+	}
+
 	if strings.HasPrefix(p, "/") {
 		p2 = p
 	} else {
@@ -100,24 +104,6 @@ func (c *clientHandler) handleMLSD() {
 			defer c.TransferClose()
 			c.dirTransferMLSD(tr, files)
 		}
-	} else {
-		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
-	}
-}
-
-func (c *clientHandler) handleMLST() {
-	if c.daddy.settings.DisableMLST {
-		c.writeMessage(500, "MLST has been disabled")
-		return
-	}
-	if files, err := c.driver.ListFiles(c); err == nil {
-		if len(files) == 0 {
-			c.writeMessage(400, "Could not find a file by this name")
-			return
-		}
-		c.writer.Write([]byte("250-File details\r\n"))
-		c.writeMLSxOutput(c.writer, files[0])
-		c.writeMessage(250, "End of file details")
 	} else {
 		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
 	}
