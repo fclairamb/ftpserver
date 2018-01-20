@@ -152,11 +152,11 @@ func (c *clientHandler) handleSTATFile() {
 		if info.IsDir() {
 			if files, err := c.driver.ListFiles(c); err == nil {
 				for _, f := range files {
-					c.writeLine(fmt.Sprintf("211-%s", c.fileStat(f)))
+					c.writeLine(fmt.Sprintf(" %s", c.fileStat(f)))
 				}
 			}
 		} else {
-			c.writeLine(c.fileStat(info))
+			c.writeLine(fmt.Sprintf(" %s", c.fileStat(info)))
 		}
 		c.writeLine("211 End of status")
 	} else {

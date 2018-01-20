@@ -213,9 +213,10 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 
 // GetFileInfo gets some info around a file or a directory
 func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
-	if path == "/virtual" {
+	switch path {
+	case "/virtual":
 		return &virtualFileInfo{name: "virtual", size: 4096, mode: os.ModeDir}, nil
-	} else if path == "/debug" {
+	case "/debug":
 		return &virtualFileInfo{name: "debug", size: 4096, mode: os.ModeDir}, nil
 	}
 
