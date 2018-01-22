@@ -105,6 +105,7 @@ type Settings struct {
 	PublicIPResolver          PublicIPResolver // Optional function that can perform a public ip lookup for the given CientContext.
 	DataPortRange             *PortRange       // Port Range for data connections. Random one will be used if not specified
 	DisableMLSD               bool             // Disable MLSD support
+	DisableMLST               bool             // Disable MLST support
 	NonStandardActiveDataPort bool             // Allow to use a non-standard active data port
 	IdleTimeout               int              // Maximum inactivity time before disconnecting (#58)
 }

@@ -101,6 +101,10 @@ func (c *clientHandler) handleFEAT() {
 		features = append(features, "MLSD")
 	}
 
+	if !c.daddy.settings.DisableMLST {
+		features = append(features, "MLST")
+	}
+
 	for _, f := range features {
 		c.writeLine(" " + f)
 	}

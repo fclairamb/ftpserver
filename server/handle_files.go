@@ -147,19 +147,36 @@ func (c *clientHandler) handleSIZE() {
 func (c *clientHandler) handleSTATFile() {
 	path := c.absPath(c.param)
 
-	c.writeLine("213-Status follows:")
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
+		c.writeLine("211-Status follows:")
 		if info.IsDir() {
 			if files, err := c.driver.ListFiles(c); err == nil {
 				for _, f := range files {
-					c.writeLine(c.fileStat(f))
+					c.writeLine(fmt.Sprintf(" %s", c.fileStat(f)))
 				}
 			}
 		} else {
-			c.writeLine(c.fileStat(info))
+			c.writeLine(fmt.Sprintf(" %s", c.fileStat(info)))
 		}
+		c.writeLine("211 End of status")
+	} else {
+		c.writeMessage(450, fmt.Sprintf("Could not STAT: %v", err))
 	}
-	c.writeLine("213 End of status")
+}
+
+func (c *clientHandler) handleMLST() {
+	if c.daddy.settings.DisableMLST {
+		c.writeMessage(500, "MLST has been disabled")
+		return
+	}
+	path := c.absPath(c.param)
+	if info, err := c.driver.GetFileInfo(c, path); err == nil {
+		c.writer.Write([]byte("250- File details\r\n "))
+		c.writeMLSxOutput(c.writer, info)
+		c.writeMessage(250, "End of file details")
+	} else {
+		c.writeMessage(550, fmt.Sprintf("Could not list: %v", err))
+	}
 }
 
 func (c *clientHandler) handleALLO() {

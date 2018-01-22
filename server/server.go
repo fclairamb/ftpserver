@@ -66,6 +66,7 @@ func init() {
 	commandsMap["NLST"] = &CommandDescription{Fn: (*clientHandler).handleLIST}
 	commandsMap["LIST"] = &CommandDescription{Fn: (*clientHandler).handleLIST}
 	commandsMap["MLSD"] = &CommandDescription{Fn: (*clientHandler).handleMLSD}
+	commandsMap["MLST"] = &CommandDescription{Fn: (*clientHandler).handleMLST}
 	commandsMap["MKD"] = &CommandDescription{Fn: (*clientHandler).handleMKD}
 	commandsMap["RMD"] = &CommandDescription{Fn: (*clientHandler).handleRMD}
 
