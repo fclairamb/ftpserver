@@ -19,29 +19,39 @@ func (c *clientHandler) handleAPPE() {
 
 // Handles both the "STOR" and "APPE" commands
 func (c *clientHandler) handleStoreAndAppend(append bool) {
+	if err := c.storeOrAppend(append); err != nil {
+		c.writeMessage(550, err.Error())
+	}
+}
+
+func (c *clientHandler) storeOrAppend(append bool) (err error) {
 	file, err := c.openFile(c.absPath(c.param), append)
-
 	if err != nil {
-		c.writeMessage(550, "Could not open file: "+err.Error())
-		return
+		return fmt.Errorf("Could not open file: %s", err)
 	}
 
-	if tr, err := c.TransferOpen(); err == nil {
-		defer c.TransferClose()
-
-		_, err := c.storeOrAppend(tr, file)
-		if err != nil && err != io.EOF {
-			c.writeMessage(550, err.Error())
-			file.Close()
-			return
+	defer func() {
+		if errClose := file.Close(); errClose != nil && err == nil {
+			err = errClose
 		}
+	}()
 
-		if err := file.Close(); err != nil {
-			c.writeMessage(550, err.Error())
-		}
-	} else {
-		c.writeMessage(550, "Could not open transfer: "+err.Error())
+	tr, err := c.TransferOpen()
+	if err != nil {
+		return fmt.Errorf("Could not open transfer: %s", err)
 	}
+	defer c.TransferClose()
+
+	if c.ctxRest != 0 {
+		file.Seek(c.ctxRest, 0)
+		c.ctxRest = 0
+	}
+
+	if _, err := io.Copy(file, tr); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
 }
 
 func (c *clientHandler) openFile(path string, append bool) (FileStream, error) {
@@ -100,15 +110,6 @@ func (c *clientHandler) handleCHMOD(params string) {
 	}
 
 	c.writeMessage(200, "SITE CHMOD command successful")
-}
-
-func (c *clientHandler) storeOrAppend(conn net.Conn, file FileStream) (int64, error) {
-	if c.ctxRest != 0 {
-		file.Seek(c.ctxRest, 0)
-		c.ctxRest = 0
-	}
-
-	return io.Copy(file, conn)
 }
 
 func (c *clientHandler) handleDELE() {
