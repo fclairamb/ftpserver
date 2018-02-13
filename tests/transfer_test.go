@@ -3,6 +3,7 @@ package tests
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"io"
 	"io/ioutil"
 	"math/rand"
@@ -166,3 +167,44 @@ func TestFailedTransfer(t *testing.T) {
 		t.Fatal("This upload should have succeeded", err)
 	}
 }
+
+func TestFailedFileClose(t *testing.T) {
+	driver := &ServerDriver{
+		Debug:      true,
+		FileStream: &failingCloser{},
+	}
+
+	s := NewTestServerWithDriver(driver)
+	defer s.Stop()
+
+	conf := goftp.Config{
+		User:     "test",
+		Password: "test",
+	}
+
+	var err error
+	var c *goftp.Client
+
+	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
+		t.Fatal("Couldn't connect", err)
+	}
+	defer c.Close()
+
+	file := createTemporaryFile(t, 1*1024)
+	err = c.Store("file.bin", file)
+	if err == nil {
+		t.Fatal("this upload should not succeed", err)
+	}
+	if !strings.Contains(err.Error(), errFailingCloser.Error()) {
+		t.Errorf("got %s as the error message, want it to contain %s", err, errFailingCloser)
+	}
+}
+
+type failingCloser struct {
+	os.File
+	fail bool
+}
+
+var errFailingCloser = errors.New("the hard disk crashed")
+
+func (f *failingCloser) Close() error { return errFailingCloser }

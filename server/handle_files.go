@@ -28,7 +28,15 @@ func (c *clientHandler) handleStoreAndAppend(append bool) {
 
 	if tr, err := c.TransferOpen(); err == nil {
 		defer c.TransferClose()
-		if _, err := c.storeOrAppend(tr, file); err != nil && err != io.EOF {
+
+		_, err := c.storeOrAppend(tr, file)
+		if err != nil && err != io.EOF {
+			c.writeMessage(550, err.Error())
+			file.Close()
+			return
+		}
+
+		if err := file.Close(); err != nil {
 			c.writeMessage(550, err.Error())
 		}
 	} else {
@@ -100,7 +108,6 @@ func (c *clientHandler) storeOrAppend(conn net.Conn, file FileStream) (int64, er
 		c.ctxRest = 0
 	}
 
-	defer file.Close()
 	return io.Copy(file, conn)
 }
 
