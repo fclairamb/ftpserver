@@ -141,7 +141,8 @@ func (c *clientHandler) dirTransferLIST(w io.Writer, files []os.FileInfo) error 
 	for _, file := range files {
 		fmt.Fprintf(w, "%s\r\n", c.fileStat(file))
 	}
-	fmt.Fprint(w, "\r\n")
+	// fclairamb (2018-02-13): #64: No extra line should be sent
+	// fmt.Fprint(w, "\r\n")
 	return nil
 }
 
@@ -149,7 +150,8 @@ func (c *clientHandler) dirTransferMLSD(w io.Writer, files []os.FileInfo) error 
 	for _, file := range files {
 		c.writeMLSxOutput(w, file)
 	}
-	fmt.Fprint(w, "\r\n")
+	// fclairamb (2018-02-13): #64: No extra line should be sent
+	// fmt.Fprint(w, "\r\n")
 	return nil
 }
 func (c *clientHandler) writeMLSxOutput(w io.Writer, file os.FileInfo) {

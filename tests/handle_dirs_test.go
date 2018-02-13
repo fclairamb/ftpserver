@@ -43,7 +43,7 @@ func TestDirListing(t *testing.T) {
 				break
 			}
 			fileName := line[47:]
-			t.Logf("Line: \"%s\", File: \"%s\"", line, fileName)
+			// t.Logf("Line: \"%s\", File: \"%s\"", line, fileName)
 			if fileName == "known" {
 				found = true
 			}
@@ -124,7 +124,6 @@ func TestDirListingWithSpace(t *testing.T) {
 
 	var connErr error
 	var ftp *goftp.FTP
-	const debug = true
 
 	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
 		t.Fatal("Couldn't connect", connErr)
@@ -150,9 +149,9 @@ func TestDirListingWithSpace(t *testing.T) {
 			}
 			spl := strings.SplitN(line, "; ", 2)
 			fileName := spl[1]
-			if debug {
-				t.Logf("Line: %s", line)
-			}
+
+			// t.Logf("Line: %s", line)
+
 			if fileName == " with spaces " {
 				found = true
 			}
