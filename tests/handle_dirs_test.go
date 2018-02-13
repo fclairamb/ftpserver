@@ -85,6 +85,25 @@ func TestDirHandling(t *testing.T) {
 		t.Fatal("Couldn't create dir:", err)
 	}
 
+	if entry, err := ftp.List("/"); err != nil {
+		t.Fatal("Couldn't list files")
+	} else {
+		found := false
+		for _, entry := range entry {
+			pathentry := validMLSxEntryPattern.FindStringSubmatch(entry)
+			if len(pathentry) != 2 {
+				t.Errorf("MLSx file listing contains invalid entry: \"%s\"", entry)
+			} else {
+				if pathentry[1] == "known" {
+					found = true
+				}
+			}
+		}
+		if !found {
+			t.Error("Newly created dir not found in listed files")
+		}
+	}
+
 	if err := ftp.Cwd("/known"); err != nil {
 		t.Fatal("Couldn't access the known dir:", err)
 	}
