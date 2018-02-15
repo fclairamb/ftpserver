@@ -43,7 +43,6 @@ func TestDirListing(t *testing.T) {
 				break
 			}
 			fileName := line[47:]
-			// t.Logf("Line: \"%s\", File: \"%s\"", line, fileName)
 			if fileName == "known" {
 				found = true
 			}
@@ -100,7 +99,7 @@ func TestDirHandling(t *testing.T) {
 			}
 		}
 		if !found {
-			t.Error("Newly created dir not found in listed files")
+			t.Error("Newly created dir was not found during listing of files")
 		}
 	}
 
@@ -149,8 +148,6 @@ func TestDirListingWithSpace(t *testing.T) {
 			}
 			spl := strings.SplitN(line, "; ", 2)
 			fileName := spl[1]
-
-			// t.Logf("Line: %s", line)
 
 			if fileName == " with spaces " {
 				found = true
