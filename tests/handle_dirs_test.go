@@ -43,7 +43,6 @@ func TestDirListing(t *testing.T) {
 				break
 			}
 			fileName := line[47:]
-			t.Logf("Line: \"%s\", File: \"%s\"", line, fileName)
 			if fileName == "known" {
 				found = true
 			}
@@ -85,6 +84,25 @@ func TestDirHandling(t *testing.T) {
 		t.Fatal("Couldn't create dir:", err)
 	}
 
+	if entry, err := ftp.List("/"); err != nil {
+		t.Fatal("Couldn't list files")
+	} else {
+		found := false
+		for _, entry := range entry {
+			pathentry := validMLSxEntryPattern.FindStringSubmatch(entry)
+			if len(pathentry) != 2 {
+				t.Errorf("MLSx file listing contains invalid entry: \"%s\"", entry)
+			} else {
+				if pathentry[1] == "known" {
+					found = true
+				}
+			}
+		}
+		if !found {
+			t.Error("Newly created dir was not found during listing of files")
+		}
+	}
+
 	if err := ftp.Cwd("/known"); err != nil {
 		t.Fatal("Couldn't access the known dir:", err)
 	}
@@ -105,7 +123,6 @@ func TestDirListingWithSpace(t *testing.T) {
 
 	var connErr error
 	var ftp *goftp.FTP
-	const debug = true
 
 	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
 		t.Fatal("Couldn't connect", connErr)
@@ -131,9 +148,7 @@ func TestDirListingWithSpace(t *testing.T) {
 			}
 			spl := strings.SplitN(line, "; ", 2)
 			fileName := spl[1]
-			if debug {
-				t.Logf("Line: %s", line)
-			}
+
 			if fileName == " with spaces " {
 				found = true
 			}
