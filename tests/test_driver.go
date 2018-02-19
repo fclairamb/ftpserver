@@ -49,11 +49,13 @@ type ServerDriver struct {
 	TLS   bool
 
 	Settings *server.Settings // Settings
+	server.FileStream
 }
 
 // ClientDriver defines a minimal serverftp client driver
 type ClientDriver struct {
 	baseDir string
+	server.FileStream
 }
 
 // NewClientDriver creates a client driver
@@ -73,7 +75,11 @@ func (driver *ServerDriver) WelcomeUser(cc server.ClientContext) (string, error)
 // AuthUser with authenticate users
 func (driver *ServerDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
 	if user == "test" && pass == "test" {
-		return NewClientDriver(), nil
+		clientdriver := NewClientDriver()
+		if driver.FileStream != nil {
+			clientdriver.FileStream = driver.FileStream
+		}
+		return clientdriver, nil
 	}
 	return nil, errors.New("bad username or password")
 }
@@ -128,6 +134,10 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 		if (flag & os.O_APPEND) == 0 {
 			os.Remove(path)
 		}
+	}
+
+	if driver.FileStream != nil {
+		return driver.FileStream, nil
 	}
 
 	return os.OpenFile(path, flag, 0666)

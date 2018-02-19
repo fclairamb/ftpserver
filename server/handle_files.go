@@ -10,69 +10,89 @@ import (
 )
 
 func (c *clientHandler) handleSTOR() {
-	c.handleStoreAndAppend(false)
+	c.transferFile(true, false)
 }
 
 func (c *clientHandler) handleAPPE() {
-	c.handleStoreAndAppend(true)
-}
-
-// Handles both the "STOR" and "APPE" commands
-func (c *clientHandler) handleStoreAndAppend(append bool) {
-	file, err := c.openFile(c.absPath(c.param), append)
-
-	if err != nil {
-		c.writeMessage(550, "Could not open file: "+err.Error())
-		return
-	}
-
-	if tr, err := c.TransferOpen(); err == nil {
-		defer c.TransferClose()
-		if _, err := c.storeOrAppend(tr, file); err != nil && err != io.EOF {
-			c.writeMessage(550, err.Error())
-		}
-	} else {
-		c.writeMessage(550, "Could not open transfer: "+err.Error())
-	}
-}
-
-func (c *clientHandler) openFile(path string, append bool) (FileStream, error) {
-	flag := os.O_WRONLY
-	if append {
-		flag |= os.O_APPEND
-	}
-
-	return c.driver.OpenFile(c, path, flag)
+	c.transferFile(true, true)
 }
 
 func (c *clientHandler) handleRETR() {
-
-	path := c.absPath(c.param)
-
-	if tr, err := c.TransferOpen(); err == nil {
-		defer c.TransferClose()
-		if _, err := c.download(tr, path); err != nil && err != io.EOF {
-			c.writeMessage(550, err.Error())
-		}
-	} else {
-		c.writeMessage(550, err.Error())
-	}
+	c.transferFile(false, false)
 }
 
-func (c *clientHandler) download(conn net.Conn, name string) (int64, error) {
-	file, err := c.driver.OpenFile(c, name, os.O_RDONLY)
+// File transfer, read or write, seek or not, is basically the same.
+// To make sure we don't miss any step, we execute everything in order
+func (c *clientHandler) transferFile(write bool, append bool) {
 
-	if err != nil {
-		return 0, err
+	var file FileStream
+	var err error
+
+	// We try to open the file
+	{
+		var fileFlag int
+		if write {
+			fileFlag = os.O_WRONLY
+			if append {
+				fileFlag |= os.O_APPEND
+			}
+		} else {
+			fileFlag = os.O_RDONLY
+		}
+
+		// If this fail, can stop right here
+		if file, err = c.driver.OpenFile(c, c.absPath(c.param), fileFlag); err != nil {
+			c.writeMessage(550, "Could not access file: "+err.Error())
+			return
+		}
 	}
 
+	// Try to seek on it
 	if c.ctxRest != 0 {
-		file.Seek(c.ctxRest, 0)
+		if err == nil {
+			if _, errSeek := file.Seek(c.ctxRest, 0); errSeek != nil {
+				err = errSeek
+			}
+		}
+
+		// Whatever happens we should reset the seek position
 		c.ctxRest = 0
 	}
 
-	defer file.Close()
-	return io.Copy(conn, file)
+	// Start the transfer
+	if err == nil {
+		var tr net.Conn
+		if tr, err = c.TransferOpen(); err == nil {
+			defer c.TransferClose()
+
+			// Copy the data
+			var in io.Reader
+			var out io.Writer
+
+			if write { // ... from the connection to the file
+				in = tr
+				out = file
+			} else { // ... from the file to the connection
+				in = file
+				out = tr
+			}
+
+			if _, errCopy := io.Copy(out, in); errCopy != nil && errCopy != io.EOF {
+				err = errCopy
+			}
+		}
+	}
+
+	// *ALWAYS* close the file but only save the error if there wasn't one before
+	// Note: We could discard the error in read mode
+	if errClose := file.Close(); errClose != nil && err == nil {
+		err = errClose
+	}
+
+	if err != nil {
+		c.writeMessage(550, "Could not transfer file: "+err.Error())
+		return
+	}
 }
 
 func (c *clientHandler) handleCHMOD(params string) {
@@ -92,16 +112,6 @@ func (c *clientHandler) handleCHMOD(params string) {
 	}
 
 	c.writeMessage(200, "SITE CHMOD command successful")
-}
-
-func (c *clientHandler) storeOrAppend(conn net.Conn, file FileStream) (int64, error) {
-	if c.ctxRest != 0 {
-		file.Seek(c.ctxRest, 0)
-		c.ctxRest = 0
-	}
-
-	defer file.Close()
-	return io.Copy(file, conn)
 }
 
 func (c *clientHandler) handleDELE() {
