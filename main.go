@@ -108,11 +108,8 @@ func confFileContent() []byte {
 max_connections = 10
 
 [server]
-# Address to listen on
-# listen_host = "0.0.0.0"
-
-# Port to listen on
-# listen_port = 2121
+# Address and Port to listen on
+# listen_addr="0.0.0.0:2121"
 
 # Public host to expose in the passive connection
 # public_host = ""
