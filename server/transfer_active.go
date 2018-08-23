@@ -6,6 +6,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func (c *clientHandler) handlePORT() {
@@ -18,28 +19,31 @@ func (c *clientHandler) handlePORT() {
 
 	c.writeMessage(200, "PORT command successful")
 
-	c.transfer = &activeTransferHandler{raddr: raddr, nonStandardPort: c.server.settings.NonStandardActiveDataPort}
+	c.transfer = &activeTransferHandler{
+		raddr:    raddr,
+		settings: c.server.settings,
+	}
 }
 
 // Active connection
 type activeTransferHandler struct {
-	raddr           *net.TCPAddr // Remote address of the client
-	conn            net.Conn     // Connection used to connect to him
-	nonStandardPort bool         // Allow to use an other port than the 20 one
+	raddr    *net.TCPAddr // Remote address of the client
+	conn     net.Conn     // Connection used to connect to him
+	settings *Settings    // Settings
 }
 
 func (a *activeTransferHandler) Open() (net.Conn, error) {
-	var laddr *net.TCPAddr
-	if a.nonStandardPort {
-		laddr = nil
-	} else {
-		laddr, _ = net.ResolveTCPAddr("tcp", ":20")
+	timeout := time.Duration(int64(time.Second.Nanoseconds()) * int64(a.settings.ConnectionTimeout))
+	dialer := &net.Dialer{Timeout: timeout}
+
+	if !a.settings.NonStandardActiveDataPort {
+		dialer.LocalAddr, _ = net.ResolveTCPAddr("tcp", ":20")
 	}
 	// TODO(mgenov): support dialing with timeout
 	// Issues:
 	//	https://github.com/golang/go/issues/3097
 	// 	https://github.com/golang/go/issues/4842
-	conn, err := net.DialTCP("tcp", laddr, a.raddr)
+	conn, err := dialer.Dial("tcp", a.raddr.String())
 
 	if err != nil {
 		return nil, fmt.Errorf("could not establish active connection due: %v", err)

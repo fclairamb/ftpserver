@@ -26,6 +26,7 @@ type passiveTransferHandler struct {
 	tcpListener *net.TCPListener // TCP Listener (only keeping it to define a deadline during the accept)
 	Port        int              // TCP Port we are listening on
 	connection  net.Conn         // TCP Connection established
+	settings    *Settings        // Settings
 }
 
 func (c *clientHandler) handlePASV() {
@@ -75,6 +76,7 @@ func (c *clientHandler) handlePASV() {
 		tcpListener: tcpListener,
 		listener:    listener,
 		Port:        tcpListener.Addr().(*net.TCPAddr).Port,
+		settings:    c.server.settings,
 	}
 
 	// We should rewrite this part
@@ -125,7 +127,8 @@ func (p *passiveTransferHandler) ConnectionWait(wait time.Duration) (net.Conn, e
 }
 
 func (p *passiveTransferHandler) Open() (net.Conn, error) {
-	return p.ConnectionWait(time.Minute)
+	timeout := time.Duration(int64(time.Second.Nanoseconds()) * int64(p.settings.ConnectionTimeout))
+	return p.ConnectionWait(timeout)
 }
 
 // Closing only the client connection is not supported at that time

@@ -99,6 +99,10 @@ func (server *FtpServer) loadSettings() error {
 		s.IdleTimeout = 900
 	}
 
+	if s.ConnectionTimeout == 0 {
+		s.ConnectionTimeout = 30
+	}
+
 	server.settings = s
 
 	return nil
