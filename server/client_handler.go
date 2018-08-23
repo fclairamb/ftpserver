@@ -104,9 +104,9 @@ func (c *clientHandler) HandleCommands() {
 	defer c.end()
 
 	if msg, err := c.server.driver.WelcomeUser(c); err == nil {
-		c.writeMessage(220, msg)
+		c.writeMessage(StatusServiceReady, msg)
 	} else {
-		c.writeMessage(500, msg)
+		c.writeMessage(StatusSyntaxErrorNotRecognised, msg)
 		return
 	}
 
@@ -133,7 +133,7 @@ func (c *clientHandler) HandleCommands() {
 					// We have to extend the deadline now
 					c.conn.SetDeadline(time.Now().Add(time.Minute))
 					level.Info(c.logger).Log(logKeyMsg, "IDLE timeout", logKeyAction, "ftp.idle_timeout", "err", err)
-					c.writeMessage(421, fmt.Sprintf("command timeout (%d seconds): closing control connection", c.server.settings.IdleTimeout))
+					c.writeMessage(StatusServiceNotAvailable, fmt.Sprintf("command timeout (%d seconds): closing control connection", c.server.settings.IdleTimeout))
 					if err := c.writer.Flush(); err != nil {
 						level.Error(c.logger).Log(logKeyMsg, "Network flush error", logKeyAction, "ftp.flush_error", "err", err)
 					}
@@ -171,19 +171,19 @@ func (c *clientHandler) handleCommand(line string) {
 
 	cmdDesc := commandsMap[c.command]
 	if cmdDesc == nil {
-		c.writeMessage(500, "Unknown command")
+		c.writeMessage(StatusSyntaxErrorNotRecognised, "Unknown command")
 		return
 	}
 
 	if c.driver == nil && !cmdDesc.Open {
-		c.writeMessage(530, "Please login with USER and PASS")
+		c.writeMessage(StatusNotLoggedIn, "Please login with USER and PASS")
 		return
 	}
 
 	// Let's prepare to recover in case there's a command error
 	defer func() {
 		if r := recover(); r != nil {
-			c.writeMessage(500, fmt.Sprintf("Internal error: %s", r))
+			c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Internal error: %s", r))
 		}
 	}()
 	cmdDesc.Fn(c)
@@ -204,10 +204,10 @@ func (c *clientHandler) writeMessage(code int, message string) {
 
 func (c *clientHandler) TransferOpen() (net.Conn, error) {
 	if c.transfer == nil {
-		c.writeMessage(550, "No passive connection declared")
+		c.writeMessage(StatusActionNotTaken, "No passive connection declared")
 		return nil, errors.New("no passive connection declared")
 	}
-	c.writeMessage(150, "Using transfer connection")
+	c.writeMessage(StatusFileStatusOK, "Using transfer connection")
 	conn, err := c.transfer.Open()
 	if err == nil && c.debug {
 		level.Debug(c.logger).Log(logKeyMsg, "FTP Transfer connection opened", logKeyAction, "ftp.transfer_open", "remoteAddr", conn.RemoteAddr().String(), "localAddr", conn.LocalAddr().String())
@@ -217,7 +217,7 @@ func (c *clientHandler) TransferOpen() (net.Conn, error) {
 
 func (c *clientHandler) TransferClose() {
 	if c.transfer != nil {
-		c.writeMessage(226, "Closing transfer connection")
+		c.writeMessage(StatusClosingDataConn, "Closing transfer connection")
 		c.transfer.Close()
 		c.transfer = nil
 		if c.debug {
@@ -232,4 +232,12 @@ func parseLine(line string) (string, string) {
 		return params[0], ""
 	}
 	return params[0], params[1]
+}
+
+// For future use
+func (c *clientHandler) multilineAnswer(code int, message string) func() {
+	c.writeLine(fmt.Sprintf("%d- %s", code, message))
+	return func() {
+		c.writeLine(fmt.Sprintf("%d End of %s", code, message))
+	}
 }

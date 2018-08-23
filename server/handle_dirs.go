@@ -42,27 +42,27 @@ func (c *clientHandler) handleCWD() {
 
 	if err := c.driver.ChangeDirectory(c, p); err == nil {
 		c.SetPath(p)
-		c.writeMessage(250, fmt.Sprintf("CD worked on %s", p))
+		c.writeMessage(StatusFileOK, fmt.Sprintf("CD worked on %s", p))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("CD issue: %v", err))
+		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("CD issue: %v", err))
 	}
 }
 
 func (c *clientHandler) handleMKD() {
 	p := c.absPath(c.param)
 	if err := c.driver.MakeDirectory(c, p); err == nil {
-		c.writeMessage(257, fmt.Sprintf("Created dir %s", p))
+		c.writeMessage(StatusPathCreated, fmt.Sprintf("Created dir %s", p))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Could not create %s : %v", p, err))
+		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not create %s : %v", p, err))
 	}
 }
 
 func (c *clientHandler) handleRMD() {
 	p := c.absPath(c.param)
 	if err := c.driver.DeleteFile(c, p); err == nil {
-		c.writeMessage(250, fmt.Sprintf("Deleted dir %s", p))
+		c.writeMessage(StatusFileOK, fmt.Sprintf("Deleted dir %s", p))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Could not delete dir %s: %v", p, err))
+		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not delete dir %s: %v", p, err))
 	}
 }
 
@@ -73,14 +73,14 @@ func (c *clientHandler) handleCDUP() {
 	}
 	if err := c.driver.ChangeDirectory(c, parent); err == nil {
 		c.SetPath(parent)
-		c.writeMessage(250, fmt.Sprintf("CDUP worked on %s", parent))
+		c.writeMessage(StatusFileOK, fmt.Sprintf("CDUP worked on %s", parent))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("CDUP issue: %v", err))
+		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("CDUP issue: %v", err))
 	}
 }
 
 func (c *clientHandler) handlePWD() {
-	c.writeMessage(257, "\""+c.Path()+"\" is the current directory")
+	c.writeMessage(StatusPathCreated, "\""+c.Path()+"\" is the current directory")
 }
 
 func (c *clientHandler) handleLIST() {
@@ -90,13 +90,13 @@ func (c *clientHandler) handleLIST() {
 			c.dirTransferLIST(tr, files)
 		}
 	} else {
-		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
+		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Could not list: %v", err))
 	}
 }
 
 func (c *clientHandler) handleMLSD() {
 	if c.server.settings.DisableMLSD {
-		c.writeMessage(500, "MLSD has been disabled")
+		c.writeMessage(StatusSyntaxErrorNotRecognised, "MLSD has been disabled")
 		return
 	}
 	if files, err := c.driver.ListFiles(c); err == nil {
@@ -105,7 +105,7 @@ func (c *clientHandler) handleMLSD() {
 			c.dirTransferMLSD(tr, files)
 		}
 	} else {
-		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
+		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Could not list: %v", err))
 	}
 }
 

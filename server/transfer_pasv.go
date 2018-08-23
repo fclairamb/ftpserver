@@ -65,7 +65,7 @@ func (c *clientHandler) handlePASV() {
 		if tlsConfig, err := c.server.driver.GetTLSConfig(); err == nil {
 			listener = tls.NewListener(tcpListener, tlsConfig)
 		} else {
-			c.writeMessage(550, fmt.Sprintf("Cannot get a TLS config: %v", err))
+			c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Cannot get a TLS config: %v", err))
 			return
 		}
 	} else {
@@ -104,9 +104,9 @@ func (c *clientHandler) handlePASV() {
 		}
 
 		quads := strings.Split(ip, ".")
-		c.writeMessage(227, fmt.Sprintf("Entering Passive Mode (%s,%s,%s,%s,%d,%d)", quads[0], quads[1], quads[2], quads[3], p1, p2))
+		c.writeMessage(StatusEnteringPASV, fmt.Sprintf("Entering Passive Mode (%s,%s,%s,%s,%d,%d)", quads[0], quads[1], quads[2], quads[3], p1, p2))
 	} else {
-		c.writeMessage(229, fmt.Sprintf("Entering Extended Passive Mode (|||%d|)", p.Port))
+		c.writeMessage(StatusEnteringEPSV, fmt.Sprintf("Entering Extended Passive Mode (|||%d|)", p.Port))
 	}
 
 	c.transfer = p

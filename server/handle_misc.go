@@ -10,27 +10,27 @@ import (
 
 func (c *clientHandler) handleAUTH() {
 	if tlsConfig, err := c.server.driver.GetTLSConfig(); err == nil {
-		c.writeMessage(234, "AUTH command ok. Expecting TLS Negotiation.")
+		c.writeMessage(StatusAuthAccepted, "AUTH command ok. Expecting TLS Negotiation.")
 		c.conn = tls.Server(c.conn, tlsConfig)
 		c.reader = bufio.NewReader(c.conn)
 		c.writer = bufio.NewWriter(c.conn)
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Cannot get a TLS config: %v", err))
+		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Cannot get a TLS config: %v", err))
 	}
 }
 
 func (c *clientHandler) handlePROT() {
 	// P for Private, C for Clear
 	c.transferTLS = c.param == "P"
-	c.writeMessage(200, "OK")
+	c.writeMessage(StatusOK, "OK")
 }
 
 func (c *clientHandler) handlePBSZ() {
-	c.writeMessage(200, "Whatever")
+	c.writeMessage(StatusOK, "Whatever")
 }
 
 func (c *clientHandler) handleSYST() {
-	c.writeMessage(215, "UNIX Type: L8")
+	c.writeMessage(StatusSystemType, "UNIX Type: L8")
 }
 
 func (c *clientHandler) handleSTAT() {
@@ -51,11 +51,14 @@ func (c *clientHandler) handleSITE() {
 			return
 		}
 	}
-	c.writeMessage(500, "Not understood SITE subcommand")
+	c.writeMessage(StatusSyntaxErrorNotRecognised, "Not understood SITE subcommand")
 }
 
 func (c *clientHandler) handleSTATServer() {
-	c.writeLine("213- FTP server status:")
+	c.writeLine(fmt.Sprintf("%d- FTP server status:", StatusFileStatus))
+
+	// m := c.multilineAnswer(StatusFileStatus, "Server status")
+	// defer m()
 	duration := time.Now().UTC().Sub(c.connectedAt)
 	duration -= duration % time.Second
 	c.writeLine(fmt.Sprintf(
@@ -70,25 +73,25 @@ func (c *clientHandler) handleSTATServer() {
 		c.writeLine("Not logged in yet")
 	}
 	c.writeLine("ftpserver - golang FTP server")
-	defer c.writeMessage(213, "End")
+	defer c.writeMessage(StatusFileStatus, "End")
 }
 
 func (c *clientHandler) handleOPTS() {
 	args := strings.SplitN(c.param, " ", 2)
 	if strings.ToUpper(args[0]) == "UTF8" {
-		c.writeMessage(200, "I'm in UTF8 only anyway")
+		c.writeMessage(StatusOK, "I'm in UTF8 only anyway")
 	} else {
-		c.writeMessage(500, "Don't know this option")
+		c.writeMessage(StatusSyntaxErrorNotRecognised, "Don't know this option")
 	}
 }
 
 func (c *clientHandler) handleNOOP() {
-	c.writeMessage(200, "OK")
+	c.writeMessage(StatusOK, "OK")
 }
 
 func (c *clientHandler) handleFEAT() {
-	c.writeLine("211- These are my features")
-	defer c.writeMessage(211, "end")
+	c.writeLine(fmt.Sprintf("%d- These are my features", StatusSystemStatus))
+	defer c.writeMessage(StatusSystemStatus, "end")
 
 	features := []string{
 		"UTF8",
@@ -113,16 +116,16 @@ func (c *clientHandler) handleFEAT() {
 func (c *clientHandler) handleTYPE() {
 	switch c.param {
 	case "I":
-		c.writeMessage(200, "Type set to binary")
+		c.writeMessage(StatusOK, "Type set to binary")
 	case "A":
-		c.writeMessage(200, "WARNING: ASCII isn't correctly supported")
+		c.writeMessage(StatusOK, "WARNING: ASCII isn't correctly supported")
 	default:
-		c.writeMessage(500, "Not understood")
+		c.writeMessage(StatusSyntaxErrorNotRecognised, "Not understood")
 	}
 }
 
 func (c *clientHandler) handleQUIT() {
-	c.writeMessage(221, "Goodbye")
+	c.writeMessage(StatusClosingControlConn, "Goodbye")
 	c.disconnect()
 	c.reader = nil
 }

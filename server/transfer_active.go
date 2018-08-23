@@ -13,11 +13,11 @@ func (c *clientHandler) handlePORT() {
 	raddr, err := parseRemoteAddr(c.param)
 
 	if err != nil {
-		c.writeMessage(500, fmt.Sprintf("Problem parsing PORT: %v", err))
+		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Problem parsing PORT: %v", err))
 		return
 	}
 
-	c.writeMessage(200, "PORT command successful")
+	c.writeMessage(StatusOK, "PORT command successful")
 
 	c.transfer = &activeTransferHandler{
 		raddr:    raddr,
