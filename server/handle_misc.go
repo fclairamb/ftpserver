@@ -9,7 +9,7 @@ import (
 )
 
 func (c *clientHandler) handleAUTH() {
-	if tlsConfig, err := c.daddy.driver.GetTLSConfig(); err == nil {
+	if tlsConfig, err := c.server.driver.GetTLSConfig(); err == nil {
 		c.writeMessage(234, "AUTH command ok. Expecting TLS Negotiation.")
 		c.conn = tls.Server(c.conn, tlsConfig)
 		c.reader = bufio.NewReader(c.conn)
@@ -60,7 +60,7 @@ func (c *clientHandler) handleSTATServer() {
 	duration -= duration % time.Second
 	c.writeLine(fmt.Sprintf(
 		"Connected to %s from %s for %s",
-		c.daddy.settings.ListenAddr,
+		c.server.settings.ListenAddr,
 		c.conn.RemoteAddr(),
 		duration,
 	))
@@ -97,11 +97,11 @@ func (c *clientHandler) handleFEAT() {
 		"REST STREAM",
 	}
 
-	if !c.daddy.settings.DisableMLSD {
+	if !c.server.settings.DisableMLSD {
 		features = append(features, "MLSD")
 	}
 
-	if !c.daddy.settings.DisableMLST {
+	if !c.server.settings.DisableMLST {
 		features = append(features, "MLST")
 	}
 

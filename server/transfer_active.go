@@ -18,7 +18,7 @@ func (c *clientHandler) handlePORT() {
 
 	c.writeMessage(200, "PORT command successful")
 
-	c.transfer = &activeTransferHandler{raddr: raddr, nonStandardPort: c.daddy.settings.NonStandardActiveDataPort}
+	c.transfer = &activeTransferHandler{raddr: raddr, nonStandardPort: c.server.settings.NonStandardActiveDataPort}
 }
 
 // Active connection

@@ -175,7 +175,7 @@ func (c *clientHandler) handleSTATFile() {
 }
 
 func (c *clientHandler) handleMLST() {
-	if c.daddy.settings.DisableMLST {
+	if c.server.settings.DisableMLST {
 		c.writeMessage(500, "MLST has been disabled")
 		return
 	}

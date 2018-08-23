@@ -11,7 +11,7 @@ func (c *clientHandler) handleUSER() {
 // Handle the "PASS" command
 func (c *clientHandler) handlePASS() {
 	var err error
-	if c.driver, err = c.daddy.driver.AuthUser(c, c.user, c.param); err == nil {
+	if c.driver, err = c.server.driver.AuthUser(c, c.user, c.param); err == nil {
 		c.writeMessage(230, "Password ok, continue")
 	} else if err != nil {
 		c.writeMessage(530, fmt.Sprintf("Authentication problem: %v", err))

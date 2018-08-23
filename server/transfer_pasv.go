@@ -33,7 +33,7 @@ func (c *clientHandler) handlePASV() {
 	var tcpListener *net.TCPListener
 	var err error
 
-	portRange := c.daddy.settings.DataPortRange
+	portRange := c.server.settings.DataPortRange
 
 	if portRange != nil {
 		for start := portRange.Start; start < portRange.End; start++ {
@@ -61,7 +61,7 @@ func (c *clientHandler) handlePASV() {
 	// The listener will either be plain TCP or TLS
 	var listener net.Listener
 	if c.transferTLS {
-		if tlsConfig, err := c.daddy.driver.GetTLSConfig(); err == nil {
+		if tlsConfig, err := c.server.driver.GetTLSConfig(); err == nil {
 			listener = tls.NewListener(tcpListener, tlsConfig)
 		} else {
 			c.writeMessage(550, fmt.Sprintf("Cannot get a TLS config: %v", err))
@@ -82,14 +82,14 @@ func (c *clientHandler) handlePASV() {
 		p1 := p.Port / 256
 		p2 := p.Port - (p1 * 256)
 		// Provide our external IP address so the ftp client can connect back to us
-		ip := c.daddy.settings.PublicHost
+		ip := c.server.settings.PublicHost
 
 		// If we don't have an IP address, we can take the one that was used for the current connection
 		if ip == "" {
 			// Defer to the user provided resolver.
-			if c.daddy.settings.PublicIPResolver != nil {
+			if c.server.settings.PublicIPResolver != nil {
 				var err error
-				ip, err = c.daddy.settings.PublicIPResolver(c)
+				ip, err = c.server.settings.PublicIPResolver(c)
 				if err != nil {
 					// Not sure if there is better desired behavior than this.
 					// If we can't resolve the public ip to return to the client, is there any actual

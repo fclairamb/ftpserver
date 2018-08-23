@@ -15,7 +15,7 @@ import (
 
 type clientHandler struct {
 	id          uint32               // ID of the client
-	daddy       *FtpServer           // Server on which the connection was accepted
+	server      *FtpServer           // Server on which the connection was accepted
 	driver      ClientHandlingDriver // Client handling driver
 	conn        net.Conn             // TCP connection
 	writer      *bufio.Writer        // Writer on the TCP connection
@@ -37,7 +37,7 @@ type clientHandler struct {
 func (server *FtpServer) newClientHandler(connection net.Conn, id uint32) *clientHandler {
 
 	p := &clientHandler{
-		daddy:       server,
+		server:      server,
 		conn:        connection,
 		id:          id,
 		writer:      bufio.NewWriter(connection),
@@ -92,8 +92,8 @@ func (c *clientHandler) LocalAddr() net.Addr {
 }
 
 func (c *clientHandler) end() {
-	c.daddy.driver.UserLeft(c)
-	c.daddy.clientDeparture(c)
+	c.server.driver.UserLeft(c)
+	c.server.clientDeparture(c)
 	if c.transfer != nil {
 		c.transfer.Close()
 	}
@@ -103,7 +103,7 @@ func (c *clientHandler) end() {
 func (c *clientHandler) HandleCommands() {
 	defer c.end()
 
-	if msg, err := c.daddy.driver.WelcomeUser(c); err == nil {
+	if msg, err := c.server.driver.WelcomeUser(c); err == nil {
 		c.writeMessage(220, msg)
 	} else {
 		c.writeMessage(500, msg)
@@ -119,8 +119,8 @@ func (c *clientHandler) HandleCommands() {
 		}
 
 		// florent(2018-01-14): #58: IDLE timeout: Preparing the deadline before we read
-		if c.daddy.settings.IdleTimeout > 0 {
-			c.conn.SetDeadline(time.Now().Add(time.Duration(time.Second.Nanoseconds() * int64(c.daddy.settings.IdleTimeout))))
+		if c.server.settings.IdleTimeout > 0 {
+			c.conn.SetDeadline(time.Now().Add(time.Duration(time.Second.Nanoseconds() * int64(c.server.settings.IdleTimeout))))
 		}
 
 		line, err := c.reader.ReadString('\n')
@@ -133,7 +133,7 @@ func (c *clientHandler) HandleCommands() {
 					// We have to extend the deadline now
 					c.conn.SetDeadline(time.Now().Add(time.Minute))
 					level.Info(c.logger).Log(logKeyMsg, "IDLE timeout", logKeyAction, "ftp.idle_timeout", "err", err)
-					c.writeMessage(421, fmt.Sprintf("command timeout (%d seconds): closing control connection", c.daddy.settings.IdleTimeout))
+					c.writeMessage(421, fmt.Sprintf("command timeout (%d seconds): closing control connection", c.server.settings.IdleTimeout))
 					if err := c.writer.Flush(); err != nil {
 						level.Error(c.logger).Log(logKeyMsg, "Network flush error", logKeyAction, "ftp.flush_error", "err", err)
 					}
