@@ -22,60 +22,55 @@ type CommandDescription struct {
 	Fn   func(*clientHandler) // Function to handle it
 }
 
-var commandsMap map[string]*CommandDescription
-
-func init() {
-	// This is shared between FtpServer instances as there's no point in making the FTP commands behave differently
-	// between them.
-
-	commandsMap = make(map[string]*CommandDescription)
-
+// This is shared between FtpServer instances as there's no point in making the FTP commands behave differently
+// between them.
+var commandsMap = map[string]*CommandDescription{
 	// Authentication
-	commandsMap["USER"] = &CommandDescription{Fn: (*clientHandler).handleUSER, Open: true}
-	commandsMap["PASS"] = &CommandDescription{Fn: (*clientHandler).handlePASS, Open: true}
+	"USER": {Fn: (*clientHandler).handleUSER, Open: true},
+	"PASS": {Fn: (*clientHandler).handlePASS, Open: true},
 
 	// TLS handling
-	commandsMap["AUTH"] = &CommandDescription{Fn: (*clientHandler).handleAUTH, Open: true}
-	commandsMap["PROT"] = &CommandDescription{Fn: (*clientHandler).handlePROT, Open: true}
-	commandsMap["PBSZ"] = &CommandDescription{Fn: (*clientHandler).handlePBSZ, Open: true}
+	"AUTH": {Fn: (*clientHandler).handleAUTH, Open: true},
+	"PROT": {Fn: (*clientHandler).handlePROT, Open: true},
+	"PBSZ": {Fn: (*clientHandler).handlePBSZ, Open: true},
 
 	// Misc
-	commandsMap["FEAT"] = &CommandDescription{Fn: (*clientHandler).handleFEAT, Open: true}
-	commandsMap["SYST"] = &CommandDescription{Fn: (*clientHandler).handleSYST, Open: true}
-	commandsMap["NOOP"] = &CommandDescription{Fn: (*clientHandler).handleNOOP, Open: true}
-	commandsMap["OPTS"] = &CommandDescription{Fn: (*clientHandler).handleOPTS, Open: true}
+	"FEAT": {Fn: (*clientHandler).handleFEAT, Open: true},
+	"SYST": {Fn: (*clientHandler).handleSYST, Open: true},
+	"NOOP": {Fn: (*clientHandler).handleNOOP, Open: true},
+	"OPTS": {Fn: (*clientHandler).handleOPTS, Open: true},
 
 	// File access
-	commandsMap["SIZE"] = &CommandDescription{Fn: (*clientHandler).handleSIZE}
-	commandsMap["STAT"] = &CommandDescription{Fn: (*clientHandler).handleSTAT}
-	commandsMap["MDTM"] = &CommandDescription{Fn: (*clientHandler).handleMDTM}
-	commandsMap["RETR"] = &CommandDescription{Fn: (*clientHandler).handleRETR}
-	commandsMap["STOR"] = &CommandDescription{Fn: (*clientHandler).handleSTOR}
-	commandsMap["APPE"] = &CommandDescription{Fn: (*clientHandler).handleAPPE}
-	commandsMap["DELE"] = &CommandDescription{Fn: (*clientHandler).handleDELE}
-	commandsMap["RNFR"] = &CommandDescription{Fn: (*clientHandler).handleRNFR}
-	commandsMap["RNTO"] = &CommandDescription{Fn: (*clientHandler).handleRNTO}
-	commandsMap["ALLO"] = &CommandDescription{Fn: (*clientHandler).handleALLO}
-	commandsMap["REST"] = &CommandDescription{Fn: (*clientHandler).handleREST}
-	commandsMap["SITE"] = &CommandDescription{Fn: (*clientHandler).handleSITE}
+	"SIZE": {Fn: (*clientHandler).handleSIZE},
+	"STAT": {Fn: (*clientHandler).handleSTAT},
+	"MDTM": {Fn: (*clientHandler).handleMDTM},
+	"RETR": {Fn: (*clientHandler).handleRETR},
+	"STOR": {Fn: (*clientHandler).handleSTOR},
+	"APPE": {Fn: (*clientHandler).handleAPPE},
+	"DELE": {Fn: (*clientHandler).handleDELE},
+	"RNFR": {Fn: (*clientHandler).handleRNFR},
+	"RNTO": {Fn: (*clientHandler).handleRNTO},
+	"ALLO": {Fn: (*clientHandler).handleALLO},
+	"REST": {Fn: (*clientHandler).handleREST},
+	"SITE": {Fn: (*clientHandler).handleSITE},
 
 	// Directory handling
-	commandsMap["CWD"] = &CommandDescription{Fn: (*clientHandler).handleCWD}
-	commandsMap["PWD"] = &CommandDescription{Fn: (*clientHandler).handlePWD}
-	commandsMap["CDUP"] = &CommandDescription{Fn: (*clientHandler).handleCDUP}
-	commandsMap["NLST"] = &CommandDescription{Fn: (*clientHandler).handleLIST}
-	commandsMap["LIST"] = &CommandDescription{Fn: (*clientHandler).handleLIST}
-	commandsMap["MLSD"] = &CommandDescription{Fn: (*clientHandler).handleMLSD}
-	commandsMap["MLST"] = &CommandDescription{Fn: (*clientHandler).handleMLST}
-	commandsMap["MKD"] = &CommandDescription{Fn: (*clientHandler).handleMKD}
-	commandsMap["RMD"] = &CommandDescription{Fn: (*clientHandler).handleRMD}
+	"CWD":  {Fn: (*clientHandler).handleCWD},
+	"PWD":  {Fn: (*clientHandler).handlePWD},
+	"CDUP": {Fn: (*clientHandler).handleCDUP},
+	"NLST": {Fn: (*clientHandler).handleLIST},
+	"LIST": {Fn: (*clientHandler).handleLIST},
+	"MLSD": {Fn: (*clientHandler).handleMLSD},
+	"MLST": {Fn: (*clientHandler).handleMLST},
+	"MKD":  {Fn: (*clientHandler).handleMKD},
+	"RMD":  {Fn: (*clientHandler).handleRMD},
 
 	// Connection handling
-	commandsMap["TYPE"] = &CommandDescription{Fn: (*clientHandler).handleTYPE}
-	commandsMap["PASV"] = &CommandDescription{Fn: (*clientHandler).handlePASV}
-	commandsMap["EPSV"] = &CommandDescription{Fn: (*clientHandler).handlePASV}
-	commandsMap["PORT"] = &CommandDescription{Fn: (*clientHandler).handlePORT}
-	commandsMap["QUIT"] = &CommandDescription{Fn: (*clientHandler).handleQUIT, Open: true}
+	"TYPE": {Fn: (*clientHandler).handleTYPE},
+	"PASV": {Fn: (*clientHandler).handlePASV},
+	"EPSV": {Fn: (*clientHandler).handlePASV},
+	"PORT": {Fn: (*clientHandler).handlePORT},
+	"QUIT": {Fn: (*clientHandler).handleQUIT, Open: true},
 }
 
 // FtpServer is where everything is stored
