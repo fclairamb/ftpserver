@@ -45,7 +45,7 @@ mkdir -p data
 ftpserver -data data &
 
 # Download some file
-if [ ! -f file.iso ]; then
+if [ ! -f file.bin ]; then
     wget -O file.bin.tmp https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64 && mv file.bin.tmp file.bin
 fi
 
