@@ -2,8 +2,8 @@
 
 version=$(go version|grep -Eo go[0-9]\.[0-9])
 
-if [ "$version" != "go1.9" ]; then
-    echo "Docker images are only generated for Go 1.9 and you have ${version}."
+if [ "$version" != "go1.10" ]; then
+    echo "Docker images are only generated for Go 1.10 and you have ${version}."
     exit 0
 fi
 
@@ -25,7 +25,7 @@ if [[ "${TRAVIS_TAG}" = "" ]]; then
     if [[ "${TRAVIS_BRANCH}" = "master" ]]; then
         DOCKER_TAG=latest
     else
-        DOCKER_TAG=${TRAVIS_BRANCH}
+        DOCKER_TAG=${TRAVIS_BRANCH//[^a-zA-Z0-9_]/-}
     fi
 else
     DOCKER_TAG=${TRAVIS_TAG}
