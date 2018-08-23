@@ -25,7 +25,7 @@ if [[ "${TRAVIS_TAG}" = "" ]]; then
     if [[ "${TRAVIS_BRANCH}" = "master" ]]; then
         DOCKER_TAG=latest
     else
-        DOCKER_TAG=${TRAVIS_BRANCH}
+        DOCKER_TAG=${TRAVIS_BRANCH//[^a-zA-Z0-9_]/-}
     fi
 else
     DOCKER_TAG=${TRAVIS_TAG}
