@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-version=$(go version|grep -Eo go[0-9]\.[0-9])
+version=$(go version|grep -Eo go[0-9]\.[0-9]+)
 
 if [ "$version" != "go1.10" ]; then
     echo "Docker images are only generated for Go 1.10 and you have ${version}."
