@@ -1,3 +1,6 @@
 .DS_Store
 ftpserver
 .idea
+.vscode
+settings.toml
+debug
