@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"sync/atomic"
@@ -74,11 +75,21 @@ func (driver *MainDriver) GetSettings() (*server.Settings, error) {
 
 	// This is the new IP loading change coming from Ray
 	if driver.config.Server.PublicHost == "" {
+		publicIP := ""
 		level.Debug(driver.Logger).Log("msg", "Fetching our external IP address...")
-		if driver.config.Server.PublicHost, err = externalIP(); err != nil {
+		if publicIP, err = externalIP(); err != nil {
 			level.Warn(driver.Logger).Log("msg", "Couldn't fetch an external IP", "err", err)
 		} else {
 			level.Debug(driver.Logger).Log("msg", "Fetched our external IP address", "ipAddress", driver.config.Server.PublicHost)
+		}
+
+		// Adding a special case for loopback clients (issue #74)
+		driver.config.Server.PublicIPResolver = func(cc server.ClientContext) (string, error) {
+			level.Debug(driver.Logger).Log("msg", "Resolving public IP", "remoteAddr", cc.RemoteAddr())
+			if strings.HasPrefix(cc.RemoteAddr().String(), "127.0.0.1") {
+				return "127.0.0.1", nil
+			}
+			return publicIP, nil
 		}
 	}
 
@@ -133,9 +144,9 @@ func (driver *MainDriver) getCertificate() (*tls.Certificate, error) {
 		NotAfter:              now.Add(time.Hour * 24 * 7),
 		SubjectKeyId:          []byte{1, 2, 3, 4, 5},
 		BasicConstraintsValid: true,
-		IsCA:        false,
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-		KeyUsage:    x509.KeyUsageDigitalSignature,
+		IsCA:                  false,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:              x509.KeyUsageDigitalSignature,
 	}
 	derBytes, err := x509.CreateCertificate(rand.Reader, template, template, &priv.PublicKey, priv)
 
