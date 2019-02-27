@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"path"
 
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/go-kit/kit/log"
@@ -118,9 +119,12 @@ func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory str
 }
 
 // ListFiles lists the files of a directory
-func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
-	path := driver.baseDir + cc.Path()
-	files, err := ioutil.ReadDir(path)
+func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string) ([]os.FileInfo, error) {
+	p := path.Join(driver.baseDir, directory)
+	if directory == "" {
+		p = driver.baseDir + cc.Path()
+	}
+	files, err := ioutil.ReadDir(p)
 	return files, err
 }
 

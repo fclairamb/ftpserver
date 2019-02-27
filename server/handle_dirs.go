@@ -84,7 +84,7 @@ func (c *clientHandler) handlePWD() {
 }
 
 func (c *clientHandler) handleLIST() {
-	if files, err := c.driver.ListFiles(c); err == nil {
+	if files, err := c.driver.ListFiles(c, c.absPath(c.param)); err == nil {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
 			c.dirTransferLIST(tr, files)
@@ -99,7 +99,7 @@ func (c *clientHandler) handleMLSD() {
 		c.writeMessage(500, "MLSD has been disabled")
 		return
 	}
-	if files, err := c.driver.ListFiles(c); err == nil {
+	if files, err := c.driver.ListFiles(c, c.absPath(c.param)); err == nil {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
 			c.dirTransferMLSD(tr, files)

@@ -160,7 +160,7 @@ func (c *clientHandler) handleSTATFile() {
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeLine("211-Status follows:")
 		if info.IsDir() {
-			if files, err := c.driver.ListFiles(c); err == nil {
+			if files, err := c.driver.ListFiles(c, c.absPath(c.param)); err == nil {
 				for _, f := range files {
 					c.writeLine(fmt.Sprintf(" %s", c.fileStat(f)))
 				}
