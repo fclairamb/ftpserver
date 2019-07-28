@@ -158,9 +158,9 @@ func (c *clientHandler) handleSTATFile() {
 	path := c.absPath(c.param)
 
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
-		// m := c.multilineAnswer(StatusSystemStatus, "System status")
-		// defer m()
-		c.writeLine(fmt.Sprintf("%d-Status follows:", StatusSystemStatus))
+		m := c.multilineAnswer(StatusSystemStatus, "System status")
+		defer m()
+		// c.writeLine(fmt.Sprintf("%d-Status follows:", StatusSystemStatus))
 		if info.IsDir() {
 			if files, err := c.driver.ListFiles(c); err == nil {
 				for _, f := range files {
@@ -170,7 +170,7 @@ func (c *clientHandler) handleSTATFile() {
 		} else {
 			c.writeLine(fmt.Sprintf(" %s", c.fileStat(info)))
 		}
-		c.writeLine(fmt.Sprintf("%d End of status", StatusSystemStatus))
+		// c.writeLine(fmt.Sprintf("%d End of status", StatusSystemStatus))
 	} else {
 		c.writeMessage(StatusFileActionNotTaken, fmt.Sprintf("Could not STAT: %v", err))
 	}
@@ -183,11 +183,11 @@ func (c *clientHandler) handleMLST() {
 	}
 	path := c.absPath(c.param)
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
-		// m := c.multilineAnswer(StatusFileOK, "File details")
-		// defer m()
-		c.writer.Write([]byte(fmt.Sprintf("%d- File details\r\n ", StatusFileOK)))
+		m := c.multilineAnswer(StatusFileOK, "File details")
+		defer m()
+		// c.writer.Write([]byte(fmt.Sprintf("%d- File details\r\n ", StatusFileOK)))
 		c.writeMLSxOutput(c.writer, info)
-		c.writeMessage(StatusFileOK, "End of file details")
+		// c.writeMessage(StatusFileOK, "End of file details")
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not list: %v", err))
 	}

@@ -114,8 +114,10 @@ func (c *clientHandler) handlePASV() {
 
 func (p *passiveTransferHandler) ConnectionWait(wait time.Duration) (net.Conn, error) {
 	if p.connection == nil {
-		p.tcpListener.SetDeadline(time.Now().Add(wait))
 		var err error
+		if err = p.tcpListener.SetDeadline(time.Now().Add(wait)); err != nil {
+			return nil, fmt.Errorf("failed to set deadline: %v", err)
+		}
 		p.connection, err = p.listener.Accept()
 
 		if err != nil {

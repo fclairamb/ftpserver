@@ -133,7 +133,7 @@ func (server *FtpServer) Listen() error {
 	return err
 }
 
-// Serve accepts and process any new client coming
+// Serve accepts and processes any new incoming client
 func (server *FtpServer) Serve() {
 	for {
 		connection, err := server.listener.Accept()

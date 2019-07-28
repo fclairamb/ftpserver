@@ -3,6 +3,7 @@ package tests
 import (
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -132,7 +133,15 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 	if (flag & os.O_WRONLY) != 0 {
 		flag |= os.O_CREATE
 		if (flag & os.O_APPEND) == 0 {
-			os.Remove(path)
+			if _, err := os.Stat(path); err != nil {
+				if !os.IsNotExist(err) {
+					return nil, fmt.Errorf("error accessing file %s: %v", path, err)
+				}
+			} else {
+				if err := os.Remove(path); err != nil {
+					return nil, fmt.Errorf("error deleting %s: %v", path, err)
+				}
+			}
 		}
 	}
 

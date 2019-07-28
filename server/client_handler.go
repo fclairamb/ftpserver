@@ -236,8 +236,8 @@ func parseLine(line string) (string, string) {
 
 // For future use
 func (c *clientHandler) multilineAnswer(code int, message string) func() {
-	c.writeLine(fmt.Sprintf("%d- %s", code, message))
+	c.writeLine(fmt.Sprintf("%d-%s", code, message))
 	return func() {
-		c.writeLine(fmt.Sprintf("%d End of %s", code, message))
+		c.writeLine(fmt.Sprintf("%d End", code))
 	}
 }

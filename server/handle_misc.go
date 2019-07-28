@@ -55,10 +55,10 @@ func (c *clientHandler) handleSITE() {
 }
 
 func (c *clientHandler) handleSTATServer() {
-	c.writeLine(fmt.Sprintf("%d- FTP server status:", StatusFileStatus))
+	//c.writeLine(fmt.Sprintf("%d-FTP server status:", StatusFileStatus))
 
-	// m := c.multilineAnswer(StatusFileStatus, "Server status")
-	// defer m()
+	m := c.multilineAnswer(StatusFileStatus, "Server status")
+	defer m()
 	duration := time.Now().UTC().Sub(c.connectedAt)
 	duration -= duration % time.Second
 	c.writeLine(fmt.Sprintf(
@@ -73,7 +73,7 @@ func (c *clientHandler) handleSTATServer() {
 		c.writeLine("Not logged in yet")
 	}
 	c.writeLine("ftpserver - golang FTP server")
-	defer c.writeMessage(StatusFileStatus, "End")
+	// defer c.writeMessage(StatusFileStatus, "End")
 }
 
 func (c *clientHandler) handleOPTS() {
