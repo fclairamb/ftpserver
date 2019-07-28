@@ -120,7 +120,9 @@ func (c *clientHandler) HandleCommands() {
 
 		// florent(2018-01-14): #58: IDLE timeout: Preparing the deadline before we read
 		if c.server.settings.IdleTimeout > 0 {
-			c.conn.SetDeadline(time.Now().Add(time.Duration(time.Second.Nanoseconds() * int64(c.server.settings.IdleTimeout))))
+			if err := c.conn.SetDeadline(time.Now().Add(time.Duration(time.Second.Nanoseconds() * int64(c.server.settings.IdleTimeout)))); err != nil {
+				level.Error(c.logger).Log(logKeyMsg, "Network error", logKeyAction, "tcp.set_deadline", "err", err)
+			}
 		}
 
 		line, err := c.reader.ReadString('\n')
