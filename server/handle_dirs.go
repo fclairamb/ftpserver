@@ -94,6 +94,17 @@ func (c *clientHandler) handleLIST() {
 	}
 }
 
+func (c *clientHandler) handleNLST() {
+	if files, err := c.driver.ListFiles(c); err == nil {
+		if tr, err := c.TransferOpen(); err == nil {
+			defer c.TransferClose()
+			c.dirTransferNLST(tr, files)
+		}
+	} else {
+		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
+	}
+}
+
 func (c *clientHandler) handleMLSD() {
 	if c.daddy.settings.DisableMLSD {
 		c.writeMessage(500, "MLSD has been disabled")
@@ -141,6 +152,13 @@ func (c *clientHandler) fileStat(file os.FileInfo) string {
 func (c *clientHandler) dirTransferLIST(w io.Writer, files []os.FileInfo) error {
 	for _, file := range files {
 		fmt.Fprintf(w, "%s\r\n", c.fileStat(file))
+	}
+	return nil
+}
+
+func (c *clientHandler) dirTransferNLST(w io.Writer, files []os.FileInfo) error {
+	for _, file := range files {
+		fmt.Fprintf(w, "%s\r\n", file.Name())
 	}
 	return nil
 }
