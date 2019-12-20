@@ -28,7 +28,9 @@ type GKLogger struct {
 }
 
 var (
-	DefaultCaller       = gklog.Caller(4)
+	// DefaultCaller adds a "caller" property
+	DefaultCaller = gklog.Caller(4)
+	// DefaultTimestampUTC adds a "ts" property
 	DefaultTimestampUTC = gklog.DefaultTimestampUTC
 )
 
@@ -69,14 +71,14 @@ func (logger *GKLogger) With(keyvals ...interface{}) Logger {
 	return NewGKLogger(gklog.With(logger.logger, keyvals...))
 }
 
-// New logger based on go-kit logs
+// NewGKLogger creates a logger based on go-kit logs
 func NewGKLogger(logger gklog.Logger) *GKLogger {
 	return &GKLogger{
 		logger: logger,
 	}
 }
 
-// New void go-kit logger
+// NewNopGKLogger instantiates go-kit logger
 func NewNopGKLogger() *GKLogger {
 	return NewGKLogger(gklog.NewNopLogger())
 }
