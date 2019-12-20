@@ -19,7 +19,8 @@ func TestDirListing(t *testing.T) {
 	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
 		t.Fatal("Couldn't connect", connErr)
 	}
-	defer panicOnError(ftp.Quit())
+
+	defer func() { panicOnError(ftp.Quit()) }()
 
 	if _, err := ftp.List("/"); err == nil {
 		t.Fatal("We could list files before login")
@@ -64,7 +65,8 @@ func TestDirHandling(t *testing.T) {
 	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
 		t.Fatal("Couldn't connect", connErr)
 	}
-	defer panicOnError(ftp.Quit())
+
+	defer func() { panicOnError(ftp.Quit()) }()
 
 	if err := ftp.Login("test", "test"); err != nil {
 		t.Fatal("Failed to login:", err)
@@ -127,7 +129,8 @@ func TestDirListingWithSpace(t *testing.T) {
 	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
 		t.Fatal("Couldn't connect", connErr)
 	}
-	defer panicOnError(ftp.Quit())
+
+	defer func() { panicOnError(ftp.Quit()) }()
 
 	if err := ftp.Login("test", "test"); err != nil {
 		t.Fatal("Failed to login:", err)

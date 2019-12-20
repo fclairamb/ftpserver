@@ -4,13 +4,14 @@ import (
 	"os"
 	"testing"
 
+	"github.com/go-kit/kit/log"
 	gklog "github.com/go-kit/kit/log"
 )
 
 func getLogger() Logger {
 	return NewGKLogger(gklog.NewLogfmtLogger(gklog.NewSyncWriter(os.Stdout))).With(
-		"ts", gklog.DefaultTimestampUTC,
-		"caller", gklog.DefaultCaller,
+		"ts", log.DefaultTimestampUTC,
+		"caller", log.DefaultCaller,
 	)
 }
 
