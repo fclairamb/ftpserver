@@ -13,8 +13,9 @@ import (
 	gklevel "github.com/go-kit/kit/log/level"
 )
 
+// Logger interface
 type Logger interface {
-	Log(keyvals ...interface{})
+	// Log(keyvals ...interface{})
 	Debug(keyvals ...interface{})
 	Info(keyvals ...interface{})
 	Warn(keyvals ...interface{})
@@ -31,9 +32,11 @@ var (
 	DefaultTimestampUTC = gklog.DefaultTimestampUTC
 )
 
+/*
 func (logger *GKLogger) Log(keyvals ...interface{}) {
 	logger.checkError(logger.logger.Log(keyvals...))
 }
+*/
 
 func (logger *GKLogger) checkError(err error) {
 	if err != nil {
@@ -41,32 +44,39 @@ func (logger *GKLogger) checkError(err error) {
 	}
 }
 
+// Debug logs key-values at debug level
 func (logger *GKLogger) Debug(keyvals ...interface{}) {
 	logger.checkError(gklevel.Debug(logger.logger).Log(keyvals...))
 }
 
+// Info logs key-values at info level
 func (logger *GKLogger) Info(keyvals ...interface{}) {
 	logger.checkError(gklevel.Info(logger.logger).Log(keyvals...))
 }
 
+// Warn logs key-values at warn level
 func (logger *GKLogger) Warn(keyvals ...interface{}) {
 	logger.checkError(gklevel.Warn(logger.logger).Log(keyvals...))
 }
 
+// Error logs key-values at error level
 func (logger *GKLogger) Error(keyvals ...interface{}) {
 	logger.checkError(gklevel.Error(logger.logger).Log(keyvals...))
 }
 
+// With adds key-values
 func (logger *GKLogger) With(keyvals ...interface{}) Logger {
 	return NewGKLogger(gklog.With(logger.logger, keyvals...))
 }
 
+// New logger based on go-kit logs
 func NewGKLogger(logger gklog.Logger) *GKLogger {
 	return &GKLogger{
 		logger: logger,
 	}
 }
 
+// New void go-kit logger
 func NewNopGKLogger() *GKLogger {
 	return NewGKLogger(gklog.NewNopLogger())
 }
