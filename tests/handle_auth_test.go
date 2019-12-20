@@ -7,6 +7,12 @@ import (
 	"gopkg.in/dutchcoders/goftp.v1"
 )
 
+func panicOnError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 func TestLoginSuccess(t *testing.T) {
 	s := NewTestServer(true)
 	defer s.Stop()
@@ -17,7 +23,7 @@ func TestLoginSuccess(t *testing.T) {
 	if ftp, err = goftp.Connect(s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
-	defer ftp.Quit()
+	defer panicOnError(ftp.Quit())
 
 	if err = ftp.Noop(); err != nil {
 		t.Fatal("Couldn't NOOP before login:", err)
@@ -51,7 +57,7 @@ func TestLoginFailure(t *testing.T) {
 		t.Fatal("Couldn't connect:", err)
 	}
 
-	defer ftp.Quit()
+	defer panicOnError(ftp.Quit())
 
 	if err = ftp.Login("test", "test2"); err == nil {
 		t.Fatal("We should have failed to login")
@@ -69,7 +75,7 @@ func TestAuthTLS(t *testing.T) {
 	if err != nil {
 		t.Fatal("Couldn't connect:", err)
 	}
-	defer ftp.Quit()
+	defer panicOnError(ftp.Quit())
 
 	config := &tls.Config{
 		InsecureSkipVerify: true,

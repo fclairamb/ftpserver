@@ -62,7 +62,9 @@ type ClientDriver struct {
 // NewClientDriver creates a client driver
 func NewClientDriver() *ClientDriver {
 	dir, _ := ioutil.TempDir("", "example")
-	os.MkdirAll(dir, 0777)
+	if err := os.MkdirAll(dir, 0777); err != nil {
+		panic(err)
+	}
 	return &ClientDriver{baseDir: dir}
 }
 

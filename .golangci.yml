@@ -1,0 +1,12 @@
+run:
+    # default concurrency is a available CPU number
+    concurrency: 4
+  
+    # timeout for analysis, e.g. 30s, 5m, default is 1m
+    timeout: 1m
+  
+    # exit code when at least one issue was found, default is 1
+    issues-exit-code: 1
+  
+    # include test files or not, default is true
+    tests: true

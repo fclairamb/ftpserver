@@ -202,7 +202,6 @@ func TestFailedFileClose(t *testing.T) {
 
 type failingCloser struct {
 	os.File
-	fail bool
 }
 
 var errFailingCloser = errors.New("the hard disk crashed")

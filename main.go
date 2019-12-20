@@ -87,13 +87,12 @@ func main() {
 }
 
 func signalHandler() {
-	ch := make(chan os.Signal)
+	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM)
 	for {
 		switch <-ch {
 		case syscall.SIGTERM:
 			ftpServer.Stop()
-			break
 		}
 	}
 }
