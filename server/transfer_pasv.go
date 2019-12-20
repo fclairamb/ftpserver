@@ -7,8 +7,6 @@ import (
 	"net"
 	"strings"
 	"time"
-
-	"github.com/go-kit/kit/log/level"
 )
 
 // Active/Passive transfer connection handler
@@ -29,7 +27,7 @@ type passiveTransferHandler struct {
 	settings    *Settings        // Settings
 }
 
-func (c *clientHandler) handlePASV() {
+func (c *clientHandler) handlePASV() error {
 	addr, _ := net.ResolveTCPAddr("tcp", ":0")
 	var tcpListener *net.TCPListener
 	var err error
@@ -55,8 +53,8 @@ func (c *clientHandler) handlePASV() {
 	}
 
 	if err != nil {
-		level.Error(c.logger).Log(logKeyMsg, "Could not listen", "err", err)
-		return
+		c.logger.Error(logKeyMsg, "Could not listen", "err", err)
+		return nil
 	}
 
 	// The listener will either be plain TCP or TLS
@@ -66,7 +64,7 @@ func (c *clientHandler) handlePASV() {
 			listener = tls.NewListener(tcpListener, tlsConfig)
 		} else {
 			c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Cannot get a TLS config: %v", err))
-			return
+			return nil
 		}
 	} else {
 		listener = tcpListener
@@ -110,6 +108,7 @@ func (c *clientHandler) handlePASV() {
 	}
 
 	c.transfer = p
+	return nil
 }
 
 func (p *passiveTransferHandler) ConnectionWait(wait time.Duration) (net.Conn, error) {

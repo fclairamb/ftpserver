@@ -9,16 +9,19 @@ import (
 	"strings"
 )
 
-func (c *clientHandler) handleSTOR() {
+func (c *clientHandler) handleSTOR() error {
 	c.transferFile(true, false)
+	return nil
 }
 
-func (c *clientHandler) handleAPPE() {
+func (c *clientHandler) handleAPPE() error {
 	c.transferFile(true, true)
+	return nil
 }
 
-func (c *clientHandler) handleRETR() {
+func (c *clientHandler) handleRETR() error {
 	c.transferFile(false, false)
+	return nil
 }
 
 // File transfer, read or write, seek or not, is basically the same.
@@ -114,16 +117,17 @@ func (c *clientHandler) handleCHMOD(params string) {
 	c.writeMessage(StatusOK, "SITE CHMOD command successful")
 }
 
-func (c *clientHandler) handleDELE() {
+func (c *clientHandler) handleDELE() error {
 	path := c.absPath(c.param)
 	if err := c.driver.DeleteFile(c, path); err == nil {
 		c.writeMessage(StatusFileOK, fmt.Sprintf("Removed file %s", path))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't delete %s: %v", path, err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleRNFR() {
+func (c *clientHandler) handleRNFR() error {
 	path := c.absPath(c.param)
 	if _, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(StatusFileActionPending, "Sure, give me a target")
@@ -131,9 +135,10 @@ func (c *clientHandler) handleRNFR() {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't access %s: %v", path, err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleRNTO() {
+func (c *clientHandler) handleRNTO() error {
 	dst := c.absPath(c.param)
 	if c.ctxRnfr != "" {
 		if err := c.driver.RenameFile(c, c.ctxRnfr, dst); err == nil {
@@ -143,18 +148,20 @@ func (c *clientHandler) handleRNTO() {
 			c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't rename %s to %s: %s", c.ctxRnfr, dst, err.Error()))
 		}
 	}
+	return nil
 }
 
-func (c *clientHandler) handleSIZE() {
+func (c *clientHandler) handleSIZE() error {
 	path := c.absPath(c.param)
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(StatusFileStatus, fmt.Sprintf("%d", info.Size()))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't access %s: %v", path, err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleSTATFile() {
+func (c *clientHandler) handleSTATFile() error {
 	path := c.absPath(c.param)
 
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
@@ -174,12 +181,13 @@ func (c *clientHandler) handleSTATFile() {
 	} else {
 		c.writeMessage(StatusFileActionNotTaken, fmt.Sprintf("Could not STAT: %v", err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleMLST() {
+func (c *clientHandler) handleMLST() error {
 	if c.server.settings.DisableMLST {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, "MLST has been disabled")
-		return
+		return nil
 	}
 	path := c.absPath(c.param)
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
@@ -191,9 +199,10 @@ func (c *clientHandler) handleMLST() {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not list: %v", err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleALLO() {
+func (c *clientHandler) handleALLO() error {
 	// We should probably add a method in the driver
 	if size, err := strconv.Atoi(c.param); err == nil {
 		if ok, err := c.driver.CanAllocate(c, size); err == nil {
@@ -208,22 +217,25 @@ func (c *clientHandler) handleALLO() {
 	} else {
 		c.writeMessage(StatusSyntaxErrorParameters, fmt.Sprintf("Couldn't parse size: %v", err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleREST() {
+func (c *clientHandler) handleREST() error {
 	if size, err := strconv.ParseInt(c.param, 10, 0); err == nil {
 		c.ctxRest = size
 		c.writeMessage(StatusFileActionPending, "OK")
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't parse size: %v", err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleMDTM() {
+func (c *clientHandler) handleMDTM() error {
 	path := c.absPath(c.param)
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
 		c.writeMessage(StatusFileOK, info.ModTime().UTC().Format(dateFormatMLSD))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
 	}
+	return nil
 }

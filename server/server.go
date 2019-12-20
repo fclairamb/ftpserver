@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	// "github.com/go-kit/kit/log"
+	// "github.com/go-kit/kit/log/levelg"
+	"github.com/fclairamb/ftpserver/server/log"
 )
 
 const (
@@ -18,8 +19,8 @@ const (
 
 // CommandDescription defines which function should be used and if it should be open to anyone or only logged in users
 type CommandDescription struct {
-	Open bool                 // Open to clients without auth
-	Fn   func(*clientHandler) // Function to handle it
+	Open bool                       // Open to clients without auth
+	Fn   func(*clientHandler) error // Function to handle it
 }
 
 // This is shared between FtpServer instances as there's no point in making the FTP commands behave differently
@@ -123,12 +124,12 @@ func (server *FtpServer) Listen() error {
 		server.listener, err = net.Listen("tcp", server.settings.ListenAddr)
 
 		if err != nil {
-			level.Error(server.Logger).Log(logKeyMsg, "Cannot listen", "err", err)
+			server.Logger.Error(logKeyMsg, "Cannot listen", "err", err)
 			return err
 		}
 	}
 
-	level.Info(server.Logger).Log(logKeyMsg, "Listening...", logKeyAction, "ftp.listening", "address", server.listener.Addr())
+	server.Logger.Info(logKeyMsg, "Listening...", logKeyAction, "ftp.listening", "address", server.listener.Addr())
 
 	return err
 }
@@ -139,12 +140,14 @@ func (server *FtpServer) Serve() {
 		connection, err := server.listener.Accept()
 		if err != nil {
 			if server.listener != nil {
-				level.Error(server.Logger).Log(logKeyMsg, "Accept error", "err", err)
+				server.Logger.Error(logKeyMsg, "Accept error", "err", err)
 			}
 			break
 		}
 
-		server.clientArrival(connection)
+		if err := server.clientArrival(connection); err != nil {
+			server.Logger.Error("Client arrival didn't go well", "err", err)
+		}
 	}
 }
 
@@ -154,7 +157,7 @@ func (server *FtpServer) ListenAndServe() error {
 		return err
 	}
 
-	level.Info(server.Logger).Log(logKeyMsg, "Starting...", logKeyAction, "ftp.starting")
+	server.Logger.Info(logKeyMsg, "Starting...", logKeyAction, "ftp.starting")
 
 	server.Serve()
 
@@ -167,7 +170,7 @@ func (server *FtpServer) ListenAndServe() error {
 func NewFtpServer(driver MainDriver) *FtpServer {
 	return &FtpServer{
 		driver: driver,
-		Logger: log.NewNopLogger(),
+		Logger: log.NewNopGKLogger(),
 	}
 }
 
@@ -194,12 +197,12 @@ func (server *FtpServer) clientArrival(conn net.Conn) error {
 	c := server.newClientHandler(conn, id)
 	go c.HandleCommands()
 
-	level.Info(c.logger).Log(logKeyMsg, "FTP Client connected", logKeyAction, "ftp.connected", "clientIp", conn.RemoteAddr())
+	c.logger.Info(logKeyMsg, "FTP Client connected", logKeyAction, "ftp.connected", "clientIp", conn.RemoteAddr())
 
 	return nil
 }
 
 // clientDeparture
 func (server *FtpServer) clientDeparture(c *clientHandler) {
-	level.Info(c.logger).Log(logKeyMsg, "FTP Client disconnected", logKeyAction, "ftp.disconnected", "clientIp", c.conn.RemoteAddr())
+	c.logger.Info(logKeyMsg, "FTP Client disconnected", logKeyAction, "ftp.disconnected", "clientIp", c.conn.RemoteAddr())
 }

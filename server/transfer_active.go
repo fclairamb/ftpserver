@@ -9,12 +9,12 @@ import (
 	"time"
 )
 
-func (c *clientHandler) handlePORT() {
+func (c *clientHandler) handlePORT() error {
 	raddr, err := parseRemoteAddr(c.param)
 
 	if err != nil {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Problem parsing PORT: %v", err))
-		return
+		return nil
 	}
 
 	c.writeMessage(StatusOK, "PORT command successful")
@@ -23,6 +23,7 @@ func (c *clientHandler) handlePORT() {
 		raddr:    raddr,
 		settings: c.server.settings,
 	}
+	return nil
 }
 
 // Active connection

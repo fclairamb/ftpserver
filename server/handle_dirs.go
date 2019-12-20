@@ -32,10 +32,9 @@ func (c *clientHandler) absPath(p string) string {
 	return p2
 }
 
-func (c *clientHandler) handleCWD() {
+func (c *clientHandler) handleCWD() error {
 	if c.param == ".." {
-		c.handleCDUP()
-		return
+		return c.handleCDUP()
 	}
 
 	p := c.absPath(c.param)
@@ -46,27 +45,30 @@ func (c *clientHandler) handleCWD() {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("CD issue: %v", err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleMKD() {
+func (c *clientHandler) handleMKD() error {
 	p := c.absPath(c.param)
 	if err := c.driver.MakeDirectory(c, p); err == nil {
 		c.writeMessage(StatusPathCreated, fmt.Sprintf("Created dir %s", p))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not create %s : %v", p, err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleRMD() {
+func (c *clientHandler) handleRMD() error {
 	p := c.absPath(c.param)
 	if err := c.driver.DeleteFile(c, p); err == nil {
 		c.writeMessage(StatusFileOK, fmt.Sprintf("Deleted dir %s", p))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not delete dir %s: %v", p, err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleCDUP() {
+func (c *clientHandler) handleCDUP() error {
 	parent, _ := path.Split(c.Path())
 	if parent != "/" && strings.HasSuffix(parent, "/") {
 		parent = parent[0 : len(parent)-1]
@@ -77,36 +79,40 @@ func (c *clientHandler) handleCDUP() {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("CDUP issue: %v", err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handlePWD() {
+func (c *clientHandler) handlePWD() error {
 	c.writeMessage(StatusPathCreated, "\""+c.Path()+"\" is the current directory")
+	return nil
 }
 
-func (c *clientHandler) handleLIST() {
+func (c *clientHandler) handleLIST() error {
 	if files, err := c.driver.ListFiles(c); err == nil {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
-			c.dirTransferLIST(tr, files)
+			return c.dirTransferLIST(tr, files)
 		}
 	} else {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Could not list: %v", err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handleMLSD() {
+func (c *clientHandler) handleMLSD() error {
 	if c.server.settings.DisableMLSD {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, "MLSD has been disabled")
-		return
+		return nil
 	}
 	if files, err := c.driver.ListFiles(c); err == nil {
 		if tr, err := c.TransferOpen(); err == nil {
 			defer c.TransferClose()
-			c.dirTransferMLSD(tr, files)
+			return c.dirTransferMLSD(tr, files)
 		}
 	} else {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Could not list: %v", err))
 	}
+	return nil
 }
 
 const (

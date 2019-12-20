@@ -23,8 +23,7 @@ import (
 	"math/big"
 
 	"github.com/fclairamb/ftpserver/server"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/fclairamb/ftpserver/server/log"
 	"github.com/naoina/toml"
 )
 
@@ -76,16 +75,16 @@ func (driver *MainDriver) GetSettings() (*server.Settings, error) {
 	// This is the new IP loading change coming from Ray
 	if driver.config.Server.PublicHost == "" {
 		publicIP := ""
-		level.Debug(driver.Logger).Log("msg", "Fetching our external IP address...")
+		driver.Logger.Debug("msg", "Fetching our external IP address...")
 		if publicIP, err = externalIP(); err != nil {
-			level.Warn(driver.Logger).Log("msg", "Couldn't fetch an external IP", "err", err)
+			driver.Logger.Warn("msg", "Couldn't fetch an external IP", "err", err)
 		} else {
-			level.Debug(driver.Logger).Log("msg", "Fetched our external IP address", "ipAddress", driver.config.Server.PublicHost)
+			driver.Logger.Debug("msg", "Fetched our external IP address", "ipAddress", driver.config.Server.PublicHost)
 		}
 
 		// Adding a special case for loopback clients (issue #74)
 		driver.config.Server.PublicIPResolver = func(cc server.ClientContext) (string, error) {
-			level.Debug(driver.Logger).Log("msg", "Resolving public IP", "remoteAddr", cc.RemoteAddr())
+			driver.Logger.Debug("msg", "Resolving public IP", "remoteAddr", cc.RemoteAddr())
 			if strings.HasPrefix(cc.RemoteAddr().String(), "127.0.0.1") {
 				return "127.0.0.1", nil
 			}
@@ -104,7 +103,7 @@ func (driver *MainDriver) GetSettings() (*server.Settings, error) {
 func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 
 	if driver.tlsConfig == nil {
-		level.Info(driver.Logger).Log("msg", "Loading certificate")
+		driver.Logger.Info("msg", "Loading certificate")
 		if cert, err := driver.getCertificate(); err == nil {
 			driver.tlsConfig = &tls.Config{
 				NextProtos:   []string{"ftp"},
@@ -121,11 +120,11 @@ func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 // This implementation of the driver doesn't load a certificate from a file on purpose. But it any proper implementation
 // should most probably load the certificate from a file using tls.LoadX509KeyPair("cert_pub.pem", "cert_priv.pem").
 func (driver *MainDriver) getCertificate() (*tls.Certificate, error) {
-	level.Info(driver.Logger).Log("msg", "Creating certificate")
+	driver.Logger.Info("msg", "Creating certificate")
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 
 	if err != nil {
-		level.Error(driver.Logger).Log("msg", "Could not generate key", "err", err)
+		driver.Logger.Error("msg", "Could not generate key", "err", err)
 		return nil, err
 	}
 
@@ -151,7 +150,7 @@ func (driver *MainDriver) getCertificate() (*tls.Certificate, error) {
 	derBytes, err := x509.CreateCertificate(rand.Reader, template, template, &priv.PublicKey, priv)
 
 	if err != nil {
-		level.Error(driver.Logger).Log("msg", "Could not create cert", "err", err)
+		driver.Logger.Error("msg", "Could not create cert", "err", err)
 		return nil, err
 	}
 
@@ -191,7 +190,9 @@ func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (
 		if act.User == user && act.Pass == pass {
 			// If we are authenticated, we can return a client driver containing *our* basedir
 			baseDir := driver.BaseDir + string(os.PathSeparator) + act.Dir
-			os.MkdirAll(baseDir, 0777)
+			if err := os.MkdirAll(baseDir, 0777); err != nil {
+				return nil, fmt.Errorf("Could not create user dir: %v", err)
+			}
 			return &ClientDriver{BaseDir: baseDir}, nil
 		}
 	}
@@ -331,7 +332,7 @@ func NewSampleDriver(dir string, settingsFile string) (*MainDriver, error) {
 	}
 
 	drv := &MainDriver{
-		Logger:       log.NewNopLogger(),
+		Logger:       log.NewNopGKLogger(),
 		SettingsFile: settingsFile,
 		BaseDir:      dir,
 	}

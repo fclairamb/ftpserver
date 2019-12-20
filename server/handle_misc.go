@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (c *clientHandler) handleAUTH() {
+func (c *clientHandler) handleAUTH() error {
 	if tlsConfig, err := c.server.driver.GetTLSConfig(); err == nil {
 		c.writeMessage(StatusAuthAccepted, "AUTH command ok. Expecting TLS Negotiation.")
 		c.conn = tls.Server(c.conn, tlsConfig)
@@ -17,44 +17,49 @@ func (c *clientHandler) handleAUTH() {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Cannot get a TLS config: %v", err))
 	}
+	return nil
 }
 
-func (c *clientHandler) handlePROT() {
+func (c *clientHandler) handlePROT() error {
 	// P for Private, C for Clear
 	c.transferTLS = c.param == "P"
 	c.writeMessage(StatusOK, "OK")
+	return nil
 }
 
-func (c *clientHandler) handlePBSZ() {
+func (c *clientHandler) handlePBSZ() error {
 	c.writeMessage(StatusOK, "Whatever")
+	return nil
 }
 
-func (c *clientHandler) handleSYST() {
+func (c *clientHandler) handleSYST() error {
 	c.writeMessage(StatusSystemType, "UNIX Type: L8")
+	return nil
 }
 
-func (c *clientHandler) handleSTAT() {
+func (c *clientHandler) handleSTAT() error {
 	// STAT is a bit tricky
 
 	if c.param == "" { // Without a file, it's the server stat
-		c.handleSTATServer()
+		return c.handleSTATServer()
 	} else { // With a file/dir it's the file or the dir's files stat
-		c.handleSTATFile()
+		return c.handleSTATFile()
 	}
 }
 
-func (c *clientHandler) handleSITE() {
+func (c *clientHandler) handleSITE() error {
 	spl := strings.SplitN(c.param, " ", 2)
 	if len(spl) > 1 {
 		if strings.ToUpper(spl[0]) == "CHMOD" {
 			c.handleCHMOD(spl[1])
-			return
+			return nil
 		}
 	}
 	c.writeMessage(StatusSyntaxErrorNotRecognised, "Not understood SITE subcommand")
+	return nil
 }
 
-func (c *clientHandler) handleSTATServer() {
+func (c *clientHandler) handleSTATServer() error {
 	//c.writeLine(fmt.Sprintf("%d-FTP server status:", StatusFileStatus))
 
 	m := c.multilineAnswer(StatusFileStatus, "Server status")
@@ -73,23 +78,26 @@ func (c *clientHandler) handleSTATServer() {
 		c.writeLine("Not logged in yet")
 	}
 	c.writeLine("ftpserver - golang FTP server")
+	return nil
 	// defer c.writeMessage(StatusFileStatus, "End")
 }
 
-func (c *clientHandler) handleOPTS() {
+func (c *clientHandler) handleOPTS() error {
 	args := strings.SplitN(c.param, " ", 2)
 	if strings.ToUpper(args[0]) == "UTF8" {
 		c.writeMessage(StatusOK, "I'm in UTF8 only anyway")
 	} else {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, "Don't know this option")
 	}
+	return nil
 }
 
-func (c *clientHandler) handleNOOP() {
+func (c *clientHandler) handleNOOP() error {
 	c.writeMessage(StatusOK, "OK")
+	return nil
 }
 
-func (c *clientHandler) handleFEAT() {
+func (c *clientHandler) handleFEAT() error {
 	c.writeLine(fmt.Sprintf("%d- These are my features", StatusSystemStatus))
 	defer c.writeMessage(StatusSystemStatus, "end")
 
@@ -111,9 +119,10 @@ func (c *clientHandler) handleFEAT() {
 	for _, f := range features {
 		c.writeLine(" " + f)
 	}
+	return nil
 }
 
-func (c *clientHandler) handleTYPE() {
+func (c *clientHandler) handleTYPE() error {
 	switch c.param {
 	case "I":
 		c.writeMessage(StatusOK, "Type set to binary")
@@ -122,10 +131,12 @@ func (c *clientHandler) handleTYPE() {
 	default:
 		c.writeMessage(StatusSyntaxErrorNotRecognised, "Not understood")
 	}
+	return nil
 }
 
-func (c *clientHandler) handleQUIT() {
+func (c *clientHandler) handleQUIT() error {
 	c.writeMessage(StatusClosingControlConn, "Goodbye")
 	c.disconnect()
 	c.reader = nil
+	return nil
 }
