@@ -23,7 +23,7 @@ type Logger interface {
 	With(keyvals ...interface{}) Logger
 }
 
-type GKLogger struct {
+type gKLogger struct {
 	logger gklog.Logger
 }
 
@@ -40,45 +40,45 @@ func (logger *GKLogger) Log(keyvals ...interface{}) {
 }
 */
 
-func (logger *GKLogger) checkError(err error) {
+func (logger *gKLogger) checkError(err error) {
 	if err != nil {
 		fmt.Println("Logging faced this error: ", err)
 	}
 }
 
 // Debug logs key-values at debug level
-func (logger *GKLogger) Debug(keyvals ...interface{}) {
+func (logger *gKLogger) Debug(keyvals ...interface{}) {
 	logger.checkError(gklevel.Debug(logger.logger).Log(keyvals...))
 }
 
 // Info logs key-values at info level
-func (logger *GKLogger) Info(keyvals ...interface{}) {
+func (logger *gKLogger) Info(keyvals ...interface{}) {
 	logger.checkError(gklevel.Info(logger.logger).Log(keyvals...))
 }
 
 // Warn logs key-values at warn level
-func (logger *GKLogger) Warn(keyvals ...interface{}) {
+func (logger *gKLogger) Warn(keyvals ...interface{}) {
 	logger.checkError(gklevel.Warn(logger.logger).Log(keyvals...))
 }
 
 // Error logs key-values at error level
-func (logger *GKLogger) Error(keyvals ...interface{}) {
+func (logger *gKLogger) Error(keyvals ...interface{}) {
 	logger.checkError(gklevel.Error(logger.logger).Log(keyvals...))
 }
 
 // With adds key-values
-func (logger *GKLogger) With(keyvals ...interface{}) Logger {
+func (logger *gKLogger) With(keyvals ...interface{}) Logger {
 	return NewGKLogger(gklog.With(logger.logger, keyvals...))
 }
 
 // NewGKLogger creates a logger based on go-kit logs
-func NewGKLogger(logger gklog.Logger) *GKLogger {
-	return &GKLogger{
+func NewGKLogger(logger gklog.Logger) *gKLogger {
+	return &gKLogger{
 		logger: logger,
 	}
 }
 
 // NewNopGKLogger instantiates go-kit logger
-func NewNopGKLogger() *GKLogger {
+func NewNopGKLogger() *gKLogger {
 	return NewGKLogger(gklog.NewNopLogger())
 }
