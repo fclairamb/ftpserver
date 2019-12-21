@@ -36,7 +36,6 @@ type clientHandler struct {
 
 // newClientHandler initializes a client handler when someone connects
 func (server *FtpServer) newClientHandler(connection net.Conn, id uint32) *clientHandler {
-
 	p := &clientHandler{
 		server:      server,
 		conn:        connection,
@@ -95,6 +94,7 @@ func (c *clientHandler) LocalAddr() net.Addr {
 func (c *clientHandler) end() {
 	c.server.driver.UserLeft(c)
 	c.server.clientDeparture(c)
+
 	if c.transfer != nil {
 		c.transfer.Close()
 	}
@@ -116,12 +116,14 @@ func (c *clientHandler) HandleCommands() {
 			if c.debug {
 				c.logger.Debug(logKeyMsg, "Clean disconnect", logKeyAction, "ftp.disconnect", "clean", true)
 			}
+
 			return
 		}
 
 		// florent(2018-01-14): #58: IDLE timeout: Preparing the deadline before we read
 		if c.server.settings.IdleTimeout > 0 {
-			if err := c.conn.SetDeadline(time.Now().Add(time.Duration(time.Second.Nanoseconds() * int64(c.server.settings.IdleTimeout)))); err != nil {
+			if err := c.conn.SetDeadline(
+				time.Now().Add(time.Duration(time.Second.Nanoseconds() * int64(c.server.settings.IdleTimeout)))); err != nil {
 				c.logger.Error(logKeyMsg, "Network error", logKeyAction, "tcp.set_deadline", "err", err)
 			}
 		}
@@ -129,34 +131,7 @@ func (c *clientHandler) HandleCommands() {
 		line, err := c.reader.ReadString('\n')
 
 		if err != nil {
-			// florent(2018-01-14): #58: IDLE timeout: Adding some code to deal with the deadline
-			switch err := err.(type) {
-			case net.Error:
-				if err.Timeout() {
-					// We have to extend the deadline now
-					if err := c.conn.SetDeadline(time.Now().Add(time.Minute)); err != nil {
-						c.logger.Error(logKeyMsg, "Could not set deadline", logKeyAction, "ftp.deadline_fail", "err", err)
-					}
-					c.logger.Info(logKeyMsg, "IDLE timeout", logKeyAction, "ftp.idle_timeout", "err", err)
-					c.writeMessage(StatusServiceNotAvailable, fmt.Sprintf("command timeout (%d seconds): closing control connection", c.server.settings.IdleTimeout))
-					if err := c.writer.Flush(); err != nil {
-						c.logger.Error(logKeyMsg, "Network flush error", logKeyAction, "ftp.flush_error", "err", err)
-					}
-					if err := c.conn.Close(); err != nil {
-						c.logger.Error(logKeyMsg, "Network close error", logKeyAction, "ftp.close_error", "err", err)
-					}
-					break
-				}
-				c.logger.Error(logKeyMsg, "Network error", logKeyAction, "ftp.net_error", "err", err)
-			default:
-				if err == io.EOF {
-					if c.debug {
-						c.logger.Debug(logKeyMsg, "TCP disconnect", logKeyAction, "ftp.disconnect", "clean", false)
-					}
-				} else {
-					c.logger.Error(logKeyMsg, "Read error", logKeyAction, "ftp.read_error", "err", err)
-				}
-			}
+			c.handleCommandsStreamError(err)
 			return
 		}
 
@@ -165,6 +140,44 @@ func (c *clientHandler) HandleCommands() {
 		}
 
 		c.handleCommand(line)
+	}
+}
+
+func (c *clientHandler) handleCommandsStreamError(err error) {
+	// florent(2018-01-14): #58: IDLE timeout: Adding some code to deal with the deadline
+	switch err := err.(type) {
+	case net.Error:
+		if err.Timeout() {
+			// We have to extend the deadline now
+			if err := c.conn.SetDeadline(time.Now().Add(time.Minute)); err != nil {
+				c.logger.Error(logKeyMsg, "Could not set deadline", logKeyAction, "ftp.deadline_fail", "err", err)
+			}
+
+			c.logger.Info(logKeyMsg, "IDLE timeout", logKeyAction, "ftp.idle_timeout", "err", err)
+			c.writeMessage(
+				StatusServiceNotAvailable,
+				fmt.Sprintf("command timeout (%d seconds): closing control connection", c.server.settings.IdleTimeout))
+
+			if err := c.writer.Flush(); err != nil {
+				c.logger.Error(logKeyMsg, "Network flush error", logKeyAction, "ftp.flush_error", "err", err)
+			}
+
+			if err := c.conn.Close(); err != nil {
+				c.logger.Error(logKeyMsg, "Network close error", logKeyAction, "ftp.close_error", "err", err)
+			}
+
+			break
+		}
+
+		c.logger.Error(logKeyMsg, "Network error", logKeyAction, "ftp.net_error", "err", err)
+	default:
+		if err == io.EOF {
+			if c.debug {
+				c.logger.Debug(logKeyMsg, "TCP disconnect", logKeyAction, "ftp.disconnect", "clean", false)
+			}
+		} else {
+			c.logger.Error(logKeyMsg, "Read error", logKeyAction, "ftp.read_error", "err", err)
+		}
 	}
 }
 
@@ -191,6 +204,7 @@ func (c *clientHandler) handleCommand(line string) {
 			c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Unhandled internal error: %s", r))
 		}
 	}()
+
 	if err := cmdDesc.Fn(c); err != nil {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Error: %s", err))
 	}
@@ -200,9 +214,11 @@ func (c *clientHandler) writeLine(line string) {
 	if c.debug {
 		c.logger.Debug(logKeyMsg, "FTP SEND", logKeyAction, "ftp.cmd_send", "line", line)
 	}
+
 	if _, err := c.writer.WriteString(fmt.Sprintf("%s\r\n", line)); err != nil {
 		c.logger.Warn(logKeyMsg, "Message could not be sent", logKeyAction, "err.cmd_send", "line", line)
 	}
+
 	c.writer.Flush()
 }
 
@@ -215,11 +231,18 @@ func (c *clientHandler) TransferOpen() (net.Conn, error) {
 		c.writeMessage(StatusActionNotTaken, "No passive connection declared")
 		return nil, errors.New("no passive connection declared")
 	}
+
 	c.writeMessage(StatusFileStatusOK, "Using transfer connection")
 	conn, err := c.transfer.Open()
+
 	if err == nil && c.debug {
-		c.logger.Debug(logKeyMsg, "FTP Transfer connection opened", logKeyAction, "ftp.transfer_open", "remoteAddr", conn.RemoteAddr().String(), "localAddr", conn.LocalAddr().String())
+		c.logger.Debug(
+			logKeyMsg, "FTP Transfer connection opened",
+			logKeyAction, "ftp.transfer_open",
+			"remoteAddr", conn.RemoteAddr().String(),
+			"localAddr", conn.LocalAddr().String())
 	}
+
 	return conn, err
 }
 
@@ -228,6 +251,7 @@ func (c *clientHandler) TransferClose() {
 		c.writeMessage(StatusClosingDataConn, "Closing transfer connection")
 		c.transfer.Close()
 		c.transfer = nil
+
 		if c.debug {
 			c.logger.Debug(logKeyMsg, "FTP Transfer connection closed", logKeyAction, "ftp.transfer_close")
 		}
@@ -239,12 +263,14 @@ func parseLine(line string) (string, string) {
 	if len(params) == 1 {
 		return params[0], ""
 	}
+
 	return params[0], params[1]
 }
 
 // For future use
 func (c *clientHandler) multilineAnswer(code int, message string) func() {
 	c.writeLine(fmt.Sprintf("%d-%s", code, message))
+
 	return func() {
 		c.writeLine(fmt.Sprintf("%d End", code))
 	}

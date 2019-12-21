@@ -23,6 +23,7 @@ func (c *clientHandler) handlePORT() error {
 		raddr:    raddr,
 		settings: c.server.settings,
 	}
+
 	return nil
 }
 
@@ -61,6 +62,7 @@ func (a *activeTransferHandler) Close() error {
 	if a.conn != nil {
 		return a.conn.Close()
 	}
+
 	return nil
 }
 
@@ -76,16 +78,20 @@ func parseRemoteAddr(param string) (*net.TCPAddr, error) {
 	if len(params) != 6 {
 		return nil, errors.New("bad number of args")
 	}
+
 	ip := strings.Join(params[0:4], ".")
 
 	p1, err := strconv.Atoi(params[4])
 	if err != nil {
 		return nil, err
 	}
+
 	p2, err := strconv.Atoi(params[5])
+
 	if err != nil {
 		return nil, err
 	}
+
 	port := p1<<8 + p2
 
 	return net.ResolveTCPAddr("tcp", fmt.Sprintf("%s:%d", ip, port))

@@ -142,12 +142,11 @@ func (server *FtpServer) Serve() {
 			if server.listener != nil {
 				server.Logger.Error(logKeyMsg, "Accept error", "err", err)
 			}
+
 			break
 		}
 
-		if err := server.clientArrival(connection); err != nil {
-			server.Logger.Error("Client arrival didn't go well", "err", err)
-		}
+		server.clientArrival(connection)
 	}
 }
 
@@ -161,7 +160,7 @@ func (server *FtpServer) ListenAndServe() error {
 
 	server.Serve()
 
-	// Note: At this precise time, the clients are still connected. We are just not accepting clients anymore.
+	// At this precise time, the clients are still connected. We are just not accepting clients anymore.
 
 	return nil
 }
@@ -179,6 +178,7 @@ func (server *FtpServer) Addr() string {
 	if server.listener != nil {
 		return server.listener.Addr().String()
 	}
+
 	return ""
 }
 
@@ -190,7 +190,7 @@ func (server *FtpServer) Stop() {
 }
 
 // When a client connects, the server could refuse the connection
-func (server *FtpServer) clientArrival(conn net.Conn) error {
+func (server *FtpServer) clientArrival(conn net.Conn) {
 	server.clientCounter++
 	id := server.clientCounter
 
@@ -198,8 +198,6 @@ func (server *FtpServer) clientArrival(conn net.Conn) error {
 	go c.HandleCommands()
 
 	c.logger.Info(logKeyMsg, "FTP Client connected", logKeyAction, "ftp.connected", "clientIp", conn.RemoteAddr())
-
-	return nil
 }
 
 // clientDeparture

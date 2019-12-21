@@ -45,6 +45,7 @@ func (c *clientHandler) handleCWD() error {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("CD issue: %v", err))
 	}
+
 	return nil
 }
 
@@ -55,6 +56,7 @@ func (c *clientHandler) handleMKD() error {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not create %s : %v", p, err))
 	}
+
 	return nil
 }
 
@@ -65,6 +67,7 @@ func (c *clientHandler) handleRMD() error {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not delete dir %s: %v", p, err))
 	}
+
 	return nil
 }
 
@@ -73,12 +76,14 @@ func (c *clientHandler) handleCDUP() error {
 	if parent != "/" && strings.HasSuffix(parent, "/") {
 		parent = parent[0 : len(parent)-1]
 	}
+
 	if err := c.driver.ChangeDirectory(c, parent); err == nil {
 		c.SetPath(parent)
 		c.writeMessage(StatusFileOK, fmt.Sprintf("CDUP worked on %s", parent))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("CDUP issue: %v", err))
 	}
+
 	return nil
 }
 
@@ -89,13 +94,14 @@ func (c *clientHandler) handlePWD() error {
 
 func (c *clientHandler) handleLIST() error {
 	if files, err := c.driver.ListFiles(c); err == nil {
-		if tr, err := c.TransferOpen(); err == nil {
+		if tr, err2 := c.TransferOpen(); err2 == nil {
 			defer c.TransferClose()
 			return c.dirTransferLIST(tr, files)
 		}
 	} else {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Could not list: %v", err))
 	}
+
 	return nil
 }
 
@@ -104,14 +110,16 @@ func (c *clientHandler) handleMLSD() error {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, "MLSD has been disabled")
 		return nil
 	}
+
 	if files, err := c.driver.ListFiles(c); err == nil {
-		if tr, err := c.TransferOpen(); err == nil {
+		if tr, err2 := c.TransferOpen(); err2 == nil {
 			defer c.TransferClose()
 			return c.dirTransferMLSD(tr, files)
 		}
 	} else {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Could not list: %v", err))
 	}
+
 	return nil
 }
 
@@ -123,7 +131,6 @@ const (
 )
 
 func (c *clientHandler) fileStat(file os.FileInfo) string {
-
 	modTime := file.ModTime()
 
 	var dateFormat string
@@ -148,6 +155,7 @@ func (c *clientHandler) dirTransferLIST(w io.Writer, files []os.FileInfo) error 
 	for _, file := range files {
 		fmt.Fprintf(w, "%s\r\n", c.fileStat(file))
 	}
+
 	return nil
 }
 
@@ -156,6 +164,7 @@ func (c *clientHandler) dirTransferMLSD(w io.Writer, files []os.FileInfo) error 
 	for _, file := range files {
 		c.writeMLSxOutput(w, file)
 	}
+
 	return nil
 }
 func (c *clientHandler) writeMLSxOutput(w io.Writer, file os.FileInfo) {
@@ -165,6 +174,7 @@ func (c *clientHandler) writeMLSxOutput(w io.Writer, file os.FileInfo) {
 	} else {
 		listType = "file"
 	}
+
 	fmt.Fprintf(
 		w,
 		"Type=%s;Size=%d;Modify=%s; %s\r\n",

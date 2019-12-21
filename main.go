@@ -8,11 +8,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	gklog "github.com/go-kit/kit/log"
+
 	"github.com/fclairamb/ftpserver/sample"
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/fclairamb/ftpserver/server/log"
-	// "github.com/go-kit/kit/log/level"
-	gklog "github.com/go-kit/kit/log"
 )
 
 var (

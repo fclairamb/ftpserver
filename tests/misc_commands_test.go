@@ -6,8 +6,9 @@ import (
 
 	"time"
 
-	"github.com/fclairamb/ftpserver/server"
 	"github.com/secsy/goftp"
+
+	"github.com/fclairamb/ftpserver/server"
 )
 
 func TestSiteCommand(t *testing.T) {
@@ -25,6 +26,7 @@ func TestSiteCommand(t *testing.T) {
 	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
+
 	defer c.Close()
 
 	var raw goftp.RawConn
@@ -61,6 +63,7 @@ func TestIdleTimeout(t *testing.T) {
 	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
+
 	defer c.Close()
 
 	var raw goftp.RawConn
@@ -97,6 +100,7 @@ func TestStat(t *testing.T) {
 	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
+
 	defer c.Close()
 
 	var raw goftp.RawConn

@@ -27,7 +27,6 @@ func (c *clientHandler) handleRETR() error {
 // File transfer, read or write, seek or not, is basically the same.
 // To make sure we don't miss any step, we execute everything in order
 func (c *clientHandler) transferFile(write bool, append bool) {
-
 	var file FileStream
 	var err error
 
@@ -65,6 +64,7 @@ func (c *clientHandler) transferFile(write bool, append bool) {
 	// Start the transfer
 	if err == nil {
 		var tr net.Conn
+
 		if tr, err = c.TransferOpen(); err == nil {
 			defer c.TransferClose()
 
@@ -87,7 +87,6 @@ func (c *clientHandler) transferFile(write bool, append bool) {
 	}
 
 	// *ALWAYS* close the file but only save the error if there wasn't one before
-	// Note: We could discard the error in read mode
 	if errClose := file.Close(); errClose != nil && err == nil {
 		err = errClose
 	}
@@ -124,6 +123,7 @@ func (c *clientHandler) handleDELE() error {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't delete %s: %v", path, err))
 	}
+
 	return nil
 }
 
@@ -135,11 +135,13 @@ func (c *clientHandler) handleRNFR() error {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't access %s: %v", path, err))
 	}
+
 	return nil
 }
 
 func (c *clientHandler) handleRNTO() error {
 	dst := c.absPath(c.param)
+
 	if c.ctxRnfr != "" {
 		if err := c.driver.RenameFile(c, c.ctxRnfr, dst); err == nil {
 			c.writeMessage(StatusFileOK, "Done !")
@@ -148,6 +150,7 @@ func (c *clientHandler) handleRNTO() error {
 			c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't rename %s to %s: %s", c.ctxRnfr, dst, err.Error()))
 		}
 	}
+
 	return nil
 }
 
@@ -158,6 +161,7 @@ func (c *clientHandler) handleSIZE() error {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't access %s: %v", path, err))
 	}
+
 	return nil
 }
 
@@ -169,7 +173,7 @@ func (c *clientHandler) handleSTATFile() error {
 		defer m()
 		// c.writeLine(fmt.Sprintf("%d-Status follows:", StatusSystemStatus))
 		if info.IsDir() {
-			if files, err := c.driver.ListFiles(c); err == nil {
+			if files, err2 := c.driver.ListFiles(c); err2 == nil {
 				for _, f := range files {
 					c.writeLine(fmt.Sprintf(" %s", c.fileStat(f)))
 				}
@@ -177,10 +181,10 @@ func (c *clientHandler) handleSTATFile() error {
 		} else {
 			c.writeLine(fmt.Sprintf(" %s", c.fileStat(info)))
 		}
-		// c.writeLine(fmt.Sprintf("%d End of status", StatusSystemStatus))
 	} else {
 		c.writeMessage(StatusFileActionNotTaken, fmt.Sprintf("Could not STAT: %v", err))
 	}
+
 	return nil
 }
 
@@ -189,34 +193,37 @@ func (c *clientHandler) handleMLST() error {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, "MLST has been disabled")
 		return nil
 	}
+
 	path := c.absPath(c.param)
+
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
 		m := c.multilineAnswer(StatusFileOK, "File details")
 		defer m()
-		// c.writer.Write([]byte(fmt.Sprintf("%d- File details\r\n ", StatusFileOK)))
+
 		c.writeMLSxOutput(c.writer, info)
-		// c.writeMessage(StatusFileOK, "End of file details")
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not list: %v", err))
 	}
+
 	return nil
 }
 
 func (c *clientHandler) handleALLO() error {
 	// We should probably add a method in the driver
 	if size, err := strconv.Atoi(c.param); err == nil {
-		if ok, err := c.driver.CanAllocate(c, size); err == nil {
+		if ok, err2 := c.driver.CanAllocate(c, size); err2 == nil {
 			if ok {
 				c.writeMessage(StatusNotImplemented, "OK, we have the free space")
 			} else {
 				c.writeMessage(StatusActionNotTaken, "NOT OK, we don't have the free space")
 			}
 		} else {
-			c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Driver issue: %v", err))
+			c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Driver issue: %v", err2))
 		}
 	} else {
 		c.writeMessage(StatusSyntaxErrorParameters, fmt.Sprintf("Couldn't parse size: %v", err))
 	}
+
 	return nil
 }
 
@@ -227,6 +234,7 @@ func (c *clientHandler) handleREST() error {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't parse size: %v", err))
 	}
+
 	return nil
 }
 
@@ -237,5 +245,6 @@ func (c *clientHandler) handleMDTM() error {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
 	}
+
 	return nil
 }

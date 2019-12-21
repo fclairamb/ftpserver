@@ -30,6 +30,7 @@ func TestLoginSuccess(t *testing.T) {
 	if ftp, err = goftp.Connect(s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
+
 	defer func() { panicOnError(ftp.Quit()) }()
 
 	if err = ftp.Noop(); err != nil {
@@ -82,9 +83,11 @@ func TestAuthTLS(t *testing.T) {
 	if err != nil {
 		t.Fatal("Couldn't connect:", err)
 	}
+
 	defer func() { reportError(ftp.Quit()) }()
 
 	config := &tls.Config{
+		// nolint:gosec
 		InsecureSkipVerify: true,
 		ClientAuth:         tls.RequestClientCert,
 	}

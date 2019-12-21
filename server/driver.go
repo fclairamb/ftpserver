@@ -99,10 +99,10 @@ type PublicIPResolver func(ClientContext) (string, error)
 
 // Settings defines all the server settings
 type Settings struct {
-	Listener                  net.Listener     // Allow providing an already initialized listener. Mutually exclusive with ListenAddr
+	Listener                  net.Listener     // (Optional) To provide an already initialized listener
 	ListenAddr                string           // Listening address
 	PublicHost                string           // Public IP to expose (only an IP address is accepted at this stage)
-	PublicIPResolver          PublicIPResolver // Optional function that can perform a public ip lookup for the given CientContext.
+	PublicIPResolver          PublicIPResolver // (Optional) To fetch a public IP lookup
 	DataPortRange             *PortRange       // Port Range for data connections. Random one will be used if not specified
 	DisableMLSD               bool             // Disable MLSD support
 	DisableMLST               bool             // Disable MLST support

@@ -17,6 +17,7 @@ func (c *clientHandler) handleAUTH() error {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Cannot get a TLS config: %v", err))
 	}
+
 	return nil
 }
 
@@ -24,6 +25,7 @@ func (c *clientHandler) handlePROT() error {
 	// P for Private, C for Clear
 	c.transferTLS = c.param == "P"
 	c.writeMessage(StatusOK, "OK")
+
 	return nil
 }
 
@@ -38,8 +40,6 @@ func (c *clientHandler) handleSYST() error {
 }
 
 func (c *clientHandler) handleSTAT() error {
-	// STAT is a bit tricky
-
 	if c.param == "" { // Without a file, it's the server stat
 		return c.handleSTATServer()
 	}
@@ -51,20 +51,21 @@ func (c *clientHandler) handleSTAT() error {
 func (c *clientHandler) handleSITE() error {
 	spl := strings.SplitN(c.param, " ", 2)
 	if len(spl) > 1 {
-		if strings.ToUpper(spl[0]) == "CHMOD" {
+		if strings.EqualFold(spl[0], "CHMOD") {
 			c.handleCHMOD(spl[1])
 			return nil
 		}
 	}
+
 	c.writeMessage(StatusSyntaxErrorNotRecognised, "Not understood SITE subcommand")
+
 	return nil
 }
 
 func (c *clientHandler) handleSTATServer() error {
-	//c.writeLine(fmt.Sprintf("%d-FTP server status:", StatusFileStatus))
-
 	m := c.multilineAnswer(StatusFileStatus, "Server status")
 	defer m()
+
 	duration := time.Now().UTC().Sub(c.connectedAt)
 	duration -= duration % time.Second
 	c.writeLine(fmt.Sprintf(
@@ -73,23 +74,26 @@ func (c *clientHandler) handleSTATServer() error {
 		c.conn.RemoteAddr(),
 		duration,
 	))
+
 	if c.user != "" {
 		c.writeLine(fmt.Sprintf("Logged in as %s", c.user))
 	} else {
 		c.writeLine("Not logged in yet")
 	}
+
 	c.writeLine("ftpserver - golang FTP server")
+
 	return nil
-	// defer c.writeMessage(StatusFileStatus, "End")
 }
 
 func (c *clientHandler) handleOPTS() error {
 	args := strings.SplitN(c.param, " ", 2)
-	if strings.ToUpper(args[0]) == "UTF8" {
+	if strings.EqualFold(args[0], "UTF8") {
 		c.writeMessage(StatusOK, "I'm in UTF8 only anyway")
 	} else {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, "Don't know this option")
 	}
+
 	return nil
 }
 
@@ -120,6 +124,7 @@ func (c *clientHandler) handleFEAT() error {
 	for _, f := range features {
 		c.writeLine(" " + f)
 	}
+
 	return nil
 }
 
@@ -132,6 +137,7 @@ func (c *clientHandler) handleTYPE() error {
 	default:
 		c.writeMessage(StatusSyntaxErrorNotRecognised, "Not understood")
 	}
+
 	return nil
 }
 
@@ -139,5 +145,6 @@ func (c *clientHandler) handleQUIT() error {
 	c.writeMessage(StatusClosingControlConn, "Goodbye")
 	c.disconnect()
 	c.reader = nil
+
 	return nil
 }

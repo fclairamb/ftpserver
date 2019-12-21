@@ -9,6 +9,7 @@ package log
 
 import (
 	"fmt"
+
 	gklog "github.com/go-kit/kit/log"
 	gklevel "github.com/go-kit/kit/log/level"
 )
@@ -33,12 +34,6 @@ var (
 	// DefaultTimestampUTC adds a "ts" property
 	DefaultTimestampUTC = gklog.DefaultTimestampUTC
 )
-
-/*
-func (logger *GKLogger) Log(keyvals ...interface{}) {
-	logger.checkError(logger.logger.Log(keyvals...))
-}
-*/
 
 func (logger *gKLogger) checkError(err error) {
 	if err != nil {

@@ -22,9 +22,10 @@ import (
 	"encoding/pem"
 	"math/big"
 
+	"github.com/naoina/toml"
+
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/fclairamb/ftpserver/server/log"
-	"github.com/naoina/toml"
 )
 
 // MainDriver defines a very basic ftpserver driver
@@ -52,7 +53,7 @@ type Account struct {
 // OurSettings defines our settings
 type OurSettings struct {
 	Server         server.Settings // Server settings (shouldn't need to be filled)
-	Users          []Account       // Credentials
+	Users          []*Account      // Credentials
 	MaxConnections int32           // Maximum number of clients that are allowed to connect at the same time
 }
 
@@ -62,20 +63,24 @@ func (driver *MainDriver) GetSettings() (*server.Settings, error) {
 	if err != nil {
 		panic(err)
 	}
+
 	defer f.Close()
 	buf, err := ioutil.ReadAll(f)
+
 	if err != nil {
 		panic(err)
 	}
 	//var config OurSettings
-	if err := toml.Unmarshal(buf, &driver.config); err != nil {
-		return nil, fmt.Errorf("problem loading \"%s\": %v", driver.SettingsFile, err)
+	if err2 := toml.Unmarshal(buf, &driver.config); err2 != nil {
+		return nil, fmt.Errorf("problem loading \"%s\": %v", driver.SettingsFile, err2)
 	}
 
 	// This is the new IP loading change coming from Ray
 	if driver.config.Server.PublicHost == "" {
 		publicIP := ""
+
 		driver.Logger.Debug("msg", "Fetching our external IP address...")
+
 		if publicIP, err = externalIP(); err != nil {
 			driver.Logger.Warn("msg", "Couldn't fetch an external IP", "err", err)
 		} else {
@@ -85,9 +90,11 @@ func (driver *MainDriver) GetSettings() (*server.Settings, error) {
 		// Adding a special case for loopback clients (issue #74)
 		driver.config.Server.PublicIPResolver = func(cc server.ClientContext) (string, error) {
 			driver.Logger.Debug("msg", "Resolving public IP", "remoteAddr", cc.RemoteAddr())
+
 			if strings.HasPrefix(cc.RemoteAddr().String(), "127.0.0.1") {
 				return "127.0.0.1", nil
 			}
+
 			return publicIP, nil
 		}
 	}
@@ -101,9 +108,9 @@ func (driver *MainDriver) GetSettings() (*server.Settings, error) {
 
 // GetTLSConfig returns a TLS Certificate to use
 func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
-
 	if driver.tlsConfig == nil {
 		driver.Logger.Info("msg", "Loading certificate")
+
 		if cert, err := driver.getCertificate(); err == nil {
 			driver.tlsConfig = &tls.Config{
 				NextProtos:   []string{"ftp"},
@@ -113,6 +120,7 @@ func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 			return nil, err
 		}
 	}
+
 	return driver.tlsConfig, nil
 }
 
@@ -121,6 +129,7 @@ func (driver *MainDriver) GetTLSConfig() (*tls.Config, error) {
 // should most probably load the certificate from a file using tls.LoadX509KeyPair("cert_pub.pem", "cert_priv.pem").
 func (driver *MainDriver) getCertificate() (*tls.Certificate, error) {
 	driver.Logger.Info("msg", "Creating certificate")
+
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 
 	if err != nil {
@@ -130,12 +139,14 @@ func (driver *MainDriver) getCertificate() (*tls.Certificate, error) {
 
 	now := time.Now().UTC()
 
+	subject := pkix.Name{
+		CommonName:   "localhost",
+		Organization: []string{"FTPServer"},
+	}
+
 	template := &x509.Certificate{
-		SerialNumber: big.NewInt(1337),
-		Subject: pkix.Name{
-			CommonName:   "localhost",
-			Organization: []string{"FTPServer"},
-		},
+		SerialNumber:          big.NewInt(1337),
+		Subject:               subject,
 		DNSNames:              []string{"localhost"},
 		SignatureAlgorithm:    x509.SHA256WithRSA,
 		PublicKeyAlgorithm:    x509.RSA,
@@ -155,13 +166,18 @@ func (driver *MainDriver) getCertificate() (*tls.Certificate, error) {
 	}
 
 	var certPem, keyPem bytes.Buffer
-	if err := pem.Encode(&certPem, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes}); err != nil {
-		return nil, err
+	if err2 := pem.Encode(&certPem, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes}); err2 != nil {
+		return nil, err2
 	}
-	if err := pem.Encode(&keyPem, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)}); err != nil {
-		return nil, err
+
+	if err2 := pem.Encode(
+		&keyPem,
+		&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)}); err2 != nil {
+		return nil, err2
 	}
+
 	c, err := tls.X509KeyPair(certPem.Bytes(), keyPem.Bytes())
+
 	return &c, err
 }
 
@@ -169,7 +185,10 @@ func (driver *MainDriver) getCertificate() (*tls.Certificate, error) {
 func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 	nbClients := atomic.AddInt32(&driver.nbClients, 1)
 	if nbClients > driver.config.MaxConnections {
-		return "Cannot accept any additional client", fmt.Errorf("too many clients: %d > % d", driver.nbClients, driver.config.MaxConnections)
+		return "Cannot accept any additional client", fmt.Errorf(
+			"too many clients: %d > % d",
+			driver.nbClients,
+			driver.config.MaxConnections)
 	}
 
 	cc.SetDebug(true)
@@ -185,7 +204,6 @@ func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 
 // AuthUser authenticates the user and selects an handling driver
 func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
-
 	for _, act := range driver.config.Users {
 		if act.User == user && act.Pass == pass {
 			// If we are authenticated, we can return a client driver containing *our* basedir
@@ -193,6 +211,7 @@ func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (
 			if err := os.MkdirAll(baseDir, 0777); err != nil {
 				return nil, fmt.Errorf("Could not create user dir: %v", err)
 			}
+
 			return &ClientDriver{BaseDir: baseDir}, nil
 		}
 	}
@@ -213,7 +232,9 @@ func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory s
 	} else if directory == "/virtual" {
 		return nil
 	}
+
 	_, err := os.Stat(driver.BaseDir + directory)
+
 	return err
 }
 
@@ -224,7 +245,6 @@ func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory str
 
 // ListFiles lists the files of a directory
 func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
-
 	if cc.Path() == "/virtual" {
 		files := make([]os.FileInfo, 0)
 		files = append(files,
@@ -239,6 +259,7 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, e
 				size: 2048,
 			},
 		)
+
 		return files, nil
 	} else if cc.Path() == "/debug" {
 		return make([]os.FileInfo, 0), nil
@@ -262,7 +283,6 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, e
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
 func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
-
 	if path == "/virtual/localpath.txt" {
 		return &virtualFile{content: []byte(driver.BaseDir)}, nil
 	}
@@ -326,6 +346,7 @@ func NewSampleDriver(dir string, settingsFile string) (*MainDriver, error) {
 	if dir == "" {
 		var err error
 		dir, err = ioutil.TempDir("", "ftpserver")
+
 		if err != nil {
 			return nil, fmt.Errorf("could not find a temporary dir, err: %v", err)
 		}
@@ -353,6 +374,7 @@ func (f *virtualFile) Close() error {
 func (f *virtualFile) Read(buffer []byte) (int, error) {
 	n := copy(buffer, f.content[f.readOffset:])
 	f.readOffset += n
+
 	if n == 0 {
 		return 0, io.EOF
 	}
@@ -404,6 +426,7 @@ func externalIP() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	defer rsp.Body.Close()
 
 	buf, err := ioutil.ReadAll(rsp.Body)

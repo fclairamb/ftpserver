@@ -7,9 +7,10 @@ import (
 	"io/ioutil"
 	"os"
 
+	gklog "github.com/go-kit/kit/log"
+
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/fclairamb/ftpserver/server/log"
-	gklog "github.com/go-kit/kit/log"
 )
 
 // NewTestServer provides a test server with or without debugging
@@ -40,7 +41,9 @@ func NewTestServerWithDriver(driver *ServerDriver) *server.FtpServer {
 	if err := s.Listen(); err != nil {
 		return nil
 	}
+
 	go s.Serve()
+
 	return s
 }
 
@@ -190,8 +193,13 @@ func (driver *ClientDriver) RenameFile(cc server.ClientContext, from, to string)
 // "127.0.0.1" and "[::1]", expiring at the last second of 2049 (the end
 // of ASN.1 time).
 // generated from src/crypto/tls:
-// go run "$(go env GOROOT)/src/crypto/tls/generate_cert.go" --rsa-bits 2048 --host 127.0.0.1,::1,example.com --ca --start-date "Jan 1 00:00:00 1970" --duration=1000000h
-// The initial 512 bits key caused this error: "tls: failed to sign handshake: crypto/rsa: key size too small for PSS signature"
+// go run "$(go env GOROOT)/src/crypto/tls/generate_cert.go" \
+//   --rsa-bits 2048 \
+//   --host 127.0.0.1,::1,example.com \
+//   --ca --start-date "Jan 1 00:00:00 1970" \
+//   --duration=1000000h
+// The initial 512 bits key caused this error:
+// "tls: failed to sign handshake: crypto/rsa: key size too small for PSS signature"
 var localhostCert = []byte(`-----BEGIN CERTIFICATE-----
 MIIDGTCCAgGgAwIBAgIRAJ5VaFcqzaSMmEpeZc33uuowDQYJKoZIhvcNAQELBQAw
 EjEQMA4GA1UEChMHQWNtZSBDbzAgFw03MDAxMDEwMDAwMDBaGA8yMDg0MDEyOTE2

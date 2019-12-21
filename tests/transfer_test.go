@@ -11,8 +11,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/fclairamb/ftpserver/server"
 	"github.com/secsy/goftp"
+
+	"github.com/fclairamb/ftpserver/server"
 )
 
 func createTemporaryFile(t *testing.T, targetSize int) *os.File {
@@ -119,6 +120,7 @@ func testTransferOnConnection(t *testing.T, server *server.FtpServer, active boo
 	if c, err = goftp.DialConfig(conf, server.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
+
 	defer c.Close()
 
 	var hashUpload, hashDownload string
@@ -155,6 +157,7 @@ func TestFailedTransfer(t *testing.T) {
 	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
+
 	defer c.Close()
 
 	// We create a 1KB file and upload it
@@ -188,6 +191,7 @@ func TestFailedFileClose(t *testing.T) {
 	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
+
 	defer c.Close()
 
 	file := createTemporaryFile(t, 1*1024)

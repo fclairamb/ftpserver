@@ -37,17 +37,17 @@ func (c *clientHandler) handlePASV() error {
 	if portRange != nil {
 		for start := portRange.Start; start < portRange.End; start++ {
 			port := portRange.Start + rand.Intn(portRange.End-portRange.Start)
-			laddr, err := net.ResolveTCPAddr("tcp", "0.0.0.0:"+fmt.Sprintf("%d", port))
-			if err != nil {
+			laddr, err2 := net.ResolveTCPAddr("tcp", "0.0.0.0:"+fmt.Sprintf("%d", port))
+
+			if err2 != nil {
 				continue
 			}
 
-			tcpListener, err = net.ListenTCP("tcp", laddr)
-			if err == nil {
+			tcpListener, err2 = net.ListenTCP("tcp", laddr)
+			if err2 == nil {
 				break
 			}
 		}
-
 	} else {
 		tcpListener, err = net.ListenTCP("tcp", addr)
 	}
@@ -59,6 +59,7 @@ func (c *clientHandler) handlePASV() error {
 
 	// The listener will either be plain TCP or TLS
 	var listener net.Listener
+
 	if c.transferTLS {
 		if tlsConfig, err := c.server.driver.GetTLSConfig(); err == nil {
 			listener = tls.NewListener(tcpListener, tlsConfig)
@@ -90,11 +91,9 @@ func (c *clientHandler) handlePASV() error {
 			if c.server.settings.PublicIPResolver != nil {
 				var err error
 				ip, err = c.server.settings.PublicIPResolver(c)
+
 				if err != nil {
-					// Not sure if there is better desired behavior than this.
-					// If we can't resolve the public ip to return to the client, is there any actual
-					// fallback that is better than erroring.
-					panic(err)
+					return fmt.Errorf("Couldn't fetch public IP: %v", err)
 				}
 			} else {
 				ip = strings.Split(c.conn.LocalAddr().String(), ":")[0]
@@ -102,12 +101,15 @@ func (c *clientHandler) handlePASV() error {
 		}
 
 		quads := strings.Split(ip, ".")
-		c.writeMessage(StatusEnteringPASV, fmt.Sprintf("Entering Passive Mode (%s,%s,%s,%s,%d,%d)", quads[0], quads[1], quads[2], quads[3], p1, p2))
+		c.writeMessage(
+			StatusEnteringPASV,
+			fmt.Sprintf("Entering Passive Mode (%s,%s,%s,%s,%d,%d)", quads[0], quads[1], quads[2], quads[3], p1, p2))
 	} else {
 		c.writeMessage(StatusEnteringEPSV, fmt.Sprintf("Entering Extended Passive Mode (|||%d|)", p.Port))
 	}
 
 	c.transfer = p
+
 	return nil
 }
 
@@ -117,6 +119,7 @@ func (p *passiveTransferHandler) ConnectionWait(wait time.Duration) (net.Conn, e
 		if err = p.tcpListener.SetDeadline(time.Now().Add(wait)); err != nil {
 			return nil, fmt.Errorf("failed to set deadline: %v", err)
 		}
+
 		p.connection, err = p.listener.Accept()
 
 		if err != nil {
@@ -137,8 +140,10 @@ func (p *passiveTransferHandler) Close() error {
 	if p.tcpListener != nil {
 		p.tcpListener.Close()
 	}
+
 	if p.connection != nil {
 		p.connection.Close()
 	}
+
 	return nil
 }
