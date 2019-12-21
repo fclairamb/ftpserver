@@ -29,8 +29,10 @@ import (
 )
 
 const (
+	// DirVirtual is the virtual directory to show how we handle file
 	DirVirtual = "/virtual"
-	DirDebug   = "/debug"
+	// DirDebug is to enable diagnostics debugging
+	DirDebug = "/debug"
 )
 
 // MainDriver defines a very basic ftpserver driver
@@ -69,7 +71,12 @@ func (driver *MainDriver) GetSettings() (*server.Settings, error) {
 		panic(err)
 	}
 
-	defer f.Close()
+	defer func() {
+		if errClose := f.Close(); errClose != nil {
+			fmt.Println("Problem closing file, err:", errClose)
+		}
+	}()
+
 	buf, err := ioutil.ReadAll(f)
 
 	if err != nil {
@@ -213,8 +220,8 @@ func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (
 		if act.User == user && act.Pass == pass {
 			// If we are authenticated, we can return a client driver containing *our* basedir
 			baseDir := driver.BaseDir + string(os.PathSeparator) + act.Dir
-			if err := os.MkdirAll(baseDir, 0777); err != nil {
-				return nil, fmt.Errorf("Could not create user dir: %v", err)
+			if err := os.MkdirAll(baseDir, 0750); err != nil {
+				return nil, fmt.Errorf("could not create user dir: %v", err)
 			}
 
 			return &ClientDriver{BaseDir: baseDir}, nil
@@ -245,7 +252,7 @@ func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory s
 
 // MakeDirectory creates a directory
 func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory string) error {
-	return os.Mkdir(driver.BaseDir+directory, 0777)
+	return os.Mkdir(driver.BaseDir+directory, 0750)
 }
 
 // ListFiles lists the files of a directory
@@ -298,11 +305,13 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 	if (flag & os.O_WRONLY) != 0 {
 		flag |= os.O_CREATE
 		if (flag & os.O_APPEND) == 0 {
-			os.Remove(path)
+			if err := os.Remove(path); err != nil {
+				fmt.Println("Problem removing file", path, "err:", err)
+			}
 		}
 	}
 
-	return os.OpenFile(path, flag, 0666)
+	return os.OpenFile(path, flag, 0600)
 }
 
 // GetFileInfo gets some info around a file or a directory
@@ -432,7 +441,11 @@ func externalIP() (string, error) {
 		return "", err
 	}
 
-	defer rsp.Body.Close()
+	defer func() {
+		if errClose := rsp.Body.Close(); errClose != nil {
+			fmt.Println("Problem closing checkip connection, err:", errClose)
+		}
+	}()
 
 	buf, err := ioutil.ReadAll(rsp.Body)
 	if err != nil {

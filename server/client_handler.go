@@ -1,3 +1,4 @@
+// Package server is the core of the library
 package server
 
 import (
@@ -52,7 +53,12 @@ func (server *FtpServer) newClientHandler(connection net.Conn, id uint32) *clien
 }
 
 func (c *clientHandler) disconnect() {
-	c.conn.Close()
+	if err := c.conn.Close(); err != nil {
+		c.logger.Warn(
+			"msg", "Problem disconnecting a client",
+			"action", "ftp.err_disconnecting",
+			"err", err)
+	}
 }
 
 // Path provides the current working directory of the client
@@ -95,7 +101,13 @@ func (c *clientHandler) end() {
 	c.server.clientDeparture(c)
 
 	if c.transfer != nil {
-		c.transfer.Close()
+		if err := c.transfer.Close(); err != nil {
+			c.logger.Warn(
+				"msg", "Problem closing a transfer",
+				"action", "ftp.err_closing_transfer",
+				"err", err,
+			)
+		}
 	}
 }
 
@@ -215,10 +227,21 @@ func (c *clientHandler) writeLine(line string) {
 	}
 
 	if _, err := c.writer.WriteString(fmt.Sprintf("%s\r\n", line)); err != nil {
-		c.logger.Warn(logKeyMsg, "Message could not be sent", logKeyAction, "err.cmd_send", "line", line)
+		c.logger.Warn(
+			logKeyMsg, "Message could not be sent",
+			logKeyAction, "err.cmd_send",
+			"line", line,
+			"err", err,
+		)
 	}
 
-	c.writer.Flush()
+	if err := c.writer.Flush(); err != nil {
+		c.logger.Warn(
+			logKeyMsg, "Couldn't flush line",
+			logKeyAction, "err.client_flush",
+			"err", err,
+		)
+	}
 }
 
 func (c *clientHandler) writeMessage(code int, message string) {
@@ -248,7 +271,15 @@ func (c *clientHandler) TransferOpen() (net.Conn, error) {
 func (c *clientHandler) TransferClose() {
 	if c.transfer != nil {
 		c.writeMessage(StatusClosingDataConn, "Closing transfer connection")
-		c.transfer.Close()
+
+		if err := c.transfer.Close(); err != nil {
+			c.logger.Warn(
+				logKeyMsg, "Problem closing tranfer connection",
+				logKeyAction, "err.closing_transfer",
+				"err", err,
+			)
+		}
+
 		c.transfer = nil
 
 		if c.debug {

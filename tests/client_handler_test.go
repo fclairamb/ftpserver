@@ -25,10 +25,10 @@ func TestConcurrency(t *testing.T) {
 			if ftp, err = goftp.Connect(s.Addr()); err != nil {
 				panic(err)
 			}
-			defer ftp.Close()
+			defer func() { panicOnError(ftp.Close()) }()
 
 			if err = ftp.Login("test", "test"); err != nil {
-				panic(fmt.Errorf("Failed to login: %s", err))
+				panic(fmt.Errorf("failed to login: %s", err))
 			}
 
 			waitGroup.Done()

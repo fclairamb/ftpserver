@@ -1,3 +1,4 @@
+// Package tests brings all the logic to test the server without messing up the main code
 package tests
 
 import (
@@ -65,7 +66,7 @@ type ClientDriver struct {
 // NewClientDriver creates a client driver
 func NewClientDriver() *ClientDriver {
 	dir, _ := ioutil.TempDir("", "example")
-	if err := os.MkdirAll(dir, 0777); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		panic(err)
 	}
 
@@ -125,7 +126,7 @@ func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory s
 
 // MakeDirectory creates a directory
 func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory string) error {
-	return os.Mkdir(driver.baseDir+directory, 0777)
+	return os.Mkdir(driver.baseDir+directory, 0750)
 }
 
 // ListFiles lists the files of a directory
@@ -158,7 +159,7 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 		return driver.FileStream, nil
 	}
 
-	return os.OpenFile(path, flag, 0666)
+	return os.OpenFile(path, flag, 0600)
 }
 
 // GetFileInfo gets some info around a file or a directory

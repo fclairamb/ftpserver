@@ -1,11 +1,6 @@
+// Package log provides a way to use the go-kit/log package without having to deal
+// with their very-opiniated/crazy choice of returning an error all the time: https://github.com/go-kit/kit/issues/164
 package log
-
-// https://github.com/go-kit/kit/issues/164
-// As much as I love the general go-kit effort of creating a generic library for everyone to use,
-// they really don't seem to care about making developers' life easier.
-// The whole reason why everyone liked their logging framework is that it was simple, but as soon
-// as everyone started to take care about error handling and linting their code it started to make
-// a lot less sense.
 
 import (
 	"fmt"

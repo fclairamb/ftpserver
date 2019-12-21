@@ -28,7 +28,7 @@ func TestSiteCommand(t *testing.T) {
 		t.Fatal("Couldn't connect", err)
 	}
 
-	defer c.Close()
+	defer func() { panicOnError(c.Close()) }()
 
 	var raw goftp.RawConn
 
@@ -66,7 +66,7 @@ func TestIdleTimeout(t *testing.T) {
 		t.Fatal("Couldn't connect", err)
 	}
 
-	defer c.Close()
+	defer func() { panicOnError(c.Close()) }()
 
 	var raw goftp.RawConn
 
@@ -104,7 +104,7 @@ func TestStat(t *testing.T) {
 		t.Fatal("Couldn't connect", err)
 	}
 
-	defer c.Close()
+	defer func() { panicOnError(c.Close()) }()
 
 	var raw goftp.RawConn
 

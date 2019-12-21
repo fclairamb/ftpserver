@@ -1,3 +1,4 @@
+// Package server provides all the tools to build your own FTP server: The core library and the driver.
 package server
 
 import (
@@ -7,6 +8,8 @@ import (
 	"net"
 	"strings"
 	"time"
+
+	"github.com/fclairamb/ftpserver/server/log"
 )
 
 // Active/Passive transfer connection handler
@@ -25,6 +28,7 @@ type passiveTransferHandler struct {
 	Port        int              // TCP Port we are listening on
 	connection  net.Conn         // TCP Connection established
 	settings    *Settings        // Settings
+	logger      log.Logger       // Logger
 }
 
 func (c *clientHandler) getCurrentIP() ([]string, error) {
@@ -39,7 +43,7 @@ func (c *clientHandler) getCurrentIP() ([]string, error) {
 			ip, err = c.server.settings.PublicIPResolver(c)
 
 			if err != nil {
-				return nil, fmt.Errorf("Couldn't fetch public IP: %v", err)
+				return nil, fmt.Errorf("couldn't fetch public IP: %v", err)
 			}
 		} else {
 			ip = strings.Split(c.conn.LocalAddr().String(), ":")[0]
@@ -100,6 +104,7 @@ func (c *clientHandler) handlePASV() error {
 		listener:    listener,
 		Port:        tcpListener.Addr().(*net.TCPAddr).Port,
 		settings:    c.server.settings,
+		logger:      c.logger,
 	}
 
 	// We should rewrite this part
@@ -149,11 +154,23 @@ func (p *passiveTransferHandler) Open() (net.Conn, error) {
 // Closing only the client connection is not supported at that time
 func (p *passiveTransferHandler) Close() error {
 	if p.tcpListener != nil {
-		p.tcpListener.Close()
+		if err := p.tcpListener.Close(); err != nil {
+			p.logger.Warn(
+				"msg", "Problem closing passive listener",
+				"action", "err.closing_passive_listener",
+				"err", err,
+			)
+		}
 	}
 
 	if p.connection != nil {
-		p.connection.Close()
+		if err := p.connection.Close(); err != nil {
+			p.logger.Warn(
+				"msg", "Problem closing passive connecting",
+				"action", "err.closing_passive_connection",
+				"err", err,
+			)
+		}
 	}
 
 	return nil

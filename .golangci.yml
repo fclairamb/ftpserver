@@ -48,7 +48,7 @@ linters-settings:
       disable-all: false
     golint:
       # minimal confidence for issues, default is 0.8
-      min-confidence: 0.8
+      min-confidence: 0
     gofmt:
       # simplify code: gofmt with `-s` option, true by default
       simplify: true
@@ -207,3 +207,10 @@ linters:
         - unused
     fast: false
   
+issues:
+  # Independently from option `exclude` we use default exclude patterns,
+  # it can be disabled by this option. To list all
+  # excluded by default patterns execute `golangci-lint run --help`.
+  # Default value for this option is true.
+  exclude-use-default: false
+

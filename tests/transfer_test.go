@@ -129,7 +129,7 @@ func testTransferOnConnection(t *testing.T, server *server.FtpServer, active boo
 		t.Fatal("Couldn't connect", err)
 	}
 
-	defer c.Close()
+	defer func() { panicOnError(c.Close()) }()
 
 	var hashUpload, hashDownload string
 	{ // We create a 10MB file and upload it
@@ -167,7 +167,7 @@ func TestFailedTransfer(t *testing.T) {
 		t.Fatal("Couldn't connect", err)
 	}
 
-	defer c.Close()
+	defer func() { panicOnError(c.Close()) }()
 
 	// We create a 1KB file and upload it
 	file := createTemporaryFile(t, 1*1024)
@@ -202,7 +202,7 @@ func TestFailedFileClose(t *testing.T) {
 		t.Fatal("Couldn't connect", err)
 	}
 
-	defer c.Close()
+	defer func() { panicOnError(c.Close()) }()
 
 	file := createTemporaryFile(t, 1*1024)
 	err = c.Store("file.bin", file)
