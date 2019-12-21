@@ -106,15 +106,25 @@ func (c *clientHandler) handleLIST() error {
 	return nil
 }
 
-func (c *clientHandler) handleNLST() {
+func (c *clientHandler) handleNLST() error {
 	if files, err := c.driver.ListFiles(c); err == nil {
-		if tr, err := c.TransferOpen(); err == nil {
+		if tr, errTrOpen := c.TransferOpen(); errTrOpen == nil {
 			defer c.TransferClose()
-			c.dirTransferNLST(tr, files)
+			return c.dirTransferNLST(tr, files)
 		}
 	} else {
 		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
 	}
+
+	return nil
+}
+
+func (c *clientHandler) dirTransferNLST(w io.Writer, files []os.FileInfo) error {
+	for _, file := range files {
+		fmt.Fprintf(w, "%s\r\n", file.Name())
+	}
+
+	return nil
 }
 
 func (c *clientHandler) handleMLSD() error {
@@ -168,13 +178,6 @@ func (c *clientHandler) dirTransferLIST(w io.Writer, files []os.FileInfo) error 
 		fmt.Fprintf(w, "%s\r\n", c.fileStat(file))
 	}
 
-	return nil
-}
-
-func (c *clientHandler) dirTransferNLST(w io.Writer, files []os.FileInfo) error {
-	for _, file := range files {
-		fmt.Fprintf(w, "%s\r\n", file.Name())
-	}
 	return nil
 }
 
