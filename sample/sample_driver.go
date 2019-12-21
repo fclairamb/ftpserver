@@ -28,6 +28,11 @@ import (
 	"github.com/fclairamb/ftpserver/server/log"
 )
 
+const (
+	DirVirtual = "/virtual"
+	DirDebug   = "/debug"
+)
+
 // MainDriver defines a very basic ftpserver driver
 type MainDriver struct {
 	Logger       log.Logger  // Logger
@@ -226,10 +231,10 @@ func (driver *MainDriver) UserLeft(cc server.ClientContext) {
 
 // ChangeDirectory changes the current working directory
 func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
-	if directory == "/debug" {
+	if directory == DirDebug {
 		cc.SetDebug(!cc.Debug())
 		return nil
-	} else if directory == "/virtual" {
+	} else if directory == DirVirtual {
 		return nil
 	}
 
@@ -245,7 +250,7 @@ func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory str
 
 // ListFiles lists the files of a directory
 func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
-	if cc.Path() == "/virtual" {
+	if cc.Path() == DirVirtual {
 		files := make([]os.FileInfo, 0)
 		files = append(files,
 			virtualFileInfo{
@@ -261,7 +266,7 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, e
 		)
 
 		return files, nil
-	} else if cc.Path() == "/debug" {
+	} else if cc.Path() == DirDebug {
 		return make([]os.FileInfo, 0), nil
 	}
 
@@ -283,7 +288,7 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, e
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
 func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
-	if path == "/virtual/localpath.txt" {
+	if path == DirDebug+"/localpath.txt" {
 		return &virtualFile{content: []byte(driver.BaseDir)}, nil
 	}
 
@@ -303,9 +308,9 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 // GetFileInfo gets some info around a file or a directory
 func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
 	switch path {
-	case "/virtual":
+	case DirVirtual:
 		return &virtualFileInfo{name: "virtual", size: 4096, mode: os.ModeDir}, nil
-	case "/debug":
+	case DirDebug:
 		return &virtualFileInfo{name: "debug", size: 4096, mode: os.ModeDir}, nil
 	}
 

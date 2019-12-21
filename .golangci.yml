@@ -170,24 +170,26 @@ linters-settings:
   
 linters:
     enable:
-        - funlen
-        - errcheck
-        - megacheck
-        - govet
-        - gocyclo
-        - gocognit
-        - unused
-        - golint
-        - gofmt
-        - godox
-        - goimports
-        - lll
-        - dupl
-        - unparam
-        - nakedret
-        - gocritic
-        - misspell
         - dogsled
+        - dupl
+        - errcheck
+        - funlen
+        - gocognit
+        - goconst
+        - gocritic
+        - gocyclo
+        - godox
+        - gofmt
+        - goimports
+        - golint
+        - govet
+        - lll
+        - megacheck
+        - misspell
+        - nakedret
+        - prealloc
+        - unparam
+        - unused
         - whitespace
         - wsl
     disable-all: false
