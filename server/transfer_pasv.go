@@ -142,7 +142,7 @@ func (p *passiveTransferHandler) ConnectionWait(wait time.Duration) (net.Conn, e
 }
 
 func (p *passiveTransferHandler) Open() (net.Conn, error) {
-	timeout := time.Duration(int64(time.Second.Nanoseconds()) * int64(p.settings.ConnectionTimeout))
+	timeout := time.Duration(time.Second.Nanoseconds() * int64(p.settings.ConnectionTimeout))
 	return p.ConnectionWait(timeout)
 }
 

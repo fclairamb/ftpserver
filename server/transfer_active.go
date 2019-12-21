@@ -35,7 +35,7 @@ type activeTransferHandler struct {
 }
 
 func (a *activeTransferHandler) Open() (net.Conn, error) {
-	timeout := time.Duration(int64(time.Second.Nanoseconds()) * int64(a.settings.ConnectionTimeout))
+	timeout := time.Duration(time.Second.Nanoseconds() * int64(a.settings.ConnectionTimeout))
 	dialer := &net.Dialer{Timeout: timeout}
 
 	if !a.settings.NonStandardActiveDataPort {

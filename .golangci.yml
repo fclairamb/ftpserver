@@ -189,6 +189,7 @@ linters:
         - nakedret
         - prealloc
         - unparam
+        - unconvert
         - unused
         - whitespace
         - wsl
