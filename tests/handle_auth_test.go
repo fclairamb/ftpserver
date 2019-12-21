@@ -25,6 +25,7 @@ func TestLoginSuccess(t *testing.T) {
 	defer s.Stop()
 
 	var err error
+
 	var ftp *goftp.FTP
 
 	if ftp, err = goftp.Connect(s.Addr()); err != nil {
@@ -47,10 +48,8 @@ func TestLoginSuccess(t *testing.T) {
 
 	if line, err := ftp.Syst(); err != nil {
 		t.Fatal("Couldn't SYST:", err)
-	} else {
-		if line != "UNIX Type: L8" {
-			t.Fatal("SYST:", line)
-		}
+	} else if line != "UNIX Type: L8" {
+		t.Fatal("SYST:", line)
 	}
 }
 
@@ -59,6 +58,7 @@ func TestLoginFailure(t *testing.T) {
 	defer s.Stop()
 
 	var err error
+
 	var ftp *goftp.FTP
 
 	if ftp, err = goftp.Connect(s.Addr()); err != nil {

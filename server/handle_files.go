@@ -28,6 +28,7 @@ func (c *clientHandler) handleRETR() error {
 // To make sure we don't miss any step, we execute everything in order
 func (c *clientHandler) transferFile(write bool, append bool) {
 	var file FileStream
+
 	var err error
 
 	// We try to open the file
@@ -69,7 +70,9 @@ func (c *clientHandler) transferFile(write bool, append bool) {
 			defer c.TransferClose()
 
 			// Copy the data
+
 			var in io.Reader
+
 			var out io.Writer
 
 			if write { // ... from the connection to the file

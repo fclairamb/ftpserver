@@ -194,5 +194,5 @@ linters:
     presets:
         - bugs
         - unused
-    fast: true
+    fast: false
   

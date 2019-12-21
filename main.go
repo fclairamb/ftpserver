@@ -22,6 +22,7 @@ var (
 func main() {
 	// Arguments vars
 	var confFile, dataDir string
+
 	var onlyConf bool
 
 	// Parsing arguments
@@ -89,9 +90,11 @@ func main() {
 func signalHandler() {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM)
+
 	for {
-		switch <-ch {
-		case syscall.SIGTERM:
+		sig := <-ch
+
+		if sig == syscall.SIGTERM {
 			ftpServer.Stop()
 		}
 	}
@@ -140,5 +143,6 @@ user="mcardon"
 pass="marmar"
 dir="marie"
 `
+
 	return []byte(str)
 }

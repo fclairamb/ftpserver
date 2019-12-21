@@ -21,6 +21,7 @@ func TestSiteCommand(t *testing.T) {
 	}
 
 	var err error
+
 	var c *goftp.Client
 
 	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
@@ -58,6 +59,7 @@ func TestIdleTimeout(t *testing.T) {
 	}
 
 	var err error
+
 	var c *goftp.Client
 
 	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
@@ -95,6 +97,7 @@ func TestStat(t *testing.T) {
 	}
 
 	var err error
+
 	var c *goftp.Client
 
 	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
@@ -104,6 +107,7 @@ func TestStat(t *testing.T) {
 	defer c.Close()
 
 	var raw goftp.RawConn
+
 	if raw, err = c.OpenRawConn(); err != nil {
 		t.Fatal("Couldn't open raw connection")
 	}

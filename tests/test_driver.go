@@ -68,6 +68,7 @@ func NewClientDriver() *ClientDriver {
 	if err := os.MkdirAll(dir, 0777); err != nil {
 		panic(err)
 	}
+
 	return &ClientDriver{baseDir: dir}
 }
 
@@ -85,8 +86,10 @@ func (driver *ServerDriver) AuthUser(cc server.ClientContext, user, pass string)
 		if driver.FileStream != nil {
 			clientdriver.FileStream = driver.FileStream
 		}
+
 		return clientdriver, nil
 	}
+
 	return nil, errors.New("bad username or password")
 }
 
@@ -107,8 +110,10 @@ func (driver *ServerDriver) GetTLSConfig() (*tls.Config, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		return &tls.Config{Certificates: []tls.Certificate{keypair}}, nil
 	}
+
 	return nil, nil
 }
 
@@ -126,8 +131,7 @@ func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory str
 // ListFiles lists the files of a directory
 func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
 	path := driver.baseDir + cc.Path()
-	files, err := ioutil.ReadDir(path)
-	return files, err
+	return ioutil.ReadDir(path)
 }
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
@@ -185,6 +189,7 @@ func (driver *ClientDriver) DeleteFile(cc server.ClientContext, path string) err
 func (driver *ClientDriver) RenameFile(cc server.ClientContext, from, to string) error {
 	from = driver.baseDir + from
 	to = driver.baseDir + to
+
 	return os.Rename(from, to)
 }
 

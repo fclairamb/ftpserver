@@ -13,13 +13,15 @@ func (c *clientHandler) handleUSER() error {
 // Handle the "PASS" command
 func (c *clientHandler) handlePASS() error {
 	var err error
+	c.driver, err = c.server.driver.AuthUser(c, c.user, c.param)
 
-	if c.driver, err = c.server.driver.AuthUser(c, c.user, c.param); err == nil {
+	switch {
+	case err == nil:
 		c.writeMessage(StatusUserLoggedIn, "Password ok, continue")
-	} else if err != nil {
+	case err != nil:
 		c.writeMessage(StatusNotLoggedIn, fmt.Sprintf("Authentication problem: %v", err))
 		c.disconnect()
-	} else {
+	default:
 		c.writeMessage(StatusNotLoggedIn, "I can't deal with you (nil driver)")
 		c.disconnect()
 	}

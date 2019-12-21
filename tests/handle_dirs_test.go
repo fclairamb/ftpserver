@@ -15,6 +15,7 @@ func TestDirListing(t *testing.T) {
 	defer s.Stop()
 
 	var connErr error
+
 	var ftp *goftp.FTP
 
 	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
@@ -61,6 +62,7 @@ func TestDirHandling(t *testing.T) {
 	defer s.Stop()
 
 	var connErr error
+
 	var ftp *goftp.FTP
 
 	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
@@ -95,10 +97,8 @@ func TestDirHandling(t *testing.T) {
 			pathentry := validMLSxEntryPattern.FindStringSubmatch(entry)
 			if len(pathentry) != 2 {
 				t.Errorf("MLSx file listing contains invalid entry: \"%s\"", entry)
-			} else {
-				if pathentry[1] == "known" {
-					found = true
-				}
+			} else if pathentry[1] == "known" {
+				found = true
 			}
 		}
 		if !found {
@@ -125,6 +125,7 @@ func TestDirListingWithSpace(t *testing.T) {
 	defer s.Stop()
 
 	var connErr error
+
 	var ftp *goftp.FTP
 
 	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {

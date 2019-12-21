@@ -18,6 +18,7 @@ import (
 
 func createTemporaryFile(t *testing.T, targetSize int) *os.File {
 	var file *os.File
+
 	var fileErr error
 
 	if file, fileErr = ioutil.TempFile("", "ftpserver"); fileErr != nil {
@@ -30,6 +31,7 @@ func createTemporaryFile(t *testing.T, targetSize int) *os.File {
 		t.Fatal("Couldn't copy:", err)
 		return nil
 	}
+
 	return file
 }
 
@@ -37,15 +39,19 @@ func hashFile(t *testing.T, file *os.File) string {
 	if _, err := file.Seek(0, 0); err != nil {
 		t.Fatal("Couldn't seek:", err)
 	}
+
 	hashser := sha256.New()
+
 	if _, err := io.Copy(hashser, file); err != nil {
 		t.Fatal("Couldn't hashUpload:", err)
 	}
 
 	hash := hex.EncodeToString(hashser.Sum(nil))
+
 	if _, err := file.Seek(0, 0); err != nil {
 		t.Fatal("Couldn't seek:", err)
 	}
+
 	return hash
 }
 
@@ -53,6 +59,7 @@ func ftpUpload(t *testing.T, ftp *goftp.Client, file *os.File, filename string) 
 	if _, err := file.Seek(0, 0); err != nil {
 		t.Fatal("Couldn't seek:", err)
 	}
+
 	if err := ftp.Store(filename+".tmp", file); err != nil {
 		t.Fatal("Couldn't upload bin:", err)
 	}
@@ -115,6 +122,7 @@ func testTransferOnConnection(t *testing.T, server *server.FtpServer, active boo
 	}
 
 	var err error
+
 	var c *goftp.Client
 
 	if c, err = goftp.DialConfig(conf, server.Addr()); err != nil {
@@ -152,6 +160,7 @@ func TestFailedTransfer(t *testing.T) {
 	}
 
 	var err error
+
 	var c *goftp.Client
 
 	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
@@ -186,6 +195,7 @@ func TestFailedFileClose(t *testing.T) {
 	}
 
 	var err error
+
 	var c *goftp.Client
 
 	if c, err = goftp.DialConfig(conf, s.Addr()); err != nil {
@@ -196,9 +206,11 @@ func TestFailedFileClose(t *testing.T) {
 
 	file := createTemporaryFile(t, 1*1024)
 	err = c.Store("file.bin", file)
+
 	if err == nil {
 		t.Fatal("this upload should not succeed", err)
 	}
+
 	if !strings.Contains(err.Error(), errFailingCloser.Error()) {
 		t.Errorf("got %s as the error message, want it to contain %s", err, errFailingCloser)
 	}
