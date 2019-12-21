@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net"
 
-	// "github.com/go-kit/kit/log"
-	// "github.com/go-kit/kit/log/levelg"
 	"github.com/fclairamb/ftpserver/server/log"
 )
 
