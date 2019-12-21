@@ -295,7 +295,7 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, e
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
 func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
-	if path == DirDebug+"/localpath.txt" {
+	if path == DirVirtual+"/localpath.txt" {
 		return &virtualFile{content: []byte(driver.BaseDir)}, nil
 	}
 
