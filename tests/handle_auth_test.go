@@ -2,22 +2,37 @@ package tests
 
 import (
 	"crypto/tls"
+	"fmt"
 	"testing"
 
 	"gopkg.in/dutchcoders/goftp.v1"
 )
+
+func panicOnError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func reportError(err error) {
+	if err != nil {
+		fmt.Println("Error reporting:", err)
+	}
+}
 
 func TestLoginSuccess(t *testing.T) {
 	s := NewTestServer(true)
 	defer s.Stop()
 
 	var err error
+
 	var ftp *goftp.FTP
 
 	if ftp, err = goftp.Connect(s.Addr()); err != nil {
 		t.Fatal("Couldn't connect", err)
 	}
-	defer ftp.Quit()
+
+	defer func() { panicOnError(ftp.Quit()) }()
 
 	if err = ftp.Noop(); err != nil {
 		t.Fatal("Couldn't NOOP before login:", err)
@@ -33,10 +48,8 @@ func TestLoginSuccess(t *testing.T) {
 
 	if line, err := ftp.Syst(); err != nil {
 		t.Fatal("Couldn't SYST:", err)
-	} else {
-		if line != "UNIX Type: L8" {
-			t.Fatal("SYST:", line)
-		}
+	} else if line != "UNIX Type: L8" {
+		t.Fatal("SYST:", line)
 	}
 }
 
@@ -45,13 +58,14 @@ func TestLoginFailure(t *testing.T) {
 	defer s.Stop()
 
 	var err error
+
 	var ftp *goftp.FTP
 
 	if ftp, err = goftp.Connect(s.Addr()); err != nil {
 		t.Fatal("Couldn't connect:", err)
 	}
 
-	defer ftp.Quit()
+	defer func() { reportError(ftp.Quit()) }()
 
 	if err = ftp.Login("test", "test2"); err == nil {
 		t.Fatal("We should have failed to login")
@@ -69,9 +83,11 @@ func TestAuthTLS(t *testing.T) {
 	if err != nil {
 		t.Fatal("Couldn't connect:", err)
 	}
-	defer ftp.Quit()
+
+	defer func() { reportError(ftp.Quit()) }()
 
 	config := &tls.Config{
+		// nolint:gosec
 		InsecureSkipVerify: true,
 		ClientAuth:         tls.RequestClientCert,
 	}

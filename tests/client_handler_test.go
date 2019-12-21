@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 
@@ -24,10 +25,10 @@ func TestConcurrency(t *testing.T) {
 			if ftp, err = goftp.Connect(s.Addr()); err != nil {
 				panic(err)
 			}
-			defer ftp.Close()
+			defer func() { panicOnError(ftp.Close()) }()
 
 			if err = ftp.Login("test", "test"); err != nil {
-				t.Fatal("Failed to login:", err)
+				panic(fmt.Errorf("failed to login: %s", err))
 			}
 
 			waitGroup.Done()

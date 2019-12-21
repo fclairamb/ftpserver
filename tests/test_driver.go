@@ -1,14 +1,18 @@
+// Package tests brings all the logic to test the server without messing up the main code
 package tests
 
 import (
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 
+	gklog "github.com/go-kit/kit/log"
+
 	"github.com/fclairamb/ftpserver/server"
-	"github.com/go-kit/kit/log"
+	"github.com/fclairamb/ftpserver/server/log"
 )
 
 // NewTestServer provides a test server with or without debugging
@@ -30,8 +34,7 @@ func NewTestServerWithDriver(driver *ServerDriver) *server.FtpServer {
 
 	// If we are in debug mode, we should log things
 	if driver.Debug {
-		s.Logger = log.With(
-			log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout)),
+		s.Logger = log.NewGKLogger(gklog.NewLogfmtLogger(gklog.NewSyncWriter(os.Stdout))).With(
 			"ts", log.DefaultTimestampUTC,
 			"caller", log.DefaultCaller,
 		)
@@ -40,7 +43,9 @@ func NewTestServerWithDriver(driver *ServerDriver) *server.FtpServer {
 	if err := s.Listen(); err != nil {
 		return nil
 	}
+
 	go s.Serve()
+
 	return s
 }
 
@@ -62,7 +67,10 @@ type ClientDriver struct {
 // NewClientDriver creates a client driver
 func NewClientDriver() *ClientDriver {
 	dir, _ := ioutil.TempDir("", "example")
-	os.MkdirAll(dir, 0777)
+	if err := os.MkdirAll(dir, 0750); err != nil {
+		panic(err)
+	}
+
 	return &ClientDriver{baseDir: dir}
 }
 
@@ -80,8 +88,10 @@ func (driver *ServerDriver) AuthUser(cc server.ClientContext, user, pass string)
 		if driver.FileStream != nil {
 			clientdriver.FileStream = driver.FileStream
 		}
+
 		return clientdriver, nil
 	}
+
 	return nil, errors.New("bad username or password")
 }
 
@@ -102,8 +112,10 @@ func (driver *ServerDriver) GetTLSConfig() (*tls.Config, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		return &tls.Config{Certificates: []tls.Certificate{keypair}}, nil
 	}
+
 	return nil, nil
 }
 
@@ -115,17 +127,16 @@ func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory s
 
 // MakeDirectory creates a directory
 func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory string) error {
-	return os.Mkdir(driver.baseDir+directory, 0777)
+	return os.Mkdir(driver.baseDir+directory, 0750)
 }
 
 // ListFiles lists the files of a directory
 func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string) ([]os.FileInfo, error) {
-	p := path.Join(driver.baseDir, directory)
+	path := path.Join(driver.baseDir, directory)
 	if directory == "" {
-		p = driver.baseDir + cc.Path()
+		path = driver.baseDir + cc.Path()
 	}
-	files, err := ioutil.ReadDir(p)
-	return files, err
+	return ioutil.ReadDir(path)
 }
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
@@ -136,7 +147,15 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 	if (flag & os.O_WRONLY) != 0 {
 		flag |= os.O_CREATE
 		if (flag & os.O_APPEND) == 0 {
-			os.Remove(path)
+			if _, err := os.Stat(path); err != nil {
+				if !os.IsNotExist(err) {
+					return nil, fmt.Errorf("error accessing file %s: %v", path, err)
+				}
+			} else {
+				if err := os.Remove(path); err != nil {
+					return nil, fmt.Errorf("error deleting %s: %v", path, err)
+				}
+			}
 		}
 	}
 
@@ -144,7 +163,7 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 		return driver.FileStream, nil
 	}
 
-	return os.OpenFile(path, flag, 0666)
+	return os.OpenFile(path, flag, 0600)
 }
 
 // GetFileInfo gets some info around a file or a directory
@@ -175,6 +194,7 @@ func (driver *ClientDriver) DeleteFile(cc server.ClientContext, path string) err
 func (driver *ClientDriver) RenameFile(cc server.ClientContext, from, to string) error {
 	from = driver.baseDir + from
 	to = driver.baseDir + to
+
 	return os.Rename(from, to)
 }
 
@@ -183,26 +203,59 @@ func (driver *ClientDriver) RenameFile(cc server.ClientContext, from, to string)
 // "127.0.0.1" and "[::1]", expiring at the last second of 2049 (the end
 // of ASN.1 time).
 // generated from src/crypto/tls:
-// go run generate_cert.go  --rsa-bits 512 --host 127.0.0.1,::1,example.com --ca --start-date "Jan 1 00:00:00 1970" --duration=1000000h
+// go run "$(go env GOROOT)/src/crypto/tls/generate_cert.go" \
+//   --rsa-bits 2048 \
+//   --host 127.0.0.1,::1,example.com \
+//   --ca --start-date "Jan 1 00:00:00 1970" \
+//   --duration=1000000h
+// The initial 512 bits key caused this error:
+// "tls: failed to sign handshake: crypto/rsa: key size too small for PSS signature"
 var localhostCert = []byte(`-----BEGIN CERTIFICATE-----
-MIIBjjCCATigAwIBAgIQMon9v0s3pDFXvAMnPgelpzANBgkqhkiG9w0BAQsFADAS
-MRAwDgYDVQQKEwdBY21lIENvMCAXDTcwMDEwMTAwMDAwMFoYDzIwODQwMTI5MTYw
-MDAwWjASMRAwDgYDVQQKEwdBY21lIENvMFwwDQYJKoZIhvcNAQEBBQADSwAwSAJB
-AM0u/mNXKkhAzNsFkwKZPSpC4lZZaePQ55IyaJv3ovMM2smvthnlqaUfVKVmz7FF
-wLP9csX6vGtvkZg1uWAtvfkCAwEAAaNoMGYwDgYDVR0PAQH/BAQDAgKkMBMGA1Ud
-JQQMMAoGCCsGAQUFBwMBMA8GA1UdEwEB/wQFMAMBAf8wLgYDVR0RBCcwJYILZXhh
-bXBsZS5jb22HBH8AAAGHEAAAAAAAAAAAAAAAAAAAAAEwDQYJKoZIhvcNAQELBQAD
-QQBOZsFVC7IwX+qibmSbt2IPHkUgXhfbq0a9MYhD6tHcj4gbDcTXh4kZCbgHCz22
-gfSj2/G2wxzopoISVDucuncj
+MIIDGTCCAgGgAwIBAgIRAJ5VaFcqzaSMmEpeZc33uuowDQYJKoZIhvcNAQELBQAw
+EjEQMA4GA1UEChMHQWNtZSBDbzAgFw03MDAxMDEwMDAwMDBaGA8yMDg0MDEyOTE2
+MDAwMFowEjEQMA4GA1UEChMHQWNtZSBDbzCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAMmv1cldip1/97VnNpPElc5Msa69Cx9l2LmtPubok3pcQy4lS/uF
+1zlMDwFseRYuYMOy+lafmYsCO1OFQvt4dginlSZ9yUNq7qSv+dvOUpn6bWQdrLto
+d+fDWS4KWiiFsyS78ITozMyRS3G9mJS8YSbGuV4O50UpOJQd6yN5pMQEnp/wHfRI
+6y9OYOjWe2snw3rXq1wN7wkj4iVKgrqkJJUHe7Heq4uD7uGfABfOyACmzYFxexXN
+f+++L/DesKyMH2At+nKmBtF3JixViIyVKpsCz6Lce1P90n39lYuQDHbV/N2P7ww8
+fiwH7fA30yfDqxWKUXhxu7eHGxD1GCFBpgcCAwEAAaNoMGYwDgYDVR0PAQH/BAQD
+AgKkMBMGA1UdJQQMMAoGCCsGAQUFBwMBMA8GA1UdEwEB/wQFMAMBAf8wLgYDVR0R
+BCcwJYILZXhhbXBsZS5jb22HBH8AAAGHEAAAAAAAAAAAAAAAAAAAAAEwDQYJKoZI
+hvcNAQELBQADggEBAHwPqImQQHsqao5MSmhd3S8XQiH6V95T2qOiF9pri7TfMF8h
+JWhkaFKQ0yMi37reSZ5+cBiHO9z3UIAmpAWLdqbtVOnh2bchVMO8nSnKHkrOqV2E
+IK0Fq5QVW2wyHlYaOMLLQ2sA4I3J/yHl6W4rigetEzY8OtQtPFbg/S1YMqFV8mRz
+8PAxtrOWK+ARJP9tqgbylcL6/6cZc6lBQcs0BuwXjcI6fxi+YBXEqbpah9tGRivD
+X/k0l93dx/zfNc1Yz06VrCpko6W2Kqa76F6tDIa+WpfZba7t7jNFZTPB4dymUS9L
+ICoGMF9k6xscqAURRx8RoSiELemGE5kYUsyvqSE=
 -----END CERTIFICATE-----`)
 
 // localhostKey is the private key for localhostCert.
-var localhostKey = []byte(`-----BEGIN RSA PRIVATE KEY-----
-MIIBOwIBAAJBAM0u/mNXKkhAzNsFkwKZPSpC4lZZaePQ55IyaJv3ovMM2smvthnl
-qaUfVKVmz7FFwLP9csX6vGtvkZg1uWAtvfkCAwEAAQJART2qkxODLUbQ2siSx7m2
-rmBLyR/7X+nLe8aPDrMOxj3heDNl4YlaAYLexbcY8d7VDfCRBKYoAOP0UCP1Vhuf
-UQIhAO6PEI55K3SpNIdc2k5f0xz+9rodJCYzu51EwWX7r8ufAiEA3C9EkLiU2NuK
-3L3DHCN5IlUSN1Nr/lw8NIt50Yorj2cCIQCDw1VbvCV6bDLtSSXzAA51B4ZzScE7
-sHtB5EYF9Dwm9QIhAJuCquuH4mDzVjUntXjXOQPdj7sRqVGCNWdrJwOukat7AiAy
-LXLEwb77DIPoI5ZuaXQC+MnyyJj1ExC9RFcGz+bexA==
------END RSA PRIVATE KEY-----`)
+var localhostKey = []byte(`-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDJr9XJXYqdf/e1
+ZzaTxJXOTLGuvQsfZdi5rT7m6JN6XEMuJUv7hdc5TA8BbHkWLmDDsvpWn5mLAjtT
+hUL7eHYIp5UmfclDau6kr/nbzlKZ+m1kHay7aHfnw1kuCloohbMku/CE6MzMkUtx
+vZiUvGEmxrleDudFKTiUHesjeaTEBJ6f8B30SOsvTmDo1ntrJ8N616tcDe8JI+Il
+SoK6pCSVB3ux3quLg+7hnwAXzsgAps2BcXsVzX/vvi/w3rCsjB9gLfpypgbRdyYs
+VYiMlSqbAs+i3HtT/dJ9/ZWLkAx21fzdj+8MPH4sB+3wN9Mnw6sVilF4cbu3hxsQ
+9RghQaYHAgMBAAECggEADmJN+viC5Ey2G+fqiotgq7/ohC/TVT/sPwHOFKXNrtJZ
+sDbUvnGDMgDsqQtVb3GLUSm4lOj5CGL2XDSK3Ghw8pkRGBesfPRpZLFwPm7ukTC9
+EIDVSuBefNb/yzrNx0oRxrLoqnH3+Tb7jHcbJLBytVNC8SRa9iHEeTvRA0yvpZMW
+WriTbAELv+Zcjal2fPYYtTE9HnRpJX7kHvnCRzlGza0MIs8Q4QgmBE20GRCEXaRi
+4jPYjlBx/N4mdD1MTz9jAq+WCHQNJS6aic6l5jidemsSDjtLkSIy8mpTSbA83BTe
+qkjAbxtSQ5FKYYH6zDhNbGKwmyqaF1g5gMPSFaDjUQKBgQDfsXamsiyf2Er1+WyI
+WyFxwRJmDJ8y3IlH5z5d8Gw+b3JFt72Cy6MVYsO564UALQgUwJmxFIjnVh5F/ZA5
+nwsfyyfUkpwQtiqZOTzeTnMd1wt4MPmGwaxfGwVhG5fUgYKnt1GTyF4zHz653RoL
+AA0hhsiVmd4hb53PfVHEMVPEewKBgQDm0LzTkgz4zYgocRxiqa4n62VngRS2l7vs
+oBgf6o7Dssp1aOucM5uryqzOZsAB/BwCVVeVTnC5nCL2os59YFWbBLlt15l7ykBo
+HvUwfmf0R+81onMDqjYPj1+9CSKw4BbTD0WMBOUehvMpL6/k9CsAC2jXQ0oH735V
+7dQHEZ1s5QKBgGNbGn1eBE4XLuxkFd3WxFsXS4nCL2/S3rLuNhhZcmqk65elzenr
+cwtLq+3He3KhjcZR6bHqkghWiunBfy7ownMjtBRJ7kHJ98/IyY1gQOdPHcwLzLkb
+CunPQatpKx37TEIcPYKra5O/XAgH+cpLAooSqMMx7aTiQ7DmU8wVsMRDAoGAQHcM
+RgsElHjTDniI9QVvHrcgG0hyAI1gbzZHhqJ8PSwyX5huNbI0SEbS/NK1zdgb+orb
+a1f9I9n36eqOwXWmcyVepM8SjwBt/Kao1GJ5pkBxDwnQFbX0Y2Qn2SQ0DDKKLWiW
+hATZ+Sy3vUkUV13apKiLH5QrmQvKvTUvgsnorgECgYEAsuf9V7HXDVL3Za1imywP
+B8waIgXRIjSWT4Fje7RTMT948qhguVhpoAgVzwzMqizzq6YIQbL7MHwXj7oZNUoQ
+CARLpnYLaeWP2nxQyzwGx5pn9TJwg79Yknr8PbSjeym1BSbE5C9ruqar4PfiIzYx
+di02m2YJAvRsG9VDpXogi+c=
+-----END PRIVATE KEY-----`)

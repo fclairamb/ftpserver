@@ -4,3 +4,4 @@ ftpserver
 .vscode
 settings.toml
 debug
+__debug_bin

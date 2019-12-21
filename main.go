@@ -8,10 +8,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	gklog "github.com/go-kit/kit/log"
+
 	"github.com/fclairamb/ftpserver/sample"
 	"github.com/fclairamb/ftpserver/server"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/fclairamb/ftpserver/server/log"
 )
 
 var (
@@ -21,6 +22,7 @@ var (
 func main() {
 	// Arguments vars
 	var confFile, dataDir string
+
 	var onlyConf bool
 
 	// Parsing arguments
@@ -30,8 +32,7 @@ func main() {
 	flag.Parse()
 
 	// Setting up the logger
-	logger := log.With(
-		log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout)),
+	logger := log.NewGKLogger(gklog.NewLogfmtLogger(gklog.NewSyncWriter(os.Stdout))).With(
 		"ts", log.DefaultTimestampUTC,
 		"caller", log.DefaultCaller,
 	)
@@ -47,10 +48,10 @@ func main() {
 
 	if autoCreate {
 		if _, err := os.Stat(confFile); err != nil && os.IsNotExist(err) {
-			level.Info(logger).Log("msg", "Not config file, creating one", "action", "conf_file.create", "confFile", confFile)
+			logger.Error("msg", "Not config file, creating one", "action", "conf_file.create", "confFile", confFile)
 
 			if err := ioutil.WriteFile(confFile, confFileContent(), 0644); err != nil {
-				level.Error(logger).Log("msg", "Couldn't create config file", "action", "conf_file.could_not_create", "confFile", confFile)
+				logger.Error("msg", "Couldn't create config file", "action", "conf_file.could_not_create", "confFile", confFile)
 			}
 		}
 	}
@@ -59,41 +60,42 @@ func main() {
 	driver, err := sample.NewSampleDriver(dataDir, confFile)
 
 	if err != nil {
-		level.Error(logger).Log("msg", "Could not load the driver", "err", err)
+		logger.Error("msg", "Could not load the driver", "err", err)
 		return
 	}
 
 	// Overriding the driver default silent logger by a sub-logger (component: driver)
-	driver.Logger = log.With(logger, "component", "driver")
+	driver.Logger = logger.With("component", "driver")
 
 	// Instantiating the server by passing our driver implementation
 	ftpServer = server.NewFtpServer(driver)
 
 	// Overriding the server default silent logger by a sub-logger (component: server)
-	ftpServer.Logger = log.With(logger, "component", "server")
+	ftpServer.Logger = logger.With("component", "server")
 
 	// Preparing the SIGTERM handling
 	go signalHandler()
 
 	// Blocking call, behaving similarly to the http.ListenAndServe
 	if onlyConf {
-		level.Error(logger).Log("msg", "Only creating conf")
+		logger.Error("msg", "Only creating conf")
 		return
 	}
 
 	if err := ftpServer.ListenAndServe(); err != nil {
-		level.Error(logger).Log("msg", "Problem listening", "err", err)
+		logger.Error("msg", "Problem listening", "err", err)
 	}
 }
 
 func signalHandler() {
-	ch := make(chan os.Signal)
+	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM)
+
 	for {
-		switch <-ch {
-		case syscall.SIGTERM:
+		sig := <-ch
+
+		if sig == syscall.SIGTERM {
 			ftpServer.Stop()
-			break
 		}
 	}
 }
@@ -141,5 +143,6 @@ user="mcardon"
 pass="marmar"
 dir="marie"
 `
+
 	return []byte(str)
 }
