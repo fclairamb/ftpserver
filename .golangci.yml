@@ -170,10 +170,12 @@ linters-settings:
   
 linters:
     enable:
+        - deadcode
         - dogsled
         - dupl
         - errcheck
         - funlen
+        - gochecknoinits
         - gocognit
         - goconst
         - gocritic
@@ -184,13 +186,19 @@ linters:
         - golint
         - govet
         - lll
+        - maligned
         - megacheck
         - misspell
         - nakedret
         - prealloc
-        - unparam
+        - staticcheck
+        - structcheck
+        - scopelint
+        - typecheck
         - unconvert
+        - unparam
         - unused
+        - varcheck
         - whitespace
         - wsl
     disable-all: false

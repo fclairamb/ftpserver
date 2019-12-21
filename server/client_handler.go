@@ -14,6 +14,7 @@ import (
 	"github.com/fclairamb/ftpserver/server/log"
 )
 
+// nolint: maligned
 type clientHandler struct {
 	id          uint32               // ID of the client
 	server      *FtpServer           // Server on which the connection was accepted
