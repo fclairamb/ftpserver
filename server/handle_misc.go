@@ -42,9 +42,10 @@ func (c *clientHandler) handleSTAT() error {
 
 	if c.param == "" { // Without a file, it's the server stat
 		return c.handleSTATServer()
-	} else { // With a file/dir it's the file or the dir's files stat
-		return c.handleSTATFile()
 	}
+
+	// With a file/dir it's the file or the dir's files stat
+	return c.handleSTATFile()
 }
 
 func (c *clientHandler) handleSITE() error {
