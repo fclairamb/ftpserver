@@ -1,3 +1,4 @@
+// Package server provides all the tools to build your own FTP server: The core library and the driver.
 package server
 
 import (
@@ -6,40 +7,46 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 )
 
-func (c *clientHandler) handlePORT() {
+func (c *clientHandler) handlePORT() error {
 	raddr, err := parseRemoteAddr(c.param)
 
 	if err != nil {
-		c.writeMessage(500, fmt.Sprintf("Problem parsing PORT: %v", err))
-		return
+		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Problem parsing PORT: %v", err))
+		return nil
 	}
 
-	c.writeMessage(200, "PORT command successful")
+	c.writeMessage(StatusOK, "PORT command successful")
 
-	c.transfer = &activeTransferHandler{raddr: raddr, nonStandardPort: c.daddy.settings.NonStandardActiveDataPort}
+	c.transfer = &activeTransferHandler{
+		raddr:    raddr,
+		settings: c.server.settings,
+	}
+
+	return nil
 }
 
 // Active connection
 type activeTransferHandler struct {
-	raddr           *net.TCPAddr // Remote address of the client
-	conn            net.Conn     // Connection used to connect to him
-	nonStandardPort bool         // Allow to use an other port than the 20 one
+	raddr    *net.TCPAddr // Remote address of the client
+	conn     net.Conn     // Connection used to connect to him
+	settings *Settings    // Settings
 }
 
 func (a *activeTransferHandler) Open() (net.Conn, error) {
-	var laddr *net.TCPAddr
-	if a.nonStandardPort {
-		laddr = nil
-	} else {
-		laddr, _ = net.ResolveTCPAddr("tcp", ":20")
+	timeout := time.Duration(time.Second.Nanoseconds() * int64(a.settings.ConnectionTimeout))
+	dialer := &net.Dialer{Timeout: timeout}
+
+	if !a.settings.NonStandardActiveDataPort {
+		dialer.LocalAddr, _ = net.ResolveTCPAddr("tcp", ":20")
 	}
 	// TODO(mgenov): support dialing with timeout
 	// Issues:
 	//	https://github.com/golang/go/issues/3097
 	// 	https://github.com/golang/go/issues/4842
-	conn, err := net.DialTCP("tcp", laddr, a.raddr)
+	conn, err := dialer.Dial("tcp", a.raddr.String())
 
 	if err != nil {
 		return nil, fmt.Errorf("could not establish active connection due: %v", err)
@@ -56,6 +63,7 @@ func (a *activeTransferHandler) Close() error {
 	if a.conn != nil {
 		return a.conn.Close()
 	}
+
 	return nil
 }
 
@@ -71,16 +79,20 @@ func parseRemoteAddr(param string) (*net.TCPAddr, error) {
 	if len(params) != 6 {
 		return nil, errors.New("bad number of args")
 	}
+
 	ip := strings.Join(params[0:4], ".")
 
 	p1, err := strconv.Atoi(params[4])
 	if err != nil {
 		return nil, err
 	}
+
 	p2, err := strconv.Atoi(params[5])
+
 	if err != nil {
 		return nil, err
 	}
+
 	port := p1<<8 + p2
 
 	return net.ResolveTCPAddr("tcp", fmt.Sprintf("%s:%d", ip, port))
