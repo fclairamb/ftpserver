@@ -72,13 +72,13 @@ func (logger *gKLogger) With(keyvals ...interface{}) Logger {
 }
 
 // NewGKLogger creates a logger based on go-kit logs
-func NewGKLogger(logger gklog.Logger) *gKLogger {
+func NewGKLogger(logger gklog.Logger) Logger {
 	return &gKLogger{
 		logger: logger,
 	}
 }
 
 // NewNopGKLogger instantiates go-kit logger
-func NewNopGKLogger() *gKLogger {
+func NewNopGKLogger() Logger {
 	return NewGKLogger(gklog.NewNopLogger())
 }
