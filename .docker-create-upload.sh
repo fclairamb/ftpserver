@@ -2,8 +2,8 @@
 
 version=$(go version|grep -Eo go[0-9]\.[0-9]+)
 
-if [ "$version" != "go1.10" ]; then
-    echo "Docker images are only generated for Go 1.10 and you have ${version}."
+if [ "$version" != "go1.11" ]; then
+    echo "Docker images are only generated for Go 1.11 and you have ${version}."
     exit 0
 fi
 
@@ -12,10 +12,28 @@ GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -installsuffix cgo
 
 echo "Docker repo: ${DOCKER_REPO}:${TRAVIS_COMMIT}"
 
+if [ "${DOCKER_REPO}" = "" ]; then
+    DOCKER_REPO=fclairamb/ftpserver
+fi
+
+if [ "${TRAVIS_COMMIT}" = "" ]; then
+    TRAVIS_COMMIT="test"
+fi
+
+if [ "${TRAVIS_BUILD_NUMBER}" = "" ]; then
+    TRAVIS_BUILD_NUMBER="0"
+fi
+
+if [ "${TRAVIS_BRANCH}" = "" ]; then
+    TRAVIS_BRANCH="local_test"
+fi
+
 DOCKER_NAME=${DOCKER_REPO}:${TRAVIS_COMMIT}
 
 # Creating the settings.toml file
-./ftpserver -conf-only -conf=settings.toml
+if [ ! -f settings.toml ]; then
+  ./ftpserver -conf-only -conf=settings.toml
+fi
 
 docker build -t ${DOCKER_NAME} .
 

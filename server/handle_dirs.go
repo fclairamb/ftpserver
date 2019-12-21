@@ -1,3 +1,4 @@
+// Package server provides all the tools to build your own FTP server: The core library and the driver.
 package server
 
 import (
@@ -32,81 +33,95 @@ func (c *clientHandler) absPath(p string) string {
 	return p2
 }
 
-func (c *clientHandler) handleCWD() {
+func (c *clientHandler) handleCWD() error {
 	if c.param == ".." {
-		c.handleCDUP()
-		return
+		return c.handleCDUP()
 	}
 
 	p := c.absPath(c.param)
 
 	if err := c.driver.ChangeDirectory(c, p); err == nil {
 		c.SetPath(p)
-		c.writeMessage(250, fmt.Sprintf("CD worked on %s", p))
+		c.writeMessage(StatusFileOK, fmt.Sprintf("CD worked on %s", p))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("CD issue: %v", err))
+		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("CD issue: %v", err))
 	}
+
+	return nil
 }
 
-func (c *clientHandler) handleMKD() {
+func (c *clientHandler) handleMKD() error {
 	p := c.absPath(c.param)
 	if err := c.driver.MakeDirectory(c, p); err == nil {
-		c.writeMessage(257, fmt.Sprintf("Created dir %s", p))
+		c.writeMessage(StatusPathCreated, fmt.Sprintf("Created dir %s", p))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Could not create %s : %v", p, err))
+		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not create %s : %v", p, err))
 	}
+
+	return nil
 }
 
-func (c *clientHandler) handleRMD() {
+func (c *clientHandler) handleRMD() error {
 	p := c.absPath(c.param)
 	if err := c.driver.DeleteFile(c, p); err == nil {
-		c.writeMessage(250, fmt.Sprintf("Deleted dir %s", p))
+		c.writeMessage(StatusFileOK, fmt.Sprintf("Deleted dir %s", p))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("Could not delete dir %s: %v", p, err))
+		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not delete dir %s: %v", p, err))
 	}
+
+	return nil
 }
 
-func (c *clientHandler) handleCDUP() {
+func (c *clientHandler) handleCDUP() error {
 	parent, _ := path.Split(c.Path())
 	if parent != "/" && strings.HasSuffix(parent, "/") {
 		parent = parent[0 : len(parent)-1]
 	}
+
 	if err := c.driver.ChangeDirectory(c, parent); err == nil {
 		c.SetPath(parent)
-		c.writeMessage(250, fmt.Sprintf("CDUP worked on %s", parent))
+		c.writeMessage(StatusFileOK, fmt.Sprintf("CDUP worked on %s", parent))
 	} else {
-		c.writeMessage(550, fmt.Sprintf("CDUP issue: %v", err))
+		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("CDUP issue: %v", err))
 	}
+
+	return nil
 }
 
-func (c *clientHandler) handlePWD() {
-	c.writeMessage(257, "\""+c.Path()+"\" is the current directory")
+func (c *clientHandler) handlePWD() error {
+	c.writeMessage(StatusPathCreated, "\""+c.Path()+"\" is the current directory")
+	return nil
 }
 
-func (c *clientHandler) handleLIST() {
+func (c *clientHandler) handleLIST() error {
 	if files, err := c.driver.ListFiles(c); err == nil {
-		if tr, err := c.TransferOpen(); err == nil {
+		if tr, err2 := c.TransferOpen(); err2 == nil {
 			defer c.TransferClose()
-			c.dirTransferLIST(tr, files)
+			return c.dirTransferLIST(tr, files)
 		}
 	} else {
-		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
+		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Could not list: %v", err))
 	}
+
+	return nil
 }
 
-func (c *clientHandler) handleMLSD() {
-	if c.daddy.settings.DisableMLSD {
-		c.writeMessage(500, "MLSD has been disabled")
-		return
+func (c *clientHandler) handleMLSD() error {
+	if c.server.settings.DisableMLSD {
+		c.writeMessage(StatusSyntaxErrorNotRecognised, "MLSD has been disabled")
+		return nil
 	}
+
 	if files, err := c.driver.ListFiles(c); err == nil {
-		if tr, err := c.TransferOpen(); err == nil {
+		if tr, err2 := c.TransferOpen(); err2 == nil {
 			defer c.TransferClose()
-			c.dirTransferMLSD(tr, files)
+			return c.dirTransferMLSD(tr, files)
 		}
 	} else {
-		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
+		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Could not list: %v", err))
 	}
+
+	return nil
 }
 
 const (
@@ -117,7 +132,6 @@ const (
 )
 
 func (c *clientHandler) fileStat(file os.FileInfo) string {
-
 	modTime := file.ModTime()
 
 	var dateFormat string
@@ -142,6 +156,7 @@ func (c *clientHandler) dirTransferLIST(w io.Writer, files []os.FileInfo) error 
 	for _, file := range files {
 		fmt.Fprintf(w, "%s\r\n", c.fileStat(file))
 	}
+
 	return nil
 }
 
@@ -150,6 +165,7 @@ func (c *clientHandler) dirTransferMLSD(w io.Writer, files []os.FileInfo) error 
 	for _, file := range files {
 		c.writeMLSxOutput(w, file)
 	}
+
 	return nil
 }
 func (c *clientHandler) writeMLSxOutput(w io.Writer, file os.FileInfo) {
@@ -159,6 +175,7 @@ func (c *clientHandler) writeMLSxOutput(w io.Writer, file os.FileInfo) {
 	} else {
 		listType = "file"
 	}
+
 	fmt.Fprintf(
 		w,
 		"Type=%s;Size=%d;Modify=%s; %s\r\n",
