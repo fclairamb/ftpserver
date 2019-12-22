@@ -72,10 +72,6 @@ func TestDirListingPathArg(t *testing.T) {
 
 	defer func() { panicOnError(ftp.Quit()) }()
 
-	if _, err := ftp.List("/"); err == nil {
-		t.Fatal("We could list files before login")
-	}
-
 	if err := ftp.Login("test", "test"); err != nil {
 		t.Fatal("Failed to login:", err)
 	}
