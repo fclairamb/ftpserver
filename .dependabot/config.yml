@@ -1,0 +1,15 @@
+version: 1
+update_configs:
+  - package_manager: "go:modules"
+    directory: "/"
+    update_schedule: "daily"
+    # https://dependabot.com/docs/config-file/#automerged_updates
+    automerged_updates:
+      - match:
+          update_type: "semver:minor"
+      - match:
+          update_type: "in_range"
+  - package_manager: "docker"
+    directory: "/"
+    update_schedule: "daily"
+
