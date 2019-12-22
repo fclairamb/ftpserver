@@ -8,14 +8,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/inconshreveable/log15.v2"
-
 	"github.com/fclairamb/ftpserver/server"
+	"github.com/fclairamb/ftpserver/server/log"
 )
 
 // Driver provides an implementation of driver for disk access
 type Driver struct {
-	baseDir string
+	baseDir string     // Local directory used as base directory
+	logger  log.Logger // Logger
 }
 
 // ChangeDirectory changes the current working directory
@@ -51,14 +51,14 @@ func (driver *Driver) OpenFile(cc server.ClientContext, path string, flag int) (
 		if (flag & os.O_APPEND) == 0 {
 			if _, errStat := os.Stat(path); errStat == nil {
 				if errRemove := os.Remove(path); errRemove != nil {
-					log15.Warn(
-						"Could not remove file",
+					driver.logger.Error(
+						"msg", "Could not remove file",
 						"path", path,
 						"err", errRemove,
 					)
 				}
 			} else if !os.IsNotExist(errStat) {
-				log15.Error("We had an error checking for a file",
+				driver.logger.Error("We had an error checking for a file",
 					"path", path,
 					"err", errStat,
 				)
@@ -102,26 +102,25 @@ func (driver *Driver) ChmodFile(cc server.ClientContext, path string, mode os.Fi
 }
 
 // NewDriver creates a new instance on a particular directory
-func NewDriver(directory string) (*Driver, error) {
-	return &Driver{baseDir: directory}, nil
+func NewDriver(directory string, logger log.Logger) (*Driver, error) {
+	return &Driver{
+		baseDir: directory,
+		logger:  logger,
+	}, nil
 }
 
 // NewDriverTemp creates a new instance of this on a temporary directory
-func NewDriverTemp() *Driver {
+func NewDriverTemp(logger log.Logger) (*Driver, error) {
 	dir := "/tmp/ftpisback"
 
 	if errStat := os.MkdirAll(dir, 0750); errStat != nil {
-		log15.Info("Couldn't get our preferred dir", "dir", dir, "err", errStat)
+		logger.Info("msg", "Couldn't get our preferred dir", "dir", dir, "err", errStat)
 		dir, errStat = ioutil.TempDir("", "ftpserver")
 
 		if errStat != nil {
-			log15.Error("Could not find a temporary dir", "err", errStat)
+			logger.Error("msg", "Could not find a temporary dir", "err", errStat)
 		}
 	}
 
-	driver := &Driver{
-		baseDir: dir,
-	}
-
-	return driver
+	return NewDriver(dir, logger)
 }
