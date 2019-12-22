@@ -12,3 +12,4 @@ update_configs:
   - package_manager: "docker"
     directory: "/"
     update_schedule: "daily"
+
