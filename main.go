@@ -120,11 +120,11 @@ max_connections = 10
 # idle_timeout = 900
 
 # Data port range from 10000 to 15000
-# [dataPortRange]
+# [passiveTransferPortRange]
 # start = 2122
 # end = 2200
 
-[server.dataPortRange]
+[server.passiveTransferPortRange]
 start = 2122
 end = 2200
 

@@ -39,7 +39,7 @@ func (a *activeTransferHandler) Open() (net.Conn, error) {
 	timeout := time.Duration(time.Second.Nanoseconds() * int64(a.settings.ConnectionTimeout))
 	dialer := &net.Dialer{Timeout: timeout}
 
-	if !a.settings.NonStandardActiveDataPort {
+	if !a.settings.ActiveTransferPortNon20 {
 		dialer.LocalAddr, _ = net.ResolveTCPAddr("tcp", ":20")
 	}
 	// TODO(mgenov): support dialing with timeout
