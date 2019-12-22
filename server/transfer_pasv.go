@@ -60,7 +60,7 @@ func (c *clientHandler) handlePASV() error {
 
 	var err error
 
-	portRange := c.server.settings.DataPortRange
+	portRange := c.server.settings.PassiveTransferPortRange
 
 	if portRange != nil {
 		for start := portRange.Start; start < portRange.End; start++ {
