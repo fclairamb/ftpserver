@@ -9,6 +9,8 @@ import (
 	"github.com/fclairamb/ftpserver/server"
 )
 
+const DirKnown = "known"
+
 // TestDirAccess relies on LIST of files listing
 func TestDirListing(t *testing.T) {
 	s := NewTestServerWithDriver(&ServerDriver{Debug: true, Settings: &server.Settings{DisableMLSD: true}})
@@ -32,7 +34,7 @@ func TestDirListing(t *testing.T) {
 		t.Fatal("Failed to login:", err)
 	}
 
-	if err := ftp.Mkd("/known"); err != nil {
+	if err := ftp.Mkd("/" + DirKnown); err != nil {
 		t.Fatal("Couldn't create dir:", err)
 	}
 
@@ -46,7 +48,7 @@ func TestDirListing(t *testing.T) {
 				break
 			}
 			fileName := line[47:]
-			if fileName == "known" {
+			if fileName == DirKnown {
 				found = true
 			}
 		}
@@ -54,12 +56,37 @@ func TestDirListing(t *testing.T) {
 			t.Fatal("Couldn't find the dir")
 		}
 	}
+}
 
-	if err := ftp.Mkd("/known/1"); err != nil {
-		t.Fatal("Couldn't create dir:", err)
+func TestDirListingPathArg(t *testing.T) {
+	s := NewTestServerWithDriver(&ServerDriver{Debug: true, Settings: &server.Settings{DisableMLSD: true}})
+	defer s.Stop()
+
+	var connErr error
+
+	var ftp *goftp.FTP
+
+	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
+		t.Fatal("Couldn't connect", connErr)
 	}
 
-	if lines, err := ftp.List("known"); err != nil {
+	defer func() { panicOnError(ftp.Quit()) }()
+
+	if _, err := ftp.List("/"); err == nil {
+		t.Fatal("We could list files before login")
+	}
+
+	if err := ftp.Login("test", "test"); err != nil {
+		t.Fatal("Failed to login:", err)
+	}
+
+	for _, dir := range []string{"/" + DirKnown, "/" + DirKnown + "/1"} {
+		if err := ftp.Mkd(dir); err != nil {
+			t.Fatal("Couldn't create dir:", err)
+		}
+	}
+
+	if lines, err := ftp.List(DirKnown); err != nil {
 		t.Fatal("Couldn't list files:", err)
 	} else {
 		found := false
@@ -88,7 +115,7 @@ func TestDirListing(t *testing.T) {
 				break
 			}
 			fileName := line[47:]
-			if fileName == "known" {
+			if fileName == DirKnown {
 				found = true
 			}
 		}
@@ -127,7 +154,7 @@ func TestDirHandling(t *testing.T) {
 		t.Fatal("We should have had an error")
 	}
 
-	if err := ftp.Mkd("/known"); err != nil {
+	if err := ftp.Mkd("/" + DirKnown); err != nil {
 		t.Fatal("Couldn't create dir:", err)
 	}
 
@@ -139,7 +166,7 @@ func TestDirHandling(t *testing.T) {
 			pathentry := validMLSxEntryPattern.FindStringSubmatch(entry)
 			if len(pathentry) != 2 {
 				t.Errorf("MLSx file listing contains invalid entry: \"%s\"", entry)
-			} else if pathentry[1] == "known" {
+			} else if pathentry[1] == DirKnown {
 				found = true
 			}
 		}
@@ -148,15 +175,15 @@ func TestDirHandling(t *testing.T) {
 		}
 	}
 
-	if err := ftp.Cwd("/known"); err != nil {
+	if err := ftp.Cwd("/" + DirKnown); err != nil {
 		t.Fatal("Couldn't access the known dir:", err)
 	}
 
-	if err := ftp.Rmd("/known"); err != nil {
+	if err := ftp.Rmd("/" + DirKnown); err != nil {
 		t.Fatal("Couldn't ftpDelete the known dir:", err)
 	}
 
-	if err := ftp.Rmd("/known"); err == nil {
+	if err := ftp.Rmd("/" + DirKnown); err == nil {
 		t.Fatal("We shouldn't have been able to ftpDelete known again")
 	}
 }

@@ -136,6 +136,7 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string)
 	if directory == "" {
 		path = driver.baseDir + cc.Path()
 	}
+
 	return ioutil.ReadDir(path)
 }
 
