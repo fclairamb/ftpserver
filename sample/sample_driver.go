@@ -96,7 +96,10 @@ func (driver *MainDriver) GetSettings() (*server.Settings, error) {
 		if publicIP, err = externalIP(); err != nil {
 			driver.Logger.Warn("msg", "Couldn't fetch an external IP", "err", err)
 		} else {
-			driver.Logger.Debug("msg", "Fetched our external IP address", "ipAddress", driver.config.Server.PublicHost)
+			driver.Logger.Debug(
+				"msg", "Fetched our external IP address",
+				"action", "external_ip.fetched",
+				"ipAddress", publicIP)
 		}
 
 		// Adding a special case for loopback clients (issue #74)
