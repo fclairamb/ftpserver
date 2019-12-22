@@ -298,8 +298,12 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, e
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
 func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
-	if path == DirVirtual+"/localpath.txt" {
-		return &virtualFile{content: []byte(driver.BaseDir)}, nil
+	if strings.HasPrefix(path, DirVirtual) {
+		if path == DirVirtual+"/localpath.txt" {
+			return &virtualFile{content: []byte(driver.BaseDir)}, nil
+		}
+
+		return nil, fmt.Errorf("this is a virtual directory, only reading of localpath.txt has been implemented")
 	}
 
 	path = driver.BaseDir + path
