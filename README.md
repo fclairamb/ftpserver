@@ -32,24 +32,50 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
    * [MLST](https://tools.ietf.org/html/rfc3659#page-23) - Simple file listing for machine processing
    * [MLSD](https://tools.ietf.org/html/rfc3659#page-23) - Directory listing for machine processing
 
-## Quick test with docker
+## Quick test
+A demo server is shipped so that you can test how the library behaves.
 
-A demo server is shipped so that you can fully understand how you can use it, you can test it with the following
-container (less than 15MB image, based on alpine):
+```
+# Get and install the server
+go install github.com/fclairamb/ftpserver
+
+# Create a storage dir
+mkdir -p data
+
+ftpserver -data data &
+
+# Download some file
+if [ ! -f file.bin ]; then
+    wget -O file.bin.tmp https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64 && mv file.bin.tmp file.bin
+fi
+
+# Connecting to the server and uploading the file
+ftp ftp://test:test@localhost:2121
+put file.bin
+quit
+ls -lh data/file.bin
+```
+
+## Quick test with docker
+There's also a containerized version of the demo server (15MB, based on alpine).
 
 ```
 # Creating a storage dir
-mkdir data
+mkdir -p data
 
 # Starting the sample FTP server
 docker run --rm -d -p 2121-2200:2121-2200 -v $(pwd)/data:/data fclairamb/ftpserver
 
+# Download some file
+if [ ! -f file.iso ]; then
+    wget -O file.bin.tmp https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64 && mv file.bin.tmp file.bin
+fi
+
 # Connecting to it and uploading a file
 ftp ftp://test:test@localhost:2121
-!wget -c -O ftpserver-v0.3 https://github.com/fclairamb/ftpserver/releases/download/v0.3/ftpserver
-put ftpserver-v0.3 ftpserver-v0.3
+put file.bin
 quit
-ls -lh data/ftpserver-v0.3
+ls -lh data/file.bin
 ```
 
 ## The driver
