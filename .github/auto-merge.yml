@@ -11,4 +11,4 @@ rules:
   - minApprovals:
       CONTRIBUTOR: 1
   - requiredLabels:
-      - habx-automerge
+      - automerge
