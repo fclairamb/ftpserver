@@ -1,6 +1,13 @@
 #!/bin/sh -e
 DIFF=$(gofmt -d -e -s .)
 
+version=$(go version|grep -Eo go[0-9]\.[0-9]+)
+
+if [ "$version" != "go1.11" ]; then
+    echo "Skipping go fmt for ${version}"
+    exit 0
+fi
+
 if [ "$DIFF" != "" ]; then
   echo "Problem with gofmt:"
   echo $DIFF
