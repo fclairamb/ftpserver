@@ -103,11 +103,19 @@ func (c *clientHandler) handleNOOP() error {
 	return nil
 }
 
+func (c *clientHandler) handleCLNT() error {
+	c.clnt = c.param
+	c.writeMessage(StatusOK, "Good to know")
+
+	return nil
+}
+
 func (c *clientHandler) handleFEAT() error {
 	c.writeLine(fmt.Sprintf("%d- These are my features", StatusSystemStatus))
 	defer c.writeMessage(StatusSystemStatus, "end")
 
 	features := []string{
+		"CLNT",
 		"UTF8",
 		"SIZE",
 		"MDTM",
