@@ -58,7 +58,7 @@ var commandsMap = map[string]*CommandDescription{
 	"CWD":  {Fn: (*clientHandler).handleCWD},
 	"PWD":  {Fn: (*clientHandler).handlePWD},
 	"CDUP": {Fn: (*clientHandler).handleCDUP},
-	"NLST": {Fn: (*clientHandler).handleLIST},
+	"NLST": {Fn: (*clientHandler).handleNLST},
 	"LIST": {Fn: (*clientHandler).handleLIST},
 	"MLSD": {Fn: (*clientHandler).handleMLSD},
 	"MLST": {Fn: (*clientHandler).handleMLST},
