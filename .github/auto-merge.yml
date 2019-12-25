@@ -1,0 +1,14 @@
+# Configuration for probot-auto-merge - https://github.com/bobvanderlinden/probot-auto-merge
+
+updateBranch: true
+deleteBranchAfterMerge: true
+maxRequestedChanges:
+  NONE: 0
+blockingLabels:
+- blocked
+blockingTitleRegex: '\bWIP\b'
+rules:
+  - minApprovals:
+      CONTRIBUTOR: 1
+  - requiredLabels:
+      - automerge

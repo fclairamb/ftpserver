@@ -34,6 +34,7 @@ var commandsMap = map[string]*CommandDescription{
 	"PBSZ": {Fn: (*clientHandler).handlePBSZ, Open: true},
 
 	// Misc
+	"CLNT": {Fn: (*clientHandler).handleCLNT, Open: true},
 	"FEAT": {Fn: (*clientHandler).handleFEAT, Open: true},
 	"SYST": {Fn: (*clientHandler).handleSYST, Open: true},
 	"NOOP": {Fn: (*clientHandler).handleNOOP, Open: true},

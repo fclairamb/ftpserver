@@ -23,6 +23,7 @@ type clientHandler struct {
 	reader      *bufio.Reader        // Reader on the TCP connection
 	user        string               // Authenticated user
 	path        string               // Current path
+	clnt        string               // Identified client
 	command     string               // Command received on the connection
 	param       string               // Param of the FTP command
 	connectedAt time.Time            // Date of connection
