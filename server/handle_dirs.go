@@ -106,6 +106,27 @@ func (c *clientHandler) handleLIST() error {
 	return nil
 }
 
+func (c *clientHandler) handleNLST() error {
+	if files, err := c.driver.ListFiles(c); err == nil {
+		if tr, errTrOpen := c.TransferOpen(); errTrOpen == nil {
+			defer c.TransferClose()
+			return c.dirTransferNLST(tr, files)
+		}
+	} else {
+		c.writeMessage(500, fmt.Sprintf("Could not list: %v", err))
+	}
+
+	return nil
+}
+
+func (c *clientHandler) dirTransferNLST(w io.Writer, files []os.FileInfo) error {
+	for _, file := range files {
+		fmt.Fprintf(w, "%s\r\n", file.Name())
+	}
+
+	return nil
+}
+
 func (c *clientHandler) handleMLSD() error {
 	if c.server.settings.DisableMLSD {
 		c.writeMessage(StatusSyntaxErrorNotRecognised, "MLSD has been disabled")
