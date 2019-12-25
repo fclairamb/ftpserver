@@ -71,8 +71,8 @@ func (c *clientHandler) handlePASV() error {
 				continue
 			}
 
-			tcpListener, err2 = net.ListenTCP("tcp", laddr)
-			if err2 == nil {
+			tcpListener, err = net.ListenTCP("tcp", laddr)
+			if err == nil {
 				break
 			}
 		}
