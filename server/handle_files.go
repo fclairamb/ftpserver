@@ -177,7 +177,7 @@ func (c *clientHandler) handleSTATFile() error {
 		defer m()
 		// c.writeLine(fmt.Sprintf("%d-Status follows:", StatusSystemStatus))
 		if info.IsDir() {
-			if files, err2 := c.driver.ListFiles(c); err2 == nil {
+			if files, errList := c.driver.ListFiles(c, c.absPath(c.param)); errList == nil {
 				for _, f := range files {
 					c.writeLine(fmt.Sprintf(" %s", c.fileStat(f)))
 				}

@@ -37,8 +37,8 @@ func (driver *Driver) MakeDirectory(cc server.ClientContext, directory string) e
 }
 
 // ListFiles lists the files of a directory
-func (driver *Driver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
-	return ioutil.ReadDir(driver.baseDir + cc.Path())
+func (driver *Driver) ListFiles(cc server.ClientContext, path string) ([]os.FileInfo, error) {
+	return ioutil.ReadDir(filepath.Join(driver.baseDir, path))
 }
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
@@ -102,7 +102,7 @@ func (driver *Driver) ChmodFile(cc server.ClientContext, path string, mode os.Fi
 }
 
 // NewDriver creates a new instance on a particular directory
-func NewDriver(directory string, logger log.Logger) (*Driver, error) {
+func NewDriver(directory string, logger log.Logger) (server.ClientHandlingDriver, error) {
 	return &Driver{
 		baseDir: directory,
 		logger:  logger,
@@ -110,7 +110,7 @@ func NewDriver(directory string, logger log.Logger) (*Driver, error) {
 }
 
 // NewDriverTemp creates a new instance of this on a temporary directory
-func NewDriverTemp(logger log.Logger) (*Driver, error) {
+func NewDriverTemp(logger log.Logger) (server.ClientHandlingDriver, error) {
 	dir := "/tmp/ftpisback"
 
 	if errStat := os.MkdirAll(dir, 0750); errStat != nil {

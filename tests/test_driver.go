@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 
 	gklog "github.com/go-kit/kit/log"
 
@@ -130,8 +131,12 @@ func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory str
 }
 
 // ListFiles lists the files of a directory
-func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
-	path := driver.baseDir + cc.Path()
+func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string) ([]os.FileInfo, error) {
+	path := path.Join(driver.baseDir, directory)
+	if directory == "" {
+		path = driver.baseDir + cc.Path()
+	}
+
 	return ioutil.ReadDir(path)
 }
 

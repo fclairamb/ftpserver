@@ -38,7 +38,7 @@ type ClientHandlingDriver interface {
 	MakeDirectory(cc ClientContext, directory string) error
 
 	// ListFiles lists the files of a directory
-	ListFiles(cc ClientContext) ([]os.FileInfo, error)
+	ListFiles(cc ClientContext, directory string) ([]os.FileInfo, error)
 
 	// OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
 	OpenFile(cc ClientContext, path string, flag int) (FileStream, error)

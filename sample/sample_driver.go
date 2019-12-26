@@ -259,8 +259,8 @@ func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory str
 }
 
 // ListFiles lists the files of a directory
-func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, error) {
-	if cc.Path() == DirVirtual {
+func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string) ([]os.FileInfo, error) {
+	if directory == DirVirtual {
 		files := make([]os.FileInfo, 0)
 		files = append(files,
 			virtualFileInfo{
@@ -276,16 +276,14 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext) ([]os.FileInfo, e
 		)
 
 		return files, nil
-	} else if cc.Path() == DirDebug {
+	} else if directory == DirDebug {
 		return make([]os.FileInfo, 0), nil
 	}
 
-	path := driver.BaseDir + cc.Path()
-
-	files, err := ioutil.ReadDir(path)
+	files, err := ioutil.ReadDir(directory)
 
 	// We add a virtual dir
-	if cc.Path() == "/" && err == nil {
+	if directory == "/" && err == nil {
 		files = append(files, virtualFileInfo{
 			name: "virtual",
 			mode: os.FileMode(0666) | os.ModeDir,

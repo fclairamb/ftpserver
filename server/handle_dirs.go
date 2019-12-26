@@ -94,8 +94,8 @@ func (c *clientHandler) handlePWD() error {
 }
 
 func (c *clientHandler) handleLIST() error {
-	if files, err := c.driver.ListFiles(c); err == nil {
-		if tr, err2 := c.TransferOpen(); err2 == nil {
+	if files, err := c.driver.ListFiles(c, c.absPath(c.param)); err == nil {
+		if tr, errTr := c.TransferOpen(); errTr == nil {
 			defer c.TransferClose()
 			return c.dirTransferLIST(tr, files)
 		}
@@ -107,7 +107,7 @@ func (c *clientHandler) handleLIST() error {
 }
 
 func (c *clientHandler) handleNLST() error {
-	if files, err := c.driver.ListFiles(c); err == nil {
+	if files, err := c.driver.ListFiles(c, c.absPath(c.param)); err == nil {
 		if tr, errTrOpen := c.TransferOpen(); errTrOpen == nil {
 			defer c.TransferClose()
 			return c.dirTransferNLST(tr, files)
@@ -133,8 +133,8 @@ func (c *clientHandler) handleMLSD() error {
 		return nil
 	}
 
-	if files, err := c.driver.ListFiles(c); err == nil {
-		if tr, err2 := c.TransferOpen(); err2 == nil {
+	if files, err := c.driver.ListFiles(c, c.absPath(c.param)); err == nil {
+		if tr, errTr := c.TransferOpen(); errTr == nil {
 			defer c.TransferClose()
 			return c.dirTransferMLSD(tr, files)
 		}
