@@ -34,6 +34,7 @@ var commandsMap = map[string]*CommandDescription{
 	"PBSZ": {Fn: (*clientHandler).handlePBSZ, Open: true},
 
 	// Misc
+	"CLNT": {Fn: (*clientHandler).handleCLNT, Open: true},
 	"FEAT": {Fn: (*clientHandler).handleFEAT, Open: true},
 	"SYST": {Fn: (*clientHandler).handleSYST, Open: true},
 	"NOOP": {Fn: (*clientHandler).handleNOOP, Open: true},
@@ -57,7 +58,7 @@ var commandsMap = map[string]*CommandDescription{
 	"CWD":  {Fn: (*clientHandler).handleCWD},
 	"PWD":  {Fn: (*clientHandler).handlePWD},
 	"CDUP": {Fn: (*clientHandler).handleCDUP},
-	"NLST": {Fn: (*clientHandler).handleLIST},
+	"NLST": {Fn: (*clientHandler).handleNLST},
 	"LIST": {Fn: (*clientHandler).handleLIST},
 	"MLSD": {Fn: (*clientHandler).handleMLSD},
 	"MLST": {Fn: (*clientHandler).handleMLST},

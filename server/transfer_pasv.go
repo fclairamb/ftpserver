@@ -60,7 +60,7 @@ func (c *clientHandler) handlePASV() error {
 
 	var err error
 
-	portRange := c.server.settings.DataPortRange
+	portRange := c.server.settings.PassiveTransferPortRange
 
 	if portRange != nil {
 		for start := portRange.Start; start < portRange.End; start++ {
@@ -71,8 +71,8 @@ func (c *clientHandler) handlePASV() error {
 				continue
 			}
 
-			tcpListener, err2 = net.ListenTCP("tcp", laddr)
-			if err2 == nil {
+			tcpListener, err = net.ListenTCP("tcp", laddr)
+			if err == nil {
 				break
 			}
 		}

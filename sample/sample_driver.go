@@ -96,7 +96,10 @@ func (driver *MainDriver) GetSettings() (*server.Settings, error) {
 		if publicIP, err = externalIP(); err != nil {
 			driver.Logger.Warn("msg", "Couldn't fetch an external IP", "err", err)
 		} else {
-			driver.Logger.Debug("msg", "Fetched our external IP address", "ipAddress", driver.config.Server.PublicHost)
+			driver.Logger.Debug(
+				"msg", "Fetched our external IP address",
+				"action", "external_ip.fetched",
+				"ipAddress", publicIP)
 		}
 
 		// Adding a special case for loopback clients (issue #74)
@@ -293,8 +296,12 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string)
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
 func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
-	if path == DirVirtual+"/localpath.txt" {
-		return &virtualFile{content: []byte(driver.BaseDir)}, nil
+	if strings.HasPrefix(path, DirVirtual) {
+		if path == DirVirtual+"/localpath.txt" {
+			return &virtualFile{content: []byte(driver.BaseDir)}, nil
+		}
+
+		return nil, fmt.Errorf("this is a virtual directory, only reading of localpath.txt has been implemented")
 	}
 
 	path = driver.BaseDir + path
