@@ -107,7 +107,7 @@ func (c *clientHandler) handleLIST() error {
 }
 
 func (c *clientHandler) handleNLST() error {
-	if files, err := c.driver.ListFiles(c); err == nil {
+	if files, err := c.driver.ListFiles(c, c.absPath(c.param)); err == nil {
 		if tr, errTrOpen := c.TransferOpen(); errTrOpen == nil {
 			defer c.TransferClose()
 			return c.dirTransferNLST(tr, files)
