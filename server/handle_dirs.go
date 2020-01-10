@@ -11,33 +11,14 @@ import (
 )
 
 func (c *clientHandler) absPath(p string) string {
-	p2 := c.Path()
-
-	if p == "." {
-		return p2
-	}
-
 	if strings.HasPrefix(p, "/") {
-		p2 = p
+		return path.Clean(p)
 	} else {
-		if p2 != "/" {
-			p2 += "/"
-		}
-		p2 += p
+		return path.Clean(c.Path() + "/" + p)
 	}
-
-	if p2 != "/" && strings.HasSuffix(p2, "/") {
-		p2 = p2[0 : len(p2)-1]
-	}
-
-	return p2
 }
 
 func (c *clientHandler) handleCWD() error {
-	if c.param == ".." {
-		return c.handleCDUP()
-	}
-
 	p := c.absPath(c.param)
 
 	if err := c.driver.ChangeDirectory(c, p); err == nil {
