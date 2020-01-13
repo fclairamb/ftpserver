@@ -13,9 +13,8 @@ import (
 func (c *clientHandler) absPath(p string) string {
 	if strings.HasPrefix(p, "/") {
 		return path.Clean(p)
-	} else {
-		return path.Clean(c.Path() + "/" + p)
 	}
+	return path.Clean(c.Path() + "/" + p)
 }
 
 func (c *clientHandler) handleCWD() error {
