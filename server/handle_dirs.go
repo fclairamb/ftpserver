@@ -14,6 +14,7 @@ func (c *clientHandler) absPath(p string) string {
 	if strings.HasPrefix(p, "/") {
 		return path.Clean(p)
 	}
+
 	return path.Clean(c.Path() + "/" + p)
 }
 

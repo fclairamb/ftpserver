@@ -264,6 +264,7 @@ func TestCleanPath(t *testing.T) {
 		if err := ftp.Cwd(dir); err != nil {
 			t.Fatal("Couldn't Cwd to a valid path:", err)
 		}
+
 		if path, err := ftp.Pwd(); err != nil {
 			t.Fatal("PWD failed:", err)
 		} else if path != "/" {
