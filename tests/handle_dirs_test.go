@@ -232,3 +232,43 @@ func TestDirListingWithSpace(t *testing.T) {
 		t.Fatal("Couldn't access the known dir:", err)
 	}
 }
+
+func TestCleanPath(t *testing.T) {
+	s := NewTestServer(true)
+	defer s.Stop()
+
+	var connErr error
+
+	var ftp *goftp.FTP
+
+	if ftp, connErr = goftp.Connect(s.Addr()); connErr != nil {
+		t.Fatal("Couldn't connect", connErr)
+	}
+
+	defer func() { panicOnError(ftp.Quit()) }()
+
+	if err := ftp.Login("test", "test"); err != nil {
+		t.Fatal("Failed to login:", err)
+	}
+
+	// various path purity tests
+
+	for _, dir := range []string{
+		"..",
+		"../..",
+		"/../..",
+		"////",
+		"/./",
+		"/././.",
+	} {
+		if err := ftp.Cwd(dir); err != nil {
+			t.Fatal("Couldn't Cwd to a valid path:", err)
+		}
+
+		if path, err := ftp.Pwd(); err != nil {
+			t.Fatal("PWD failed:", err)
+		} else if path != "/" {
+			t.Fatal("Faulty path:", path)
+		}
+	}
+}
