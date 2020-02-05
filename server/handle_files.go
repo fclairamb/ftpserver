@@ -103,7 +103,7 @@ func (c *clientHandler) transferFile(write bool, append bool) {
 
 func (c *clientHandler) handleCHMOD(params string) {
 	spl := strings.SplitN(params, " ", 2)
-	modeNb, err := strconv.ParseUint(spl[0], 10, 32)
+	modeNb, err := strconv.ParseUint(spl[0], 8, 32)
 
 	mode := os.FileMode(modeNb)
 	path := c.absPath(spl[1])
