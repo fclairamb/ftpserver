@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"time"
 )
 
 // This file is the driver part of the server. It must be implemented by anyone wanting to use the server.
@@ -48,6 +49,9 @@ type ClientHandlingDriver interface {
 
 	// GetFileInfo gets some info around a file or a directory
 	GetFileInfo(cc ClientContext, path string) (os.FileInfo, error)
+
+	//SetFileMtime changes file mtime
+	SetFileMtime(cc ClientContext, path string, mtime time.Time) error
 
 	// RenameFile renames a file or a directory
 	RenameFile(cc ClientContext, from, to string) error
@@ -111,4 +115,5 @@ type Settings struct {
 	ConnectionTimeout        int              // Maximum time to establish passive or active transfer connections
 	DisableMLSD              bool             // Disable MLSD support
 	DisableMLST              bool             // Disable MLST support
+	DisableMFMT              bool             // Disable MFMT support (modify file mtime)
 }

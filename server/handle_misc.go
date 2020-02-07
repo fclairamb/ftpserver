@@ -130,6 +130,10 @@ func (c *clientHandler) handleFEAT() error {
 		features = append(features, "MLST")
 	}
 
+	if !c.server.settings.DisableMFMT {
+		features = append(features, "MFMT")
+	}
+
 	for _, f := range features {
 		c.writeLine(" " + f)
 	}

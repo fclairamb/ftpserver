@@ -333,6 +333,11 @@ func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (o
 	return os.Stat(path)
 }
 
+func (driver *ClientDriver) SetFileMtime(cc server.ClientContext, path string, mtime time.Time) error {
+	path = driver.BaseDir + path
+	return os.Chtimes(path, mtime, mtime)
+}
+
 // CanAllocate gives the approval to allocate some data
 func (driver *ClientDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
 	return true, nil
