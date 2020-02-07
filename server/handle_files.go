@@ -245,7 +245,7 @@ func (c *clientHandler) handleREST() error {
 func (c *clientHandler) handleMDTM() error {
 	path := c.absPath(c.param)
 	if info, err := c.driver.GetFileInfo(c, path); err == nil {
-		c.writeMessage(StatusFileOK, info.ModTime().UTC().Format(dateFormatMLSD))
+		c.writeMessage(StatusFileStatus, info.ModTime().UTC().Format(dateFormatMLSD))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
 	}
