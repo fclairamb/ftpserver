@@ -333,6 +333,7 @@ func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (o
 	return os.Stat(path)
 }
 
+// SetFileMtime changes file mtime
 func (driver *ClientDriver) SetFileMtime(cc server.ClientContext, path string, mtime time.Time) error {
 	path = driver.BaseDir + path
 	return os.Chtimes(path, mtime, mtime)
