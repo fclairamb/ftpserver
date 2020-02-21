@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/fclairamb/ftpserver/server/log"
@@ -79,6 +80,12 @@ func (driver *Driver) GetFileInfo(cc server.ClientContext, path string) (os.File
 	path = driver.baseDir + path
 
 	return os.Stat(path)
+}
+
+// SetFileMtime changes file mtime
+func (driver *Driver) SetFileMtime(cc server.ClientContext, path string, mtime time.Time) error {
+	path = driver.baseDir + path
+	return os.Chtimes(path, mtime, mtime)
 }
 
 // DeleteFile deletes a file or a directory

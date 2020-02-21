@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"time"
 
 	gklog "github.com/go-kit/kit/log"
 
@@ -172,6 +173,12 @@ func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (o
 	path = driver.baseDir + path
 
 	return os.Stat(path)
+}
+
+// SetFileMtime changes file mtime
+func (driver *ClientDriver) SetFileMtime(cc server.ClientContext, path string, mtime time.Time) error {
+	path = driver.baseDir + path
+	return os.Chtimes(path, mtime, mtime)
 }
 
 // CanAllocate gives the approval to allocate some data
