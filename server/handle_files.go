@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func (c *clientHandler) handleSTOR() error {
@@ -249,6 +250,30 @@ func (c *clientHandler) handleMDTM() error {
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
 	}
+
+	return nil
+}
+
+// RFC draft: https://tools.ietf.org/html/draft-somers-ftp-mfxx-04#section-3.1
+func (c *clientHandler) handleMFMT() error {
+	params := strings.SplitN(c.param, " ", 2)
+	if len(params) != 2 {
+		c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf(
+			"Couldn't set mtime, not enough params, given: %s", c.param))
+	}
+
+	mtime, err := time.Parse("20060102150405", params[0])
+	if err != nil {
+		c.writeMessage(StatusSyntaxErrorParameters, fmt.Sprintf(
+			"Couldn't parse mtime, given: %s, err: %v", params[0], err))
+	}
+
+	if err := c.driver.SetFileMtime(c, params[1], mtime); err != nil {
+		c.writeMessage(StatusSyntaxErrorParameters, fmt.Sprintf(
+			"Couldn't set mtime %q for %q, err: %v", mtime.Format(time.RFC3339), params[0], err))
+	}
+
+	c.writeMessage(StatusFileStatus, fmt.Sprintf("Modify=%s; %s", params[0], params[1]))
 
 	return nil
 }

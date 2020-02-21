@@ -44,6 +44,7 @@ var commandsMap = map[string]*CommandDescription{
 	"SIZE": {Fn: (*clientHandler).handleSIZE},
 	"STAT": {Fn: (*clientHandler).handleSTAT},
 	"MDTM": {Fn: (*clientHandler).handleMDTM},
+	"MFMT": {Fn: (*clientHandler).handleMFMT},
 	"RETR": {Fn: (*clientHandler).handleRETR},
 	"STOR": {Fn: (*clientHandler).handleSTOR},
 	"APPE": {Fn: (*clientHandler).handleAPPE},
