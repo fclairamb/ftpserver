@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"runtime"
 	"strings"
 	"testing"
 
@@ -218,8 +219,11 @@ func TestDirListingWithSpace(t *testing.T) {
 			}
 			spl := strings.SplitN(line, "; ", 2)
 			fileName := spl[1]
-
-			if fileName == " with spaces " {
+			expectedfileName := " with spaces "
+			if runtime.GOOS == "windows" {
+				expectedfileName = " with spaces"
+			}
+			if fileName == expectedfileName {
 				found = true
 			}
 		}
