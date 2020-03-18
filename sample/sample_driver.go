@@ -280,7 +280,9 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string)
 	} else if directory == DirDebug {
 		return make([]os.FileInfo, 0), nil
 	}
+
 	dir := filepath.Join(driver.BaseDir, directory)
+
 	files, err := ioutil.ReadDir(dir)
 
 	// We add a virtual dir
