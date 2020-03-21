@@ -5,9 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"gopkg.in/dutchcoders/goftp.v1"
-
 	"github.com/fclairamb/ftpserver/server"
+	"gopkg.in/dutchcoders/goftp.v1"
 )
 
 const DirKnown = "known"
@@ -274,5 +273,28 @@ func TestCleanPath(t *testing.T) {
 		} else if path != "/" {
 			t.Fatal("Faulty path:", path)
 		}
+	}
+}
+
+func Test_qoutedoubling(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		// TODO: Add test cases.
+		{"1", args{" white space"}, " white space"},
+		{"1", args{` one" quote`}, ` one"" quote`},
+		{"1", args{` two"" quote`}, ` two"""" quote`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := qoutedoubling(tt.args.s); got != tt.want {
+				t.Errorf("qoutedoubling() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
