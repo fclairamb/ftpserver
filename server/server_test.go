@@ -34,6 +34,7 @@ func Test_qoutedoubling(t *testing.T) {
 	type args struct {
 		s string
 	}
+
 	tests := []struct {
 		name string
 		args args
@@ -44,7 +45,9 @@ func Test_qoutedoubling(t *testing.T) {
 		{"1", args{` one" quote`}, ` one"" quote`},
 		{"1", args{` two"" quote`}, ` two"""" quote`},
 	}
+
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if got := qoutedoubling(tt.args.s); got != tt.want {
 				t.Errorf("qoutedoubling() = %v, want %v", got, tt.want)

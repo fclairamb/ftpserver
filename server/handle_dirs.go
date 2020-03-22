@@ -191,9 +191,9 @@ func (c *clientHandler) writeMLSxOutput(w io.Writer, file os.FileInfo) {
 }
 
 func qoutedoubling(s string) string {
-	if strings.Index(s, "\"") == -1 {
+	if !strings.Contains(s, "\"") {
 		return s
 	}
-	return strings.ReplaceAll(s, "\"", `""`)
 
+	return strings.ReplaceAll(s, "\"", `""`)
 }
