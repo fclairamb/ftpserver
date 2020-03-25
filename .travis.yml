@@ -6,9 +6,9 @@ before_install:
 - go get golang.org/x/tools/cmd/goimports
 language: go
 go:
-- 1.11.x
 - 1.12.x
 - 1.13.x
+- 1.14.x
 script:
 - ./.check-fmt.sh
 - gocyclo -over 15 .
