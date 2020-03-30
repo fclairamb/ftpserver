@@ -36,9 +36,9 @@ func (c *clientHandler) handleMKD() error {
 	if err := c.driver.MakeDirectory(c, p); err == nil {
 		// handleMKD confirms to "qoute-doubling"
 		// https://tools.ietf.org/html/rfc959 , page 63
-		c.writeMessage(StatusPathCreated, fmt.Sprintf(`Created dir "%s"`, qouteDoubling(p)))
+		c.writeMessage(StatusPathCreated, fmt.Sprintf(`Created dir "%s"`, quoteDoubling(p)))
 	} else {
-		c.writeMessage(StatusActionNotTaken, fmt.Sprintf(`Could not create "%s" : %v`, qouteDoubling(p), err))
+		c.writeMessage(StatusActionNotTaken, fmt.Sprintf(`Could not create "%s" : %v`, quoteDoubling(p), err))
 	}
 
 	return nil
@@ -190,7 +190,7 @@ func (c *clientHandler) writeMLSxOutput(w io.Writer, file os.FileInfo) {
 	)
 }
 
-func qouteDoubling(s string) string {
+func quoteDoubling(s string) string {
 	if !strings.Contains(s, "\"") {
 		return s
 	}
