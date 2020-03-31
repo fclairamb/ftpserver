@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -280,7 +281,9 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string)
 		return make([]os.FileInfo, 0), nil
 	}
 
-	files, err := ioutil.ReadDir(directory)
+	dir := filepath.Join(driver.BaseDir, directory)
+
+	files, err := ioutil.ReadDir(dir)
 
 	// We add a virtual dir
 	if directory == "/" && err == nil {
