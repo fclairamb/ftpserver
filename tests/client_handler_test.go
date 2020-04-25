@@ -25,6 +25,7 @@ func TestConcurrency(t *testing.T) {
 			if ftp, err = goftp.Connect(s.Addr()); err != nil {
 				panic(err)
 			}
+
 			defer func() { panicOnError(ftp.Close()) }()
 
 			if err = ftp.Login("test", "test"); err != nil {

@@ -4,15 +4,16 @@ before_install:
 - go get golang.org/x/lint/golint
 - go get github.com/fzipp/gocyclo
 - go get golang.org/x/tools/cmd/goimports
+- go get github.com/golangci/golangci-lint/cmd/golangci-lint
 language: go
 go:
-- 1.12.x
 - 1.13.x
 - 1.14.x
 script:
 - ./.check-fmt.sh
 - gocyclo -over 15 .
 - goimports -l -e .
+- golangci-lint run 
 - go test -race -v ./...
 - go build -v ./...
 - ./.docker-create-upload.sh
