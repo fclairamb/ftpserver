@@ -110,7 +110,7 @@ type ClientHandlingDriver interface {
 	MakeDirectory(cc ClientContext, directory string) error
 
 	// ListFiles lists the files of a directory
-	ListFiles(cc ClientContext) ([]os.FileInfo, error)
+	ListFiles(cc ClientContext, directory string) ([]os.FileInfo, error)
 
 	// OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
 	OpenFile(cc ClientContext, path string, flag int) (FileStream, error)
@@ -121,11 +121,17 @@ type ClientHandlingDriver interface {
 	// GetFileInfo gets some info around a file or a directory
 	GetFileInfo(cc ClientContext, path string) (os.FileInfo, error)
 
+	// SetFileMtime changes file mtime
+	SetFileMtime(cc ClientContext, path string, mtime time.Time) error
+
 	// RenameFile renames a file or a directory
 	RenameFile(cc ClientContext, from, to string) error
 
 	// CanAllocate gives the approval to allocate some data
 	CanAllocate(cc ClientContext, size int) (bool, error)
+
+	// ChmodFile changes the attributes of the file
+	ChmodFile(cc ClientContext, path string, mode os.FileMode) error
 }
 
 // ClientContext is implemented on the server side to provide some access to few data around the client

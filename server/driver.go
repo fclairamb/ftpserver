@@ -50,7 +50,7 @@ type ClientHandlingDriver interface {
 	// GetFileInfo gets some info around a file or a directory
 	GetFileInfo(cc ClientContext, path string) (os.FileInfo, error)
 
-	//SetFileMtime changes file mtime
+	// SetFileMtime changes file mtime
 	SetFileMtime(cc ClientContext, path string, mtime time.Time) error
 
 	// RenameFile renames a file or a directory
