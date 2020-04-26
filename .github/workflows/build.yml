@@ -44,3 +44,5 @@ jobs:
           apt-get update && apt-get install gcc -y
           go test -race -v ./...
 
+  build-aggragate:
+    needs: build
