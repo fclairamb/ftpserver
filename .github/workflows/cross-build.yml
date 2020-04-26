@@ -41,7 +41,7 @@ jobs:
           GOOS: ${{ matrix.target.os }}
           GOARCH: ${{ matrix.target.arch }}
         # What used to be: ftpserver-${GOOS}-${GOARCH}${EXT}
-        run: 'go build -o ftpserver-${{ join(matrix.target.os, "-", matrix.target.arch, (matrix.target.ext ? matrix.target.ext : "")) }}'
+        run: 'go build -o ftpserver-${{ matrix.target.os }}-${{ matrix.target.arch }}${{ matrix.target.ext }}'
       - name: Upload binaries to release
         if: github.event_name == 'release' && github.event.action == 'created'
         uses: svenstaro/upload-release-action@v1-release
@@ -49,8 +49,8 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           # This is copy/paste of the previous step, I couldn't find a way to make it shared
           # I wish it supported the "??" (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator)
-          file: 'ftpserver-${{ join(matrix.target.os, "-", matrix.target.arch, (matrix.target.ext ? matrix.target.ext : "")) }}'
-          asset_name: 'ftpserver-${{ join(matrix.target.os, "-", matrix.target.arch, (matrix.target.ext ? matrix.target.ext : "")) }}'
+          file: 'ftpserver-${{ matrix.target.os }}-${{ matrix.target.arch }}${{ matrix.target.ext }}'
+          asset_name: 'ftpserver-${{ matrix.target.os }}-${{ matrix.target.arch }}${{ matrix.target.ext }}'
           tag: ${{ github.ref }}
           overwrite: true
 
