@@ -7,7 +7,7 @@ import (
 
 // validMLSxEntryPattern ensures an entry follows RFC3659 (section 7.2)
 // https://tools.ietf.org/html/rfc3659#page-24
-var validMLSxEntryPattern =regexp.MustCompile(`^ *(?:\w+=[^\;]*;)* (.+)\r\n$`)
+var validMLSxEntryPattern = regexp.MustCompile(`^ *(?:\w+=[^\;]*;)* (.+)\r\n$`)
 
 // exampleMLSTResponseEntry is taken from RFC3659 (section 7.7.2)
 // https://tools.ietf.org/html/rfc3659#page-38
