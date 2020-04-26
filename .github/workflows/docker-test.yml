@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Run sample
         env:
-            SERVER_PORT: ${{ job.services.ftpserver.ports[2121] }}
+          SERVER_PORT: ${{ job.services.ftpserver.ports[2121] }}
         run: |
           set -x
           apt-get update && apt-get install netcat ncftp wget -y
