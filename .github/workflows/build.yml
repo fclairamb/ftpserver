@@ -16,11 +16,10 @@ jobs:
 
     strategy:
       matrix:
-        go: [ 1.14.2 ] # , 1.13.10 
+        go: [ 1.14, 1.13 ]
         include:
           - go: 1.14.2
             lint: true
-            package: true
   
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -29,8 +28,8 @@ jobs:
 
       # Running golangci-lint
       - name: Run golangci-lint
-        uses: actions-contrib/golangci-lint@v1
         if: matrix.lint
+        uses: actions-contrib/golangci-lint@v1
 
       # Install Go
       - name: Setup go
