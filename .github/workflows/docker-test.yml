@@ -8,7 +8,7 @@ on:
 jobs:
   test-docker-image:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 1
     services:
       ftpserver:
         image: ftpserver/ftpserver
@@ -22,8 +22,8 @@ jobs:
         run: |
           apt-get update && apt-get install netcat ncftp wget -y
           wget -O file.bin.tmp https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64
-          while ! nc -z localhost $SERVER_PORT </dev/null; do sleep 1; done
-          ncftp ftp://test:test@localhost:$SERVER_PORT <<EOF
+          while ! nc -z localhost ${SERVER_PORT} </dev/null; do sleep 1; done
+          ncftp ftp://test:test@localhost:${SERVER_PORT} <<EOF
             put -z file.bin remote.bin
             get remote.bin
             quit
