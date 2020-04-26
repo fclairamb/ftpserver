@@ -1,0 +1,30 @@
+name: Docker test
+
+on:
+    schedule:
+      # We want to run it every day
+      - cron:  '0 0 * * *'
+
+jobs:
+  test-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run sample
+        run: |
+          apt-get update && apt-get install ftp wget -y
+          if [ ! -f file.bin ]; then
+            wget -O file.bin.tmp https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64 && mv file.bin.tmp file.bin
+          fi
+          ftp ftp://test:test@localhost:2121 <<EOF
+            put file.bin
+            quit
+          EOF
+          ls -lh data/ftpserver*
+
+    services:
+      ftpserver:
+        image: ftpserver/ftpserver
+        ports:
+          - 2121:2121
+      
+      
