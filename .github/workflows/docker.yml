@@ -20,10 +20,7 @@ jobs:
         go-version: 1.14.2
     
     - name: Build
-      run: go build -v ./...
-
-    - name: Analyze
-      run: ls -lh
+      run: go build
 
     - name: Publish to Registry
       # if: github.event_name == 'release' && github.event.action == 'created'
