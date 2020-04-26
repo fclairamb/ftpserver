@@ -31,6 +31,6 @@ jobs:
             get remote.bin
             quit
           EOF
-          if [ ! -f remote.bin ] 
+          if [ ! -f remote.bin ]; then
             exit 1
           fi
