@@ -1,9 +1,10 @@
 # Golang FTP Server library
 
-[![Build status](https://travis-ci.org/fclairamb/ftpserver.svg?branch=master)](https://travis-ci.org/fclairamb/ftpserver)
+![Build](https://github.com/fclairamb/ftpserver/workflows/Build/badge.svg)
+![Docker Image](https://github.com/fclairamb/ftpserver/workflows/Docker%20Image/badge.svg)
+![Cross Build](https://github.com/fclairamb/ftpserver/workflows/Cross%20Build/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/fclairamb/ftpserver)](https://goreportcard.com/report/fclairamb/ftpserver)
 [![GoDoc](https://godoc.org/github.com/fclairamb/ftpserver?status.svg)](https://godoc.org/github.com/fclairamb/ftpserver/server)
-[![Gitter](https://badges.gitter.im/ftpserver.svg)](https://gitter.im/ftpserver/Lobby)
 
 The goal is to provide a simple & comprehensive FTP Server library.
 

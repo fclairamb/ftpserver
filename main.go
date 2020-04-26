@@ -48,7 +48,7 @@ func main() {
 
 	if autoCreate {
 		if _, err := os.Stat(confFile); err != nil && os.IsNotExist(err) {
-			logger.Error("msg", "Not config file, creating one", "action", "conf_file.create", "confFile", confFile)
+			logger.Error("msg", "No config file, creating one", "action", "conf_file.create", "confFile", confFile)
 
 			if err := ioutil.WriteFile(confFile, confFileContent(), 0644); err != nil {
 				logger.Error("msg", "Couldn't create config file", "action", "conf_file.could_not_create", "confFile", confFile)
