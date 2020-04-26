@@ -27,6 +27,6 @@ jobs:
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: ftpserver/ftpserver
-        username: ${{ secrets.DOCKER_USERNAME }}
+        username: ftpserver
         password: ${{ secrets.DOCKER_PASSWORD }}
         tag_semver: true
