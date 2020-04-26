@@ -1,0 +1,33 @@
+name: Docker test
+
+on:
+  schedule:
+    # We want to run it every day
+    - cron:  '0 0 * * *'
+
+jobs:
+  test-docker-image:
+    runs-on: ubuntu-latest
+
+    services:
+      ftpserver:
+        image: ftpserver/ftpserver
+        ports:
+        - 2121/tcp
+
+    steps:
+      - name: Run sample
+        env:
+            SERVER_PORT: ${{ job.services.ftpserver.ports[2121] }}
+        run: |
+          apt-get update && apt-get install netcat ncftp wget -y
+          wget -O file.bin.tmp https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64
+          while ! nc -z localhost $SERVER_PORT </dev/null; do sleep 1; done
+          ncftp ftp://test:test@localhost:$SERVER_PORT <<EOF
+            put -z file.bin remote.bin
+            get remote.bin
+            quit
+          EOF
+          if [ ! -f remote.bin ] 
+            exit 1
+          fi

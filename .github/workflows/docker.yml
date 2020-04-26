@@ -1,8 +1,7 @@
-name: Docker image generation
+name: Docker Image
 
 on:
   push:
-  pull_request:
   release:
     types:
       - created

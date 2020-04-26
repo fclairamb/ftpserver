@@ -1,9 +1,10 @@
 # Golang FTP Server library
 
-[![Build status](https://travis-ci.org/fclairamb/ftpserver.svg?branch=master)](https://travis-ci.org/fclairamb/ftpserver)
+![Build](https://github.com/fclairamb/ftpserver/workflows/Build/badge.svg)
+![Docker Image](https://github.com/fclairamb/ftpserver/workflows/Docker%20Image/badge.svg)
+![Cross Build](https://github.com/fclairamb/ftpserver/workflows/Cross%20Build/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/fclairamb/ftpserver)](https://goreportcard.com/report/fclairamb/ftpserver)
 [![GoDoc](https://godoc.org/github.com/fclairamb/ftpserver?status.svg)](https://godoc.org/github.com/fclairamb/ftpserver/server)
-[![Gitter](https://badges.gitter.im/ftpserver.svg)](https://gitter.im/ftpserver/Lobby)
 
 The goal is to provide a simple & comprehensive FTP Server library.
 
@@ -35,7 +36,7 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
 ## Quick test
 A demo server is shipped so that you can test how the library behaves.
 
-```
+```sh
 # Get and install the server
 go install github.com/fclairamb/ftpserver
 
@@ -59,7 +60,7 @@ ls -lh data/file.bin
 ## Quick test with docker
 There's also a containerized version of the demo server (15MB, based on alpine).
 
-```
+```sh
 # Creating a storage dir
 mkdir -p data
 
@@ -67,7 +68,7 @@ mkdir -p data
 docker run --rm -d -p 2121-2200:2121-2200 -v $(pwd)/data:/data fclairamb/ftpserver
 
 # Download some file
-if [ ! -f file.iso ]; then
+if [ ! -f file.bin ]; then
     wget -O file.bin.tmp https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64 && mv file.bin.tmp file.bin
 fi
 

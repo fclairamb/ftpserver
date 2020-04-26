@@ -10,9 +10,9 @@ update_configs:
       - match:
           update_type: "in_range"
 
-    - package_manager: "docker"
-      directory: "/"
-      update_schedule: "daily"
-      automerged_updates:
-      - match:
-          update_type: "semver:minor"
+  - package_manager: "docker"
+    directory: "/"
+    update_schedule: "daily"
+    automerged_updates:
+    - match:
+        update_type: "semver:minor"
