@@ -56,3 +56,8 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
 
+  cross-build-status:
+    needs: cross-build
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'All good'

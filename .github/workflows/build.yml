@@ -44,10 +44,9 @@ jobs:
           apt-get update && apt-get install gcc -y
           go test -race -v ./...
 
-  build-aggragate:
+  # For github to have a unique status check name
+  build-status:
     needs: build
-
     runs-on: ubuntu-latest
-  
     steps:
       - run: echo 'All good'
