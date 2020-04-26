@@ -1,0 +1,32 @@
+name: Docker image generation
+
+on:
+  # We always generate a container but only use it when we generate a release
+  push:
+  pull_request:
+  release:
+    types:
+      - created
+
+jobs:
+  create-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Setup go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.14.2
+    
+    - name: Build
+      run: go build -v ./...
+
+    - name: Publish to Registry
+      if: github.event_name == 'release' && github.event.action == 'created'
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: ftpserver/ftpserver
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        tag_semver: true
