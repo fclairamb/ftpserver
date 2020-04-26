@@ -3,7 +3,7 @@ name: Docker test
 on:
   schedule:
     # We want to run it every day
-    - cron:  '0 0 * * *'
+    - cron:  '*/5 * * * *'
 
 jobs:
   test-docker-image:
