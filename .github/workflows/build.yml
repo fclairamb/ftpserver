@@ -46,3 +46,8 @@ jobs:
 
   build-aggragate:
     needs: build
+
+    runs-on: ubuntu-latest
+  
+    steps:
+      - run: echo 'All good'
