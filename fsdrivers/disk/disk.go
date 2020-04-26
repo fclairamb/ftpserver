@@ -77,14 +77,13 @@ func (driver *Driver) CanAllocate(cc server.ClientContext, size int) (bool, erro
 
 // GetFileInfo gets some info around a file or a directory
 func (driver *Driver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
-	path = driver.baseDir + path
-
+	path = filepath.Join(driver.baseDir, path)
 	return os.Stat(path)
 }
 
 // SetFileMtime changes file mtime
 func (driver *Driver) SetFileMtime(cc server.ClientContext, path string, mtime time.Time) error {
-	path = driver.baseDir + path
+	path = filepath.Join(driver.baseDir, path)
 	return os.Chtimes(path, mtime, mtime)
 }
 
