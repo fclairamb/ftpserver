@@ -19,17 +19,14 @@ jobs:
         binary_ext: [ '' ]
         target:
           # Linux
-          # - {os: linux, arch: amd64}
-          # - {os: linux, arch: 386}
-          # - {os: linux, arch: arm}
+          - {os: linux, arch: amd64}
+          - {os: linux, arch: 386}
+          - {os: linux, arch: arm}
           # MacOs
-          # - {os: darwin, arch: amd64}
+          - {os: darwin, arch: amd64}
           # Windows
           - {os: windows, arch: amd64, ext: .exe}
-          # - {os: windows, arch: 386}
-
-      env:
-        OUTPUT: ftpserver-${{ matrix.target.os + '-' + matrix.target.arch + matrix.binary_ext }}
+          - {os: windows, arch: 386}
     
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
