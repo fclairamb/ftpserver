@@ -1,7 +1,6 @@
 name: Docker image generation
 
 on:
-  # We always generate a container but only use it when we generate a release
   push:
   pull_request:
   release:
@@ -23,7 +22,6 @@ jobs:
       run: go build
 
     - name: Publish to Registry
-      # if: github.event_name == 'release' && github.event.action == 'created'
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: ftpserver/ftpserver

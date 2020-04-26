@@ -36,12 +36,15 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go }}
+
+      # Build a binary for each architecture
       - name: Build
         env:
           GOOS: ${{ matrix.target.os }}
           GOARCH: ${{ matrix.target.arch }}
-        # What used to be: ftpserver-${GOOS}-${GOARCH}${EXT}
         run: go build -o ftpserver-${{ matrix.target.os }}-${{ matrix.target.arch }}${{ matrix.target.ext }}
+      
+      # Upload each binary in the release assets (if there's one)
       - name: Upload binaries to release
         if: github.event_name == 'release' && github.event.action == 'created'
         uses: svenstaro/upload-release-action@v1-release
