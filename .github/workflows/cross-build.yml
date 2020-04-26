@@ -1,4 +1,4 @@
-name: Cross build generation
+name: Cross Build
 
 on:
   # We always generate cross-builds but only use them when we generate a release

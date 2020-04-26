@@ -35,7 +35,7 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
 ## Quick test
 A demo server is shipped so that you can test how the library behaves.
 
-```
+```sh
 # Get and install the server
 go install github.com/fclairamb/ftpserver
 
@@ -59,7 +59,7 @@ ls -lh data/file.bin
 ## Quick test with docker
 There's also a containerized version of the demo server (15MB, based on alpine).
 
-```
+```sh
 # Creating a storage dir
 mkdir -p data
 
@@ -67,7 +67,7 @@ mkdir -p data
 docker run --rm -d -p 2121-2200:2121-2200 -v $(pwd)/data:/data fclairamb/ftpserver
 
 # Download some file
-if [ ! -f file.iso ]; then
+if [ ! -f file.bin ]; then
     wget -O file.bin.tmp https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64 && mv file.bin.tmp file.bin
 fi
 

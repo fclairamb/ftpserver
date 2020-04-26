@@ -1,4 +1,4 @@
-name: Docker image generation
+name: Docker image
 
 on:
   push:
