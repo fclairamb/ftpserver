@@ -23,7 +23,7 @@ jobs:
           set -xe
           whoami
           sudo apt-get update
-          sudo apt-get install curl -y
+          sudo apt-get install netcat curl -y
 
           # Getting a file
           curl -o file.bin https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64
