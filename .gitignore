@@ -2,6 +2,5 @@
 ftpserver
 .idea
 .vscode
-settings.toml
 debug
 __debug_bin

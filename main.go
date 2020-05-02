@@ -42,7 +42,7 @@ func main() {
 	// The general idea here is that if you start it without any arg, you're probably doing a local quick&dirty run
 	// possibly on a windows machine, so we're better of just using a default file name and create the file.
 	if confFile == "" {
-		confFile = "settings.toml"
+		confFile = "settings_test.toml"
 		autoCreate = true
 	}
 

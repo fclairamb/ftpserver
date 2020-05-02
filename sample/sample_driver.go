@@ -200,7 +200,7 @@ func (driver *MainDriver) getCertificate() (*tls.Certificate, error) {
 // WelcomeUser is called to send the very first welcome message
 func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 	nbClients := atomic.AddInt32(&driver.nbClients, 1)
-	if nbClients > driver.config.MaxConnections {
+	if driver.config.MaxConnections != 0 && nbClients > driver.config.MaxConnections {
 		return "Cannot accept any additional client", fmt.Errorf(
 			"too many clients: %d > % d",
 			driver.nbClients,
@@ -415,7 +415,7 @@ func (f *virtualFile) Seek(n int64, w int) (int64, error) {
 }
 
 func (f *virtualFile) Write(buffer []byte) (int, error) {
-	return 0, nil
+	return len(buffer), nil
 }
 
 type virtualFileInfo struct {
