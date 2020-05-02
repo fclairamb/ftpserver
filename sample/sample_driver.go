@@ -313,8 +313,11 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 	if (flag & os.O_WRONLY) != 0 {
 		flag |= os.O_CREATE
 		if (flag & os.O_APPEND) == 0 {
-			if err := os.Remove(path); err != nil {
-				fmt.Println("Problem removing file", path, "err:", err)
+			_, err := os.Stat(path)
+			if !os.IsNotExist(err) {
+				if err := os.Remove(path); err != nil {
+					fmt.Println("Problem removing file", path, "err:", err)
+				}
 			}
 		}
 	}

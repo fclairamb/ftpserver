@@ -4,6 +4,9 @@ docker rm -f ftpserver ||:
 
 GOOS=linux GOARCH=amd64 go build
 docker build . -t test
-docker run --name ftpserver -p 2121:2121 -p 2122:2122 -p 2123:2123 test -conf /etc/ftpserver_test.toml &
-sleep 1
-curl -v -T main.go ftp://test:test@localhost:2121/
+if [ ! -f kitty.jpg ]; then
+  curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg
+fi
+docker run --name ftpserver -p 2121-2200:2121-2200 test &
+while ! nc -z localhost 2121 </dev/null; do sleep 1; done
+curl -v -T kitty.jpg ftp://test:test@localhost:2121/
