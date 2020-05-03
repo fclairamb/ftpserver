@@ -102,8 +102,6 @@ func signalHandler() {
 
 func confFileContent() []byte {
 	str := `# ftpserver configuration file
-#
-# These are all the config parameters with their default values. If not present,
 
 # Max number of control connections to accept
 # max_connections = 0
@@ -114,7 +112,7 @@ max_connections = 10
 # listen_addr="0.0.0.0:2121"
 
 # Public host to expose in the passive connection
-# public_host = ""
+public_host = "127.0.0.1"
 
 # Idle timeout time
 # idle_timeout = 900
@@ -126,7 +124,7 @@ max_connections = 10
 
 [server.passiveTransferPortRange]
 start = 2122
-end = 2200
+end = 2130
 
 [[users]]
 user="fclairamb"

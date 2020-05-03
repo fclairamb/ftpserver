@@ -54,10 +54,8 @@ func (c *clientHandler) transferFile(write bool, append bool) {
 
 	// Try to seek on it
 	if c.ctxRest != 0 {
-		if err == nil {
-			if _, errSeek := file.Seek(c.ctxRest, 0); errSeek != nil {
-				err = errSeek
-			}
+		if _, errSeek := file.Seek(c.ctxRest, 0); errSeek != nil {
+			err = errSeek
 		}
 
 		// Whatever happens we should reset the seek position
@@ -85,8 +83,13 @@ func (c *clientHandler) transferFile(write bool, append bool) {
 				out = tr
 			}
 
-			if _, errCopy := io.Copy(out, in); errCopy != nil && errCopy != io.EOF {
+			if written, errCopy := io.Copy(out, in); errCopy != nil && errCopy != io.EOF {
 				err = errCopy
+			} else {
+				c.logger.Debug(
+					logKeyMsg, "Stream copy finished",
+					"writtenBytes", written,
+				)
 			}
 		}
 	}

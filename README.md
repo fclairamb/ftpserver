@@ -26,6 +26,7 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
  * Only relies on the standard library except for logging which uses [go-kit log](https://github.com/go-kit/kit/tree/master/log).
  * Supported extensions:
    * [AUTH](https://tools.ietf.org/html/rfc2228#page-6) - Control session protection
+   * [AUTH TLS](https://tools.ietf.org/html/rfc4217#section-4.1) - TLS session
    * [PROT](https://tools.ietf.org/html/rfc2228#page-8) - Transfer protection
    * [MDTM](https://tools.ietf.org/html/rfc3659#page-8) - File Modification Time
    * [SIZE](https://tools.ietf.org/html/rfc3659#page-11) - Size of a file
@@ -65,18 +66,14 @@ There's also a containerized version of the demo server (15MB, based on alpine).
 mkdir -p data
 
 # Starting the sample FTP server
-docker run --rm -d -p 2121-2200:2121-2200 -v $(pwd)/data:/data fclairamb/ftpserver
+docker run --rm -d -p 2121-2130:2121-2130 -v $(pwd)/data:/data fclairamb/ftpserver
 
 # Download some file
-if [ ! -f file.bin ]; then
-    wget -O file.bin.tmp https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64 && mv file.bin.tmp file.bin
+if [ ! -f kitty.jpg ]; then
+    curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg
 fi
 
-# Connecting to it and uploading a file
-ftp ftp://test:test@localhost:2121
-put file.bin
-quit
-ls -lh data/file.bin
+curl -v -T kitty.bin ftp://test:test@localhost:2121/
 ```
 
 ## The driver
