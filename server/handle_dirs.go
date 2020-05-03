@@ -21,7 +21,7 @@ func (c *clientHandler) absPath(p string) string {
 func (c *clientHandler) handleCWD() error {
 	p := c.absPath(c.param)
 
-	if err := c.driver.ChangeDirectory(c, p); err == nil {
+	if _, err := c.driver.Open(p); err == nil {
 		c.SetPath(p)
 		c.writeMessage(StatusFileOK, fmt.Sprintf("CD worked on %s", p))
 	} else {
@@ -33,7 +33,7 @@ func (c *clientHandler) handleCWD() error {
 
 func (c *clientHandler) handleMKD() error {
 	p := c.absPath(c.param)
-	if err := c.driver.MakeDirectory(c, p); err == nil {
+	if err := c.driver.Mkdir(p, 0755); err == nil {
 		// handleMKD confirms to "qoute-doubling"
 		// https://tools.ietf.org/html/rfc959 , page 63
 		c.writeMessage(StatusPathCreated, fmt.Sprintf(`Created dir "%s"`, quoteDoubling(p)))
@@ -46,7 +46,7 @@ func (c *clientHandler) handleMKD() error {
 
 func (c *clientHandler) handleRMD() error {
 	p := c.absPath(c.param)
-	if err := c.driver.DeleteFile(c, p); err == nil {
+	if err := c.driver.Remove(p); err == nil {
 		c.writeMessage(StatusFileOK, fmt.Sprintf("Deleted dir %s", p))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Could not delete dir %s: %v", p, err))
@@ -61,7 +61,7 @@ func (c *clientHandler) handleCDUP() error {
 		parent = parent[0 : len(parent)-1]
 	}
 
-	if err := c.driver.ChangeDirectory(c, parent); err == nil {
+	if _, err := c.driver.Stat(parent); err == nil {
 		c.SetPath(parent)
 		c.writeMessage(StatusFileOK, fmt.Sprintf("CDUP worked on %s", parent))
 	} else {
@@ -77,7 +77,12 @@ func (c *clientHandler) handlePWD() error {
 }
 
 func (c *clientHandler) handleLIST() error {
-	if files, err := c.driver.ListFiles(c, c.absPath(c.param)); err == nil {
+	directory, errOpenFile := c.driver.Open(c.absPath(c.param))
+	if errOpenFile != nil {
+		c.writeMessage(500, fmt.Sprintf("Could not list: %v", errOpenFile))
+		return nil
+	}
+	if files, err := directory.Readdir(1000000); err == nil || err == io.EOF {
 		if tr, errTr := c.TransferOpen(); errTr == nil {
 			defer c.TransferClose()
 			return c.dirTransferLIST(tr, files)
@@ -90,7 +95,12 @@ func (c *clientHandler) handleLIST() error {
 }
 
 func (c *clientHandler) handleNLST() error {
-	if files, err := c.driver.ListFiles(c, c.absPath(c.param)); err == nil {
+	directory, errOpenFile := c.driver.Open(c.absPath(c.param))
+	if errOpenFile != nil {
+		c.writeMessage(500, fmt.Sprintf("Could not list: %v", errOpenFile))
+		return nil
+	}
+	if files, err := directory.Readdir(1000000); err == nil || err == io.EOF {
 		if tr, errTrOpen := c.TransferOpen(); errTrOpen == nil {
 			defer c.TransferClose()
 			return c.dirTransferNLST(tr, files)
@@ -116,7 +126,15 @@ func (c *clientHandler) handleMLSD() error {
 		return nil
 	}
 
-	if files, err := c.driver.ListFiles(c, c.absPath(c.param)); err == nil {
+	directoryPath := c.absPath(c.param)
+
+	directory, errOpenFile := c.driver.Open(directoryPath)
+	if errOpenFile != nil {
+		c.writeMessage(500, fmt.Sprintf("Could not list: %v", errOpenFile))
+		return nil
+	}
+
+	if files, err := directory.Readdir(1000000); err == nil || err == io.EOF {
 		if tr, errTr := c.TransferOpen(); errTr == nil {
 			defer c.TransferClose()
 			return c.dirTransferMLSD(tr, files)

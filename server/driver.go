@@ -3,6 +3,7 @@ package server
 
 import (
 	"crypto/tls"
+	"github.com/spf13/afero"
 	"io"
 	"net"
 	"os"
@@ -23,7 +24,7 @@ type MainDriver interface {
 	UserLeft(cc ClientContext)
 
 	// AuthUser authenticates the user and selects an handling driver
-	AuthUser(cc ClientContext, user, pass string) (ClientHandlingDriver, error)
+	AuthUser(cc ClientContext, user, pass string) (afero.Fs, error)
 
 	// GetTLSConfig returns a TLS Certificate to use
 	// The certificate could frequently change if we use something like "let's encrypt"

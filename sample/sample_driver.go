@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/spf13/afero"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -219,7 +220,7 @@ func (driver *MainDriver) WelcomeUser(cc server.ClientContext) (string, error) {
 }
 
 // AuthUser authenticates the user and selects an handling driver
-func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
+func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (afero.Fs, error) {
 	for _, act := range driver.config.Users {
 		if act.User == user && act.Pass == pass {
 			// If we are authenticated, we can return a client driver containing *our* basedir
@@ -228,7 +229,9 @@ func (driver *MainDriver) AuthUser(cc server.ClientContext, user, pass string) (
 				return nil, fmt.Errorf("could not create user dir: %v", err)
 			}
 
-			return &ClientDriver{BaseDir: baseDir}, nil
+			fs := afero.NewBasePathFs(afero.NewOsFs(), baseDir)
+
+			return fs, nil
 		}
 	}
 

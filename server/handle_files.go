@@ -33,23 +33,25 @@ func (c *clientHandler) transferFile(write bool, append bool) {
 
 	var err error
 
-	// We try to open the file
-	{
-		var fileFlag int
-		if write {
-			fileFlag = os.O_WRONLY
-			if append {
-				fileFlag |= os.O_APPEND
-			}
-		} else {
-			fileFlag = os.O_RDONLY
-		}
+	path := c.absPath(c.param)
 
-		// If this fail, can stop right here
-		if file, err = c.driver.OpenFile(c, c.absPath(c.param), fileFlag); err != nil {
-			c.writeMessage(StatusActionNotTaken, "Could not access file: "+err.Error())
-			return
+	// We try to open the file
+
+	if write {
+		file, err = c.driver.Create(path)
+	} else {
+		var fileMode os.FileMode
+		var fileFlag int
+		if append {
+			fileFlag |= os.O_APPEND
+			fileMode |= os.ModeAppend
 		}
+		file, err = c.driver.OpenFile(path, fileFlag, fileMode)
+	}
+
+	if err != nil {
+		c.writeMessage(StatusActionNotTaken, "Could not access file: "+err.Error())
+		return
 	}
 
 	// Try to seek on it
@@ -113,7 +115,7 @@ func (c *clientHandler) handleCHMOD(params string) {
 	path := c.absPath(spl[1])
 
 	if err == nil {
-		err = c.driver.ChmodFile(c, path, mode)
+		err = c.driver.Chmod(path, mode)
 	}
 
 	if err != nil {
@@ -126,7 +128,7 @@ func (c *clientHandler) handleCHMOD(params string) {
 
 func (c *clientHandler) handleDELE() error {
 	path := c.absPath(c.param)
-	if err := c.driver.DeleteFile(c, path); err == nil {
+	if err := c.driver.Remove(path); err == nil {
 		c.writeMessage(StatusFileOK, fmt.Sprintf("Removed file %s", path))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't delete %s: %v", path, err))
@@ -137,7 +139,7 @@ func (c *clientHandler) handleDELE() error {
 
 func (c *clientHandler) handleRNFR() error {
 	path := c.absPath(c.param)
-	if _, err := c.driver.GetFileInfo(c, path); err == nil {
+	if _, err := c.driver.Stat(path); err == nil {
 		c.writeMessage(StatusFileActionPending, "Sure, give me a target")
 		c.ctxRnfr = path
 	} else {
@@ -151,7 +153,7 @@ func (c *clientHandler) handleRNTO() error {
 	dst := c.absPath(c.param)
 
 	if c.ctxRnfr != "" {
-		if err := c.driver.RenameFile(c, c.ctxRnfr, dst); err == nil {
+		if err := c.driver.Rename(c.ctxRnfr, dst); err == nil {
 			c.writeMessage(StatusFileOK, "Done !")
 			c.ctxRnfr = ""
 		} else {
@@ -164,7 +166,7 @@ func (c *clientHandler) handleRNTO() error {
 
 func (c *clientHandler) handleSIZE() error {
 	path := c.absPath(c.param)
-	if info, err := c.driver.GetFileInfo(c, path); err == nil {
+	if info, err := c.driver.Stat(path); err == nil {
 		c.writeMessage(StatusFileStatus, fmt.Sprintf("%d", info.Size()))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't access %s: %v", path, err))
@@ -176,12 +178,17 @@ func (c *clientHandler) handleSIZE() error {
 func (c *clientHandler) handleSTATFile() error {
 	path := c.absPath(c.param)
 
-	if info, err := c.driver.GetFileInfo(c, path); err == nil {
+	if info, err := c.driver.Stat(path); err == nil {
 		m := c.multilineAnswer(StatusSystemStatus, "System status")
 		defer m()
 		// c.writeLine(fmt.Sprintf("%d-Status follows:", StatusSystemStatus))
 		if info.IsDir() {
-			if files, errList := c.driver.ListFiles(c, c.absPath(c.param)); errList == nil {
+			directory, errOpenFile := c.driver.Open(c.absPath(c.param))
+			if errOpenFile != nil {
+				c.writeMessage(500, fmt.Sprintf("Could not list: %v", errOpenFile))
+				return nil
+			}
+			if files, errList := directory.Readdir(1000000); errList == nil {
 				for _, f := range files {
 					c.writeLine(fmt.Sprintf(" %s", c.fileStat(f)))
 				}
@@ -204,7 +211,7 @@ func (c *clientHandler) handleMLST() error {
 
 	path := c.absPath(c.param)
 
-	if info, err := c.driver.GetFileInfo(c, path); err == nil {
+	if info, err := c.driver.Stat(path); err == nil {
 		m := c.multilineAnswer(StatusFileOK, "File details")
 		defer m()
 
@@ -218,16 +225,20 @@ func (c *clientHandler) handleMLST() error {
 
 func (c *clientHandler) handleALLO() error {
 	// We should probably add a method in the driver
-	if size, err := strconv.Atoi(c.param); err == nil {
-		if ok, err2 := c.driver.CanAllocate(c, size); err2 == nil {
-			if ok {
-				c.writeMessage(StatusNotImplemented, "OK, we have the free space")
+	if _, err := strconv.Atoi(c.param); err == nil {
+		c.writeMessage(StatusOK, "Afero doesn't expose this information")
+		// The previous implementation did support it but it wasn't actually implement
+		/*
+			if ok, err2 := c.driver.CanAllocate(c, size); err2 == nil {
+				if ok {
+					c.writeMessage(StatusOK, "OK, we have the free space")
+				} else {
+					c.writeMessage(StatusActionNotTaken, "NOT OK, we don't have the free space")
+				}
 			} else {
-				c.writeMessage(StatusActionNotTaken, "NOT OK, we don't have the free space")
+				c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Driver issue: %v", err2))
 			}
-		} else {
-			c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Driver issue: %v", err2))
-		}
+		*/
 	} else {
 		c.writeMessage(StatusSyntaxErrorParameters, fmt.Sprintf("Couldn't parse size: %v", err))
 	}
@@ -248,7 +259,7 @@ func (c *clientHandler) handleREST() error {
 
 func (c *clientHandler) handleMDTM() error {
 	path := c.absPath(c.param)
-	if info, err := c.driver.GetFileInfo(c, path); err == nil {
+	if info, err := c.driver.Stat(path); err == nil {
 		c.writeMessage(StatusFileStatus, info.ModTime().UTC().Format(dateFormatMLSD))
 	} else {
 		c.writeMessage(StatusActionNotTaken, fmt.Sprintf("Couldn't access %s: %s", path, err.Error()))
@@ -271,7 +282,9 @@ func (c *clientHandler) handleMFMT() error {
 			"Couldn't parse mtime, given: %s, err: %v", params[0], err))
 	}
 
-	if err := c.driver.SetFileMtime(c, params[1], mtime); err != nil {
+	path := c.absPath(params[1])
+
+	if err := c.driver.Chtimes(path, mtime, mtime); err != nil {
 		c.writeMessage(StatusSyntaxErrorParameters, fmt.Sprintf(
 			"Couldn't set mtime %q for %q, err: %v", mtime.Format(time.RFC3339), params[0], err))
 	}
