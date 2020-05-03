@@ -13,7 +13,7 @@ jobs:
       ftpserver:
         image: ftpserver/ftpserver
         ports:
-          - 2121-2200:2121-2200
+          - 2121-2130:2121-2130
 
     steps:
       - name: Run sample

@@ -42,7 +42,7 @@ func main() {
 	// The general idea here is that if you start it without any arg, you're probably doing a local quick&dirty run
 	// possibly on a windows machine, so we're better of just using a default file name and create the file.
 	if confFile == "" {
-		confFile = "settings_test.toml"
+		confFile = "settings.toml"
 		autoCreate = true
 	}
 
@@ -124,7 +124,7 @@ public_host = "127.0.0.1"
 
 [server.passiveTransferPortRange]
 start = 2122
-end = 2200
+end = 2130
 
 [[users]]
 user="fclairamb"
