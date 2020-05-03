@@ -13,7 +13,7 @@ jobs:
       ftpserver:
         image: ftpserver/ftpserver
         ports:
-          - 2121:2121
+          - 2121-2130:2121-2130
 
     steps:
       - name: Run sample
@@ -26,22 +26,21 @@ jobs:
           sudo apt-get install netcat curl -y
 
           # Getting a file
-          curl -o file.bin https://github.com/fclairamb/ftpserver/releases/download/v0.5/ftpserver-linux-amd64
+          curl https://placekitten.com/2048/2048 -o kitty.jpg
 
           # Waiting for server to be ready
           while ! nc -z localhost ${SERVER_PORT} </dev/null; do sleep 1; done
 
           # Upload a file
-          curl -P - -T file.bin ftp://test:test@localhost:2121/remote.bin
+          curl -P - -T kitty.jpg ftp://test:test@localhost:${SERVER_PORT}/remote.jpg
 
           # Download a file
-          curl -P - ftp://test:test@localhost:2121/remote.bin -o remote.bin
+          curl -P - ftp://test:test@localhost:2121/remote.jpg -o remote.jpg
 
           # Checking that the output file exists
-          if [ ! -f remote.bin ]; then
+          if [ ! -f remote.jpg ]; then
             exit 1
           fi
 
           # Comparing file contents
-          diff file.bin remote.bin
-
+          diff kitty.jpg remote.jpg
