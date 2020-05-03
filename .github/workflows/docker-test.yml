@@ -21,9 +21,6 @@ jobs:
           SERVER_PORT: 2121
         run: |
           set -xe
-          whoami
-          sudo apt-get update
-          sudo apt-get install netcat curl -y
 
           # Getting a file
           curl https://placekitten.com/2048/2048 -o kitty.jpg
