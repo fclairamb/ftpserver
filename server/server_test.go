@@ -30,7 +30,7 @@ func TestPortCommandFormatInvalid(t *testing.T) {
 	}
 }
 
-func Test_qoutedoubling(t *testing.T) {
+func TestQuoteDoubling(t *testing.T) {
 	type args struct {
 		s string
 	}
