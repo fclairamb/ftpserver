@@ -26,6 +26,7 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
  * Only relies on the standard library except for logging which uses [go-kit log](https://github.com/go-kit/kit/tree/master/log).
  * Supported extensions:
    * [AUTH](https://tools.ietf.org/html/rfc2228#page-6) - Control session protection
+   * [AUTH TLS](https://tools.ietf.org/html/rfc4217#section-4.1) - TLS session
    * [PROT](https://tools.ietf.org/html/rfc2228#page-8) - Transfer protection
    * [MDTM](https://tools.ietf.org/html/rfc3659#page-8) - File Modification Time
    * [SIZE](https://tools.ietf.org/html/rfc3659#page-11) - Size of a file

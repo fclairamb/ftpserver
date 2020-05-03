@@ -134,6 +134,11 @@ func (c *clientHandler) handleFEAT() error {
 		features = append(features, "MFMT")
 	}
 
+	// This code made me think about adding this: https://github.com/stianstr/ftpserver/commit/387f2ba
+	if tlsConfig, err := c.server.driver.GetTLSConfig(); tlsConfig != nil && err == nil {
+		features = append(features, "AUTH TLS")
+	}
+
 	for _, f := range features {
 		c.writeLine(" " + f)
 	}
