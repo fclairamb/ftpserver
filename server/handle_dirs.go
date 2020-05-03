@@ -82,6 +82,7 @@ func (c *clientHandler) handleLIST() error {
 		c.writeMessage(500, fmt.Sprintf("Could not list: %v", errOpenFile))
 		return nil
 	}
+
 	if files, err := directory.Readdir(1000000); err == nil || err == io.EOF {
 		if tr, errTr := c.TransferOpen(); errTr == nil {
 			defer c.TransferClose()
@@ -100,6 +101,7 @@ func (c *clientHandler) handleNLST() error {
 		c.writeMessage(500, fmt.Sprintf("Could not list: %v", errOpenFile))
 		return nil
 	}
+
 	if files, err := directory.Readdir(1000000); err == nil || err == io.EOF {
 		if tr, errTrOpen := c.TransferOpen(); errTrOpen == nil {
 			defer c.TransferClose()

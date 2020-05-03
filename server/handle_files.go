@@ -3,13 +3,14 @@ package server
 
 import (
 	"fmt"
-	"github.com/spf13/afero"
 	"io"
 	"net"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/spf13/afero"
 )
 
 func (c *clientHandler) handleSTOR() error {
@@ -188,10 +189,12 @@ func (c *clientHandler) handleSTATFile() error {
 		// c.writeLine(fmt.Sprintf("%d-Status follows:", StatusSystemStatus))
 		if info.IsDir() {
 			directory, errOpenFile := c.driver.Open(c.absPath(c.param))
+
 			if errOpenFile != nil {
 				c.writeMessage(500, fmt.Sprintf("Could not list: %v", errOpenFile))
 				return nil
 			}
+
 			if files, errList := directory.Readdir(1000000); errList == nil {
 				for _, f := range files {
 					c.writeLine(fmt.Sprintf(" %s", c.fileStat(f)))
@@ -231,18 +234,6 @@ func (c *clientHandler) handleALLO() error {
 	// We should probably add a method in the driver
 	if _, err := strconv.Atoi(c.param); err == nil {
 		c.writeMessage(StatusOK, "Afero doesn't expose this information")
-		// The previous implementation did support it but it wasn't actually implement
-		/*
-			if ok, err2 := c.driver.CanAllocate(c, size); err2 == nil {
-				if ok {
-					c.writeMessage(StatusOK, "OK, we have the free space")
-				} else {
-					c.writeMessage(StatusActionNotTaken, "NOT OK, we don't have the free space")
-				}
-			} else {
-				c.writeMessage(StatusSyntaxErrorNotRecognised, fmt.Sprintf("Driver issue: %v", err2))
-			}
-		*/
 	} else {
 		c.writeMessage(StatusSyntaxErrorParameters, fmt.Sprintf("Couldn't parse size: %v", err))
 	}

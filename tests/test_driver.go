@@ -5,13 +5,13 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
 	"io/ioutil"
 	"os"
 	"path"
 	"time"
 
 	gklog "github.com/go-kit/kit/log"
+	"github.com/spf13/afero"
 
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/fclairamb/ftpserver/server/log"
@@ -128,11 +128,12 @@ func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory s
 	return err
 }
 
-// MakeDirectory creates a directory
+// Mkdir is an afero.File implementation
 func (driver *ClientDriver) Mkdir(name string, perm os.FileMode) error {
 	return os.Mkdir(driver.baseDir+name, perm)
 }
 
+// MkdirAll is an afero.File implementation
 func (driver *ClientDriver) MkdirAll(name string, perm os.FileMode) error {
 	return os.MkdirAll(driver.baseDir+name, perm)
 }
@@ -174,44 +175,47 @@ func (driver *ClientDriver) OpenFile(path string, flag int, perm os.FileMode) (a
 	return os.OpenFile(path, flag, 0600)
 }
 
+// Create is an afero.File implementation
 func (driver *ClientDriver) Create(name string) (afero.File, error) {
 	return driver.OpenFile(name, os.O_WRONLY|os.O_CREATE, os.ModePerm)
 }
 
+// Open is an afero.File implementation
 func (driver *ClientDriver) Open(name string) (afero.File, error) {
 	return driver.OpenFile(name, os.O_RDONLY, os.ModePerm)
 }
 
-// GetFileInfo gets some info around a file or a directory
+// Stat is an afero.File implementation
 func (driver *ClientDriver) Stat(path string) (os.FileInfo, error) {
 	path = driver.baseDir + path
 
 	return os.Stat(path)
 }
 
-// SetFileMtime changes file mtime
+// Chtimes is an afero.File implementation
 func (driver *ClientDriver) Chtimes(path string, atime time.Time, mtime time.Time) error {
 	path = driver.baseDir + path
 	return os.Chtimes(path, mtime, mtime)
 }
 
-// ChmodFile changes the attributes of the file
+// Chmod is an afero.File implementation
 func (driver *ClientDriver) Chmod(path string, mode os.FileMode) error {
 	path = driver.baseDir + path
 	return os.Chmod(path, mode)
 }
 
-// DeleteFile deletes a file or a directory
+// Remove is an afero.File implementation
 func (driver *ClientDriver) Remove(path string) error {
 	path = driver.baseDir + path
 	return os.Remove(path)
 }
 
+// RemoveAll is an afero.File implementation
 func (driver *ClientDriver) RemoveAll(string) error {
 	return errors.New("not implemented")
 }
 
-// RenameFile renames a file or a directory
+// Rename is an afero.File implementation
 func (driver *ClientDriver) Rename(from, to string) error {
 	from = driver.baseDir + from
 	to = driver.baseDir + to

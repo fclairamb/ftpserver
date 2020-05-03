@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/fclairamb/ftpserver/server/log"
+
 	"github.com/spf13/afero"
 )
 

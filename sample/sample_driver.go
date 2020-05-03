@@ -6,7 +6,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/spf13/afero"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -25,6 +24,7 @@ import (
 	"math/big"
 
 	"github.com/naoina/toml"
+	"github.com/spf13/afero"
 
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/fclairamb/ftpserver/server/log"
