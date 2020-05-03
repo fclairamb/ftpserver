@@ -65,7 +65,7 @@ There's also a containerized version of the demo server (15MB, based on alpine).
 mkdir -p data
 
 # Starting the sample FTP server
-docker run --rm -d -p 2121-2200:2121-2200 -v $(pwd)/data:/data fclairamb/ftpserver
+docker run --rm -d -p 2121-2130:2121-2130 -v $(pwd)/data:/data fclairamb/ftpserver
 
 # Download some file
 if [ ! -f kitty.jpg ]; then
