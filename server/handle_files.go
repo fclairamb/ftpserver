@@ -40,7 +40,7 @@ func (c *clientHandler) transferFile(write bool, append bool) {
 	// We try to open the file
 	{
 		var fileFlag int
-		var filePerm os.FileMode
+		var filePerm os.FileMode = 0777
 		if write {
 			fileFlag = os.O_WRONLY
 			if append {

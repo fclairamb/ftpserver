@@ -4,11 +4,8 @@ package tests
 import (
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
-	"time"
 
 	gklog "github.com/go-kit/kit/log"
 	"github.com/spf13/afero"
@@ -127,21 +124,28 @@ func (driver *ServerDriver) GetTLSConfig() (*tls.Config, error) {
 }
 
 // ChangeDirectory changes the current working directory
+/*
 func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
 	_, err := os.Stat(driver.baseDir + directory)
 	return err
 }
+*/
 
 // Mkdir is an afero.File implementation
+/*
 func (driver *ClientDriver) Mkdir(name string, perm os.FileMode) error {
 	return os.Mkdir(driver.baseDir+name, perm)
 }
+*/
 
 // MkdirAll is an afero.File implementation
+/*
 func (driver *ClientDriver) MkdirAll(name string, perm os.FileMode) error {
 	return os.MkdirAll(driver.baseDir+name, perm)
 }
+*/
 
+/*
 // ListFiles lists the files of a directory
 func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string) ([]os.FileInfo, error) {
 	path := path.Join(driver.baseDir, directory)
@@ -151,85 +155,86 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string)
 
 	return ioutil.ReadDir(path)
 }
+*/
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
 func (driver *ClientDriver) OpenFile(path string, flag int, perm os.FileMode) (afero.File, error) {
-	path = driver.baseDir + path
-
-	// If we are writing and we are not in append mode, we should remove the file
-	if (flag & os.O_WRONLY) != 0 {
-		flag |= os.O_CREATE
-		if (flag & os.O_APPEND) == 0 {
-			if _, err := os.Stat(path); err != nil {
-				if !os.IsNotExist(err) {
-					return nil, fmt.Errorf("error accessing file %s: %v", path, err)
-				}
-			} else {
-				if err := os.Remove(path); err != nil {
-					return nil, fmt.Errorf("error deleting %s: %v", path, err)
-				}
-			}
-		}
-	}
-
 	if driver.FileOverride != nil {
 		return driver.FileOverride, nil
 	}
 
-	return os.OpenFile(path, flag, 0600)
+	return driver.Fs.OpenFile(path, flag, perm)
 }
 
 // Create is an afero.File implementation
+/*
 func (driver *ClientDriver) Create(name string) (afero.File, error) {
 	return driver.OpenFile(name, os.O_WRONLY|os.O_CREATE, os.ModePerm)
 }
+*/
 
 // Open is an afero.File implementation
+/*
 func (driver *ClientDriver) Open(name string) (afero.File, error) {
 	return driver.OpenFile(name, os.O_RDONLY, os.ModePerm)
 }
+*/
 
 // Stat is an afero.File implementation
+/*
 func (driver *ClientDriver) Stat(path string) (os.FileInfo, error) {
 	path = driver.baseDir + path
 
 	return os.Stat(path)
 }
+*/
 
 // Chtimes is an afero.File implementation
+/*
 func (driver *ClientDriver) Chtimes(path string, atime time.Time, mtime time.Time) error {
 	path = driver.baseDir + path
 	return os.Chtimes(path, mtime, mtime)
 }
+*/
 
 // Chmod is an afero.File implementation
+/*
 func (driver *ClientDriver) Chmod(path string, mode os.FileMode) error {
 	path = driver.baseDir + path
 	return os.Chmod(path, mode)
 }
+*/
 
 // Remove is an afero.File implementation
+/*
 func (driver *ClientDriver) Remove(path string) error {
 	path = driver.baseDir + path
 	return os.Remove(path)
 }
+*/
 
 // RemoveAll is an afero.File implementation
+/*
 func (driver *ClientDriver) RemoveAll(string) error {
 	return errors.New("not implemented")
 }
+*/
 
 // Rename is an afero.File implementation
+/*
 func (driver *ClientDriver) Rename(from, to string) error {
 	from = driver.baseDir + from
 	to = driver.baseDir + to
 
 	return os.Rename(from, to)
 }
+*/
 
+/*
 func (driver *ClientDriver) Name() string {
 	return "TestFS"
 }
+*/
 
 // (copied from net/http/httptest)
 // localhostCert is a PEM-encoded TLS cert with SAN IPs
