@@ -56,14 +56,15 @@ type ServerDriver struct {
 	Debug bool // To display connection logs information
 	TLS   bool
 
-	Settings *server.Settings // Settings
-	afero.File
+	Settings     *server.Settings // Settings
+	FileOverride afero.File
 }
 
 // ClientDriver defines a minimal serverftp client driver
 type ClientDriver struct {
-	baseDir string
-	afero.File
+	baseDir      string
+	FileOverride afero.File
+	afero.Fs
 }
 
 // NewClientDriver creates a client driver
@@ -73,7 +74,10 @@ func NewClientDriver() *ClientDriver {
 		panic(err)
 	}
 
-	return &ClientDriver{baseDir: dir}
+	return &ClientDriver{
+		Fs:      afero.NewBasePathFs(afero.NewOsFs(), dir),
+		baseDir: dir,
+	}
 }
 
 // WelcomeUser is the very first message people will see
@@ -88,8 +92,8 @@ func (driver *ServerDriver) AuthUser(cc server.ClientContext, user, pass string)
 	if user == "test" && pass == "test" {
 		clientdriver := NewClientDriver()
 
-		if driver.File != nil {
-			clientdriver.File = driver.File
+		if driver.FileOverride != nil {
+			clientdriver.FileOverride = driver.FileOverride
 		}
 
 		return clientdriver, nil
@@ -168,8 +172,8 @@ func (driver *ClientDriver) OpenFile(path string, flag int, perm os.FileMode) (a
 		}
 	}
 
-	if driver.File != nil {
-		return driver.File, nil
+	if driver.FileOverride != nil {
+		return driver.FileOverride, nil
 	}
 
 	return os.OpenFile(path, flag, 0600)
@@ -221,6 +225,10 @@ func (driver *ClientDriver) Rename(from, to string) error {
 	to = driver.baseDir + to
 
 	return os.Rename(from, to)
+}
+
+func (driver *ClientDriver) Name() string {
+	return "TestFS"
 }
 
 // (copied from net/http/httptest)

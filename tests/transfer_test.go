@@ -182,8 +182,8 @@ func TestFailedTransfer(t *testing.T) {
 
 func TestFailedFileClose(t *testing.T) {
 	driver := &ServerDriver{
-		Debug: true,
-		File:  &failingCloser{},
+		Debug:        true,
+		FileOverride: &failingCloser{},
 	}
 
 	s := NewTestServerWithDriver(driver)
