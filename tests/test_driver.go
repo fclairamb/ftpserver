@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/spf13/afero"
 	"io/ioutil"
 	"os"
 	"path"
@@ -56,13 +57,13 @@ type ServerDriver struct {
 	TLS   bool
 
 	Settings *server.Settings // Settings
-	server.FileStream
+	afero.File
 }
 
 // ClientDriver defines a minimal serverftp client driver
 type ClientDriver struct {
 	baseDir string
-	server.FileStream
+	afero.File
 }
 
 // NewClientDriver creates a client driver
@@ -83,11 +84,12 @@ func (driver *ServerDriver) WelcomeUser(cc server.ClientContext) (string, error)
 }
 
 // AuthUser with authenticate users
-func (driver *ServerDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
+func (driver *ServerDriver) AuthUser(cc server.ClientContext, user, pass string) (afero.Fs, error) {
 	if user == "test" && pass == "test" {
 		clientdriver := NewClientDriver()
-		if driver.FileStream != nil {
-			clientdriver.FileStream = driver.FileStream
+
+		if driver.File != nil {
+			clientdriver.File = driver.File
 		}
 
 		return clientdriver, nil
@@ -127,8 +129,12 @@ func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory s
 }
 
 // MakeDirectory creates a directory
-func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory string) error {
-	return os.Mkdir(driver.baseDir+directory, 0750)
+func (driver *ClientDriver) Mkdir(name string, perm os.FileMode) error {
+	return os.Mkdir(driver.baseDir+name, perm)
+}
+
+func (driver *ClientDriver) MkdirAll(name string, perm os.FileMode) error {
+	return os.MkdirAll(driver.baseDir+name, perm)
 }
 
 // ListFiles lists the files of a directory
@@ -142,7 +148,7 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string)
 }
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
-func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
+func (driver *ClientDriver) OpenFile(path string, flag int, perm os.FileMode) (afero.File, error) {
 	path = driver.baseDir + path
 
 	// If we are writing and we are not in append mode, we should remove the file
@@ -161,45 +167,52 @@ func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag 
 		}
 	}
 
-	if driver.FileStream != nil {
-		return driver.FileStream, nil
+	if driver.File != nil {
+		return driver.File, nil
 	}
 
 	return os.OpenFile(path, flag, 0600)
 }
 
+func (driver *ClientDriver) Create(name string) (afero.File, error) {
+	return driver.OpenFile(name, os.O_WRONLY|os.O_CREATE, os.ModePerm)
+}
+
+func (driver *ClientDriver) Open(name string) (afero.File, error) {
+	return driver.OpenFile(name, os.O_RDONLY, os.ModePerm)
+}
+
 // GetFileInfo gets some info around a file or a directory
-func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
+func (driver *ClientDriver) Stat(path string) (os.FileInfo, error) {
 	path = driver.baseDir + path
 
 	return os.Stat(path)
 }
 
 // SetFileMtime changes file mtime
-func (driver *ClientDriver) SetFileMtime(cc server.ClientContext, path string, mtime time.Time) error {
+func (driver *ClientDriver) Chtimes(path string, atime time.Time, mtime time.Time) error {
 	path = driver.baseDir + path
 	return os.Chtimes(path, mtime, mtime)
 }
 
-// CanAllocate gives the approval to allocate some data
-func (driver *ClientDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
-	return true, nil
-}
-
 // ChmodFile changes the attributes of the file
-func (driver *ClientDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
+func (driver *ClientDriver) Chmod(path string, mode os.FileMode) error {
 	path = driver.baseDir + path
 	return os.Chmod(path, mode)
 }
 
 // DeleteFile deletes a file or a directory
-func (driver *ClientDriver) DeleteFile(cc server.ClientContext, path string) error {
+func (driver *ClientDriver) Remove(path string) error {
 	path = driver.baseDir + path
 	return os.Remove(path)
 }
 
+func (driver *ClientDriver) RemoveAll(string) error {
+	return errors.New("not implemented")
+}
+
 // RenameFile renames a file or a directory
-func (driver *ClientDriver) RenameFile(cc server.ClientContext, from, to string) error {
+func (driver *ClientDriver) Rename(from, to string) error {
 	from = driver.baseDir + from
 	to = driver.baseDir + to
 

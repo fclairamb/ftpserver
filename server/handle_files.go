@@ -3,6 +3,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/spf13/afero"
 	"io"
 	"net"
 	"os"
@@ -29,29 +30,32 @@ func (c *clientHandler) handleRETR() error {
 // File transfer, read or write, seek or not, is basically the same.
 // To make sure we don't miss any step, we execute everything in order
 func (c *clientHandler) transferFile(write bool, append bool) {
-	var file FileStream
+	var file afero.File
 
 	var err error
 
 	path := c.absPath(c.param)
 
 	// We try to open the file
-
-	if write {
-		file, err = c.driver.Create(path)
-	} else {
-		var fileMode os.FileMode
+	{
 		var fileFlag int
-		if append {
-			fileFlag |= os.O_APPEND
-			fileMode |= os.ModeAppend
+		var filePerm os.FileMode
+		if write {
+			fileFlag = os.O_WRONLY
+			if append {
+				fileFlag |= os.O_APPEND
+			} else {
+				fileFlag |= os.O_CREATE
+			}
+		} else {
+			fileFlag = os.O_RDONLY
 		}
-		file, err = c.driver.OpenFile(path, fileFlag, fileMode)
-	}
 
-	if err != nil {
-		c.writeMessage(StatusActionNotTaken, "Could not access file: "+err.Error())
-		return
+		// If this fail, can stop right here
+		if file, err = c.driver.OpenFile(path, fileFlag, filePerm); err != nil {
+			c.writeMessage(550, "Could not access file: "+err.Error())
+			return
+		}
 	}
 
 	// Try to seek on it
