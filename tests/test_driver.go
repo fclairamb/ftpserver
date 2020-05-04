@@ -4,13 +4,11 @@ package tests
 import (
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
-	"time"
 
 	gklog "github.com/go-kit/kit/log"
+	"github.com/spf13/afero"
 
 	"github.com/fclairamb/ftpserver/server"
 	"github.com/fclairamb/ftpserver/server/log"
@@ -55,14 +53,14 @@ type ServerDriver struct {
 	Debug bool // To display connection logs information
 	TLS   bool
 
-	Settings *server.Settings // Settings
-	server.FileStream
+	Settings     *server.Settings // Settings
+	FileOverride afero.File
 }
 
 // ClientDriver defines a minimal serverftp client driver
 type ClientDriver struct {
-	baseDir string
-	server.FileStream
+	FileOverride afero.File
+	afero.Fs
 }
 
 // NewClientDriver creates a client driver
@@ -72,7 +70,9 @@ func NewClientDriver() *ClientDriver {
 		panic(err)
 	}
 
-	return &ClientDriver{baseDir: dir}
+	return &ClientDriver{
+		Fs: afero.NewBasePathFs(afero.NewOsFs(), dir),
+	}
 }
 
 // WelcomeUser is the very first message people will see
@@ -83,11 +83,12 @@ func (driver *ServerDriver) WelcomeUser(cc server.ClientContext) (string, error)
 }
 
 // AuthUser with authenticate users
-func (driver *ServerDriver) AuthUser(cc server.ClientContext, user, pass string) (server.ClientHandlingDriver, error) {
+func (driver *ServerDriver) AuthUser(cc server.ClientContext, user, pass string) (afero.Fs, error) {
 	if user == "test" && pass == "test" {
 		clientdriver := NewClientDriver()
-		if driver.FileStream != nil {
-			clientdriver.FileStream = driver.FileStream
+
+		if driver.FileOverride != nil {
+			clientdriver.FileOverride = driver.FileOverride
 		}
 
 		return clientdriver, nil
@@ -120,90 +121,13 @@ func (driver *ServerDriver) GetTLSConfig() (*tls.Config, error) {
 	return nil, nil
 }
 
-// ChangeDirectory changes the current working directory
-func (driver *ClientDriver) ChangeDirectory(cc server.ClientContext, directory string) error {
-	_, err := os.Stat(driver.baseDir + directory)
-	return err
-}
-
-// MakeDirectory creates a directory
-func (driver *ClientDriver) MakeDirectory(cc server.ClientContext, directory string) error {
-	return os.Mkdir(driver.baseDir+directory, 0750)
-}
-
-// ListFiles lists the files of a directory
-func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string) ([]os.FileInfo, error) {
-	path := path.Join(driver.baseDir, directory)
-	if directory == "" {
-		path = driver.baseDir + cc.Path()
-	}
-
-	return ioutil.ReadDir(path)
-}
-
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
-func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
-	path = driver.baseDir + path
-
-	// If we are writing and we are not in append mode, we should remove the file
-	if (flag & os.O_WRONLY) != 0 {
-		flag |= os.O_CREATE
-		if (flag & os.O_APPEND) == 0 {
-			if _, err := os.Stat(path); err != nil {
-				if !os.IsNotExist(err) {
-					return nil, fmt.Errorf("error accessing file %s: %v", path, err)
-				}
-			} else {
-				if err := os.Remove(path); err != nil {
-					return nil, fmt.Errorf("error deleting %s: %v", path, err)
-				}
-			}
-		}
+func (driver *ClientDriver) OpenFile(path string, flag int, perm os.FileMode) (afero.File, error) {
+	if driver.FileOverride != nil {
+		return driver.FileOverride, nil
 	}
 
-	if driver.FileStream != nil {
-		return driver.FileStream, nil
-	}
-
-	return os.OpenFile(path, flag, 0600)
-}
-
-// GetFileInfo gets some info around a file or a directory
-func (driver *ClientDriver) GetFileInfo(cc server.ClientContext, path string) (os.FileInfo, error) {
-	path = driver.baseDir + path
-
-	return os.Stat(path)
-}
-
-// SetFileMtime changes file mtime
-func (driver *ClientDriver) SetFileMtime(cc server.ClientContext, path string, mtime time.Time) error {
-	path = driver.baseDir + path
-	return os.Chtimes(path, mtime, mtime)
-}
-
-// CanAllocate gives the approval to allocate some data
-func (driver *ClientDriver) CanAllocate(cc server.ClientContext, size int) (bool, error) {
-	return true, nil
-}
-
-// ChmodFile changes the attributes of the file
-func (driver *ClientDriver) ChmodFile(cc server.ClientContext, path string, mode os.FileMode) error {
-	path = driver.baseDir + path
-	return os.Chmod(path, mode)
-}
-
-// DeleteFile deletes a file or a directory
-func (driver *ClientDriver) DeleteFile(cc server.ClientContext, path string) error {
-	path = driver.baseDir + path
-	return os.Remove(path)
-}
-
-// RenameFile renames a file or a directory
-func (driver *ClientDriver) RenameFile(cc server.ClientContext, from, to string) error {
-	from = driver.baseDir + from
-	to = driver.baseDir + to
-
-	return os.Rename(from, to)
+	return driver.Fs.OpenFile(path, flag, perm)
 }
 
 // (copied from net/http/httptest)

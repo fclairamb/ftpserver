@@ -53,6 +53,41 @@ func (c *clientHandler) getCurrentIP() ([]string, error) {
 	return strings.Split(ip, "."), nil
 }
 
+func (c *clientHandler) findListenerWithinPortRange(portRange *PortRange) (*net.TCPListener, error) {
+	nbAttempts := portRange.End - portRange.Start
+
+	// Making sure we trying a reasonable amount of ports before giving up
+	if nbAttempts < 10 {
+		nbAttempts = 10
+	} else if nbAttempts > 1000 {
+		nbAttempts = 1000
+	}
+
+	for i := 0; i < nbAttempts; i++ {
+		port := portRange.Start + rand.Intn(portRange.End-portRange.Start+1)
+		laddr, errResolve := net.ResolveTCPAddr("tcp", fmt.Sprintf("0.0.0.0:%d", port))
+
+		if errResolve != nil {
+			c.logger.Error(logKeyMsg, "Problem resolving local port", "port", port)
+			return nil, fmt.Errorf("could not resolve port: %d", port)
+		}
+
+		tcpListener, errListen := net.ListenTCP("tcp", laddr)
+		if errListen == nil {
+			return tcpListener, errListen
+		}
+	}
+
+	c.logger.Warn(
+		logKeyMsg, "Could not find any free port",
+		"nbAttempts", nbAttempts,
+		"portRangeStart", portRange.Start,
+		"portRAngeEnd", portRange.End,
+	)
+
+	return nil, fmt.Errorf("could not find any port to listen to")
+}
+
 func (c *clientHandler) handlePASV() error {
 	addr, _ := net.ResolveTCPAddr("tcp", ":0")
 
@@ -63,37 +98,7 @@ func (c *clientHandler) handlePASV() error {
 	portRange := c.server.settings.PassiveTransferPortRange
 
 	if portRange != nil {
-		nbAttempts := portRange.End - portRange.Start
-
-		// Making sure we trying a reasonable amount of ports before giving up
-		if nbAttempts < 10 {
-			nbAttempts = 10
-		} else if nbAttempts > 1000 {
-			nbAttempts = 1000
-		}
-
-		for i := 0; i < nbAttempts; i++ {
-			port := portRange.Start + rand.Intn(portRange.End-portRange.Start+1)
-			laddr, err2 := net.ResolveTCPAddr("tcp", fmt.Sprintf("0.0.0.0:%d", port))
-
-			if err2 != nil {
-				c.logger.Error(logKeyMsg, "Problem resolving local port", "port", port)
-				return err2
-			}
-
-			tcpListener, err = net.ListenTCP("tcp", laddr)
-			if err == nil {
-				break
-			}
-		}
-		if err != nil {
-			c.logger.Warn(
-				logKeyMsg, "Could not find any free port",
-				"nbAttempts", nbAttempts,
-				"portRangeStart", portRange.Start,
-				"portRAngeEnd", portRange.End,
-			)
-		}
+		tcpListener, err = c.findListenerWithinPortRange(portRange)
 	} else {
 		tcpListener, err = net.ListenTCP("tcp", addr)
 	}

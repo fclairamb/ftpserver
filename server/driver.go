@@ -7,6 +7,8 @@ import (
 	"net"
 	"os"
 	"time"
+
+	"github.com/spf13/afero"
 )
 
 // This file is the driver part of the server. It must be implemented by anyone wanting to use the server.
@@ -23,7 +25,7 @@ type MainDriver interface {
 	UserLeft(cc ClientContext)
 
 	// AuthUser authenticates the user and selects an handling driver
-	AuthUser(cc ClientContext, user, pass string) (ClientHandlingDriver, error)
+	AuthUser(cc ClientContext, user, pass string) (afero.Fs, error)
 
 	// GetTLSConfig returns a TLS Certificate to use
 	// The certificate could frequently change if we use something like "let's encrypt"
