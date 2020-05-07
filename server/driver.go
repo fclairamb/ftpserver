@@ -3,12 +3,8 @@ package server
 
 import (
 	"crypto/tls"
-	"io"
-	"net"
-	"os"
-	"time"
-
 	"github.com/spf13/afero"
+	"net"
 )
 
 // This file is the driver part of the server. It must be implemented by anyone wanting to use the server.
@@ -32,39 +28,6 @@ type MainDriver interface {
 	GetTLSConfig() (*tls.Config, error)
 }
 
-// ClientHandlingDriver handles the file system access logic
-type ClientHandlingDriver interface {
-	// ChangeDirectory changes the current working directory
-	ChangeDirectory(cc ClientContext, directory string) error
-
-	// MakeDirectory creates a directory
-	MakeDirectory(cc ClientContext, directory string) error
-
-	// ListFiles lists the files of a directory
-	ListFiles(cc ClientContext, directory string) ([]os.FileInfo, error)
-
-	// OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
-	OpenFile(cc ClientContext, path string, flag int) (FileStream, error)
-
-	// DeleteFile deletes a file or a directory
-	DeleteFile(cc ClientContext, path string) error
-
-	// GetFileInfo gets some info around a file or a directory
-	GetFileInfo(cc ClientContext, path string) (os.FileInfo, error)
-
-	// SetFileMtime changes file mtime
-	SetFileMtime(cc ClientContext, path string, mtime time.Time) error
-
-	// RenameFile renames a file or a directory
-	RenameFile(cc ClientContext, from, to string) error
-
-	// CanAllocate gives the approval to allocate some data
-	CanAllocate(cc ClientContext, size int) (bool, error)
-
-	// ChmodFile changes the attributes of the file
-	ChmodFile(cc ClientContext, path string, mode os.FileMode) error
-}
-
 // ClientContext is implemented on the server side to provide some access to few data around the client
 type ClientContext interface {
 	// Path provides the path of the current connection
@@ -84,14 +47,6 @@ type ClientContext interface {
 
 	// Servers's address
 	LocalAddr() net.Addr
-}
-
-// FileStream is a read or write closeable stream
-type FileStream interface {
-	io.Writer
-	io.Reader
-	io.Closer
-	io.Seeker
 }
 
 // PortRange is a range of ports

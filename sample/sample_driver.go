@@ -301,10 +301,14 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string)
 }
 
 // OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
-func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (server.FileStream, error) {
+func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (afero.File, error) {
 	if strings.HasPrefix(path, DirVirtual) {
 		if path == DirVirtual+"/localpath.txt" {
-			return &virtualFile{content: []byte(driver.BaseDir)}, nil
+			file, err:= afero.NewMemMapFs().Create("localpath.txt")
+			if err != nil {
+				return nil, err
+			}
+			return &virtualFile{content: []byte(driver.BaseDir), File: file}, nil
 		}
 
 		return nil, fmt.Errorf("this is a virtual directory, only reading of localpath.txt has been implemented")
@@ -399,6 +403,7 @@ func NewSampleDriver(dir string, settingsFile string) (*MainDriver, error) {
 type virtualFile struct {
 	content    []byte // Content of the file
 	readOffset int    // Reading offset
+	afero.File
 }
 
 func (f *virtualFile) Close() error {
@@ -413,6 +418,14 @@ func (f *virtualFile) Read(buffer []byte) (int, error) {
 		return 0, io.EOF
 	}
 
+	return n, nil
+}
+
+func (f *virtualFile) ReadAt(buffer []byte, offset int64) (int, error) {
+	n := copy(buffer, f.content[offset:])
+	if n == 0 {
+		return 0, io.EOF
+	}
 	return n, nil
 }
 
