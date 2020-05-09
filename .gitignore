@@ -4,3 +4,4 @@ ftpserver
 .vscode
 debug
 __debug_bin
+*.toml
