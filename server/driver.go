@@ -3,8 +3,9 @@ package server
 
 import (
 	"crypto/tls"
-	"github.com/spf13/afero"
 	"net"
+
+	"github.com/spf13/afero"
 )
 
 // This file is the driver part of the server. It must be implemented by anyone wanting to use the server.

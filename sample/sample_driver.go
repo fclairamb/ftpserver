@@ -304,10 +304,11 @@ func (driver *ClientDriver) ListFiles(cc server.ClientContext, directory string)
 func (driver *ClientDriver) OpenFile(cc server.ClientContext, path string, flag int) (afero.File, error) {
 	if strings.HasPrefix(path, DirVirtual) {
 		if path == DirVirtual+"/localpath.txt" {
-			file, err:= afero.NewMemMapFs().Create("localpath.txt")
+			file, err := afero.NewMemMapFs().Create("localpath.txt")
 			if err != nil {
 				return nil, err
 			}
+
 			return &virtualFile{content: []byte(driver.BaseDir), File: file}, nil
 		}
 
@@ -426,6 +427,7 @@ func (f *virtualFile) ReadAt(buffer []byte, offset int64) (int, error) {
 	if n == 0 {
 		return 0, io.EOF
 	}
+
 	return n, nil
 }
 
