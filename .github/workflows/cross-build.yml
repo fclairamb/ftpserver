@@ -6,7 +6,7 @@ on:
   pull_request:
   release:
     types:
-      - created
+      - published
 
 jobs:
   cross-build:
