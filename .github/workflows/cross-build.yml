@@ -4,6 +4,9 @@ on:
   # We always generate cross-builds but only use them when we generate a release
   push:
   pull_request:
+  release:
+    types:
+      - created
 
 jobs:
   cross-build:
@@ -43,7 +46,7 @@ jobs:
       
       # Upload each binary in the release assets (if there's one)
       - name: Upload binaries to release
-        if: github.event_name == 'create' && github.event.ref_type == 'tag'
+        if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@v1-release
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
