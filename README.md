@@ -7,9 +7,7 @@
 [![Go Report Card](https://goreportcard.com/badge/fclairamb/ftpserver)](https://goreportcard.com/report/fclairamb/ftpserver)
 [![GoDoc](https://godoc.org/github.com/fclairamb/ftpserver?status.svg)](https://godoc.org/github.com/fclairamb/ftpserver/server)
 
-The goal is to provide a simple & comprehensive FTP Server library.
-
-Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) but many things have been changed since then.
+This library allows to easily build a simple and fully-featured FTP server using [afero](https://github.com/spf13/afero) as the backend.
 
 ## Current status of the project
 
@@ -24,7 +22,9 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
  * Passive socket connections (EPSV and PASV commands)
  * Active socket connections (PORT command)
  * Small memory footprint
- * Only relies on the standard library except for logging which uses [go-kit log](https://github.com/go-kit/kit/tree/master/log).
+ * Only relies on the standard library except for:
+   * [go-kit log](https://github.com/go-kit/kit/tree/master/log) for logging
+   * [afero](https://github.com/spf13/afero) for generic file systems handling
  * Supported extensions:
    * [AUTH](https://tools.ietf.org/html/rfc2228#page-6) - Control session protection
    * [AUTH TLS](https://tools.ietf.org/html/rfc4217#section-4.1) - TLS session
@@ -36,7 +36,7 @@ Note: this is a fork of [andrewarrow/paradise_ftp](https://github.com/andrewarro
    * [MLSD](https://tools.ietf.org/html/rfc3659#page-23) - Directory listing for machine processing
 
 ## Quick test
-A demo server is shipped so that you can test how the library behaves.
+We are providing a server so that you can test how the library behaves.
 
 ```sh
 # Get and install the server
@@ -80,6 +80,8 @@ curl -v -T kitty.bin ftp://test:test@localhost:2121/
 ## The driver
 
 ### The API
+
+The API is directly based on [afero](https://github.com/spf13/afero).
 ```go
 // ServerDriver handles the authentication and ClientHandlingDriver selection
 type ServerDriver interface {
@@ -93,44 +95,11 @@ type ServerDriver interface {
 	UserLeft(cc ClientContext)
 
 	// AuthUser authenticates the user and selects an handling driver
-	AuthUser(cc ClientContext, user, pass string) (ClientHandlingDriver, error)
+	AuthUser(cc ClientContext, user, pass string) (afero.Fs, error)
 
 	// GetCertificate returns a TLS Certificate to use
 	// The certificate could frequently change if we use something like "let's encrypt"
 	GetTLSConfig() (*tls.Config, error)
-}
-
-// ClientHandlingDriver handles the file system access logic
-type ClientHandlingDriver interface {
-	// ChangeDirectory changes the current working directory
-	ChangeDirectory(cc ClientContext, directory string) error
-
-	// MakeDirectory creates a directory
-	MakeDirectory(cc ClientContext, directory string) error
-
-	// ListFiles lists the files of a directory
-	ListFiles(cc ClientContext, directory string) ([]os.FileInfo, error)
-
-	// OpenFile opens a file in 3 possible modes: read, write, appending write (use appropriate flags)
-	OpenFile(cc ClientContext, path string, flag int) (FileStream, error)
-
-	// DeleteFile deletes a file or a directory
-	DeleteFile(cc ClientContext, path string) error
-
-	// GetFileInfo gets some info around a file or a directory
-	GetFileInfo(cc ClientContext, path string) (os.FileInfo, error)
-
-	// SetFileMtime changes file mtime
-	SetFileMtime(cc ClientContext, path string, mtime time.Time) error
-
-	// RenameFile renames a file or a directory
-	RenameFile(cc ClientContext, from, to string) error
-
-	// CanAllocate gives the approval to allocate some data
-	CanAllocate(cc ClientContext, size int) (bool, error)
-
-	// ChmodFile changes the attributes of the file
-	ChmodFile(cc ClientContext, path string, mode os.FileMode) error
 }
 
 // ClientContext is implemented on the server side to provide some access to few data around the client
@@ -149,14 +118,6 @@ type ClientContext interface {
 
 	// Client's address
 	RemoteAddr() net.Addr
-}
-
-// FileStream is a read or write closeable stream
-type FileStream interface {
-	io.Writer
-	io.Reader
-	io.Closer
-	io.Seeker // <-- Will be used for "REST" command
 }
 
 // Settings define all the server settings
@@ -226,6 +187,6 @@ I wanted to make a system which would accept files through FTP and redirect them
 * [shenfeng/ftpd.go](https://github.com/shenfeng/ftpd.go) is very basic and 4 years old.
 * [yob/graval](https://github.com/yob/graval) is 3 years old and “experimental”.
 * [goftp/server](https://github.com/goftp/server) seemed OK but I couldn't use it on both Filezilla and the MacOs ftp client.
-* [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) - Was the only one of the list I could test right away. Still, it missed few features, had some unecessary ones and I wanted to architecture it a bit differently.
+* [andrewarrow/paradise_ftp](https://github.com/andrewarrow/paradise_ftp) - Was the only one of the list I could test right away. This is the project I forked from.
 
 That's why I forked from this last one.
