@@ -3,38 +3,35 @@ package main
 
 import (
 	"flag"
+	"github.com/fclairamb/ftpserver/config"
+	"github.com/fclairamb/ftpserver/server"
+	ftpserver "github.com/fclairamb/ftpserverlib"
+	"github.com/fclairamb/ftpserverlib/log"
+	gklog "github.com/go-kit/kit/log"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
-
-	gklog "github.com/go-kit/kit/log"
-
-	"github.com/fclairamb/ftpserver/sample"
-	"github.com/fclairamb/ftpserver/server"
-	"github.com/fclairamb/ftpserver/server/log"
 )
 
 var (
-	ftpServer *server.FtpServer
+	ftpServer *ftpserver.FtpServer
 )
 
 func main() {
 	// Arguments vars
-	var confFile, dataDir string
-
+	var confFile string
 	var onlyConf bool
 
 	// Parsing arguments
 	flag.StringVar(&confFile, "conf", "", "Configuration file")
-	flag.StringVar(&dataDir, "data", "", "Data directory")
-	flag.BoolVar(&onlyConf, "conf-only", false, "Only create the config")
+	flag.BoolVar(&onlyConf, "conf-only", false, "Only create the conf")
 	flag.Parse()
 
 	// Setting up the logger
 	logger := log.NewGKLogger(gklog.NewLogfmtLogger(gklog.NewSyncWriter(os.Stdout))).With(
-		"ts", log.DefaultTimestampUTC,
-		"caller", log.DefaultCaller,
+		"ts", gklog.DefaultTimestampUTC,
+		"caller", gklog.DefaultCaller,
 	)
 
 	autoCreate := onlyConf
@@ -42,33 +39,36 @@ func main() {
 	// The general idea here is that if you start it without any arg, you're probably doing a local quick&dirty run
 	// possibly on a windows machine, so we're better of just using a default file name and create the file.
 	if confFile == "" {
-		confFile = "settings.toml"
+		confFile = "ftpserver.json"
 		autoCreate = true
 	}
 
 	if autoCreate {
 		if _, err := os.Stat(confFile); err != nil && os.IsNotExist(err) {
-			logger.Error("msg", "No config file, creating one", "action", "conf_file.create", "confFile", confFile)
+			logger.Warn("No conf file, creating one", "confFile", confFile)
 
 			if err := ioutil.WriteFile(confFile, confFileContent(), 0644); err != nil {
-				logger.Error("msg", "Couldn't create config file", "action", "conf_file.could_not_create", "confFile", confFile)
+				logger.Warn("Couldn't create conf file", "confFile", confFile)
 			}
 		}
 	}
 
-	// Loading the driver
-	driver, err := sample.NewSampleDriver(dataDir, confFile)
-
-	if err != nil {
-		logger.Error("msg", "Could not load the driver", "err", err)
+	conf, errConfig := config.NewConfig(confFile, logger)
+	if errConfig != nil {
+		logger.Error("Can't load conf", errConfig)
 		return
 	}
 
-	// Overriding the driver default silent logger by a sub-logger (component: driver)
-	driver.Logger = logger.With("component", "driver")
+	// Loading the driver
+	driver, err := server.NewServer(conf, logger.With("component", "driver"))
+
+	if err != nil {
+		logger.Error("Could not load the driver", err)
+		return
+	}
 
 	// Instantiating the server by passing our driver implementation
-	ftpServer = server.NewFtpServer(driver)
+	ftpServer = ftpserver.NewFtpServer(driver)
 
 	// Overriding the server default silent logger by a sub-logger (component: server)
 	ftpServer.Logger = logger.With("component", "server")
@@ -78,12 +78,12 @@ func main() {
 
 	// Blocking call, behaving similarly to the http.ListenAndServe
 	if onlyConf {
-		logger.Error("msg", "Only creating conf")
+		logger.Warn("Only creating conf")
 		return
 	}
 
 	if err := ftpServer.ListenAndServe(); err != nil {
-		logger.Error("msg", "Problem listening", "err", err)
+		logger.Error("Problem listening", err)
 	}
 }
 
@@ -101,46 +101,20 @@ func signalHandler() {
 }
 
 func confFileContent() []byte {
-	str := `# ftpserver configuration file
-
-# Max number of control connections to accept
-# max_connections = 0
-max_connections = 10
-
-[server]
-# Address and Port to listen on
-# listen_addr="0.0.0.0:2121"
-
-# Public host to expose in the passive connection
-public_host = "127.0.0.1"
-
-# Idle timeout time
-# idle_timeout = 900
-
-# Data port range from 10000 to 15000
-# [passiveTransferPortRange]
-# start = 2122
-# end = 2200
-
-[server.passiveTransferPortRange]
-start = 2122
-end = 2130
-
-[[users]]
-user="fclairamb"
-pass="floflo"
-dir="shared"
-
-[[users]]
-user="test"
-pass="test"
-dir="shared"
-
-[[users]]
-user="mcardon"
-pass="marmar"
-dir="marie"
+	str := `
+{
+  "version": 1,
+  "accesses": [
+    {
+      "user": "test",
+      "pass": "test",
+      "fs": "os",
+      "params": {
+        "basePath": "/tmp"
+      }
+    }
+  ]
+}
 `
-
 	return []byte(str)
 }
