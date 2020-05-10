@@ -4,8 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/fclairamb/ftpserverlib/log"
 	"github.com/spf13/afero"
+	afero_s3 "github.com/wreulicke/afero-s3"
 	"os"
 )
 
@@ -97,6 +102,24 @@ func (a *Access) GetFs() (afero.Fs, error) {
 			return nil, errors.New("basePath must be specified")
 		}
 		return afero.NewBasePathFs(afero.NewOsFs(), basePath), nil
+	} else if a.Fs == "s3" {
+		region := a.Params["region"]
+		bucket := a.Params["bucket"]
+		keyId := a.Params["access_key_id"]
+		secretAccessKey := a.Params["secret_access_key"]
+
+		sess, errSession := session.NewSession(&aws.Config{
+			Region:      &region,
+			Credentials: credentials.NewStaticCredentials(keyId, secretAccessKey, ""),
+		})
+
+		if errSession != nil {
+			return nil, errSession
+		}
+
+		s3Int := s3.New(sess)
+
+		return afero_s3.NewFs(bucket, s3Int), nil
 	}
 	return nil, fmt.Errorf("unknown fs: %s", a.Fs)
 }
