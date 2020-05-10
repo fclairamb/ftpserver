@@ -3,38 +3,17 @@ package config
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/fclairamb/ftpserver/config/confpar"
+	"github.com/fclairamb/ftpserver/fs"
 	"github.com/fclairamb/ftpserverlib/log"
-	"github.com/spf13/afero"
-	afero_s3 "github.com/wreulicke/afero-s3"
 	"os"
 )
-
-// Access provides rules around any access
-type Access struct {
-	User   string            `json:"user"`   // User authenticating
-	Pass   string            `json:"pass"`   // Password used for authentication
-	Fs     string            `json:"fs"`     // Backend used for accessing file
-	Params map[string]string `json:"params"` // Backend parameters
-}
-
-// Content defines the content of the config file
-type Content struct {
-	Version       int      `json:"version"`        // File format version
-	ListenAddress string   `json:"listen_address"` // Address to listen on
-	MaxClients    int      `json:"max_clients"`    // Maximum clients who can connect at any given time
-	Accesses      []Access `json:"accesses"`       // Accesses offered to users
-}
 
 // Config provides the general server config
 type Config struct {
 	fileName string
 	logger   log.Logger
-	Content  *Content
+	Content  *confpar.Content
 }
 
 func NewConfig(fileName string, logger log.Logger) (*Config, error) {
@@ -64,7 +43,7 @@ func (c *Config) Load() error {
 	decoder := json.NewDecoder(file)
 
 	// We parse and then copy to allow hot-reload in the future
-	var content Content
+	var content confpar.Content
 	if errDecode := decoder.Decode(&content); errDecode != nil {
 		c.logger.Error("Cannot decode file", errDecode)
 		return errDecode
@@ -78,48 +57,23 @@ func (c *Config) Prepare() error {
 	if ct.ListenAddress == "" {
 		ct.ListenAddress = "0.0.0.0:2121"
 	}
+
+	for _, access := range c.Content.Accesses {
+		_, errAccess := fs.LoadFs(&access)
+		if errAccess != nil {
+			c.logger.Error("Config: Invalid access !", errAccess, "username", access.User, "fs", access.Fs)
+			return errAccess
+		}
+	}
+
 	return nil
 }
 
-func (c *Config) GetAccess(user string, pass string) (*Access, error) {
+func (c *Config) GetAccess(user string, pass string) (*confpar.Access, error) {
 	for _, a := range c.Content.Accesses {
 		if a.User == user && a.Pass == pass {
 			return &a, nil
 		}
 	}
 	return nil, errors.New("unknown user")
-}
-
-func (a *Access) Check() error {
-	_, err := a.GetFs()
-	return err
-}
-
-func (a *Access) GetFs() (afero.Fs, error) {
-	if a.Fs == "os" {
-		basePath := a.Params["basePath"]
-		if basePath == "" {
-			return nil, errors.New("basePath must be specified")
-		}
-		return afero.NewBasePathFs(afero.NewOsFs(), basePath), nil
-	} else if a.Fs == "s3" {
-		region := a.Params["region"]
-		bucket := a.Params["bucket"]
-		keyId := a.Params["access_key_id"]
-		secretAccessKey := a.Params["secret_access_key"]
-
-		sess, errSession := session.NewSession(&aws.Config{
-			Region:      &region,
-			Credentials: credentials.NewStaticCredentials(keyId, secretAccessKey, ""),
-		})
-
-		if errSession != nil {
-			return nil, errSession
-		}
-
-		s3Int := s3.New(sess)
-
-		return afero_s3.NewFs(bucket, s3Int), nil
-	}
-	return nil, fmt.Errorf("unknown fs: %s", a.Fs)
 }

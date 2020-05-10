@@ -9,3 +9,5 @@ require (
 	github.com/spf13/afero v1.2.2
 	github.com/wreulicke/afero-s3 v0.0.0-20200221083522-265017e62f08
 )
+
+replace github.com/fclairamb/ftpserverlib => /Users/florent/go/src/github.com/fclairamb/ftpserverlib

@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"github.com/fclairamb/ftpserver/config"
+	fs "github.com/fclairamb/ftpserver/fs"
 	serverlib "github.com/fclairamb/ftpserverlib"
 	"github.com/fclairamb/ftpserverlib/log"
 	"github.com/spf13/afero"
@@ -30,13 +31,14 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 }
 
 // WelcomeUser is called to send the very first welcome message
-func (s *Server) WelcomeUser(cc serverlib.ClientContext) (string, error) {
+func (s *Server) ClientConnected(cc serverlib.ClientContext) (string, error) {
 	s.logger.Info("Client connected", "clientId", cc.ID(), "remoteAddr", cc.RemoteAddr())
+	cc.SetDebug(true)
 	return "ftpserver", nil
 }
 
 // UserLeft is called when the user disconnects, even if he never authenticated
-func (s *Server) UserLeft(cc serverlib.ClientContext) {
+func (s *Server) ClientDisconnected(cc serverlib.ClientContext) {
 	s.logger.Info("Client disconnected", "clientId", cc.ID(), "remoteAddr", cc.RemoteAddr())
 }
 
@@ -46,21 +48,17 @@ func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (server
 	if errAccess != nil {
 		return nil, errAccess
 	}
-	return s.NewClientDriverFromAccess(access)
-}
-
-type ClientDriver struct {
-	afero.Fs
-}
-
-func (s *Server) NewClientDriverFromAccess(access *config.Access) (serverlib.ClientDriver, error) {
-	fs, errFs := access.GetFs()
+	accFs, errFs := fs.LoadFs(access)
 	if errFs != nil {
 		return nil, errFs
 	}
 	return &ClientDriver{
-		Fs: fs,
+		Fs: accFs,
 	}, nil
+}
+
+type ClientDriver struct {
+	afero.Fs
 }
 
 // GetTLSConfig returns a TLS Certificate to use
