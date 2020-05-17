@@ -5,10 +5,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	afero_s3 "github.com/fclairamb/afero-s3"
+	// "github.com/chonthu/aferoS3"
 	"github.com/fclairamb/ftpserver/config/confpar"
-	"github.com/fclairamb/ftpserver/fs/stripslash"
 	"github.com/spf13/afero"
-	afero_s3 "github.com/wreulicke/afero-s3"
 )
 
 func LoadFs(access *confpar.Access) (afero.Fs, error) {
@@ -27,6 +27,8 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	}
 
 	s3Int := s3.New(sess)
-
-	return stripslash.NewStripSlashPathFs(afero_s3.NewFs(bucket, s3Int), 1), nil
+	s3Fs := afero_s3.NewFs(bucket, s3Int)
+	// withoutTrailingSlash := stripslash.NewStripSlashPathFs(s3Fs, 1)
+	return s3Fs, nil
+	// return aferoS3.NewS3Fs(sess, bucket), nil
 }

@@ -58,6 +58,11 @@ func (c *Config) Prepare() error {
 		ct.ListenAddress = "0.0.0.0:2121"
 	}
 
+	return nil
+	// return c.CheckAccesses()
+}
+
+func (c *Config) CheckAccesses() error {
 	for _, access := range c.Content.Accesses {
 		_, errAccess := fs.LoadFs(&access)
 		if errAccess != nil {
@@ -65,7 +70,6 @@ func (c *Config) Prepare() error {
 			return errAccess
 		}
 	}
-
 	return nil
 }
 
