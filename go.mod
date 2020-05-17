@@ -3,7 +3,7 @@ module github.com/fclairamb/ftpserver
 go 1.14
 
 require (
-	github.com/aws/aws-sdk-go v1.30.19
+	github.com/aws/aws-sdk-go v1.30.29
 	github.com/fclairamb/afero-s3 v0.0.0
 	github.com/fclairamb/ftpserverlib v0.6.1-0.20200510182933-a33aa704d7c2
 	github.com/go-kit/kit v0.10.0
