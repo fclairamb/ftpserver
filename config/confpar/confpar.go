@@ -1,3 +1,4 @@
+// Package confpar provide the core parameters of the config
 package confpar
 
 // Access provides rules around any access
@@ -10,8 +11,8 @@ type Access struct {
 
 // Content defines the content of the config file
 type Content struct {
-	Version       int      `json:"version"`        // File format version
-	ListenAddress string   `json:"listen_address"` // Address to listen on
-	MaxClients    int      `json:"max_clients"`    // Maximum clients who can connect at any given time
-	Accesses      []Access `json:"accesses"`       // Accesses offered to users
+	Version       int       `json:"version"`        // File format version
+	ListenAddress string    `json:"listen_address"` // Address to listen on
+	MaxClients    int       `json:"max_clients"`    // Maximum clients who can connect at any given time
+	Accesses      []*Access `json:"accesses"`       // Accesses offered to users
 }

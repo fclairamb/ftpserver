@@ -3,15 +3,18 @@ package main
 
 import (
 	"flag"
-	"github.com/fclairamb/ftpserver/config"
-	"github.com/fclairamb/ftpserver/server"
-	ftpserver "github.com/fclairamb/ftpserverlib"
-	"github.com/fclairamb/ftpserverlib/log"
-	gklog "github.com/go-kit/kit/log"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
+
+	gklog "github.com/go-kit/kit/log"
+
+	ftpserver "github.com/fclairamb/ftpserverlib"
+	"github.com/fclairamb/ftpserverlib/log"
+
+	"github.com/fclairamb/ftpserver/config"
+	"github.com/fclairamb/ftpserver/server"
 )
 
 var (
@@ -116,5 +119,6 @@ func confFileContent() []byte {
   ]
 }
 `
+
 	return []byte(str)
 }
