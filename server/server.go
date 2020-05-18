@@ -32,8 +32,18 @@ func NewServer(config *config.Config, logger log.Logger) (*Server, error) {
 func (s *Server) GetSettings() (*serverlib.Settings, error) {
 	conf := s.config.Content
 
+	var portRange *serverlib.PortRange = nil
+
+	if conf.PassiveTransferPortRange != nil {
+		portRange = &serverlib.PortRange{
+			Start: conf.PassiveTransferPortRange.Start,
+			End:   conf.PassiveTransferPortRange.End,
+		}
+	}
+
 	return &serverlib.Settings{
-		ListenAddr: conf.ListenAddress,
+		ListenAddr:               conf.ListenAddress,
+		PassiveTransferPortRange: portRange,
 	}, nil
 }
 

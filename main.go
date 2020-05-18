@@ -104,8 +104,7 @@ func signalHandler() {
 }
 
 func confFileContent() []byte {
-	str := `
-{
+	str := `{
   "version": 1,
   "accesses": [
     {
@@ -116,9 +115,12 @@ func confFileContent() []byte {
         "basePath": "/tmp"
       }
     }
-  ]
-}
-`
+  ],
+  "passive_transfer_port_range": {
+    "start": 2122,
+    "end": 2130
+  }
+}`
 
 	return []byte(str)
 }
