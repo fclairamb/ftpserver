@@ -55,7 +55,7 @@ go get -u github.com/fclairamb/ftpserver
 ```
 
 ### Config file
-If you don't create one, it will be created for you.
+If you don't create a `ftpserver.json` file, it will be created for you.
 
 Here is a sample config file:
 
