@@ -34,7 +34,7 @@ func (f *File) Name() string {
 // on a afero.File outside the base path it returns the given afero.File name and an error,
 // else the given afero.File with the base path prepended
 func (b *Fs) realPath(name string) (path string, err error) {
-	if len(name) > b.start {
+	if len(name) < b.start {
 		return "", fmt.Errorf("path needs to at least %d chars long", b.start)
 	}
 

@@ -4,6 +4,8 @@ package server
 import (
 	"crypto/tls"
 	"errors"
+	"sync"
+	"time"
 
 	"github.com/spf13/afero"
 
@@ -16,9 +18,15 @@ import (
 
 // Server structure
 type Server struct {
-	config *config.Config
-	logger log.Logger
+	config          *config.Config
+	logger          log.Logger
+	nbClients       uint32
+	nbClientsSync   sync.Mutex
+	zeroClientEvent chan error
 }
+
+// ErrTimeout is returned when an operation timeouts
+var ErrTimeout = errors.New("timeout")
 
 // NewServer creates a server instance
 func NewServer(config *config.Config, logger log.Logger) (*Server, error) {
@@ -49,7 +57,15 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 
 // ClientConnected is called to send the very first welcome message
 func (s *Server) ClientConnected(cc serverlib.ClientContext) (string, error) {
-	s.logger.Info("Client connected", "clientId", cc.ID(), "remoteAddr", cc.RemoteAddr())
+	s.nbClientsSync.Lock()
+	defer s.nbClientsSync.Unlock()
+	s.nbClients++
+	s.logger.Info(
+		"Client connected",
+		"clientId", cc.ID(),
+		"remoteAddr", cc.RemoteAddr(),
+		"nbClients", s.nbClients,
+	)
 	cc.SetDebug(true)
 
 	return "ftpserver", nil
@@ -57,7 +73,47 @@ func (s *Server) ClientConnected(cc serverlib.ClientContext) (string, error) {
 
 // ClientDisconnected is called when the user disconnects, even if he never authenticated
 func (s *Server) ClientDisconnected(cc serverlib.ClientContext) {
-	s.logger.Info("Client disconnected", "clientId", cc.ID(), "remoteAddr", cc.RemoteAddr())
+	s.nbClientsSync.Lock()
+	defer s.nbClientsSync.Unlock()
+
+	s.nbClients--
+
+	s.logger.Info(
+		"Client disconnected",
+		"clientId", cc.ID(),
+		"remoteAddr", cc.RemoteAddr(),
+		"nbClients", s.nbClients,
+	)
+	s.considerEnd()
+}
+
+// Stop will trigger a graceful stop of the server. All currently connected clients won't be disconnected instantly.
+func (s *Server) Stop() {
+	s.nbClientsSync.Lock()
+	defer s.nbClientsSync.Unlock()
+	s.zeroClientEvent = make(chan error, 1)
+	s.considerEnd()
+}
+
+// WaitGracefully allows to gracefully wait for all currently connected clients before disconnecting
+func (s *Server) WaitGracefully(timeout time.Duration) error {
+	s.logger.Info("Waiting for last client to disconnect...")
+
+	defer func() { s.zeroClientEvent = nil }()
+
+	select {
+	case err := <-s.zeroClientEvent:
+		return err
+	case <-time.After(timeout):
+		return ErrTimeout
+	}
+}
+
+func (s *Server) considerEnd() {
+	if s.nbClients == 0 && s.zeroClientEvent != nil {
+		s.zeroClientEvent <- nil
+		close(s.zeroClientEvent)
+	}
 }
 
 // AuthUser authenticates the user and selects an handling driver

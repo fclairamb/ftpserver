@@ -29,5 +29,7 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 
 	s3Fs := s3.NewFs(bucket, sess)
 
+	// s3Fs = stripprefix.NewStripPrefixFs(s3Fs, 1)
+
 	return s3Fs, nil
 }

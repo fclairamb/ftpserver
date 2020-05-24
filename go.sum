@@ -19,8 +19,8 @@ github.com/aryann/difflib v0.0.0-20170710044230-e206f873d14a/go.mod h1:DAHtR1m6l
 github.com/aws/aws-lambda-go v1.13.3/go.mod h1:4UKl9IzQMoD+QF79YdCuzCwp8VbmG4VAQwij/eHl5CU=
 github.com/aws/aws-sdk-go v1.27.0 h1:0xphMHGMLBrPMfxR2AmVjZKcMEESEgWF8Kru94BNByk=
 github.com/aws/aws-sdk-go v1.27.0/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
-github.com/aws/aws-sdk-go v1.30.29 h1:NXNqBS9hjOCpDL8SyCyl38gZX3LLLunKOJc5E7vJ8P0=
-github.com/aws/aws-sdk-go v1.30.29/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
+github.com/aws/aws-sdk-go v1.31.3 h1:vJDjoM+VlM/ZEmGyaIhUXaYAtB9lra7Qhr58SSHHjPE=
+github.com/aws/aws-sdk-go v1.31.3/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
 github.com/aws/aws-sdk-go-v2 v0.18.0/go.mod h1:JWVYvqSMppoMJC0x5wdwiImzgXTI9FuZwxzkQq9wy+g=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
@@ -52,10 +52,10 @@ github.com/envoyproxy/go-control-plane v0.6.9/go.mod h1:SBwIajubJHhxtWwsL9s8ss4s
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
-github.com/fclairamb/afero-s3 v0.0.0-20200517234311-367072b1e9c0 h1:y7y34aEJbQQzxFBV15O53ssra19wX6SqLdftOkCZDmo=
-github.com/fclairamb/afero-s3 v0.0.0-20200517234311-367072b1e9c0/go.mod h1:hPB0g5Ub4Xcs2EnVVFqVnd9wz66weW9OQl4N74fG0YQ=
-github.com/fclairamb/ftpserverlib v0.6.1-0.20200517234826-1dc784065067 h1:KewGU52dyWp5ECR0cYRhHeUjrvh9zJpfpMYh/P0BBTA=
-github.com/fclairamb/ftpserverlib v0.6.1-0.20200517234826-1dc784065067/go.mod h1:OKgSPdqGh/BRFJA+dImCQJosnWB1tFJCr2yj+Qt/7tY=
+github.com/fclairamb/afero-s3 v0.1.0 h1:WfPD2Px6AlcEBw1jUmJC295wpTXkfglYtzbSdTfaNzg=
+github.com/fclairamb/afero-s3 v0.1.0/go.mod h1:HHcYBsOLXjeqdnKQ61Rx43+vj+jGe9DjYTQbKhendwQ=
+github.com/fclairamb/ftpserverlib v0.7.0 h1:9xynIDtu+hFF3c8nO4sW1on/MhPBOrvBiS64OQQB90Q=
+github.com/fclairamb/ftpserverlib v0.7.0/go.mod h1:OKgSPdqGh/BRFJA+dImCQJosnWB1tFJCr2yj+Qt/7tY=
 github.com/franela/goblin v0.0.0-20200105215937-c9ffbefa60db/go.mod h1:7dvUGVsVBjqR7JHJk0brhHOZYGmfBYOrK0ZhYMEtBr4=
 github.com/franela/goreq v0.0.0-20171204163338-bcd34c9993f8/go.mod h1:ZhphrRTfi2rbfLwlschooIH4+wKKDR4Pdxhh+TRoA20=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=

@@ -7,11 +7,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	gklog "github.com/go-kit/kit/log"
 
 	ftpserver "github.com/fclairamb/ftpserverlib"
-	"github.com/fclairamb/ftpserverlib/log"
+	"github.com/fclairamb/ftpserverlib/log/gokit"
 
 	"github.com/fclairamb/ftpserver/config"
 	"github.com/fclairamb/ftpserver/server"
@@ -19,6 +20,7 @@ import (
 
 var (
 	ftpServer *ftpserver.FtpServer
+	driver    *server.Server
 )
 
 func main() {
@@ -32,7 +34,7 @@ func main() {
 	flag.Parse()
 
 	// Setting up the logger
-	logger := log.NewGKLogger(gklog.NewLogfmtLogger(gklog.NewSyncWriter(os.Stdout))).With(
+	logger := gokit.NewGKLogger(gklog.NewLogfmtLogger(gklog.NewSyncWriter(os.Stdout))).With(
 		"ts", gklog.DefaultTimestampUTC,
 		"caller", gklog.DefaultCaller,
 	)
@@ -63,10 +65,11 @@ func main() {
 	}
 
 	// Loading the driver
-	driver, err := server.NewServer(conf, logger.With("component", "driver"))
+	var errNewServer error
+	driver, errNewServer = server.NewServer(conf, logger.With("component", "driver"))
 
-	if err != nil {
-		logger.Error("Could not load the driver", err)
+	if errNewServer != nil {
+		logger.Error("Could not load the driver", "err", errNewServer)
 		return
 	}
 
@@ -86,7 +89,20 @@ func main() {
 	}
 
 	if err := ftpServer.ListenAndServe(); err != nil {
-		logger.Error("Problem listening", err)
+		logger.Error("Problem listening", "err", err)
+	}
+
+	// We wait at most 1 minutes for all clients to disconnect
+	if err := driver.WaitGracefully(time.Minute); err != nil {
+		ftpServer.Logger.Warn("Problem stopping server", "err", err)
+	}
+}
+
+func stop() {
+	driver.Stop()
+
+	if err := ftpServer.Stop(); err != nil {
+		ftpServer.Logger.Error("Problem stopping server", "err", err)
 	}
 }
 
@@ -98,7 +114,8 @@ func signalHandler() {
 		sig := <-ch
 
 		if sig == syscall.SIGTERM {
-			ftpServer.Stop()
+			stop()
+			break
 		}
 	}
 }

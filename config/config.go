@@ -47,7 +47,7 @@ func (c *Config) Load() error {
 
 	defer func() {
 		if errClose := file.Close(); errClose != nil {
-			c.logger.Error("Cannot close config file", errClose)
+			c.logger.Error("Cannot close config file", "err", errClose)
 		}
 	}()
 
@@ -56,7 +56,7 @@ func (c *Config) Load() error {
 	// We parse and then copy to allow hot-reload in the future
 	var content confpar.Content
 	if errDecode := decoder.Decode(&content); errDecode != nil {
-		c.logger.Error("Cannot decode file", errDecode)
+		c.logger.Error("Cannot decode file", "err", errDecode)
 		return errDecode
 	}
 
@@ -80,7 +80,7 @@ func (c *Config) CheckAccesses() error {
 	for _, access := range c.Content.Accesses {
 		_, errAccess := fs.LoadFs(access)
 		if errAccess != nil {
-			c.logger.Error("Config: Invalid access !", errAccess, "username", access.User, "fs", access.Fs)
+			c.logger.Error("Config: Invalid access !", "err", errAccess, "username", access.User, "fs", access.Fs)
 			return errAccess
 		}
 	}
