@@ -49,7 +49,10 @@ This is a copy/paste from [ftpserverlib](https://github.com/fclairamb/ftpserverl
 
 ### Get it
 #### Golang
-go install github.com/fclairamb/ftpserver
+
+```bash
+go get -u github.com/fclairamb/ftpserver
+```
 
 ### Config file
 If you don't create one, it will be created for you.
@@ -102,7 +105,7 @@ We are providing a server so that you can test how the library behaves.
 
 ```sh
 # Get and install the server
-go install github.com/fclairamb/ftpserver
+go get github.com/fclairamb/ftpserver
 
 ftpserver &
 
