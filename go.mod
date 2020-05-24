@@ -1,13 +1,16 @@
 module github.com/fclairamb/ftpserver
 
+go 1.14
+
 require (
+	github.com/aws/aws-sdk-go v1.31.3
+	github.com/fclairamb/afero-s3 v0.1.0
+	github.com/fclairamb/ftpserverlib v0.7.0
 	github.com/go-kit/kit v0.10.0
-	github.com/kylelemons/godebug v1.1.0 // indirect
-	github.com/naoina/go-stringutil v0.1.0 // indirect
-	github.com/naoina/toml v0.1.1
-	github.com/secsy/goftp v0.0.0-20190720192957-f31499d7c79a
+	github.com/pkg/sftp v1.11.0
 	github.com/spf13/afero v1.2.2
-	gopkg.in/dutchcoders/goftp.v1 v1.0.0-20170301105846-ed59a591ce14
+	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
 )
 
-go 1.13
+// replace github.com/fclairamb/ftpserverlib => /Users/florent/go/src/github.com/fclairamb/ftpserverlib
+// replace github.com/fclairamb/afero-s3 => /Users/florent/go/src/github.com/fclairamb/afero-s3
