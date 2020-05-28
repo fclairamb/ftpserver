@@ -17,6 +17,10 @@ At the current stage, supported FS are:
 - [S3](https://aws.amazon.com/s3/) through [fclairamb/afero-s3](https://github.com/fclairamb/afero-s3)
 - [SFTP](https://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol) through [afero's sftpfs](https://github.com/spf13/afero/)
 
+Planned FS are:
+- Dropbox
+- Google Drive
+
 ## Current status of the project
 
 ### Features
