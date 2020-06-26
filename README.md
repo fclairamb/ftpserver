@@ -7,10 +7,8 @@
 [![Go Report Card](https://goreportcard.com/badge/fclairamb/ftpserver)](https://goreportcard.com/report/fclairamb/ftpserver)
 [![GoDoc](https://godoc.org/github.com/fclairamb/ftpserver?status.svg)](https://godoc.org/github.com/fclairamb/ftpserver/server)
 
-This FTP server is a gateway between old-school FTP devices and modern cloud based file systems, using the 
+This FTP server is a gateway between old-school FTP devices and modern cloud based file systems, using the
 [afero](https://github.com/spf13/afero) 's Fs interface.
-
-
 
 At the current stage, supported FS are:
 - Local disk
@@ -80,10 +78,13 @@ Here is a sample config file:
       "pass": "s3",
       "fs": "s3",
       "params": {
+        "endpoint": "https://s3.amazonaws.com",
         "region": "eu-west-1",
         "bucket": "my-bucket",
         "access_key_id": "AKIA....",
         "secret_access_key": "IDxd...."
+        "disable_ssl": "false",
+        "path_style": "false"
       }
     },
     {
@@ -145,4 +146,3 @@ curl ftp://test:test@localhost:2121/kitty.jpg -o kitty2.jpg
 # Compare it
 diff kitty.jpg kitty2.jpg
 ```
-

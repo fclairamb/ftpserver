@@ -13,14 +13,18 @@ import (
 
 // LoadFs loads a file system from an access description
 func LoadFs(access *confpar.Access) (afero.Fs, error) {
+	endpoint := access.Params["endpoint"]
 	region := access.Params["region"]
 	bucket := access.Params["bucket"]
 	keyID := access.Params["access_key_id"]
 	secretAccessKey := access.Params["secret_access_key"]
 
 	sess, errSession := session.NewSession(&aws.Config{
-		Region:      &region,
-		Credentials: credentials.NewStaticCredentials(keyID, secretAccessKey, ""),
+		Endpoint:         aws.String(endpoint),
+		Region:           aws.String(region),
+		Credentials:      credentials.NewStaticCredentials(keyID, secretAccessKey, ""),
+		DisableSSL:       aws.Bool(access.Params["disable_ssl"] == "true"),
+		S3ForcePathStyle: aws.Bool(access.Params["path_style"] == "true"),
 	})
 
 	if errSession != nil {
