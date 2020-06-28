@@ -82,7 +82,7 @@ Here is a sample config file:
         "region": "eu-west-1",
         "bucket": "my-bucket",
         "access_key_id": "AKIA....",
-        "secret_access_key": "IDxd...."
+        "secret_access_key": "IDxd....",
         "disable_ssl": "false",
         "path_style": "false"
       }
