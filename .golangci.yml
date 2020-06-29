@@ -194,6 +194,7 @@ linters:
         - staticcheck
         - structcheck
         - scopelint
+        - stylecheck
         - typecheck
         - unconvert
         - unparam
