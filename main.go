@@ -52,7 +52,7 @@ func main() {
 		if _, err := os.Stat(confFile); err != nil && os.IsNotExist(err) {
 			logger.Warn("No conf file, creating one", "confFile", confFile)
 
-			if err := ioutil.WriteFile(confFile, confFileContent(), 0644); err != nil {
+			if err := ioutil.WriteFile(confFile, confFileContent(), 0600); err != nil {
 				logger.Warn("Couldn't create conf file", "confFile", confFile)
 			}
 		}

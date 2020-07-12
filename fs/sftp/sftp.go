@@ -13,6 +13,16 @@ import (
 	"github.com/fclairamb/ftpserver/config/confpar"
 )
 
+// ConnectionError is returned when a connection occurs while connecting to the SFTP server
+type ConnectionError struct {
+	error
+	Source error
+}
+
+func (err ConnectionError) Error() string {
+	return fmt.Sprintf("Could not connect to SFTP host: %#v", err.Source)
+}
+
 // LoadFs loads a file system from an access description
 func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	par := access.Params
@@ -29,12 +39,12 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	// Dial your ssh server.
 	conn, errSSH := ssh.Dial("tcp", par["hostname"], config)
 	if errSSH != nil {
-		return nil, fmt.Errorf("unable to connect: %s", errSSH)
+		return nil, &ConnectionError{Source: errSSH}
 	}
 
 	client, errSftp := sftp.NewClient(conn)
 	if errSftp != nil {
-		return nil, fmt.Errorf("unable to setup sftp: %s", errSftp)
+		return nil, &ConnectionError{Source: errSftp}
 	}
 
 	return sftpfs.New(client), nil

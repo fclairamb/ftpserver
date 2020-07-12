@@ -2,12 +2,15 @@
 package stripprefix
 
 import (
-	"fmt"
+	"errors"
 	"os"
 	"time"
 
 	"github.com/spf13/afero"
 )
+
+// ErrBasePathTooShort is returned when the specified path is too short
+var ErrBasePathTooShort = errors.New("path needs to at least as long as its prefix")
 
 // Fs is a convenience afero.Fs to remove the prefix of a path
 type Fs struct {
@@ -35,7 +38,7 @@ func (f *File) Name() string {
 // else the given afero.File with the base path prepended
 func (b *Fs) realPath(name string) (path string, err error) {
 	if len(name) < b.start {
-		return "", fmt.Errorf("path needs to at least %d chars long", b.start)
+		return "", ErrBasePathTooShort
 	}
 
 	return name[b.start:], nil

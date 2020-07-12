@@ -12,6 +12,9 @@ import (
 	"github.com/fclairamb/ftpserver/fs"
 )
 
+// ErrUnknownUser is returned when the provided user cannot be identified through our authentication mechanism
+var ErrUnknownUser = errors.New("unknown user")
+
 // Config provides the general server config
 type Config struct {
 	fileName string
@@ -96,5 +99,5 @@ func (c *Config) GetAccess(user string, pass string) (*confpar.Access, error) {
 		}
 	}
 
-	return nil, errors.New("unknown user")
+	return nil, ErrUnknownUser
 }

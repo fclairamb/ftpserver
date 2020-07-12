@@ -12,6 +12,16 @@ import (
 	"github.com/fclairamb/ftpserver/fs/sftp"
 )
 
+// UnsupportedFsError is returned when the described file system is not supported
+type UnsupportedFsError struct {
+	error
+	Type string
+}
+
+func (err UnsupportedFsError) Error() string {
+	return fmt.Sprintf("Unsupported FS: %s", err.Type)
+}
+
 // LoadFs loads a file system from an access description
 func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	switch access.Fs {
@@ -22,6 +32,6 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	case "sftp":
 		return sftp.LoadFs(access)
 	default:
-		return nil, fmt.Errorf("fs not supported: %s", access.Fs)
+		return nil, &UnsupportedFsError{Type: access.Fs}
 	}
 }
