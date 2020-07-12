@@ -120,7 +120,7 @@ func (s *Server) considerEnd() {
 }
 
 // AuthUser authenticates the user and selects an handling driver
-func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (serverlib.ClientDriver, error) {
+func (s *Server) AuthUser(_ serverlib.ClientContext, user, pass string) (serverlib.ClientDriver, error) {
 	access, errAccess := s.config.GetAccess(user, pass)
 	if errAccess != nil {
 		return nil, errAccess

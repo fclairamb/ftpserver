@@ -24,7 +24,8 @@ type File struct {
 	start int
 }
 
-// NewStripPrefixFs creates a new Fs instance
+// NewStripPrefixFs is an internal FS implementation to remove a path prefix
+// of a path when calling the underlying FS implementation.
 func NewStripPrefixFs(source afero.Fs, start int) afero.Fs {
 	return &Fs{source: source, start: start}
 }
@@ -100,8 +101,7 @@ func (b *Fs) RemoveAll(name string) (err error) {
 	return b.source.RemoveAll(name)
 }
 
-// Remove removes a file identified by name, returning an error, if any
-// happens.
+// Remove removes a file identified by name, returning an error if any happens.
 func (b *Fs) Remove(name string) (err error) {
 	if name, err = b.realPath(name); err != nil {
 		return &os.PathError{Op: "remove", Path: name, Err: err}
