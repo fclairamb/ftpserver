@@ -9,8 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	gklog "github.com/go-kit/kit/log"
-
 	ftpserver "github.com/fclairamb/ftpserverlib"
 	"github.com/fclairamb/ftpserverlib/log/gokit"
 
@@ -34,9 +32,9 @@ func main() {
 	flag.Parse()
 
 	// Setting up the logger
-	logger := gokit.NewGKLogger(gklog.NewLogfmtLogger(gklog.NewSyncWriter(os.Stdout))).With(
-		"ts", gklog.DefaultTimestampUTC,
-		"caller", gklog.DefaultCaller,
+	logger := gokit.NewGKLoggerStdout().With(
+		"ts", gokit.GKDefaultTimestampUTC,
+		"caller", gokit.GKDefaultCaller,
 	)
 
 	autoCreate := onlyConf
