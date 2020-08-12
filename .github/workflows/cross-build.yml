@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         # This feels clunky to copy/paste the same value twice. I couldn't find a way to register it *once*.
-        go: [ 1.14 ]
+        go: [ 1.15 ]
         target:
           # Linux
           - {os: linux, arch: amd64}
