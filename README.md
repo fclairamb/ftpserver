@@ -1,4 +1,4 @@
-# Golang FTP Server library
+# Golang FTP Server
 
 ![Build](https://github.com/fclairamb/ftpserver/workflows/Build/badge.svg)
 ![Docker Image](https://github.com/fclairamb/ftpserver/workflows/Docker%20Image/badge.svg)
@@ -7,10 +7,8 @@
 [![Go Report Card](https://goreportcard.com/badge/fclairamb/ftpserver)](https://goreportcard.com/report/fclairamb/ftpserver)
 [![GoDoc](https://godoc.org/github.com/fclairamb/ftpserver?status.svg)](https://godoc.org/github.com/fclairamb/ftpserver/server)
 
-This FTP server is a gateway between old-school FTP devices and modern cloud based file systems, using the 
-[afero](https://github.com/spf13/afero) 's Fs interface.
-
-
+This FTP server is a gateway between old-school FTP devices and modern cloud based file systems, using the
+[afero](https://github.com/spf13/afero) 's Fs interface and acting as a reference implementation of the [ftpserverlib](https://github.com/fclairamb/ftpserverlib)
 
 At the current stage, supported FS are:
 - Local disk
@@ -25,7 +23,9 @@ Planned FS are:
 
 ### Features
 
-This is a copy/paste from [ftpserverlib](https://github.com/fclairamb/ftpserverlib)
+#### FTP protocol
+
+These features are brought by [ftpserverlib](https://github.com/fclairamb/ftpserverlib) itself:
 
  * Uploading and downloading files
  * Directory listing (LIST + MLST)
@@ -80,10 +80,13 @@ Here is a sample config file:
       "pass": "s3",
       "fs": "s3",
       "params": {
+        "endpoint": "https://s3.amazonaws.com",
         "region": "eu-west-1",
         "bucket": "my-bucket",
         "access_key_id": "AKIA....",
-        "secret_access_key": "IDxd...."
+        "secret_access_key": "IDxd....",
+        "disable_ssl": "false",
+        "path_style": "false"
       }
     },
     {
@@ -105,7 +108,7 @@ Here is a sample config file:
 ```
 
 ### With local binary
-We are providing a server so that you can test how the library behaves.
+You can build the binary and use it directly:
 
 ```sh
 # Get and install the server
@@ -127,7 +130,7 @@ diff kitty.jpg kitty2.jpg
 ```
 
 ### With docker
-There's also a containerized version of the demo server (15MB, based on alpine).
+There's also a containerized version of the server (15MB, based on alpine).
 
 ```sh
 # Starting the sample FTP server
@@ -145,4 +148,3 @@ curl ftp://test:test@localhost:2121/kitty.jpg -o kitty2.jpg
 # Compare it
 diff kitty.jpg kitty2.jpg
 ```
-

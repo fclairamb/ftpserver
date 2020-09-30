@@ -181,6 +181,7 @@ linters:
         - gocritic
         - gocyclo
         - godox
+        - goerr113
         - gofmt
         - goimports
         - golint
@@ -191,9 +192,10 @@ linters:
         - misspell
         - nakedret
         - prealloc
+        - scopelint
         - staticcheck
         - structcheck
-        - scopelint
+        - stylecheck
         - typecheck
         - unconvert
         - unparam

@@ -28,6 +28,9 @@ type Server struct {
 // ErrTimeout is returned when an operation timeouts
 var ErrTimeout = errors.New("timeout")
 
+// ErrNotImplemented is returned when we're using something that has not been implemented yet
+var ErrNotImplemented = errors.New("not implemented")
+
 // NewServer creates a server instance
 func NewServer(config *config.Config, logger log.Logger) (*Server, error) {
 	return &Server{
@@ -117,7 +120,7 @@ func (s *Server) considerEnd() {
 }
 
 // AuthUser authenticates the user and selects an handling driver
-func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (serverlib.ClientDriver, error) {
+func (s *Server) AuthUser(_ serverlib.ClientContext, user, pass string) (serverlib.ClientDriver, error) {
 	access, errAccess := s.config.GetAccess(user, pass)
 	if errAccess != nil {
 		return nil, errAccess
@@ -142,5 +145,5 @@ type ClientDriver struct {
 // GetTLSConfig returns a TLS Certificate to use
 // The certificate could frequently change if we use something like "let's encrypt"
 func (s *Server) GetTLSConfig() (*tls.Config, error) {
-	return nil, errors.New("not implemented")
+	return nil, ErrNotImplemented
 }
