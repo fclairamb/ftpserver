@@ -8,6 +8,7 @@ import (
 
 	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs/afos"
+	"github.com/fclairamb/ftpserver/fs/mail"
 	"github.com/fclairamb/ftpserver/fs/s3"
 	"github.com/fclairamb/ftpserver/fs/sftp"
 )
@@ -31,6 +32,8 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 		return s3.LoadFs(access)
 	case "sftp":
 		return sftp.LoadFs(access)
+	case "mail":
+		return mail.LoadFs(access)
 	default:
 		return nil, &UnsupportedFsError{Type: access.Fs}
 	}
