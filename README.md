@@ -10,10 +10,11 @@
 This FTP server is a gateway between old-school FTP devices and modern cloud based file systems, using the
 [afero](https://github.com/spf13/afero) 's Fs interface and acting as a reference implementation of the [ftpserverlib](https://github.com/fclairamb/ftpserverlib)
 
-At the current stage, supported FS are:
+At the current stage, supported backend are:
 - Local disk
 - [S3](https://aws.amazon.com/s3/) through [fclairamb/afero-s3](https://github.com/fclairamb/afero-s3)
 - [SFTP](https://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol) through [afero's sftpfs](https://github.com/spf13/afero/)
+- Email through [go-mail](https://github.com/go-mail/mail) thanks to [@x-way](https://github.com/x-way)
 
 Planned FS are:
 - Dropbox
