@@ -9,7 +9,7 @@ require (
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.12.0
 	github.com/spf13/afero v1.4.1
-	golang.org/x/crypto v0.0.0-20200930160638-afb6bcd081ae
+	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 
