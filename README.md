@@ -1,4 +1,4 @@
-# Golang FTP Server library
+# Golang FTP Server
 
 ![Build](https://github.com/fclairamb/ftpserver/workflows/Build/badge.svg)
 ![Docker Image](https://github.com/fclairamb/ftpserver/workflows/Docker%20Image/badge.svg)
@@ -8,12 +8,13 @@
 [![GoDoc](https://godoc.org/github.com/fclairamb/ftpserver?status.svg)](https://godoc.org/github.com/fclairamb/ftpserver/server)
 
 This FTP server is a gateway between old-school FTP devices and modern cloud based file systems, using the
-[afero](https://github.com/spf13/afero) 's Fs interface.
+[afero](https://github.com/spf13/afero) 's Fs interface and acting as a reference implementation of the [ftpserverlib](https://github.com/fclairamb/ftpserverlib)
 
-At the current stage, supported FS are:
+At the current stage, supported backend are:
 - Local disk
 - [S3](https://aws.amazon.com/s3/) through [fclairamb/afero-s3](https://github.com/fclairamb/afero-s3)
 - [SFTP](https://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol) through [afero's sftpfs](https://github.com/spf13/afero/)
+- Email through [go-mail](https://github.com/go-mail/mail) thanks to [@x-way](https://github.com/x-way)
 
 Planned FS are:
 - Dropbox
@@ -23,7 +24,9 @@ Planned FS are:
 
 ### Features
 
-This is a copy/paste from [ftpserverlib](https://github.com/fclairamb/ftpserverlib)
+#### FTP protocol
+
+These features are brought by [ftpserverlib](https://github.com/fclairamb/ftpserverlib) itself:
 
  * Uploading and downloading files
  * Directory listing (LIST + MLST)
@@ -106,7 +109,7 @@ Here is a sample config file:
 ```
 
 ### With local binary
-We are providing a server so that you can test how the library behaves.
+You can build the binary and use it directly:
 
 ```sh
 # Get and install the server
@@ -128,7 +131,7 @@ diff kitty.jpg kitty2.jpg
 ```
 
 ### With docker
-There's also a containerized version of the demo server (15MB, based on alpine).
+There's also a containerized version of the server (15MB, based on alpine).
 
 ```sh
 # Starting the sample FTP server
