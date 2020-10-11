@@ -65,6 +65,8 @@ github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fclairamb/afero-s3 v0.1.0 h1:WfPD2Px6AlcEBw1jUmJC295wpTXkfglYtzbSdTfaNzg=
 github.com/fclairamb/afero-s3 v0.1.0/go.mod h1:HHcYBsOLXjeqdnKQ61Rx43+vj+jGe9DjYTQbKhendwQ=
+github.com/fclairamb/afero-s3 v0.1.1 h1:UFLBLxYQU522WEaBGmPbBpP3fHma+b1cd2PYa79i+0E=
+github.com/fclairamb/afero-s3 v0.1.1/go.mod h1:Nkh63QSPAA1HpTsBBI0qGaftl/YRvQzWdUUYG7D2PQA=
 github.com/fclairamb/ftpserverlib v0.8.0 h1:ZsWUQ8Vg3Y8LIWRUAzVnFXY982Yztz2odDdK/UVJtik=
 github.com/fclairamb/ftpserverlib v0.8.0/go.mod h1:xF4cy07oCHA9ZorKehsFGqA/1UHYaonmqHK2g3P1X8U=
 github.com/franela/goblin v0.0.0-20200105215937-c9ffbefa60db/go.mod h1:7dvUGVsVBjqR7JHJk0brhHOZYGmfBYOrK0ZhYMEtBr4=
