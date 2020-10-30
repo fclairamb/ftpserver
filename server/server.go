@@ -14,6 +14,7 @@ import (
 
 	"github.com/fclairamb/ftpserver/config"
 	"github.com/fclairamb/ftpserver/fs"
+	"github.com/fclairamb/ftpserver/fs/fslog"
 )
 
 // Server structure
@@ -69,7 +70,10 @@ func (s *Server) ClientConnected(cc serverlib.ClientContext) (string, error) {
 		"remoteAddr", cc.RemoteAddr(),
 		"nbClients", s.nbClients,
 	)
-	cc.SetDebug(true)
+
+	if s.config.Content.Logging.FtpExchanges {
+		cc.SetDebug(true)
+	}
 
 	return "ftpserver", nil
 }
@@ -120,7 +124,7 @@ func (s *Server) considerEnd() {
 }
 
 // AuthUser authenticates the user and selects an handling driver
-func (s *Server) AuthUser(_ serverlib.ClientContext, user, pass string) (serverlib.ClientDriver, error) {
+func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (serverlib.ClientDriver, error) {
 	access, errAccess := s.config.GetAccess(user, pass)
 	if errAccess != nil {
 		return nil, errAccess
@@ -130,6 +134,27 @@ func (s *Server) AuthUser(_ serverlib.ClientContext, user, pass string) (serverl
 
 	if errFs != nil {
 		return nil, errFs
+	}
+
+	if s.config.Content.Logging.FtpExchanges || access.Logging.FtpExchanges {
+		cc.SetDebug(true)
+	}
+
+	if s.config.Content.Logging.FileAccesses || access.Logging.FileAccesses {
+		var err error
+
+		logger := s.logger.With(
+			"userName", user,
+			"fs", access.Fs,
+			"clientId", cc.ID(),
+			"remoteAddr", cc.RemoteAddr(),
+		)
+
+		accFs, err = fslog.LoadFS(accFs, logger)
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &ClientDriver{
