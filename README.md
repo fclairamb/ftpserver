@@ -8,7 +8,7 @@
 [![GoDoc](https://godoc.org/github.com/fclairamb/ftpserver?status.svg)](https://godoc.org/github.com/fclairamb/ftpserver/server)
 
 This FTP server is a gateway between old-school FTP devices and modern cloud based file systems, using the
-[afero](https://github.com/spf13/afero) 's Fs interface and acting as a reference implementation of the [ftpserverlib](https://github.com/fclairamb/ftpserverlib)
+[afero](https://github.com/spf13/afero)'s Fs interface and acting as a reference implementation of the [ftpserverlib](https://github.com/fclairamb/ftpserverlib).
 
 At the current stage, supported backend are:
 - Local disk
@@ -135,7 +135,7 @@ There's also a containerized version of the server (15MB, based on alpine).
 
 ```sh
 # Starting the sample FTP server
-docker run --rm -d -p 2121-2130:2121-2130 ftpserver/ftpserver
+docker run --rm -d -p 2121-2130:2121-2130 fclairamb/ftpserver
 
 # Download some file
 [ -f kitty.jpg ] || (curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg)
