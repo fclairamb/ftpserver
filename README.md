@@ -135,7 +135,7 @@ There's also a containerized version of the server (15MB, based on alpine).
 
 ```sh
 # Starting the sample FTP server
-docker run --rm -d -p 2121-2130:2121-2130 fclairamb/ftpserver
+docker run --rm -d -p 2121-2130:2121-2130 ftpserver/ftpserver
 
 # Download some file
 [ -f kitty.jpg ] || (curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg)
