@@ -1,4 +1,4 @@
-name: Docker test
+name: Test the current docker image
 
 on:
   schedule:
