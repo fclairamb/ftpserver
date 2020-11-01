@@ -11,7 +11,7 @@ jobs:
     timeout-minutes: 1
     services:
       ftpserver:
-        image: ftpserver/ftpserver
+        image: fclairamb/ftpserver
         ports:
           - 2121-2130:2121-2130
 
