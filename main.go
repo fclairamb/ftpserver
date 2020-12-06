@@ -58,7 +58,7 @@ func main() {
 
 	conf, errConfig := config.NewConfig(confFile, logger)
 	if errConfig != nil {
-		logger.Error("Can't load conf", errConfig)
+		logger.Error("Can't load conf", "err", errConfig)
 		return
 	}
 

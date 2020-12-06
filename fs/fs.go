@@ -4,10 +4,12 @@ package fs
 import (
 	"fmt"
 
+	"github.com/fclairamb/ftpserverlib/log"
 	"github.com/spf13/afero"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs/afos"
+	"github.com/fclairamb/ftpserver/fs/gdrive"
 	"github.com/fclairamb/ftpserver/fs/mail"
 	"github.com/fclairamb/ftpserver/fs/s3"
 	"github.com/fclairamb/ftpserver/fs/sftp"
@@ -24,7 +26,7 @@ func (err UnsupportedFsError) Error() string {
 }
 
 // LoadFs loads a file system from an access description
-func LoadFs(access *confpar.Access) (afero.Fs, error) {
+func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 	switch access.Fs {
 	case "os":
 		return afos.LoadFs(access)
@@ -34,6 +36,8 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 		return sftp.LoadFs(access)
 	case "mail":
 		return mail.LoadFs(access)
+	case "gdrive":
+		return gdrive.LoadFs(access, logger)
 	default:
 		return nil, &UnsupportedFsError{Type: access.Fs}
 	}
