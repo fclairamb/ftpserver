@@ -13,7 +13,7 @@ This FTP server is a gateway between old-school FTP devices and modern cloud bas
 At the current stage, supported backend are:
 - Local disk
 - [S3](https://aws.amazon.com/s3/) through [fclairamb/afero-s3](https://github.com/fclairamb/afero-s3)
-- [Google Drive](https://developers.google.com/drive) through [fclairamb/afero-gdrive](https://github.com/fclairamb/afero-gdrive)
+- [Google Drive](https://developers.google.com/drive) (see [doc](https://github.com/fclairamb/ftpserver/tree/master/fs/gdrive)) through [fclairamb/afero-gdrive](https://github.com/fclairamb/afero-gdrive)
 - [SFTP](https://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol) through [afero's sftpfs](https://github.com/spf13/afero/)
 - Email through [go-mail](https://github.com/go-mail/mail) thanks to [@x-way](https://github.com/x-way)
 
