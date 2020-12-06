@@ -170,12 +170,19 @@ linters-settings:
 
 linters:
   enable:
+    - bodyclose
     - deadcode
+    - depguard
     - dogsled
     - dupl
     - errcheck
+    - exhaustive
+    # - exhaustivestruct
+    - exportloopref
     - funlen
+    # - gci
     - gochecknoinits
+    # - gochecknoglobals
     - gocognit
     - goconst
     - gocritic
@@ -185,13 +192,23 @@ linters:
     - gofmt
     - goimports
     - golint
+    - gomnd
+    - goprintffuncname
+    - gosec
+    - gosimple
     - govet
+    - ineffassign
+    - interfacer
     - lll
     - maligned
     - megacheck
     - misspell
     - nakedret
+    - nestif
+    # - nlreturn
     - prealloc
+    - nolintlint
+    - rowserrcheck
     - scopelint
     - staticcheck
     - structcheck
@@ -202,6 +219,7 @@ linters:
     - unused
     - varcheck
     - whitespace
+    # - wrapcheck
     - wsl
   disable-all: false
   presets:
@@ -215,4 +233,3 @@ issues:
   # excluded by default patterns execute `golangci-lint run --help`.
   # Default value for this option is true.
   exclude-use-default: false
-

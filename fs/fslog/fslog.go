@@ -5,8 +5,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/fclairamb/ftpserverlib/log"
 	"github.com/spf13/afero"
+
+	"github.com/fclairamb/ftpserverlib/log"
 )
 
 // File is a wrapper to log interactions around file accesses
