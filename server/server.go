@@ -130,7 +130,7 @@ func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (server
 		return nil, errAccess
 	}
 
-	accFs, errFs := fs.LoadFs(access)
+	accFs, errFs := fs.LoadFs(access, s.logger)
 
 	if errFs != nil {
 		return nil, errFs

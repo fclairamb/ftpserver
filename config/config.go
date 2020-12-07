@@ -81,7 +81,7 @@ func (c *Config) Prepare() error {
 // CheckAccesses checks all accesses
 func (c *Config) CheckAccesses() error {
 	for _, access := range c.Content.Accesses {
-		_, errAccess := fs.LoadFs(access)
+		_, errAccess := fs.LoadFs(access, c.logger)
 		if errAccess != nil {
 			c.logger.Error("Config: Invalid access !", "err", errAccess, "username", access.User, "fs", access.Fs)
 			return errAccess
