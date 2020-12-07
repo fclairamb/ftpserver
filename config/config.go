@@ -94,7 +94,7 @@ func (c *Config) CheckAccesses() error {
 // GetAccess return a file system access given some credentials
 func (c *Config) GetAccess(user string, pass string) (*confpar.Access, error) {
 	for _, a := range c.Content.Accesses {
-		if a.User == user && a.Pass == pass {
+		if a.User == user && (a.Pass == pass || (a.User == "anonymous" && a.Pass == "*")) {
 			return a, nil
 		}
 	}
