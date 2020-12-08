@@ -112,6 +112,8 @@ github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fclairamb/afero-gdrive v0.0.0-20201202000508-699f74d5f307 h1:Ui7vAL7k5v5n3msxpMswli4BseP7btZiBo6BuqiXHSc=
 github.com/fclairamb/afero-gdrive v0.0.0-20201202000508-699f74d5f307/go.mod h1:VqHDWK2uhZ2UUtPXdDAVHtutXOtkeo1dYVzeBij9qBc=
+github.com/fclairamb/afero-gdrive v0.0.0-20201208184204-42905cd25af3 h1:Jwy19t0zMp0PXPN6750+23kF+dE5NzSR55QGI+siLMc=
+github.com/fclairamb/afero-gdrive v0.0.0-20201208184204-42905cd25af3/go.mod h1:PoyqII31ZdpFUDWs7Ow8SUnBpG7Z4yLWfNSx/AJJfa4=
 github.com/fclairamb/afero-s3 v0.1.1 h1:UFLBLxYQU522WEaBGmPbBpP3fHma+b1cd2PYa79i+0E=
 github.com/fclairamb/afero-s3 v0.1.1/go.mod h1:Nkh63QSPAA1HpTsBBI0qGaftl/YRvQzWdUUYG7D2PQA=
 github.com/fclairamb/ftpserverlib v0.9.0 h1:RW20tmYTY06WQdY5l9+iK7ES7Xi/ICgnG/sTXhSwsCY=
@@ -354,6 +356,8 @@ github.com/soheilhy/cmux v0.1.4/go.mod h1:IM3LyeVVIOuxMH7sFAkER9+bJ4dT7Ms6E4xg4k
 github.com/sony/gobreaker v0.4.1/go.mod h1:ZKptC7FHNvhBz7dN2LGjPVBz2sZJmc0/PkyDJOjmxWY=
 github.com/spf13/afero v1.4.1 h1:asw9sl74539yqavKaglDM5hFpdJVK0Y5Dr/JOgQ89nQ=
 github.com/spf13/afero v1.4.1/go.mod h1:Ai8FlHk4v/PARR026UzYexafAt9roJ7LcLMAmO6Z93I=
+github.com/spf13/afero v1.5.0 h1:8Wb647pxgVlypPIdcDlffCLCHCElBZ1sCF6i85qNvRw=
+github.com/spf13/afero v1.5.0/go.mod h1:Ai8FlHk4v/PARR026UzYexafAt9roJ7LcLMAmO6Z93I=
 github.com/spf13/cobra v0.0.3/go.mod h1:1l0Ry5zgKvJasoi3XT1TypsSe7PqH0Sj9dhYf7v3XqQ=
 github.com/spf13/pflag v1.0.1/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
 github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
@@ -543,6 +547,7 @@ golang.org/x/sys v0.0.0-20200803210538-64077c9b5642/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20200905004654-be1d3432aa8f/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f h1:+Nyd8tzPX9R7BWHguqsrbFdRx3WQ/1ib8I44HXV5yTA=
 golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20201201145000-ef89a241ccb3 h1:kzM6+9dur93BcC2kVlYl34cHU+TYZLanmpSJHVMmL64=
 golang.org/x/sys v0.0.0-20201201145000-ef89a241ccb3/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20201117132131-f5c789dd3221 h1:/ZHdbVpdR/jk3g30/d4yUL0JU9kksj8+F/bnQUVLGDM=
 golang.org/x/term v0.0.0-20201117132131-f5c789dd3221/go.mod h1:Nr5EML6q2oocZ2LXRh80K7BxOlk5/8JxuGnuhpl+muw=
