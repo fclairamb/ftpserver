@@ -63,6 +63,15 @@ func (b *Fs) Chmod(name string, mode os.FileMode) (err error) {
 	return b.source.Chmod(name, mode)
 }
 
+// Chown changes the mode of the named file to mode.
+func (b *Fs) Chown(name string, uid int, gid int) (err error) {
+	if name, err = b.realPath(name); err != nil {
+		return &os.PathError{Op: "chmod", Path: name, Err: err}
+	}
+
+	return b.source.Chown(name, uid, gid)
+}
+
 // Name of this FileSystem
 func (b *Fs) Name() string {
 	return "Fs"

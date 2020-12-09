@@ -206,6 +206,11 @@ func (m *Fs) Rename(name string, newname string) error {
 	return nil
 }
 
+// Chown is not implemented
+func (b *Fs) Chown(string, int, int) error {
+	return nil
+}
+
 // RemoveAll is not implemented
 func (m *Fs) RemoveAll(name string) error {
 	return nil

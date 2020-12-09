@@ -119,6 +119,11 @@ func (f *Fs) Chtimes(name string, atime time.Time, mtime time.Time) error {
 	return f.src.Chtimes(name, atime, mtime)
 }
 
+// Chown calls will not be logged
+func (f *Fs) Chown(name string, uid int, gid int) error {
+	return f.src.Chown(name, uid, gid)
+}
+
 // Close calls will be logged
 func (f *File) Close() error {
 	err := f.src.Close()
