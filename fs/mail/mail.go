@@ -207,7 +207,7 @@ func (m *Fs) Rename(name string, newname string) error {
 }
 
 // Chown is not implemented
-func (b *Fs) Chown(string, int, int) error {
+func (m *Fs) Chown(string, int, int) error {
 	return nil
 }
 
