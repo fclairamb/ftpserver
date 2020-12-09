@@ -10,7 +10,7 @@ on:
 
 jobs:
   cross-build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -58,6 +58,6 @@ jobs:
 
   cross-build-status:
     needs: cross-build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - run: echo 'All good'
