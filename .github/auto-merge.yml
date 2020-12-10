@@ -2,6 +2,7 @@
 
 updateBranch: true
 deleteBranchAfterMerge: true
+mergeMethod: squash
 maxRequestedChanges:
   NONE: 0
 blockingLabels:
