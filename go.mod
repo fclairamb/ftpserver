@@ -1,6 +1,6 @@
 module github.com/fclairamb/ftpserver
 
-go 1.14
+go 1.15
 
 require (
 	github.com/aws/aws-sdk-go v1.36.5
@@ -13,6 +13,7 @@ require (
 	golang.org/x/crypto v0.0.0-20201208171446-5f87f3452ae9
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gopkg.in/mail.v2 v2.3.1 // indirect  
 )
 
 // replace github.com/fclairamb/ftpserverlib => /Users/florent/go/src/github.com/fclairamb/ftpserverlib
