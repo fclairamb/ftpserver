@@ -27,18 +27,27 @@ func (err UnsupportedFsError) Error() string {
 
 // LoadFs loads a file system from an access description
 func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
+	var fs afero.Fs
+	var err error
+
 	switch access.Fs {
 	case "os":
-		return afos.LoadFs(access)
+		fs, err = afos.LoadFs(access)
 	case "s3":
-		return s3.LoadFs(access)
+		fs, err = s3.LoadFs(access)
 	case "sftp":
-		return sftp.LoadFs(access)
+		fs, err = sftp.LoadFs(access)
 	case "mail":
-		return mail.LoadFs(access)
+		fs, err = mail.LoadFs(access)
 	case "gdrive":
-		return gdrive.LoadFs(access, logger)
+		fs, err = gdrive.LoadFs(access, logger)
 	default:
-		return nil, &UnsupportedFsError{Type: access.Fs}
+		fs, err = nil, &UnsupportedFsError{Type: access.Fs}
 	}
+
+	if err != nil && access.ReadOnly {
+		fs = afero.NewReadOnlyFs(fs)
+	}
+
+	return fs, err
 }

@@ -3,11 +3,12 @@ package confpar
 
 // Access provides rules around any access
 type Access struct {
-	User    string            `json:"user"`    // User authenticating
-	Pass    string            `json:"pass"`    // Password used for authentication
-	Fs      string            `json:"fs"`      // Backend used for accessing file
-	Params  map[string]string `json:"params"`  // Backend parameters
-	Logging Logging           `json:"logging"` // Logging parameters
+	User     string            `json:"user"`      // User authenticating
+	Pass     string            `json:"pass"`      // Password used for authentication
+	Fs       string            `json:"fs"`        // Backend used for accessing file
+	Params   map[string]string `json:"params"`    // Backend parameters
+	Logging  Logging           `json:"logging"`   // Logging parameters
+	ReadOnly bool              `json:"read_only"` // Read-only access
 }
 
 // PortRange defines a port-range
