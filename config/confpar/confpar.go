@@ -27,6 +27,7 @@ type Logging struct {
 type Content struct {
 	Version                  int        `json:"version"`                     // File format version
 	ListenAddress            string     `json:"listen_address"`              // Address to listen on
+	PublicHost               string     `json:"public_host"`                 // Public host to listen on
 	MaxClients               int        `json:"max_clients"`                 // Maximum clients who can connect
 	Accesses                 []*Access  `json:"accesses"`                    // Accesses offered to users
 	PassiveTransferPortRange *PortRange `json:"passive_transfer_port_range"` // Listen port range
