@@ -14,6 +14,7 @@ RUN go build -v -o ftpserver
 
 # Preparing the final image
 FROM alpine:3.12.1
+WORKDIR /app
 EXPOSE 2121-2130
 COPY --from=builder /workspace/ftpserver /bin/ftpserver
 ENTRYPOINT [ "/bin/ftpserver" ]
