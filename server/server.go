@@ -55,6 +55,7 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 
 	return &serverlib.Settings{
 		ListenAddr:               conf.ListenAddress,
+		PublicHost:               conf.PublicHost,
 		PassiveTransferPortRange: portRange,
 	}, nil
 }
