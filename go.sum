@@ -126,6 +126,8 @@ github.com/fclairamb/ftpserverlib v0.9.0 h1:RW20tmYTY06WQdY5l9+iK7ES7Xi/ICgnG/sT
 github.com/fclairamb/ftpserverlib v0.9.0/go.mod h1:sMPjxPuoVwwoV87gdPkyTb0dVofmCKpVZCQ3rMVokjc=
 github.com/fclairamb/ftpserverlib v0.10.0 h1:FXOiA/Hpnp0Bxze22N1o/9Lhou8CSezAhHHd87ovfd8=
 github.com/fclairamb/ftpserverlib v0.10.0/go.mod h1:BRvLx7+AXx5aN4oeIrkvsUU0dDbi4PcMKBCbpsuSYKA=
+github.com/fclairamb/ftpserverlib v0.11.0 h1:leyKdtf3Xk9POY/akxicXrrHF5804PVqnXlUBUYN4Tk=
+github.com/fclairamb/ftpserverlib v0.11.0/go.mod h1:lCDfM4WqDDh/wlVMZP185tEH93I0t5gsY2/lKfrLl3o=
 github.com/franela/goblin v0.0.0-20200105215937-c9ffbefa60db/go.mod h1:7dvUGVsVBjqR7JHJk0brhHOZYGmfBYOrK0ZhYMEtBr4=
 github.com/franela/goreq v0.0.0-20171204163338-bcd34c9993f8/go.mod h1:ZhphrRTfi2rbfLwlschooIH4+wKKDR4Pdxhh+TRoA20=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
