@@ -25,7 +25,7 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 		S3ForcePathStyle: aws.Bool(access.Params["path_style"] == "true"),
 	}
 
-	if keyID != "" || secretAccessKey != "" {
+	if keyID != "" && secretAccessKey != "" {
 		conf.Credentials = credentials.NewStaticCredentials(keyID, secretAccessKey, "")
 	}
 
