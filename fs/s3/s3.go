@@ -19,13 +19,21 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	keyID := access.Params["access_key_id"]
 	secretAccessKey := access.Params["secret_access_key"]
 
-	sess, errSession := session.NewSession(&aws.Config{
-		Endpoint:         aws.String(endpoint),
+	conf := aws.Config{
 		Region:           aws.String(region),
-		Credentials:      credentials.NewStaticCredentials(keyID, secretAccessKey, ""),
 		DisableSSL:       aws.Bool(access.Params["disable_ssl"] == "true"),
 		S3ForcePathStyle: aws.Bool(access.Params["path_style"] == "true"),
-	})
+	}
+
+	if keyID != "" && secretAccessKey != "" {
+		conf.Credentials = credentials.NewStaticCredentials(keyID, secretAccessKey, "")
+	}
+
+	if endpoint != "" {
+		conf.Endpoint = aws.String(endpoint)
+	}
+
+	sess, errSession := session.NewSession(&conf)
 
 	if errSession != nil {
 		return nil, errSession
