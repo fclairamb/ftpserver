@@ -11,7 +11,7 @@ require (
 	github.com/pkg/sftp v1.12.0
 	github.com/spf13/afero v1.5.1
 	golang.org/x/crypto v0.0.0-20210218145215-b8e89b74b9df
-	golang.org/x/oauth2 v0.0.0-20210216194517-16ff1888fd2e
+	golang.org/x/oauth2 v0.0.0-20210218202405-ba52d332ba99
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/mail.v2 v2.3.1 // indirect
 )
