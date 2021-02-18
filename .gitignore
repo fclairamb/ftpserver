@@ -3,3 +3,4 @@ ftpserver
 .idea
 .vscode
 *.json
+vendor/

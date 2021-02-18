@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/afero/sftpfs"
 	"golang.org/x/crypto/ssh"
 
-	"github.com/fclairamb/ftpserver/config/confpar"
+	"github.com/moovfinancial/ftpserver/config/confpar"
 )
 
 // ConnectionError is returned when a connection occurs while connecting to the SFTP server

@@ -9,11 +9,11 @@ import (
 	"syscall"
 	"time"
 
-	ftpserver "github.com/fclairamb/ftpserverlib"
-	"github.com/fclairamb/ftpserverlib/log/gokit"
+	ftpserver "github.com/moovfinancial/ftpserverlib"
+	"github.com/moovfinancial/ftpserverlib/log/gokit"
 
-	"github.com/fclairamb/ftpserver/config"
-	"github.com/fclairamb/ftpserver/server"
+	"github.com/moovfinancial/ftpserver/config"
+	"github.com/moovfinancial/ftpserver/server"
 )
 
 var (

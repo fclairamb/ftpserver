@@ -9,11 +9,11 @@ import (
 
 	drv "github.com/fclairamb/afero-gdrive"
 	drvoa "github.com/fclairamb/afero-gdrive/oauthhelper"
-	"github.com/fclairamb/ftpserverlib/log"
+	"github.com/moovfinancial/ftpserverlib/log"
 	"github.com/spf13/afero"
 	"golang.org/x/oauth2"
 
-	"github.com/fclairamb/ftpserver/config/confpar"
+	"github.com/moovfinancial/ftpserver/config/confpar"
 )
 
 // ErrMissingGoogleClientCredentials is returned when you have specified the google_client_id and/or

@@ -13,7 +13,7 @@ import (
 	"github.com/go-mail/mail"
 	"github.com/spf13/afero"
 
-	"github.com/fclairamb/ftpserver/config/confpar"
+	"github.com/moovfinancial/ftpserver/config/confpar"
 )
 
 // ErrNotImplemented is returned when something is not implemented

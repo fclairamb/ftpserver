@@ -8,7 +8,7 @@ import (
 	s3 "github.com/fclairamb/afero-s3"
 	"github.com/spf13/afero"
 
-	"github.com/fclairamb/ftpserver/config/confpar"
+	"github.com/moovfinancial/ftpserver/config/confpar"
 )
 
 // LoadFs loads a file system from an access description

@@ -4,15 +4,15 @@ package fs
 import (
 	"fmt"
 
-	"github.com/fclairamb/ftpserverlib/log"
+	"github.com/moovfinancial/ftpserverlib/log"
 	"github.com/spf13/afero"
 
-	"github.com/fclairamb/ftpserver/config/confpar"
-	"github.com/fclairamb/ftpserver/fs/afos"
-	"github.com/fclairamb/ftpserver/fs/gdrive"
-	"github.com/fclairamb/ftpserver/fs/mail"
-	"github.com/fclairamb/ftpserver/fs/s3"
-	"github.com/fclairamb/ftpserver/fs/sftp"
+	"github.com/moovfinancial/ftpserver/config/confpar"
+	"github.com/moovfinancial/ftpserver/fs/afos"
+	"github.com/moovfinancial/ftpserver/fs/gdrive"
+	"github.com/moovfinancial/ftpserver/fs/mail"
+	"github.com/moovfinancial/ftpserver/fs/s3"
+	"github.com/moovfinancial/ftpserver/fs/sftp"
 )
 
 // UnsupportedFsError is returned when the described file system is not supported

@@ -6,10 +6,10 @@ import (
 	"errors"
 	"os"
 
-	"github.com/fclairamb/ftpserverlib/log"
+	"github.com/moovfinancial/ftpserverlib/log"
 
-	"github.com/fclairamb/ftpserver/config/confpar"
-	"github.com/fclairamb/ftpserver/fs"
+	"github.com/moovfinancial/ftpserver/config/confpar"
+	"github.com/moovfinancial/ftpserver/fs"
 )
 
 // ErrUnknownUser is returned when the provided user cannot be identified through our authentication mechanism

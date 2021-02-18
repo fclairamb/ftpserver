@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/fclairamb/ftpserver/config/confpar"
+	"github.com/moovfinancial/ftpserver/config/confpar"
 )
 
 // ErrMissingBasePath is triggered when the basePath property isn't specified

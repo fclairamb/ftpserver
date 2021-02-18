@@ -9,12 +9,12 @@ import (
 
 	"github.com/spf13/afero"
 
-	serverlib "github.com/fclairamb/ftpserverlib"
-	"github.com/fclairamb/ftpserverlib/log"
+	serverlib "github.com/moovfinancial/ftpserverlib"
+	"github.com/moovfinancial/ftpserverlib/log"
 
-	"github.com/fclairamb/ftpserver/config"
-	"github.com/fclairamb/ftpserver/fs"
-	"github.com/fclairamb/ftpserver/fs/fslog"
+	"github.com/moovfinancial/ftpserver/config"
+	"github.com/moovfinancial/ftpserver/fs"
+	"github.com/moovfinancial/ftpserver/fs/fslog"
 )
 
 // Server structure

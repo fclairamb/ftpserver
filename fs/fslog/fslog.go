@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/fclairamb/ftpserverlib/log"
+	"github.com/moovfinancial/ftpserverlib/log"
 )
 
 // File is a wrapper to log interactions around file accesses
