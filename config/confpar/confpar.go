@@ -33,4 +33,5 @@ type Content struct {
 	Accesses                 []*Access  `json:"accesses"`                    // Accesses offered to users
 	PassiveTransferPortRange *PortRange `json:"passive_transfer_port_range"` // Listen port range
 	Logging                  Logging    `json:"logging"`                     // Logging parameters
+	Inbound                  string     `json:"inbound"`                     // Inbound folder location
 }

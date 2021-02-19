@@ -366,6 +366,12 @@ github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742/go.mod h1:bx2lN
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/moovfinancial/ftpserverlib v0.12.1 h1:NQJriz32ejFNGTWNlqmx30BonAspq/qUMsygadN25Jc=
 github.com/moovfinancial/ftpserverlib v0.12.1/go.mod h1:ce/FNsuwgeJ+ds8uMi5T9BHfGLXeI0g60C3RZfKOmbQ=
+github.com/moovfinancial/ftpserverlib v0.12.2 h1:5Duf/EEhQAhP7Q1z+B2WrZfNxM5PCXMbVGlccTbKyHg=
+github.com/moovfinancial/ftpserverlib v0.12.2/go.mod h1:ce/FNsuwgeJ+ds8uMi5T9BHfGLXeI0g60C3RZfKOmbQ=
+github.com/moovfinancial/ftpserverlib v0.12.3 h1:i7rT3G2CKSMy8GaIdJIufQqm+ic2ef2LkeeZCFhpj/8=
+github.com/moovfinancial/ftpserverlib v0.12.3/go.mod h1:ce/FNsuwgeJ+ds8uMi5T9BHfGLXeI0g60C3RZfKOmbQ=
+github.com/moovfinancial/ftpserverlib v0.12.4 h1:t5I+TJcQAY1UmLAN/oOLT5tBAq+b2SlkERKWiBin7d4=
+github.com/moovfinancial/ftpserverlib v0.12.4/go.mod h1:ce/FNsuwgeJ+ds8uMi5T9BHfGLXeI0g60C3RZfKOmbQ=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/nats-io/jwt v0.3.0/go.mod h1:fRYCDE99xlTsqUzISS1Bi75UBJ6ljOJQOAAu5VglpSg=
 github.com/nats-io/jwt v0.3.2/go.mod h1:/euKqTS1ZD+zzjYrY7pseZrTtWQSjujC7xjPc8wL6eU=
@@ -457,6 +463,7 @@ github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81P
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=

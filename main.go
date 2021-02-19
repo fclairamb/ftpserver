@@ -3,6 +3,7 @@ package main
 
 import (
 	"flag"
+	"github.com/moovfinancial/ftpserver/fs"
 	"io/ioutil"
 	"os"
 	"os/signal"
@@ -60,6 +61,16 @@ func main() {
 	if errConfig != nil {
 		logger.Error("Can't load conf", "err", errConfig)
 		return
+	}
+
+	// Setup folders
+	for _, access := range conf.Content.Accesses {
+		fileSys, errAccess := fs.LoadFs(access, logger)
+		if errAccess != nil {
+			logger.Error("Config: Invalid access !", "err", errAccess, "username", access.User, "fs", access.Fs)
+			return
+		}
+		fileSys.Mkdir(conf.Content.Inbound, 0755)
 	}
 
 	// Loading the driver
@@ -134,7 +145,8 @@ func confFileContent() []byte {
   "passive_transfer_port_range": {
     "start": 2122,
     "end": 2130
-  }
+  },
+  "inbound": "inbound"
 }`
 
 	return []byte(str)
