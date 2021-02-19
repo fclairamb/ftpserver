@@ -4,3 +4,6 @@ ftpserver
 .vscode
 *.json
 vendor/
+bin/
+main.go
+main

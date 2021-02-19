@@ -3,6 +3,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/moovfinancial/ftpserver/fs"
 	"io/ioutil"
 	"os"
@@ -71,6 +72,8 @@ func main() {
 			return
 		}
 		fileSys.Mkdir(conf.Content.Inbound, 0777)
+		fileSys.Mkdir(conf.Content.Outbound, 0777)
+		fileSys.Mkdir(conf.Content.Returned, 0777)
 	}
 
 	// Loading the driver
@@ -110,9 +113,15 @@ func main() {
 func stop() {
 	driver.Stop()
 
+
+
 	if err := ftpServer.Stop(); err != nil {
 		ftpServer.Logger.Error("Problem stopping server", "err", err)
 	}
+}
+
+func cleanup() {
+	fmt.Println("stopping")
 }
 
 func signalHandler() {
@@ -123,8 +132,11 @@ func signalHandler() {
 		sig := <-ch
 
 		if sig == syscall.SIGTERM {
-			stop()
-			break
+			ftpServer.Logger.Error("STOPPING", )
+			//stop()
+			//break
+			cleanup()
+			os.Exit(1)
 		}
 	}
 }
@@ -146,7 +158,9 @@ func confFileContent() []byte {
     "start": 2122,
     "end": 2130
   },
-  "inbound": "inbound"
+  "inbound": "inbound",
+  "outbound": "outbound",
+  "returned": "returned"
 }`
 
 	return []byte(str)

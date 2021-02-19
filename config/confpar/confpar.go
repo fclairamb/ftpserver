@@ -34,4 +34,6 @@ type Content struct {
 	PassiveTransferPortRange *PortRange `json:"passive_transfer_port_range"` // Listen port range
 	Logging                  Logging    `json:"logging"`                     // Logging parameters
 	Inbound                  string     `json:"inbound"`                     // Inbound folder location
+	Outbound                 string     `json:"outbound"`                    // Outbound folder location
+	Returned                 string     `json:"returned"`                    // Returned folder location
 }

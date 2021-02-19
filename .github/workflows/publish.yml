@@ -1,0 +1,40 @@
+name: Publish Release
+
+on:
+  push:
+    branches: [ master ]
+    tags: [ "v*", "PR*" ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: self-hosted
+    steps:
+
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.14
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Install
+        run: make install
+
+      - name: Setup
+        run: make setup
+
+      - name: Check
+        run: make check
+
+      - name: Docker
+        run: make docker
+
+      - name: Docker push
+        run: make docker-push
+
+      - name: Teardown
+        if: ${{ always() }}
+        run: make teardown
