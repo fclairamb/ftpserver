@@ -70,7 +70,7 @@ func main() {
 			logger.Error("Config: Invalid access !", "err", errAccess, "username", access.User, "fs", access.Fs)
 			return
 		}
-		fileSys.Mkdir(conf.Content.Inbound, 0755)
+		fileSys.Mkdir(conf.Content.Inbound, 0777)
 	}
 
 	// Loading the driver
