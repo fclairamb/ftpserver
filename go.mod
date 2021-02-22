@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/aws/aws-sdk-go v1.37.15
 	github.com/fclairamb/afero-gdrive v0.2.0
-	github.com/fclairamb/afero-s3 v0.2.0
+	github.com/fclairamb/afero-s3 v0.3.0
 	github.com/fclairamb/ftpserverlib v0.12.0
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.12.0
