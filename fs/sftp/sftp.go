@@ -27,7 +27,7 @@ func (err ConnectionError) Error() string {
 func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	par := access.Params
 	config := &ssh.ClientConfig{
-		User: par["usename"],
+		User: par["username"],
 		Auth: []ssh.AuthMethod{
 			ssh.Password(par["password"]),
 		},
