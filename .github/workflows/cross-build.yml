@@ -15,14 +15,16 @@ jobs:
     strategy:
       matrix:
         # This feels clunky to copy/paste the same value twice. I couldn't find a way to register it *once*.
-        go: [ 1.15 ]
+        go: [ 1.16 ]
         target:
           # Linux
           - {os: linux, arch: amd64}
+          - {os: linux, arch: arm64}
           - {os: linux, arch: 386}
           - {os: linux, arch: arm}
           # MacOs
           - {os: darwin, arch: amd64}
+          - {os: darwin, arch: arm64}
           # Windows
           - {os: windows, arch: amd64, ext: .exe}
           - {os: windows, arch: 386, ext: .exe}
