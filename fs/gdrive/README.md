@@ -1,4 +1,4 @@
-# Google Drive Backend
+# Google Drive backend
 
 ## Parameters
 Possible parameters are:

@@ -9,6 +9,7 @@ import (
 
 	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs/afos"
+	"github.com/fclairamb/ftpserver/fs/dropbox"
 	"github.com/fclairamb/ftpserver/fs/gdrive"
 	"github.com/fclairamb/ftpserver/fs/mail"
 	"github.com/fclairamb/ftpserver/fs/s3"
@@ -41,6 +42,8 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 		fs, err = mail.LoadFs(access)
 	case "gdrive":
 		fs, err = gdrive.LoadFs(access, logger)
+	case "dropbox":
+		fs, err = dropbox.LoadFs(access)
 	default:
 		fs, err = nil, &UnsupportedFsError{Type: access.Fs}
 	}

@@ -14,12 +14,10 @@ This FTP server is a gateway between old-school FTP devices and modern cloud bas
 At the current stage, supported backend are:
 - Local disk
 - [S3](https://aws.amazon.com/s3/) through [afero-s3](https://github.com/fclairamb/afero-s3)
+- [Dropbox](https://www.dropbox.com/) (see [doc](https://github.com/fclairamb/ftpserver/tree/master/fs/dropbox)) through [afero-dropbox](https://github.com/fclairamb/afero-dropbox)
 - [Google Drive](https://developers.google.com/drive) (see [doc](https://github.com/fclairamb/ftpserver/tree/master/fs/gdrive)) through [afero-gdrive](https://github.com/fclairamb/afero-gdrive)
 - [SFTP](https://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol) through [afero's sftpfs](https://github.com/spf13/afero/)
 - Email through [go-mail](https://github.com/go-mail/mail) thanks to [@x-way](https://github.com/x-way)
-
-Planned FS are:
-- Dropbox
 
 ## Current status of the project
 
@@ -67,54 +65,71 @@ Here is a sample config file:
 
 ```json
 {
-  "version": 1,
-  "accesses": [
-    {
-      "user": "test",
-      "pass": "test",
-      "fs": "os",
-      "params": {
-        "basePath": "/tmp"
+   "version": 1,
+   "accesses": [
+      {
+         "user": "test",
+         "pass": "test",
+         "fs": "os",
+         "params": {
+            "basePath": "/tmp"
+         }
+      },
+      {
+         "user": "test",
+         "pass": "test",
+         "fs": "os",
+         "params": {
+            "basePath": "/tmp"
+         }
+      },
+      {
+         "user": "dropbox",
+         "pass": "dropbox",
+         "fs": "dropbox",
+         "params": {
+            "token": "..."
+         }
+      },
+      {
+         "user": "gdrive",
+         "pass": "gdrive",
+         "fs": "gdrive",
+         "params": {
+            "google_client_id": "***.apps.googleusercontent.com",
+            "google_client_secret": "****"
+         }
+      },
+      {
+         
+         "user": "s3",
+         "pass": "s3",
+         "fs": "s3",
+         "params": {
+            "endpoint": "https://s3.amazonaws.com",
+            "region": "eu-west-1",
+            "bucket": "my-bucket",
+            "access_key_id": "AKIA....",
+            "secret_access_key": "IDxd....",
+            "disable_ssl": "false",
+            "path_style": "false"
+         }
+      },
+      {
+         "user": "sftp",
+         "pass": "sftp",
+         "fs": "sftp",
+         "params": {
+            "username": "user",
+            "password": "password",
+            "hostname": "192.168.168.11:22"
+         }
       }
-    },
-    {
-      "user": "gdrive",
-      "pass": "gdrive",
-      "fs": "gdrive",
-      "params": {
-        "google_client_id": "***.apps.googleusercontent.com",
-        "google_client_secret": "****"
-      }
-    },
-    {
-      "user": "s3",
-      "pass": "s3",
-      "fs": "s3",
-      "params": {
-        "endpoint": "https://s3.amazonaws.com",
-        "region": "eu-west-1",
-        "bucket": "my-bucket",
-        "access_key_id": "AKIA....",
-        "secret_access_key": "IDxd....",
-        "disable_ssl": "false",
-        "path_style": "false"
-      }
-    },
-    {
-      "user": "sftp",
-      "pass": "sftp",
-      "fs": "sftp",
-      "params": {
-        "username": "user",
-        "password": "password",
-        "hostname": "192.168.168.11:22"
-      }
-    }
-  ],
-  "passive_transfer_port_range": {
-    "start": 2122,
-    "end": 2130
-  }
+   ],
+   "passive_transfer_port_range": {
+      "start": 2122,
+      "end": 2130
+   }
 }
 ```
 
