@@ -1,9 +1,10 @@
 # Golang FTP Server
 
 ![Build](https://github.com/fclairamb/ftpserver/workflows/Build/badge.svg)
-![Docker Image](https://github.com/fclairamb/ftpserver/workflows/Docker%20Image/badge.svg)
 ![Cross Build](https://github.com/fclairamb/ftpserver/workflows/Cross%20Build/badge.svg)
+![Docker Image](https://github.com/fclairamb/ftpserver/workflows/Docker%20Image/badge.svg)
 ![Docker test](https://github.com/fclairamb/ftpserver/workflows/Docker%20test/badge.svg)
+![Docker downloads](https://img.shields.io/docker/pulls/fclairamb/ftpserver)
 [![Go Report Card](https://goreportcard.com/badge/fclairamb/ftpserver)](https://goreportcard.com/report/fclairamb/ftpserver)
 [![GoDoc](https://godoc.org/github.com/fclairamb/ftpserver?status.svg)](https://godoc.org/github.com/fclairamb/ftpserver/server)
 
