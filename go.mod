@@ -7,7 +7,7 @@ require (
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.2.0
 	github.com/fclairamb/afero-s3 v0.3.0
-	github.com/fclairamb/ftpserverlib v0.13.1
+	github.com/fclairamb/ftpserverlib v0.13.2
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.0
 	github.com/spf13/afero v1.6.0
