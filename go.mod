@@ -9,7 +9,7 @@ require (
 	github.com/fclairamb/afero-s3 v0.3.0
 	github.com/fclairamb/ftpserverlib v0.13.2
 	github.com/go-mail/mail v2.3.1+incompatible
-	github.com/pkg/sftp v1.13.0
+	github.com/pkg/sftp v1.13.1
 	github.com/spf13/afero v1.6.0
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
 	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
