@@ -1,0 +1,10 @@
+version: '3.3'
+services:
+  ftpserver:
+    ports:
+      - '2121-2130:2121-2130'
+    volumes:
+      - ./ftpserver/files:/tmp
+      - ./ftpserver:/app
+    image: fclairamb/ftpserver
+    
