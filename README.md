@@ -160,7 +160,7 @@ There's also a containerized version of the server (15MB, based on alpine).
 
 ```sh
 # Starting the sample FTP server
-docker run --rm -d -p 2121-2130:2121-2130 fclairamb/ftpserver
+docker run --rm -d -p 2121-2130:2121-2130 -v ./ftpserver/files:/tmp -v ./ftpserver:/app fclairamb/ftpserver
 
 # Download some file
 [ -f kitty.jpg ] || (curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg)
@@ -173,4 +173,23 @@ curl ftp://test:test@localhost:2121/kitty.jpg -o kitty2.jpg
 
 # Compare it
 diff kitty.jpg kitty2.jpg
+```
+
+### With Docker Compose
+```yml
+# docker-compose.yml
+
+version: '3.3'
+services:
+  ftpserver:
+    ports:
+      - '2121-2130:2121-2130'
+    volumes:
+      - ./ftpserver/files:/tmp
+      - ./ftpserver:/app
+    image: fclairamb/ftpserver
+```
+
+```sh
+docker-compose up -d
 ```
