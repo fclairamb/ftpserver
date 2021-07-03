@@ -24,6 +24,17 @@ type Logging struct {
 	FileAccesses bool `json:"file_accesses"` // Log all file accesses
 }
 
+// TLS define the TLS Config
+type TLS struct {
+	ServerCert *ServerCert `json:"server_cert"`
+}
+
+// ServerCert defines the TLS server certificate config
+type ServerCert struct {
+	Cert string `json:"cert"`
+	Key  string `json:"key"`
+}
+
 // Content defines the content of the config file
 type Content struct {
 	Version                  int        `json:"version"`                     // File format version
@@ -33,4 +44,5 @@ type Content struct {
 	Accesses                 []*Access  `json:"accesses"`                    // Accesses offered to users
 	PassiveTransferPortRange *PortRange `json:"passive_transfer_port_range"` // Listen port range
 	Logging                  Logging    `json:"logging"`                     // Logging parameters
+	TLS                      *TLS       `json:"tls"`                         // TLS Config
 }

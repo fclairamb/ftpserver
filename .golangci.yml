@@ -42,6 +42,7 @@ linters-settings:
     # enable or disable analyzers by name
     enable:
       - atomicalign
+      # - fieldalignment
     enable-all: false
     disable:
       - shadow
@@ -209,7 +210,7 @@ linters:
     - prealloc
     - nolintlint
     - rowserrcheck
-    - scopelint
+    - exportloopref # replaces scopelint
     - staticcheck
     - structcheck
     - stylecheck
