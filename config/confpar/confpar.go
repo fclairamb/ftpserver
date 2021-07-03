@@ -26,13 +26,13 @@ type Logging struct {
 
 // TLS define the TLS Config
 type TLS struct {
-	ServerCert *ServerCert `json:"server_cert"`
+	ServerCert *ServerCert `json:"server_cert"` // Server certificates
 }
 
 // ServerCert defines the TLS server certificate config
 type ServerCert struct {
-	Cert string `json:"cert"`
-	Key  string `json:"key"`
+	Cert string `json:"cert"` // Public certificate(s)
+	Key  string `json:"key"`  // Private key
 }
 
 // Content defines the content of the config file
