@@ -244,6 +244,8 @@ github.com/aws/aws-sdk-go v1.40.5 h1:VpJdcoOBq/BgyWAG+P8Ski8MpTUAIQdsqJK10+623AE
 github.com/aws/aws-sdk-go v1.40.5/go.mod h1:585smgzpB/KqRA+K3y/NL/oYRqQvpNJYvLm+LY1U59Q=
 github.com/aws/aws-sdk-go v1.40.6 h1:JCQfi5MD8cW0PCAzr88hj9tj4BdEJkAy8EyAJ6c8I/k=
 github.com/aws/aws-sdk-go v1.40.6/go.mod h1:585smgzpB/KqRA+K3y/NL/oYRqQvpNJYvLm+LY1U59Q=
+github.com/aws/aws-sdk-go v1.40.7 h1:dD5+UZxedqHeE4WakJHEhTsEARYlq8kHkYEf89R1tEo=
+github.com/aws/aws-sdk-go v1.40.7/go.mod h1:585smgzpB/KqRA+K3y/NL/oYRqQvpNJYvLm+LY1U59Q=
 github.com/aws/aws-sdk-go-v2 v0.18.0/go.mod h1:JWVYvqSMppoMJC0x5wdwiImzgXTI9FuZwxzkQq9wy+g=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
