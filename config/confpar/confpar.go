@@ -3,12 +3,20 @@ package confpar
 
 // Access provides rules around any access
 type Access struct {
-	User     string            `json:"user"`      // User authenticating
-	Pass     string            `json:"pass"`      // Password used for authentication
-	Fs       string            `json:"fs"`        // Backend used for accessing file
-	Params   map[string]string `json:"params"`    // Backend parameters
-	Logging  Logging           `json:"logging"`   // Logging parameters
-	ReadOnly bool              `json:"read_only"` // Read-only access
+	User          string            `json:"user"`            // User authenticating
+	Pass          string            `json:"pass"`            // Password used for authentication
+	Fs            string            `json:"fs"`              // Backend used for accessing file
+	Params        map[string]string `json:"params"`          // Backend parameters
+	Logging       Logging           `json:"logging"`         // Logging parameters
+	ReadOnly      bool              `json:"read_only"`       // Read-only access
+	Shared        bool              `json:"shared"`          // Shared FS instance
+	SyncAndDelete *SyncAndDelete    `json:"sync_and_delete"` // Local empty directory and synchronization
+}
+
+// SyncAndDelete provides
+type SyncAndDelete struct {
+	Enable    bool   `json:"enable"`    // Instant write
+	Directory string `json:"directory"` // Directory
 }
 
 // PortRange defines a port-range

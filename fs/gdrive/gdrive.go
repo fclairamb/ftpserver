@@ -69,6 +69,7 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 			fmt.Printf("Please go to %s and enter the received code:\n", url)
 			var code string
 			_, errScan := fmt.Scan(&code)
+
 			return code, errScan
 		},
 	}

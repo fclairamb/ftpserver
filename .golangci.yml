@@ -42,13 +42,11 @@ linters-settings:
     # enable or disable analyzers by name
     enable:
       - atomicalign
+    #  - fieldalignment
     enable-all: false
     disable:
       - shadow
     disable-all: false
-  golint:
-    # minimal confidence for issues, default is 0.8
-    min-confidence: 0
   gofmt:
     # simplify code: gofmt with `-s` option, true by default
     simplify: true
@@ -119,15 +117,6 @@ linters-settings:
     range-loops: true # Report preallocation suggestions on range loops, true by default
     for-loops: false # Report preallocation suggestions on for loops, false by default
   gocritic:
-    # Which checks should be enabled; can't be combined with 'disabled-checks';
-    # See https://go-critic.github.io/overview#checks-overview
-    # To check which checks are enabled run `GL_DEBUG=gocritic golangci-lint run`
-    # By default list of stable checks is used.
-    enabled-checks:
-
-    # Which checks should be disabled; can't be combined with 'enabled-checks'; default is empty
-    disabled-checks:
-
     # Enable multiple checks by tags, run `GL_DEBUG=gocritic golangci-lint run` to see all tags and checks.
     # Empty list by default. See https://github.com/go-critic/go-critic#usage -> section "Tags".
     enabled-tags:
@@ -150,7 +139,7 @@ linters-settings:
     max-blank-identifiers: 2
 
   whitespace:
-    multi-if: false   # Enforces newlines (or comments) after every multi-line if statement
+    multi-if: false # Enforces newlines (or comments) after every multi-line if statement
     multi-func: false # Enforces newlines (or comments) after every multi-line function signature
   wsl:
     # If true append is only allowed to be cuddled if appending value is
@@ -169,6 +158,7 @@ linters-settings:
     force-case-trailing-whitespace: 0
 
 linters:
+  disable-all: true
   enable:
     - bodyclose
     - deadcode
@@ -191,25 +181,26 @@ linters:
     - goerr113
     - gofmt
     - goimports
-    - golint
+    # - golint #deprecated
     - gomnd
     - goprintffuncname
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
+    # - interfacer #deprecated
     - lll
-    - maligned
+    # - maligned
     - megacheck
     - misspell
     - nakedret
     - nestif
-    # - nlreturn
+    - nlreturn
     - prealloc
     - nolintlint
+    - revive
     - rowserrcheck
-    - scopelint
+    # - scopelint #deprecated
     - staticcheck
     - structcheck
     - stylecheck
@@ -221,10 +212,6 @@ linters:
     - whitespace
     # - wrapcheck
     - wsl
-  disable-all: false
-  presets:
-    - bugs
-    - unused
   fast: false
 
 issues:
