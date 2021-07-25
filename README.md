@@ -139,6 +139,11 @@ Here is a sample config file:
 }
 ```
 
+You can generate the TLS key pair files with the following command:
+```bash
+openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out cert.pem -keyout key.pem
+```
+
 ### With local binary
 You can build the binary and use it directly:
 
