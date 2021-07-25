@@ -50,7 +50,7 @@ func main() {
 		if _, err := os.Stat(confFile); err != nil && os.IsNotExist(err) {
 			logger.Warn("No conf file, creating one", "confFile", confFile)
 
-			if err := ioutil.WriteFile(confFile, confFileContent(), 0600); err != nil {
+			if err := ioutil.WriteFile(confFile, confFileContent(), 0600); err != nil { // nolint: gomnd
 				logger.Warn("Couldn't create conf file", "confFile", confFile)
 			}
 		}
@@ -59,6 +59,7 @@ func main() {
 	conf, errConfig := config.NewConfig(confFile, logger)
 	if errConfig != nil {
 		logger.Error("Can't load conf", "err", errConfig)
+
 		return
 	}
 
@@ -68,6 +69,7 @@ func main() {
 
 	if errNewServer != nil {
 		logger.Error("Could not load the driver", "err", errNewServer)
+
 		return
 	}
 
@@ -83,6 +85,7 @@ func main() {
 	// Blocking call, behaving similarly to the http.ListenAndServe
 	if onlyConf {
 		logger.Warn("Only creating conf")
+
 		return
 	}
 
@@ -113,6 +116,7 @@ func signalHandler() {
 
 		if sig == syscall.SIGTERM {
 			stop()
+
 			break
 		}
 	}

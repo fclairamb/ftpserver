@@ -4,6 +4,7 @@ package fs
 import (
 	"fmt"
 
+	snd "github.com/fclairamb/afero-snd"
 	"github.com/fclairamb/ftpserverlib/log"
 	"github.com/spf13/afero"
 
@@ -48,8 +49,22 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 		fs, err = nil, &UnsupportedFsError{Type: access.Fs}
 	}
 
-	if err != nil && access.ReadOnly {
+	if err == nil && access.ReadOnly {
 		fs = afero.NewReadOnlyFs(fs)
+	}
+
+	// If we're defining a dubious behavior, we can use it
+	if err == nil && access != nil && access.SyncAndDelete != nil && access.SyncAndDelete.Enable {
+		var temp afero.Fs
+
+		if access.SyncAndDelete.Directory != "" {
+			temp = afero.NewBasePathFs(afero.NewOsFs(), access.SyncAndDelete.Directory)
+		}
+
+		fs, err = snd.NewFs(&snd.Config{
+			Destination: fs,
+			Temporary:   temp,
+		})
 	}
 
 	return fs, err
