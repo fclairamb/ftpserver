@@ -15,6 +15,7 @@ import (
 	"github.com/fclairamb/ftpserverlib/log"
 
 	"github.com/fclairamb/ftpserver/config"
+	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs"
 	"github.com/fclairamb/ftpserver/fs/fslog"
 )
@@ -29,6 +30,18 @@ type Server struct { // nolint: maligned
 	tlsOnce         sync.Once
 	tlsConfig       *tls.Config
 	tlsError        error
+	accesses        *fsCache
+}
+
+type fsCache struct {
+	sync.Mutex
+	accesses map[string]afero.Fs
+}
+
+func newFsCache() *fsCache {
+	return &fsCache{
+		accesses: make(map[string]afero.Fs),
+	}
 }
 
 // ErrTimeout is returned when an operation timeouts
@@ -43,8 +56,9 @@ var ErrNotEnabled = errors.New("not enabled")
 // NewServer creates a server instance
 func NewServer(config *config.Config, logger log.Logger) (*Server, error) {
 	return &Server{
-		config: config,
-		logger: logger,
+		config:   config,
+		logger:   logger,
+		accesses: newFsCache(),
 	}, nil
 }
 
@@ -52,7 +66,7 @@ func NewServer(config *config.Config, logger log.Logger) (*Server, error) {
 func (s *Server) GetSettings() (*serverlib.Settings, error) {
 	conf := s.config.Content
 
-	var portRange *serverlib.PortRange = nil
+	var portRange *serverlib.PortRange
 
 	if conf.PassiveTransferPortRange != nil {
 		portRange = &serverlib.PortRange{
@@ -132,6 +146,26 @@ func (s *Server) considerEnd() {
 	}
 }
 
+func (s *Server) loadFs(access *confpar.Access) (afero.Fs, error) {
+	cache := s.accesses
+	cache.Lock()
+	defer cache.Unlock()
+
+	if cachedFs := cache.accesses[access.User]; cachedFs != nil {
+		s.logger.Debug("Reusing fs instance", "user", access.User)
+
+		return cachedFs, nil
+	}
+
+	newFs, err := fs.LoadFs(access, s.logger)
+	if access.Shared {
+		s.logger.Debug("Saving fs instance for later use", "user", access.User, "fsType", newFs.Name())
+		cache.accesses[access.User] = newFs
+	}
+
+	return newFs, err
+}
+
 // AuthUser authenticates the user and selects an handling driver
 func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (serverlib.ClientDriver, error) {
 	access, errAccess := s.config.GetAccess(user, pass)
@@ -139,7 +173,7 @@ func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (server
 		return nil, errAccess
 	}
 
-	accFs, errFs := fs.LoadFs(access, s.logger)
+	accFs, errFs := s.loadFs(access)
 
 	if errFs != nil {
 		return nil, errFs

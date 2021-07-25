@@ -183,6 +183,7 @@ func (f *File) WriteAt(b []byte, off int64) (int, error) {
 
 func (f *File) Write(b []byte) (int, error) {
 	f.Content = append(f.Content, b...)
+
 	return len(b), nil
 }
 

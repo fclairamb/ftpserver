@@ -60,6 +60,7 @@ func (c *Config) Load() error {
 	var content confpar.Content
 	if errDecode := decoder.Decode(&content); errDecode != nil {
 		c.logger.Error("Cannot decode file", "err", errDecode)
+
 		return errDecode
 	}
 
@@ -88,6 +89,7 @@ func (c *Config) CheckAccesses() error {
 		_, errAccess := fs.LoadFs(access, c.logger)
 		if errAccess != nil {
 			c.logger.Error("Config: Invalid access !", "err", errAccess, "username", access.User, "fs", access.Fs)
+
 			return errAccess
 		}
 	}
