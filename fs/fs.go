@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	snd "github.com/fclairamb/afero-snd"
-	"github.com/fclairamb/ftpserverlib/log"
+	log "github.com/fclairamb/go-log"
 	"github.com/spf13/afero"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
@@ -42,7 +42,7 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 	case "mail":
 		fs, err = mail.LoadFs(access)
 	case "gdrive":
-		fs, err = gdrive.LoadFs(access, logger)
+		fs, err = gdrive.LoadFs(access, logger.With("component", "gdrive"))
 	case "dropbox":
 		fs, err = dropbox.LoadFs(access)
 	default:
@@ -64,6 +64,7 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 		fs, err = snd.NewFs(&snd.Config{
 			Destination: fs,
 			Temporary:   temp,
+			Logger:      logger.With("component", "snd"),
 		})
 	}
 

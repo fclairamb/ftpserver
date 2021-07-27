@@ -6,7 +6,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/fclairamb/ftpserverlib/log"
+	log "github.com/fclairamb/go-log"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs"

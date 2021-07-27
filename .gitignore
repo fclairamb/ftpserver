@@ -4,3 +4,4 @@ ftpserver
 .vscode
 *.json
 *.pem
+__debug__bin
