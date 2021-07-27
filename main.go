@@ -10,7 +10,7 @@ import (
 	"time"
 
 	ftpserver "github.com/fclairamb/ftpserverlib"
-	"github.com/fclairamb/ftpserverlib/log/gokit"
+	"github.com/fclairamb/go-log/gokit"
 
 	"github.com/fclairamb/ftpserver/config"
 	"github.com/fclairamb/ftpserver/server"
