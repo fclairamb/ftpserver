@@ -131,6 +131,8 @@ github.com/fclairamb/afero-s3 v0.3.0 h1:yqgJDvVY9XHetHqSrUkXy/YoNWpVvuCRX7yfC6pc
 github.com/fclairamb/afero-s3 v0.3.0/go.mod h1:jOjRl8+IamjtYgZTDagbLP6+cdarjuigsm6V7cP4LZA=
 github.com/fclairamb/afero-snd v0.0.0-20210725192044-a2d6c522f7ed h1:sCJUKutjhNiGMCB5ElkKScjP9Xh5TiLe9FutIUJMnJY=
 github.com/fclairamb/afero-snd v0.0.0-20210725192044-a2d6c522f7ed/go.mod h1:3KupVhrtzquMmydX3IGUbhLVbW/KXrg9QonyJtmHITY=
+github.com/fclairamb/afero-snd v0.1.0 h1:eQ28zAnjamm+4wxl/NlzP7LYZaSTx9fNqPHPvNLfQE0=
+github.com/fclairamb/afero-snd v0.1.0/go.mod h1:3KupVhrtzquMmydX3IGUbhLVbW/KXrg9QonyJtmHITY=
 github.com/fclairamb/ftpserverlib v0.14.0 h1:hF7cOVgihzmUwC4+i31iZ8MeCwK5IUipSZEDi4g6G4w=
 github.com/fclairamb/ftpserverlib v0.14.0/go.mod h1:ATLgn4bHgiM9+vfZbK+rMu/dqgkxO5nk94x/9f8ffDI=
 github.com/fclairamb/go-log v0.0.0-20210717204555-d370617e3635 h1:LnQGTX50HKMdM3yGt5RlYN4JR8gOYuwa+qB4LkSzfuM=
