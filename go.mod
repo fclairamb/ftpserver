@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/aws/aws-sdk-go v1.40.7
 	github.com/fclairamb/afero-dropbox v0.1.0
-	github.com/fclairamb/afero-gdrive v0.2.0
+	github.com/fclairamb/afero-gdrive v0.3.0
 	github.com/fclairamb/afero-s3 v0.3.0
 	github.com/fclairamb/afero-snd v0.0.0-20210725192044-a2d6c522f7ed
 	github.com/fclairamb/ftpserverlib v0.14.0
