@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/afero"
 
-	"github.com/fclairamb/ftpserverlib/log"
+	log "github.com/fclairamb/go-log"
 )
 
 // File is a wrapper to log interactions around file accesses

@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/afero"
 
 	serverlib "github.com/fclairamb/ftpserverlib"
-	"github.com/fclairamb/ftpserverlib/log"
+	log "github.com/fclairamb/go-log"
 
 	"github.com/fclairamb/ftpserver/config"
 	"github.com/fclairamb/ftpserver/config/confpar"
