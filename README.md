@@ -61,13 +61,23 @@ go get -u github.com/fclairamb/ftpserver
 ```
 
 ### Config file
-If you don't create a `ftpserver.json` file, it will be created for you.
+If you don't create a `ftpserver.json` file, one will be created for you.
 
 Here is a sample config file:
 
 ```json
 {
    "version": 1,
+   "passive_transfer_port_range": {
+      "start": 2122,
+      "end": 2130
+   },
+   "tls": {
+      "server_cert": {
+         "cert": "cert.pem",
+         "key": "key.pem"
+      }
+   },
    "accesses": [
       {
          "user": "test",
@@ -103,7 +113,7 @@ Here is a sample config file:
          }
       },
       {
-         
+
          "user": "s3",
          "pass": "s3",
          "fs": "s3",
@@ -127,12 +137,13 @@ Here is a sample config file:
             "hostname": "192.168.168.11:22"
          }
       }
-   ],
-   "passive_transfer_port_range": {
-      "start": 2122,
-      "end": 2130
-   }
+   ]
 }
+```
+
+You can generate the TLS key pair files with the following command:
+```bash
+openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out cert.pem -keyout key.pem
 ```
 
 ### With local binary
@@ -158,7 +169,7 @@ diff kitty.jpg kitty2.jpg
 ```
 
 ### With docker
-There's also a containerized version of the server (15MB, based on alpine).
+There's also a containerized version of the server (31MB, based on alpine).
 
 ```sh
 # Starting the sample FTP server

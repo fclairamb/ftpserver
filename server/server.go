@@ -4,6 +4,8 @@ package server
 import (
 	"crypto/tls"
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"sync"
 	"time"
 
@@ -19,12 +21,15 @@ import (
 )
 
 // Server structure
-type Server struct {
+type Server struct { // nolint: maligned
 	config          *config.Config
 	logger          log.Logger
 	nbClients       uint32
 	nbClientsSync   sync.Mutex
 	zeroClientEvent chan error
+	tlsOnce         sync.Once
+	tlsConfig       *tls.Config
+	tlsError        error
 	accesses        *fsCache
 }
 
@@ -43,7 +48,10 @@ func newFsCache() *fsCache {
 var ErrTimeout = errors.New("timeout")
 
 // ErrNotImplemented is returned when we're using something that has not been implemented yet
-var ErrNotImplemented = errors.New("not implemented")
+// var ErrNotImplemented = errors.New("not implemented")
+
+// ErrNotEnabled is returned when a feature hasn't been enabled
+var ErrNotEnabled = errors.New("not enabled")
 
 // NewServer creates a server instance
 func NewServer(config *config.Config, logger log.Logger) (*Server, error) {
@@ -202,8 +210,43 @@ type ClientDriver struct {
 	afero.Fs
 }
 
+func (s *Server) loadTLSConfig() (*tls.Config, error) {
+	tlsConf := s.config.Content.TLS
+	if tlsConf == nil || tlsConf.ServerCert == nil {
+		return nil, ErrNotEnabled
+	}
+
+	serverCert := tlsConf.ServerCert
+
+	certBytes, errReadFileCert := ioutil.ReadFile(serverCert.Cert)
+	if errReadFileCert != nil {
+		return nil, fmt.Errorf("could not load cert file: %s: %w", serverCert.Cert, errReadFileCert)
+	}
+
+	keyBytes, errReadFileKey := ioutil.ReadFile(serverCert.Key)
+	if errReadFileKey != nil {
+		return nil, fmt.Errorf("could not load key file: %s: %w", serverCert.Cert, errReadFileCert)
+	}
+
+	keypair, errKeyPair := tls.X509KeyPair(certBytes, keyBytes)
+	if errKeyPair != nil {
+		return nil, fmt.Errorf("could not parse key pairs: %w", errKeyPair)
+	}
+
+	return &tls.Config{
+		MinVersion:   tls.VersionTLS12,
+		Certificates: []tls.Certificate{keypair},
+	}, nil
+}
+
 // GetTLSConfig returns a TLS Certificate to use
 // The certificate could frequently change if we use something like "let's encrypt"
 func (s *Server) GetTLSConfig() (*tls.Config, error) {
-	return nil, ErrNotImplemented
+	// The function is called every single time a control or transfer connection requires a TLS connection. As such
+	// it's important to cache it.
+	s.tlsOnce.Do(func() {
+		s.tlsConfig, s.tlsError = s.loadTLSConfig()
+	})
+
+	return s.tlsConfig, s.tlsError
 }

@@ -200,7 +200,7 @@ linters:
     - nolintlint
     - revive
     - rowserrcheck
-    # - scopelint #deprecated
+    - exportloopref # replaces scopelint
     - staticcheck
     - structcheck
     - stylecheck

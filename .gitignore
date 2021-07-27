@@ -3,4 +3,5 @@ ftpserver
 .idea
 .vscode
 *.json
+*.pem
 __debug__bin
