@@ -11,7 +11,7 @@ require (
 	github.com/fclairamb/afero-gdrive v0.3.0
 	github.com/fclairamb/afero-s3 v0.3.0
 	github.com/fclairamb/afero-snd v0.1.0
-	github.com/fclairamb/ftpserverlib v0.14.1-0.20210727203929-61f871ae46fc
+	github.com/fclairamb/ftpserverlib v0.15.0
 	github.com/fclairamb/go-log v0.1.0
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
