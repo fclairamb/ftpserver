@@ -6,7 +6,7 @@ require (
 	github.com/apache/thrift v0.13.0 // indirect
 	github.com/aryann/difflib v0.0.0-20170710044230-e206f873d14a // indirect
 	github.com/aws/aws-lambda-go v1.13.3 // indirect
-	github.com/aws/aws-sdk-go v1.40.20
+	github.com/aws/aws-sdk-go v1.40.21
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.3.0
 	github.com/fclairamb/afero-s3 v0.3.0
