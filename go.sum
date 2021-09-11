@@ -201,6 +201,8 @@ github.com/fclairamb/ftpserverlib v0.14.1-0.20210727203929-61f871ae46fc h1:U5mPc
 github.com/fclairamb/ftpserverlib v0.14.1-0.20210727203929-61f871ae46fc/go.mod h1:KNoFofEUEz2PvH8vzZi+lUWZ2/NgCIdAjL0s+AMTbRQ=
 github.com/fclairamb/ftpserverlib v0.15.0 h1:3MmdkZy8orZwemZLgwIdCwcyac3hCH2PcBFo5S/F7AM=
 github.com/fclairamb/ftpserverlib v0.15.0/go.mod h1:+Doq95UijHTIaJcWREhyu9dyQOqyoULbVU3OXgs8wEI=
+github.com/fclairamb/ftpserverlib v0.16.0 h1:uATwg14csmYcYaf3n7G16FCzuqYYI28PjBL4Jsk+yXo=
+github.com/fclairamb/ftpserverlib v0.16.0/go.mod h1:+Doq95UijHTIaJcWREhyu9dyQOqyoULbVU3OXgs8wEI=
 github.com/fclairamb/go-log v0.0.0-20210717204555-d370617e3635 h1:LnQGTX50HKMdM3yGt5RlYN4JR8gOYuwa+qB4LkSzfuM=
 github.com/fclairamb/go-log v0.0.0-20210717204555-d370617e3635/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
 github.com/fclairamb/go-log v0.0.0-20210725225107-80efc81cb386 h1:f/v/Fr+f7LiOKbMJlBuQPRmqrsYUXDzm1dpCJ29j9yo=
