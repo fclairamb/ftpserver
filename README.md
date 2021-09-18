@@ -54,10 +54,70 @@ These features are brought by [ftpserverlib](https://github.com/fclairamb/ftpser
 ## Getting started
 
 ### Get it
-#### Golang
+
+#### Download it
+Fetch a binary from the [latest release](/releases) and run it.
+
+#### Build it
 
 ```bash
-go get -u github.com/fclairamb/ftpserver
+go install github.com/fclairamb/ftpserver@main
+```
+
+#### Run it with docker
+There's also a containerized version of the server (31MB, based on alpine).
+
+```sh
+# Starting the sample FTP server
+docker run --rm -d -p 2121-2130:2121-2130 -v ./ftpserver/files:/tmp -v ./ftpserver:/app fclairamb/ftpserver
+
+# Download some file
+[ -f kitty.jpg ] || (curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg)
+
+# Upload it
+curl -v -T kitty.jpg ftp://test:test@localhost:2121/
+
+# Download it back
+curl ftp://test:test@localhost:2121/kitty.jpg -o kitty2.jpg
+
+# Compare it
+diff kitty.jpg kitty2.jpg
+```
+
+#### Run it with docker compose
+```yml
+# docker-compose.yml
+
+version: '3.3'
+services:
+  ftpserver:
+    ports:
+      - '2121-2130:2121-2130'
+    volumes:
+      - ./ftpserver/files:/tmp
+      - ./ftpserver:/app
+    image: fclairamb/ftpserver
+```
+
+```sh
+docker-compose up -d
+```
+
+### Test it
+This is a quick way to see if it's working correctly:
+
+```sh
+# Download some file
+[ -f kitty.jpg ] || (curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg)
+
+# Upload it to the server
+curl -v -T kitty.jpg ftp://test:test@localhost:2121/
+
+# Download it back
+curl ftp://test:test@localhost:2121/kitty.jpg -o kitty2.jpg
+
+# Compare it
+diff kitty.jpg kitty2.jpg
 ```
 
 ### Config file
@@ -144,65 +204,4 @@ Here is a sample config file:
 You can generate the TLS key pair files with the following command:
 ```bash
 openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out cert.pem -keyout key.pem
-```
-
-### With local binary
-You can build the binary and use it directly:
-
-```sh
-# Get and install the server
-go get github.com/fclairamb/ftpserver
-
-ftpserver &
-
-# Download some file
-[ -f kitty.jpg ] || (curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg)
-
-# Upload it to the server
-curl -v -T kitty.jpg ftp://test:test@localhost:2121/
-
-# Download it back
-curl ftp://test:test@localhost:2121/kitty.jpg -o kitty2.jpg
-
-# Compare it
-diff kitty.jpg kitty2.jpg
-```
-
-### With docker
-There's also a containerized version of the server (31MB, based on alpine).
-
-```sh
-# Starting the sample FTP server
-docker run --rm -d -p 2121-2130:2121-2130 -v ./ftpserver/files:/tmp -v ./ftpserver:/app fclairamb/ftpserver
-
-# Download some file
-[ -f kitty.jpg ] || (curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg)
-
-# Upload it
-curl -v -T kitty.jpg ftp://test:test@localhost:2121/
-
-# Download it back
-curl ftp://test:test@localhost:2121/kitty.jpg -o kitty2.jpg
-
-# Compare it
-diff kitty.jpg kitty2.jpg
-```
-
-### With Docker Compose
-```yml
-# docker-compose.yml
-
-version: '3.3'
-services:
-  ftpserver:
-    ports:
-      - '2121-2130:2121-2130'
-    volumes:
-      - ./ftpserver/files:/tmp
-      - ./ftpserver:/app
-    image: fclairamb/ftpserver
-```
-
-```sh
-docker-compose up -d
 ```
