@@ -26,7 +26,7 @@ require (
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5 // indirect
 	github.com/pact-foundation/pact-go v1.0.4 // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
-	github.com/pkg/sftp v1.13.3
+	github.com/pkg/sftp v1.13.4
 	github.com/samuel/go-zookeeper v0.0.0-20190923202752-2cc03de413da // indirect
 	github.com/spf13/afero v1.6.0
 	go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738 // indirect
