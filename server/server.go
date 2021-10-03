@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"sync"
 	"time"
 
@@ -75,9 +76,39 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		}
 	}
 
+	var ph = ""
+	addr := net.ParseIP(conf.PublicHost)
+	if addr != nil {
+		ph = conf.PublicHost
+	}
+
 	return &serverlib.Settings{
-		ListenAddr:               conf.ListenAddress,
-		PublicHost:               conf.PublicHost,
+		ListenAddr: conf.ListenAddress,
+		PublicHost: ph,
+		PublicIPResolver: func(c serverlib.ClientContext) (string, error) {
+			var ip = ""
+			addresses, err := net.LookupIP(conf.PublicHost)
+
+			if err == nil {
+				for i := 0; i < len(addresses); i++ {
+
+					if addresses[i].IsPrivate() {
+						continue
+					}
+
+					ip = addresses[i].String()
+					break
+				}
+
+				if ip == "" {
+					ip = string(addresses[0])
+				}
+
+				fmt.Printf("%s -> %s \n", conf.PublicHost, ip)
+			}
+
+			return ip, err
+		},
 		PassiveTransferPortRange: portRange,
 	}, nil
 }
