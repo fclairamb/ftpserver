@@ -1,5 +1,5 @@
 # Should be started with:
-# docker run -ti -p 2121-2130:2121-2130 fclairamb/ftpserver
+# docker run -ti -p 2121-2130:2121-2130 kavenzero/ftpserver
 
 # Preparing the build environment
 FROM golang:1.17-alpine AS builder

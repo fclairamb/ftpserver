@@ -6,5 +6,5 @@ services:
     volumes:
       - ./ftpserver/files:/tmp
       - ./ftpserver:/app
-    image: fclairamb/ftpserver
+    image: kavenzero/ftpserver
     
