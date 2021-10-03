@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
@@ -57,6 +56,10 @@ var ErrTimeout = errors.New("timeout")
 // ErrNotEnabled is returned when a feature hasn't been enabled
 var ErrNotEnabled = errors.New("not enabled")
 
+var last_public_ip string = ""
+var is_resolving bool = false
+var last_resolve_time int64 = 0
+
 // NewServer creates a server instance
 func NewServer(config *config.Config, logger log.Logger) (*Server, error) {
 	return &Server{
@@ -64,6 +67,93 @@ func NewServer(config *config.Config, logger log.Logger) (*Server, error) {
 		logger:   logger,
 		accesses: newFsCache(),
 	}, nil
+}
+
+func ResolvePublicHost(host string) {
+	if is_resolving {
+		return
+	}
+
+	if last_public_ip != "" {
+		if time.Now().Unix()-last_resolve_time < 60 {
+			return
+		}
+	}
+
+	is_resolving = true
+
+	var ip = ""
+	var addresses []net.IP = nil
+	var err error = nil
+
+	r := &net.Resolver{
+		PreferGo: true,
+		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			d := net.Dialer{
+				Timeout: time.Millisecond * time.Duration(500),
+			}
+			return d.DialContext(ctx, network, "223.5.5.5")
+		},
+	}
+
+	if host != "" {
+		addresses, err = r.LookupIP(context.Background(), "ip", host)
+		if err == nil {
+			for i := 0; i < len(addresses); i++ {
+
+				if addresses[i].IsPrivate() {
+					continue
+				}
+
+				fmt.Println("resolve use 223.5.5.5")
+				ip = addresses[i].String()
+				break
+			}
+		}
+	}
+
+	if ip == "" {
+		resp, err := http.Get("https://ip.kaven.xyz/")
+		if err == nil && resp.StatusCode == 200 {
+			body, err := ioutil.ReadAll(resp.Body)
+			if err == nil {
+				fmt.Println("resolve use http")
+				ip = string(body)
+			}
+		}
+	}
+
+	if ip == "" && host != "" {
+		addresses, err = net.LookupIP(host)
+		if err == nil {
+			for i := 0; i < len(addresses); i++ {
+
+				if addresses[i].IsPrivate() {
+					continue
+				}
+
+				ip = addresses[i].String()
+				fmt.Println("resolve use default")
+				break
+			}
+		}
+
+		if ip == "" {
+			ip = addresses[0].String()
+		}
+	}
+
+	if ip != "" {
+		last_public_ip = ip
+		last_resolve_time = time.Now().Unix()
+		err = nil
+	}
+
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+	}
+
+	is_resolving = false
 }
 
 // GetSettings returns some general settings around the server setup
@@ -89,95 +179,21 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		ListenAddr: conf.ListenAddress,
 		PublicHost: ph,
 		PublicIPResolver: func(c serverlib.ClientContext) (string, error) {
-			var ip = ""
-			var addresses []net.IP = nil
-			var err error = nil
 
-			r_ip := c.RemoteAddr().String()
-			parts := strings.Split(r_ip, ":")
-			if len(parts) == 2 {
-				r_ip = parts[0]
+			if last_public_ip != "" {
+				fmt.Printf("%s -> %s \n", conf.PublicHost, last_public_ip)
+				go ResolvePublicHost(conf.PublicHost)
+				return last_public_ip, nil
 			} else {
-				r_ip = strings.Split(strings.Split(r_ip, "[")[1], "]")[0]
-			}
+				ResolvePublicHost(conf.PublicHost)
 
-			r_addr := net.ParseIP(r_ip)
-			if r_addr.IsLoopback() {
-				return r_ip, nil
-			}
-
-			is_private := r_addr.IsPrivate()
-
-			if !is_private {
-				r := &net.Resolver{
-					PreferGo: true,
-					Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-						d := net.Dialer{
-							Timeout: time.Millisecond * time.Duration(2000),
-						}
-						return d.DialContext(ctx, network, "223.5.5.5")
-					},
-				}
-
-				addresses, err = r.LookupIP(context.Background(), "ip", conf.PublicHost)
-				if err == nil {
-					for i := 0; i < len(addresses); i++ {
-
-						if addresses[i].IsPrivate() {
-							continue
-						}
-
-						ip = addresses[i].String()
-						break
-					}
-				}
-
-				if ip == "" {
-					resp, err := http.Get("https://ip.kaven.xyz/")
-					if err == nil && resp.StatusCode == 200 {
-						body, err := ioutil.ReadAll(resp.Body)
-						if err == nil {
-							ip = string(body)
-						}
-					}
+				if last_public_ip != "" {
+					fmt.Printf("%s -> %s \n", conf.PublicHost, last_public_ip)
+					return last_public_ip, nil
 				}
 			}
 
-			if ip == "" {
-				addresses, err = net.LookupIP(conf.PublicHost)
-				if err == nil {
-					for i := 0; i < len(addresses); i++ {
-
-						if addresses[i].IsPrivate() {
-							if is_private {
-								ip = addresses[i].String()
-								break
-							}
-
-							continue
-						} else {
-							if is_private {
-								continue
-							}
-
-							ip = addresses[i].String()
-							break
-						}
-					}
-				}
-
-				if ip == "" {
-					if is_private {
-						ip = r_ip
-					} else {
-						ip = addresses[0].String()
-					}
-				}
-			}
-
-			fmt.Printf("%s -> %s \n", conf.PublicHost, ip)
-
-			return ip, err
+			return "", fmt.Errorf("resolve failed")
 		},
 		PassiveTransferPortRange: portRange,
 	}, nil
