@@ -2,11 +2,14 @@
 package server
 
 import (
+	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
+	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -87,25 +90,92 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		PublicHost: ph,
 		PublicIPResolver: func(c serverlib.ClientContext) (string, error) {
 			var ip = ""
-			addresses, err := net.LookupIP(conf.PublicHost)
+			var addresses []net.IP = nil
+			var err error = nil
 
-			if err == nil {
-				for i := 0; i < len(addresses); i++ {
+			r_ip := c.RemoteAddr().String()
+			parts := strings.Split(r_ip, ":")
+			if len(parts) == 2 {
+				r_ip = parts[0]
+			} else {
+				r_ip = strings.Split(strings.Split(r_ip, "[")[1], "]")[0]
+			}
 
-					if addresses[i].IsPrivate() {
-						continue
+			r_addr := net.ParseIP(r_ip)
+			if r_addr.IsLoopback() {
+				return r_ip, nil
+			}
+
+			is_private := r_addr.IsPrivate()
+
+			if !is_private {
+				r := &net.Resolver{
+					PreferGo: true,
+					Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+						d := net.Dialer{
+							Timeout: time.Millisecond * time.Duration(2000),
+						}
+						return d.DialContext(ctx, network, "223.5.5.5")
+					},
+				}
+
+				addresses, err = r.LookupIP(context.Background(), "ip", conf.PublicHost)
+				if err == nil {
+					for i := 0; i < len(addresses); i++ {
+
+						if addresses[i].IsPrivate() {
+							continue
+						}
+
+						ip = addresses[i].String()
+						break
 					}
-
-					ip = addresses[i].String()
-					break
 				}
 
 				if ip == "" {
-					ip = string(addresses[0])
+					resp, err := http.Get("https://ip.kaven.xyz/")
+					if err == nil && resp.StatusCode == 200 {
+						body, err := ioutil.ReadAll(resp.Body)
+						if err == nil {
+							ip = string(body)
+						}
+					}
+				}
+			}
+
+			if ip == "" {
+				addresses, err = net.LookupIP(conf.PublicHost)
+				if err == nil {
+					for i := 0; i < len(addresses); i++ {
+
+						if addresses[i].IsPrivate() {
+							if is_private {
+								ip = addresses[i].String()
+								break
+							}
+
+							continue
+						} else {
+							if is_private {
+								continue
+							}
+
+							ip = addresses[i].String()
+							break
+						}
+					}
 				}
 
-				fmt.Printf("%s -> %s \n", conf.PublicHost, ip)
+				if ip == "" {
+					if is_private {
+						ip = r_ip
+					} else {
+						ip = addresses[0].String()
+					}
+				}
 			}
+
+			fmt.Printf("%s -> %s \n", conf.PublicHost, ip)
 
 			return ip, err
 		},
