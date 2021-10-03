@@ -19,7 +19,7 @@ jobs:
         go: [ 1.17 ]
         include:
           - go: 1.17
-            lint: true
+            lint: false
   
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
