@@ -18,7 +18,7 @@ jobs:
               id: docker_meta
               uses: crazy-max/ghaction-docker-meta@v3
               with:
-                  images: Kaven-Fork/ftpserver
+                  images: kavenzero/ftpserver
             - name: Set up QEMU
               uses: docker/setup-qemu-action@v1
             - name: Set up Docker Buildx
@@ -37,7 +37,7 @@ jobs:
                   username: ${{ secrets.DOCKERHUB_USER }}
                   password: ${{ secrets.DOCKERHUB_TOKEN }}
             - name: Login to GitHub Container Registry
-              if: github.repository == 'Kaven-Fork/ftpserver'
+              if: github.repository == '!Kaven-Fork/ftpserver'
               uses: docker/login-action@v1
               with:
                   registry: ghcr.io
