@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go v1.42.9
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.3.0
-	github.com/fclairamb/afero-s3 v0.3.0
+	github.com/fclairamb/afero-s3 v0.3.1
 	github.com/fclairamb/afero-snd v0.1.0
 	github.com/fclairamb/ftpserverlib v0.16.0
 	github.com/fclairamb/go-log v0.1.0
