@@ -169,7 +169,8 @@ Here is a sample config file:
          "fs": "gdrive",
          "params": {
             "google_client_id": "***.apps.googleusercontent.com",
-            "google_client_secret": "****"
+            "google_client_secret": "****",
+            "base_path": "ftp"
          }
       },
       {
