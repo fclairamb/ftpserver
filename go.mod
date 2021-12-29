@@ -12,7 +12,7 @@ require (
 	github.com/fclairamb/afero-s3 v0.3.1
 	github.com/fclairamb/afero-snd v0.1.0
 	github.com/fclairamb/ftpserverlib v0.17.0
-	github.com/fclairamb/go-log v0.1.0
+	github.com/fclairamb/go-log v0.2.0
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
 	github.com/hashicorp/go-version v1.2.0 // indirect
