@@ -28,7 +28,7 @@ require (
 	github.com/pborman/uuid v1.2.0 // indirect
 	github.com/pkg/sftp v1.13.4
 	github.com/samuel/go-zookeeper v0.0.0-20190923202752-2cc03de413da // indirect
-	github.com/spf13/afero v1.8.1
+	github.com/spf13/afero v1.8.2
 	go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738 // indirect
 	go.uber.org/tools v0.0.0-20190618225709-2cfd321de3ee // indirect
 	golang.org/x/crypto v0.0.0-20220307211146-efcb8507fb70
