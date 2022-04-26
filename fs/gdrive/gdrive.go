@@ -25,6 +25,7 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 	googleClientID := access.Params["google_client_id"]
 	googleClientSecret := access.Params["google_client_secret"]
 	tokenFile := access.Params["token_file"]
+	basePath := access.Params["base_path"]
 
 	if googleClientID == "" {
 		googleClientID = os.Getenv("GOOGLE_CLIENT_ID")
@@ -85,8 +86,17 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 	}
 
 	gdriveFs, err := drv.New(httpClient)
-	if err == nil {
-		gdriveFs.Logger = logger
+	if err != nil {
+		return nil, err
+	}
+
+	gdriveFs.Logger = logger
+
+	// Allowing to set the basePath in the driver
+	if basePath != "" {
+		if _, errSetRoot := gdriveFs.SetRootDirectory(basePath); errSetRoot != nil {
+			return nil, fmt.Errorf("couldn't set the base path: %w", errSetRoot)
+		}
 	}
 
 	return gdriveFs, err
