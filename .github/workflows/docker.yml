@@ -2,11 +2,11 @@ name: Build docker images
 
 on:
     push:
-        branches:
-            - "**"
+#        branches:
+#            - "**"
         tags:
             - "v*.*.*"
-    pull_request:
+ #   pull_request:
 
 jobs:
     multi-registries:
