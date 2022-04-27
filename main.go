@@ -32,7 +32,7 @@ func main() {
 	flag.Parse()
 
 	// Setting up the logger
-	logger := gokit.NewGKLoggerStdout().With(
+	logger := gokit.New().With(
 		"ts", gokit.GKDefaultTimestampUTC,
 		"caller", gokit.GKDefaultCaller,
 	)
