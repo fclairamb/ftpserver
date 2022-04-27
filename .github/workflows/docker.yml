@@ -13,7 +13,7 @@ jobs:
         runs-on: ubuntu-20.04
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
             - name: Docker meta
               id: docker_meta
               uses: crazy-max/ghaction-docker-meta@v3
@@ -24,7 +24,7 @@ jobs:
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v1
             - name: Cache Docker layers
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               with:
                   path: /tmp/.buildx-cache
                   key: ${{ runner.os }}-buildx-${{ github.sha }}
