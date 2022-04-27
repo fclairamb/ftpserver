@@ -4,7 +4,7 @@ services:
     ports:
       - '2121-2130:2121-2130'
     volumes:
-      - ./ftpserver/files:/tmp
-      - ./ftpserver:/app
+      - ./files:/tmp
+      - .:/app
     image: fclairamb/ftpserver
     

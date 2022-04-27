@@ -88,8 +88,8 @@ services:
     ports:
       - '2121-2130:2121-2130'
     volumes:
-      - ./ftpserver/files:/tmp
-      - ./ftpserver:/app
+      - ./files:/tmp
+      - .:/app
     image: fclairamb/ftpserver
 ```
 
@@ -101,7 +101,6 @@ docker-compose up -d
 This is a quick way to see if it's working correctly:
 
 ```sh
-
 # Download some file
 [ -f kitty.jpg ] || (curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg)
 
