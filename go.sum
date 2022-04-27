@@ -456,6 +456,8 @@ github.com/fclairamb/ftpserverlib v0.16.0 h1:uATwg14csmYcYaf3n7G16FCzuqYYI28PjBL
 github.com/fclairamb/ftpserverlib v0.16.0/go.mod h1:+Doq95UijHTIaJcWREhyu9dyQOqyoULbVU3OXgs8wEI=
 github.com/fclairamb/ftpserverlib v0.17.0 h1:Eo8K8p8WiYQEum78n67ldIR6Cgo4H1HJA3IlXUu81d4=
 github.com/fclairamb/ftpserverlib v0.17.0/go.mod h1:Esiksahi2IQa9QSPl+0WSmysCumi1oyzPC7oUMPmTn4=
+github.com/fclairamb/ftpserverlib v0.18.0 h1:q/uz7jVFMoGEMswnA+nbaKEC5mzxXJOmhPE/Q3r7VZI=
+github.com/fclairamb/ftpserverlib v0.18.0/go.mod h1:QhLRiCajhPG/2WwGgcsAqmlaYXX8KziNXtSe1BlRH+k=
 github.com/fclairamb/go-log v0.0.0-20210717204555-d370617e3635 h1:LnQGTX50HKMdM3yGt5RlYN4JR8gOYuwa+qB4LkSzfuM=
 github.com/fclairamb/go-log v0.0.0-20210717204555-d370617e3635/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
 github.com/fclairamb/go-log v0.0.0-20210725225107-80efc81cb386 h1:f/v/Fr+f7LiOKbMJlBuQPRmqrsYUXDzm1dpCJ29j9yo=
@@ -1147,6 +1149,8 @@ golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e/go.mod h1:oPkhp1MJrh7nUepCBc
 golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e h1:fLOSk5Q00efkSvAm+4xcoXD+RRmLmmulPn5I3Y9F2EM=
 golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 h1:xHms4gcpe1YE7A3yIllJXP16CMAGuqwO2lX1mTyyRRc=
+golang.org/x/sys v0.0.0-20220422013727-9388b58f7150/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 h1:v+OssWQX+hTHEmOBgwxdZxK4zHq3yOs8F9J7mk0PY8E=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/term v0.0.0-20210927222741-03fcf44c2211/go.mod h1:jbD1KX2456YbFQfuXm/mYQcufACuNUgVhRMnK/tPxf8=
