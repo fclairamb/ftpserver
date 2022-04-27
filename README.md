@@ -75,7 +75,7 @@ There's also a containerized version of the server (31MB, based on alpine).
 mkdir -p files
 
 # Starting the sample FTP server
-docker run --rm -d -p 2121-2130:2121-2130 -v $(pwd):/app fclairamb/ftpserver
+docker run --rm -d -p 2121-2130:2121-2130 -v $(pwd)/files:/tmp -v $(pwd):/app fclairamb/ftpserver
 ```
 
 #### Run it with docker compose
