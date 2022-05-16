@@ -31,7 +31,7 @@ require (
 	github.com/spf13/afero v1.8.2
 	go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738 // indirect
 	go.uber.org/tools v0.0.0-20190618225709-2cfd321de3ee // indirect
-	golang.org/x/crypto v0.0.0-20220513210258-46612604a0f9
+	golang.org/x/crypto v0.0.0-20220516162934-403b01795ae8
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/mail.v2 v2.3.1 // indirect
