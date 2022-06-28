@@ -40,6 +40,20 @@ func NewConfig(fileName string, logger log.Logger) (*Config, error) {
 	return config, nil
 }
 
+// FromContent creates a new config instance from a pre-created Content and logger. The
+// fileName should indicate origin of the given Content, but the file will never be opened.
+func FromContent(content *confpar.Content, fileName string, logger log.Logger) (*Config, error) {
+	c := &Config{
+		fileName: fileName,
+		logger:   logger,
+		Content:  content,
+	}
+	if err := c.Prepare(); err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
 // Load the config
 func (c *Config) Load() error {
 	file, errOpen := os.Open(c.fileName)
