@@ -505,6 +505,8 @@ github.com/aws/aws-sdk-go v1.44.55 h1:h+p61sPEsLOpnQ2mKnGPrIe1MFUKwwA0X5eQYAcjOM
 github.com/aws/aws-sdk-go v1.44.55/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/aws/aws-sdk-go v1.44.56 h1:bT+lExwagH7djxb6InKUVkEKGPAj5aAPnV85/m1fKro=
 github.com/aws/aws-sdk-go v1.44.56/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
+github.com/aws/aws-sdk-go v1.44.57 h1:Dx1QD+cA89LE0fVQWSov22tpnTa0znq2Feyaa/myVjg=
+github.com/aws/aws-sdk-go v1.44.57/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/aws/aws-sdk-go-v2 v0.18.0/go.mod h1:JWVYvqSMppoMJC0x5wdwiImzgXTI9FuZwxzkQq9wy+g=
 github.com/aws/aws-sdk-go-v2 v1.7.0/go.mod h1:tb9wi5s61kTDA5qCkcDbt3KRVV74GGslQkl/DRdX/P4=
 github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.5.0/go.mod h1:acH3+MQoiMzozT/ivU+DbRg7Ooo2298RdRaWcOv+4vM=
