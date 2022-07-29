@@ -48,9 +48,11 @@ func FromContent(content *confpar.Content, fileName string, logger log.Logger) (
 		logger:   logger,
 		Content:  content,
 	}
+
 	if err := c.Prepare(); err != nil {
 		return nil, err
 	}
+
 	return c, nil
 }
 
