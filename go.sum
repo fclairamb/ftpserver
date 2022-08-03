@@ -84,6 +84,8 @@ github.com/aws/aws-sdk-go v1.44.67 h1:+nxfXbMe8QUB6svLsuLYsp+WhZBKM26w62Zidir739
 github.com/aws/aws-sdk-go v1.44.67/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/aws/aws-sdk-go v1.44.68 h1:7zNr5+HLG0TMq+ZcZ8KhT4eT2KyL7v+u7/jANKEIinM=
 github.com/aws/aws-sdk-go v1.44.68/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
+github.com/aws/aws-sdk-go v1.44.69 h1:3A3DEizrCK6dAbBoRGh8KmoZij7She9snclG1ixY/xQ=
+github.com/aws/aws-sdk-go v1.44.69/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/aws/aws-sdk-go-v2 v1.7.0/go.mod h1:tb9wi5s61kTDA5qCkcDbt3KRVV74GGslQkl/DRdX/P4=
 github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.5.0/go.mod h1:acH3+MQoiMzozT/ivU+DbRg7Ooo2298RdRaWcOv+4vM=
 github.com/aws/smithy-go v1.5.0/go.mod h1:SObp3lf9smib00L/v3U2eAKG8FyQ7iLrJnQiAmR5n+E=
@@ -147,7 +149,6 @@ github.com/fclairamb/afero-snd v0.1.0/go.mod h1:3KupVhrtzquMmydX3IGUbhLVbW/KXrg9
 github.com/fclairamb/ftpserverlib v0.19.0 h1:5QcSQ0OIJBlezIqmGehiL/AVsRb6dIkMxbkuhyPkESM=
 github.com/fclairamb/ftpserverlib v0.19.0/go.mod h1:pmukdVOFKKUY9zjWRoxFW8JAljyulC/uK5FfusJzK2E=
 github.com/fclairamb/go-log v0.0.0-20210717204555-d370617e3635/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
-github.com/fclairamb/go-log v0.0.0-20210725225107-80efc81cb386/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
 github.com/fclairamb/go-log v0.0.0-20210725225107-80efc81cb386/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
 github.com/fclairamb/go-log v0.3.0 h1:oSC7Zjt0FZIYC5xXahUUycKGkypSdr2srFPLsp7CLd0=
 github.com/fclairamb/go-log v0.3.0/go.mod h1:XG61EiPlAXnPDN8SA4N3zeA+GyBJmVOCCo12WORx/gA=
