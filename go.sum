@@ -168,6 +168,8 @@ github.com/fclairamb/go-log v0.0.0-20210717204555-d370617e3635/go.mod h1:iqmym8a
 github.com/fclairamb/go-log v0.0.0-20210725225107-80efc81cb386/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
 github.com/fclairamb/go-log v0.3.0 h1:oSC7Zjt0FZIYC5xXahUUycKGkypSdr2srFPLsp7CLd0=
 github.com/fclairamb/go-log v0.3.0/go.mod h1:XG61EiPlAXnPDN8SA4N3zeA+GyBJmVOCCo12WORx/gA=
+github.com/fclairamb/go-log v0.4.0 h1:HLm0yU9IzNCqayuTqtLyWUy/Bjud7+DZWTSg0lAC5pQ=
+github.com/fclairamb/go-log v0.4.0/go.mod h1:sw1KvnkZ4wKCYkvy4SL3qVZcJSWFP8Ure4pM3z+KNn4=
 github.com/franela/goblin v0.0.0-20200105215937-c9ffbefa60db/go.mod h1:7dvUGVsVBjqR7JHJk0brhHOZYGmfBYOrK0ZhYMEtBr4=
 github.com/franela/goreq v0.0.0-20171204163338-bcd34c9993f8/go.mod h1:ZhphrRTfi2rbfLwlschooIH4+wKKDR4Pdxhh+TRoA20=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
