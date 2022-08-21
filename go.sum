@@ -172,6 +172,8 @@ github.com/fclairamb/afero-snd v0.1.0 h1:eQ28zAnjamm+4wxl/NlzP7LYZaSTx9fNqPHPvNL
 github.com/fclairamb/afero-snd v0.1.0/go.mod h1:3KupVhrtzquMmydX3IGUbhLVbW/KXrg9QonyJtmHITY=
 github.com/fclairamb/ftpserverlib v0.19.0 h1:5QcSQ0OIJBlezIqmGehiL/AVsRb6dIkMxbkuhyPkESM=
 github.com/fclairamb/ftpserverlib v0.19.0/go.mod h1:pmukdVOFKKUY9zjWRoxFW8JAljyulC/uK5FfusJzK2E=
+github.com/fclairamb/ftpserverlib v0.19.1 h1:OIqW+AdcsUEq4apudrluDD1c4iCRidLAoQzJRBUJnbg=
+github.com/fclairamb/ftpserverlib v0.19.1/go.mod h1:cVeFR3wvEjgtK99686UXJaTvqZk8jbjHFnhaC23LGpc=
 github.com/fclairamb/go-log v0.0.0-20210717204555-d370617e3635/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
 github.com/fclairamb/go-log v0.0.0-20210725225107-80efc81cb386/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
 github.com/fclairamb/go-log v0.3.0 h1:oSC7Zjt0FZIYC5xXahUUycKGkypSdr2srFPLsp7CLd0=
@@ -688,6 +690,8 @@ golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a/go.mod h1:oPkhp1MJrh7nUepCBc
 golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 h1:WIoqL4EROvwiPdUtaip4VcDdpZ4kha7wBWZrbVKCIZg=
 golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 h1:Sx/u41w+OwrInGdEckYmEuU5gHoGSL4QbDz3S9s6j4U=
+golang.org/x/sys v0.0.0-20220818161305-2296e01440c6/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 h1:JGgROgKl9N8DuW20oFS5gxc+lE67/N3FcwmBPMe7ArY=
 golang.org/x/term v0.0.0-20210927222741-03fcf44c2211/go.mod h1:jbD1KX2456YbFQfuXm/mYQcufACuNUgVhRMnK/tPxf8=
