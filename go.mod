@@ -14,7 +14,7 @@ require (
 	github.com/pkg/sftp v1.13.5
 	github.com/spf13/afero v1.9.2
 	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8
-	golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7
+	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094
 )
 
 require (
