@@ -1,56 +1,87 @@
 name: Build docker images
 
 on:
-    push:
-#        branches:
-#            - "**"
-        tags:
-            - "v*.*.*"
- #   pull_request:
+  push:
+    branches: # At least when doing some tests
+     - "**"
+    tags:
+      - "v*.*.*"
+  # pull_request:
 
 jobs:
-    multi-registries:
-        runs-on: ubuntu-20.04
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-            - name: Docker meta
-              id: docker_meta
-              uses: crazy-max/ghaction-docker-meta@v4
-              with:
-                  images: fclairamb/ftpserver
-            - name: Set up QEMU
-              uses: docker/setup-qemu-action@v2
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v2
-            - name: Cache Docker layers
-              uses: actions/cache@v3
-              with:
-                  path: /tmp/.buildx-cache
-                  key: ${{ runner.os }}-buildx-${{ github.sha }}
-                  restore-keys: |
-                      ${{ runner.os }}-buildx-
-            - name: Login to DockerHub
-              if: github.repository == 'fclairamb/ftpserver'
-              uses: docker/login-action@v2
-              with:
-                  username: ${{ github.repository_owner }}
-                  password: ${{ secrets.DOCKERHUB_TOKEN }}
-            - name: Login to GitHub Container Registry
-              if: github.repository == 'fclairamb/ftpserver'
-              uses: docker/login-action@v2
-              with:
-                  registry: ghcr.io
-                  username: ${{ github.repository_owner }}
-                  password: ${{ secrets.CR_PAT }}
-            - name: Build and push
-              uses: docker/build-push-action@v3
-              with:
-                  context: .
-                  file: ./Dockerfile
-                  platforms: linux/amd64,linux/386,linux/arm/v6,linux/arm/v7,linux/arm64
-                  push: ${{ github.repository == 'fclairamb/ftpserver' }}
-                  tags: ${{ steps.docker_meta.outputs.tags }}
-                  labels: ${{ steps.docker_meta.outputs.labels }}
-                  cache-from: type=local,src=/tmp/.buildx-cache
-                  cache-to: type=local,dest=/tmp/.buildx-cache
+  build-and-push:
+    strategy:
+      matrix:
+        type: ["", "alpine"]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+      - name: Change version
+        run: |
+          curl -L https://github.com/fclairamb/ci-info/releases/download/v0.4.4/ci-info_0.4.4_darwin_amd64.tar.gz | tar -zx
+          ./ci-info
+      - name: Docker meta
+        id: docker_meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            fclairamb/ftpserver
+            ghcr.io/fclairamb/ftpserver
+          flavor: |
+            suffix=${{ matrix.type != '' && format('-{0}', matrix.type) || '' }}
+            latest=false
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=semver,suffix=,pattern=${{ matrix.type != '' && matrix.type || 'latest' }}
+            type=ref,event=branch
+            type=ref,event=pr
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.type }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: Login to DockerHub
+        if: github.repository == 'fclairamb/ftpserver'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to GitHub Container Registry
+        if: github.repository == 'fclairamb/ftpserver'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+      - name: Build and push (scratch)
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile${{ matrix.type != '' && format('.{0}', matrix.type) || '' }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v6,linux/arm/v7
+          push: ${{ github.repository == 'fclairamb/ftpserver' }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
+  build-and-push-status:
+      needs: build-and-push
+      runs-on: ubuntu-22.04
+      steps:
+        - run: echo 'All good'

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fclairamb/ci-info/main/config-schema.json",
+  "version_input_git_tag": {
+    "pattern": "^v?([0-9.]+)$"
+  },
+  "templates": [{
+    "input_file": "build.go.tpl",
+    "output_file": "build.go"
+  }]
+}

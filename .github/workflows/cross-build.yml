@@ -10,12 +10,12 @@ on:
 
 jobs:
   cross-build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
         # This feels clunky to copy/paste the same value twice. I couldn't find a way to register it *once*.
-        go: [ 1.18 ]
+        go: [ 1.19 ]
         target:
           # Linux
           - {os: linux, arch: amd64}
@@ -60,6 +60,6 @@ jobs:
 
   cross-build-status:
     needs: cross-build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - run: echo 'All good'
