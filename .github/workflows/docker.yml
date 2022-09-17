@@ -25,7 +25,7 @@ jobs:
           go-version: 1.19
       - name: Change version
         run: |
-          curl -L https://github.com/fclairamb/ci-info/releases/download/v0.4.4/ci-info_0.4.4_darwin_amd64.tar.gz | tar -zx
+          curl -L https://github.com/fclairamb/ci-info/releases/download/v0.4.4/ci-info_0.4.4_linux_amd64.tar.gz | tar -zx
           ./ci-info
       - name: Docker meta
         id: docker_meta
