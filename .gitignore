@@ -1,5 +1,6 @@
 .DS_Store
 ftpserver
+ci-info
 .idea/
 .vscode/
 *.pem

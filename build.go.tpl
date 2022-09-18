@@ -8,5 +8,5 @@ var (
 	BuildDate = "{{ .BuildDate }}"
 
 	// Commit is the git hash of the program
-	Commit = "{{ .GitCommit }}"
+	Commit = "{{ .GitCommitHashShort }}"
 )
