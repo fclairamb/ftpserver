@@ -176,7 +176,7 @@
                 "properties": {
                     "user": {
                         "type": "string",
-                        "title": "The user Schema",
+                        "title": "The FTP user",
                         "examples": [
                             "test",
                             "dropbox",
@@ -187,7 +187,7 @@
                     },
                     "pass": {
                         "type": "string",
-                        "title": "The pass Schema",
+                        "title": "The FTP password",
                         "examples": [
                             "test",
                             "dropbox",
@@ -214,7 +214,7 @@
                     "shared": {
                         "type": "boolean",
                         "default": false,
-                        "title": "The shared Schema",
+                        "title": "If the backend shall be shared between session",
                         "examples": [
                             true
                         ]
@@ -222,7 +222,7 @@
                     "read_only": {
                         "type": "boolean",
                         "default": false,
-                        "title": "The read_only Schema",
+                        "title": "If the backend shall be read only",
                         "examples": [
                             true
                         ]
@@ -230,7 +230,7 @@
                     "sync_and_delete": {
                         "type": "object",
                         "default": {},
-                        "title": "The sync_and_delete Schema",
+                        "title": "If we should use the sync & delete mechanism",
                         "required": [
                             "enable",
                             "directory"
@@ -323,87 +323,8 @@
                         "hostname": "192.168.168.11:22"
                     }
                 }]
-            },
-            "examples": [
-                [{
-                    "user": "test",
-                    "pass": "test",
-                    "fs": "os",
-                    "params": {
-                        "basePath": "/tmp"
-                    }
-                }],
-                [{
-                    "user": "dropbox",
-                    "pass": "dropbox",
-                    "fs": "dropbox",
-                    "params": {
-                        "token": "..."
-                    }
-                }],
-                [{
-                    "user": "gdrive",
-                    "pass": "gdrive",
-                    "fs": "gdrive",
-                    "params": {
-                        "google_client_id": "***.apps.googleusercontent.com",
-                        "google_client_secret": "****",
-                        "base_path": "ftp"
-                    }
-                }],
-                [{
-                    "user": "s3",
-                    "pass": "s3",
-                    "fs": "s3",
-                    "params": {
-                        "endpoint": "https://s3.amazonaws.com",
-                        "region": "eu-west-1",
-                        "bucket": "my-bucket",
-                        "access_key_id": "AKIA....",
-                        "secret_access_key": "IDxd....",
-                        "disable_ssl": "false",
-                        "path_style": "false"
-                    }
-                }],
-                [{
-                    "user": "sftp",
-                    "pass": "sftp",
-                    "fs": "sftp",
-                    "shared": true,
-                    "read_only": true,
-                    "sync_and_delete": {
-                        "enable": true,
-                        "directory": "/tmp/snd"
-                    },
-                    "params": {
-                        "username": "user",
-                        "password": "password",
-                        "hostname": "192.168.168.11:22"
-                    }
-                }]
-            ]
+            }
         }
     },
-    "examples": [{
-        "version": 1,
-        "listen_address": ":21",
-        "public_host": "1.2.3.4",
-        "max_clients": 200,
-        "passive_transfer_port_range": {
-            "start": 2122,
-            "end": 2130
-        },
-        "logging": {
-            "ftp_exchanges": true,
-            "file_accesses": true
-        },
-        "accesses": [{
-            "user": "test",
-            "pass": "test",
-            "fs": "os",
-            "params": {
-                "basePath": "/tmp"
-            }
-        }]
-    }]
+    "examples": []
 }
