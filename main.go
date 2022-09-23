@@ -3,6 +3,7 @@ package main
 
 import (
 	"flag"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/signal"
@@ -10,7 +11,8 @@ import (
 	"time"
 
 	ftpserver "github.com/fclairamb/ftpserverlib"
-	"github.com/fclairamb/go-log/gokit"
+	gkwrap "github.com/fclairamb/go-log/gokit"
+	gokit "github.com/go-kit/log"
 
 	"github.com/fclairamb/ftpserver/config"
 	"github.com/fclairamb/ftpserver/server"
@@ -32,10 +34,7 @@ func main() {
 	flag.Parse()
 
 	// Setting up the logger
-	logger := gokit.New().With(
-		"ts", gokit.GKDefaultTimestampUTC,
-		"caller", gokit.GKDefaultCaller,
-	)
+	logger := gkwrap.New()
 
 	logger.Info("FTP server", "version", BuildVersion, "date", BuildDate, "commit", Commit)
 
@@ -52,7 +51,7 @@ func main() {
 		if _, err := os.Stat(confFile); err != nil && os.IsNotExist(err) {
 			logger.Warn("No conf file, creating one", "confFile", confFile)
 
-			if err := ioutil.WriteFile(confFile, confFileContent(), 0600); err != nil { // nolint: gomnd
+			if err := ioutil.WriteFile(confFile, confFileContent(), 0600); err != nil { //nolint: gomnd
 				logger.Warn("Couldn't create conf file", "confFile", confFile)
 			}
 		}
@@ -63,6 +62,22 @@ func main() {
 		logger.Error("Can't load conf", "err", errConfig)
 
 		return
+	}
+
+	// Now is a good time to open a logging file
+	if conf.Content.Logging.File != "" {
+		writer, err := os.OpenFile(conf.Content.Logging.File, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600) //nolint:gomnd
+
+		if err != nil {
+			logger.Error("Can't open log file", "err", err)
+
+			return
+		}
+
+		logger = gkwrap.NewWrap(gokit.NewLogfmtLogger(io.MultiWriter(writer, os.Stdout))).With(
+			"ts", gokit.DefaultTimestampUTC,
+			"caller", gokit.DefaultCaller,
+		)
 	}
 
 	// Loading the driver

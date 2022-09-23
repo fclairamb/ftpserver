@@ -106,6 +106,14 @@
                     "examples": [
                         true
                     ]
+                },
+                "file": {
+                    "type": "string",
+                    "default": "ftpserver.log",
+                    "title": "Perform logging to a file",
+                    "examples": [
+                        "ftpserver.log"
+                    ]
                 }
             },
             "examples": [{
