@@ -28,8 +28,9 @@ type PortRange struct {
 
 // Logging defines how we will log accesses
 type Logging struct {
-	FtpExchanges bool `json:"ftp_exchanges"` // Log all ftp exchanges
-	FileAccesses bool `json:"file_accesses"` // Log all file accesses
+	FtpExchanges bool   `json:"ftp_exchanges"` // Log all ftp exchanges
+	FileAccesses bool   `json:"file_accesses"` // Log all file accesses
+	File         string `json:"file"`          // Log file
 }
 
 // TLS define the TLS Config

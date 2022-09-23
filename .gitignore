@@ -1,9 +1,9 @@
 .DS_Store
 ftpserver
+ftpserver.json
+ftpserver.log
 ci-info
 .idea/
-.vscode/
 *.pem
-ftpserver.json
 gdrive_token_gdrive.json
-__debug__bin
+__*

@@ -1,0 +1,7 @@
+{
+    "$schema": "https://raw.githubusercontent.com/fclairamb/ftpserver/main/config-schema.json",
+    "logging": {
+        "file": "ftpserver.log"
+    },
+    "accesses": []
+}

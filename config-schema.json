@@ -86,10 +86,6 @@
             "type": "object",
             "default": {},
             "title": "The logging options",
-            "required": [
-                "ftp_exchanges",
-                "file_accesses"
-            ],
             "properties": {
                 "ftp_exchanges": {
                     "type": "boolean",
@@ -106,11 +102,20 @@
                     "examples": [
                         true
                     ]
+                },
+                "file": {
+                    "type": "string",
+                    "default": "ftpserver.log",
+                    "title": "Perform logging to a file",
+                    "examples": [
+                        "ftpserver.log"
+                    ]
                 }
             },
             "examples": [{
                 "ftp_exchanges": true,
-                "file_accesses": true
+                "file_accesses": true,
+                "file": "ftpserver.log"
             }]
         },
         "tls": {

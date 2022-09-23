@@ -1,0 +1,20 @@
+name: JSON Schema Check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  json-schema-check:
+    runs-on: ubuntu-22.04
+    container: python:3.10-alpine3.16
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test
+        run: |
+          pip install jsonschema==4.14.0
+          for f in $(find config/ -name '*.json')
+          do
+            echo "Checking $f"
+            jsonschema -i $f config-schema.json
+          done
