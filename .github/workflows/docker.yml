@@ -2,8 +2,8 @@ name: Build docker images
 
 on:
   push:
-    branches: # At least when doing some tests
-     - "**"
+    #branches: # At least when doing some tests
+    # - "**"
     tags:
       - "v*.*.*"
   # pull_request:
