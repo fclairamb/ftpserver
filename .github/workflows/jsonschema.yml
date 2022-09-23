@@ -13,7 +13,7 @@ jobs:
       - name: Test
         run: |
           pip install jsonschema==4.14.0
-          for f in $(find . -name '*.json')
+          for f in $(find config/ -name '*.json')
           do
             echo "Checking $f"
             jsonschema -i $f config-schema.json
