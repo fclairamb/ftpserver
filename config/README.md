@@ -1,0 +1,20 @@
+# Sample config files
+
+## FTP Server behind a NAT gateway
+```json
+{
+    "$schema": "https://raw.githubusercontent.com/fclairamb/ftpserver/main/config-schema.json",
+    "listen_address": ":2121",
+    "public_host": "1.2.3.4",
+    "accesses": [
+        {
+            "user": "test",
+            "pass": "test",
+            "fs": "os",
+            "params": {
+                "basePath": "/tmp"
+            }
+        }
+    ]
+}
+```

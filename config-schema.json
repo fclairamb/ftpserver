@@ -1,0 +1,330 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://raw.githubusercontent.com/fclairamb/ftpserver/main/config-schema.json",
+    "type": "object",
+    "default": {},
+    "title": "https://github.com/fclairamb/ftpserver config format",
+    "additionalProperties": false,
+    "required": [
+        "accesses"
+    ],
+    "properties": {
+        "$schema": {
+            "$id": "/properties/$schema",
+            "type": "string",
+            "title": "This schema",
+            "description": "Allow to declare the schema",
+            "default": "https://raw.githubusercontent.com/fclairamb/ftpserver/main/config-schema.json",
+            "examples": [
+                "https://raw.githubusercontent.com/fclairamb/ftpserver/main/config-schema.json"
+            ]
+        },
+        "version": {
+            "type": "integer",
+            "default": 1,
+            "title": "The version of the config file",
+            "examples": [
+                1
+            ]
+        },
+        "listen_address": {
+            "type": "string",
+            "default": "",
+            "title": "The listening address",
+            "examples": [
+                ":21"
+            ]
+        },
+        "public_host": {
+            "type": "string",
+            "default": "",
+            "title": "The public listening address (when behing a NAT gateway)",
+            "examples": [
+                "1.2.3.4"
+            ]
+        },
+        "max_clients": {
+            "type": "integer",
+            "default": 0,
+            "title": "The maximum number of concurrent clients to accept",
+            "examples": [
+                200
+            ]
+        },
+        "passive_transfer_port_range": {
+            "type": "object",
+            "default": {},
+            "title": "The allowed passive transfer ports",
+            "required": [
+                "start",
+                "end"
+            ],
+            "properties": {
+                "start": {
+                    "type": "integer",
+                    "default": 0,
+                    "title": "First allowed port",
+                    "examples": [
+                        2122
+                    ]
+                },
+                "end": {
+                    "type": "integer",
+                    "default": 0,
+                    "title": "Last allowed port",
+                    "examples": [
+                        2130
+                    ]
+                }
+            },
+            "examples": [{
+                "start": 2122,
+                "end": 2130
+            }]
+        },
+        "logging": {
+            "type": "object",
+            "default": {},
+            "title": "The logging options",
+            "required": [
+                "ftp_exchanges",
+                "file_accesses"
+            ],
+            "properties": {
+                "ftp_exchanges": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "Log all FTP exchanges",
+                    "examples": [
+                        true
+                    ]
+                },
+                "file_accesses": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "Log all file accesses",
+                    "examples": [
+                        true
+                    ]
+                }
+            },
+            "examples": [{
+                "ftp_exchanges": true,
+                "file_accesses": true
+            }]
+        },
+        "tls": {
+            "type": "object",
+            "default": {},
+            "title": "TLS parameters",
+            "required": [
+                "server_cert"
+            ],
+            "properties": {
+                "server_cert": {
+                    "type": "object",
+                    "default": {},
+                    "title": "Server certificate",
+                    "required": [
+                        "cert",
+                        "key"
+                    ],
+                    "properties": {
+                        "cert": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Public key",
+                            "examples": [
+                                "cert.pem"
+                            ]
+                        },
+                        "key": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Private key",
+                            "examples": [
+                                "key.pem"
+                            ]
+                        }
+                    },
+                    "examples": [{
+                        "cert": "cert.pem",
+                        "key": "key.pem"
+                    }]
+                }
+            },
+            "examples": [{
+                "server_cert": {
+                    "cert": "cert.pem",
+                    "key": "key.pem"
+                }
+            }]
+        },
+        "accesses": {
+            "type": "array",
+            "default": [],
+            "title": "The accesses",
+            "items": {
+                "type": "object",
+                "title": "A Schema",
+                "required": [
+                    "user",
+                    "pass",
+                    "fs",
+                    "params"
+                ],
+                "properties": {
+                    "user": {
+                        "type": "string",
+                        "title": "The FTP user",
+                        "examples": [
+                            "test",
+                            "dropbox",
+                            "gdrive",
+                            "s3",
+                            "sftp"
+                        ]
+                    },
+                    "pass": {
+                        "type": "string",
+                        "title": "The FTP password",
+                        "examples": [
+                            "test",
+                            "dropbox",
+                            "gdrive",
+                            "s3",
+                            "sftp"
+                        ]
+                    },
+                    "fs": {
+                        "type": "string",
+                        "title": "The backend file system to use",
+                        "examples": [
+                            "os",
+                            "dropbox",
+                            "gdrive",
+                            "s3",
+                            "sftp"
+                        ]
+                    },
+                    "params": {
+                        "type": "object",
+                        "title": "The parameter of each file system"
+                    },
+                    "shared": {
+                        "type": "boolean",
+                        "default": false,
+                        "title": "If the backend shall be shared between session",
+                        "examples": [
+                            true
+                        ]
+                    },
+                    "read_only": {
+                        "type": "boolean",
+                        "default": false,
+                        "title": "If the backend shall be read only",
+                        "examples": [
+                            true
+                        ]
+                    },
+                    "sync_and_delete": {
+                        "type": "object",
+                        "default": {},
+                        "title": "If we should use the sync & delete mechanism",
+                        "required": [
+                            "enable",
+                            "directory"
+                        ],
+                        "properties": {
+                            "enable": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "The enable Schema",
+                                "examples": [
+                                    true
+                                ]
+                            },
+                            "directory": {
+                                "type": "string",
+                                "default": "",
+                                "title": "The directory Schema",
+                                "examples": [
+                                    "/tmp/snd"
+                                ]
+                            }
+                        },
+                        "examples": [{
+                            "enable": true,
+                            "directory": "/tmp/snd"
+                        }]
+                    }
+                },
+                "examples": [{
+                    "user": "test",
+                    "pass": "test",
+                    "fs": "os",
+                    "params": {
+                        "basePath": "/tmp"
+                    }
+                },
+                {
+                    "user": "test",
+                    "pass": "test",
+                    "fs": "os",
+                    "params": {
+                        "basePath": "/tmp"
+                    }
+                },
+                {
+                    "user": "dropbox",
+                    "pass": "dropbox",
+                    "fs": "dropbox",
+                    "params": {
+                        "token": "..."
+                    }
+                },
+                {
+                    "user": "gdrive",
+                    "pass": "gdrive",
+                    "fs": "gdrive",
+                    "params": {
+                        "google_client_id": "***.apps.googleusercontent.com",
+                        "google_client_secret": "****",
+                        "base_path": "ftp"
+                    }
+                },
+                {
+                    "user": "s3",
+                    "pass": "s3",
+                    "fs": "s3",
+                    "params": {
+                        "endpoint": "https://s3.amazonaws.com",
+                        "region": "eu-west-1",
+                        "bucket": "my-bucket",
+                        "access_key_id": "AKIA....",
+                        "secret_access_key": "IDxd....",
+                        "disable_ssl": "false",
+                        "path_style": "false"
+                    }
+                },
+                {
+                    "user": "sftp",
+                    "pass": "sftp",
+                    "fs": "sftp",
+                    "shared": true,
+                    "read_only": true,
+                    "sync_and_delete": {
+                        "enable": true,
+                        "directory": "/tmp/snd"
+                    },
+                    "params": {
+                        "username": "user",
+                        "password": "password",
+                        "hostname": "192.168.168.11:22"
+                    }
+                }]
+            }
+        }
+    },
+    "examples": []
+}
