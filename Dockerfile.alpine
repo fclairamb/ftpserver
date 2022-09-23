@@ -10,7 +10,7 @@ WORKDIR /workspace
 
 # Building
 COPY . .
-RUN CGO_ENABLED=0 go build -mod=readonly -ldflags='-w -s' -v -o -o ftpserver
+RUN CGO_ENABLED=0 go build -mod=readonly -ldflags='-w -s' -v -o ftpserver
 
 # Preparing the final image
 FROM scratch
