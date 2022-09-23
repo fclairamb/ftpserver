@@ -37,6 +37,8 @@ func main() {
 		"caller", gokit.GKDefaultCaller,
 	)
 
+	logger.Info("FTP server", "version", BuildVersion, "date", BuildDate, "commit", Commit)
+
 	autoCreate := onlyConf
 
 	// The general idea here is that if you start it without any arg, you're probably doing a local quick&dirty run
