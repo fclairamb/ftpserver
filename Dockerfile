@@ -10,10 +10,10 @@ WORKDIR /workspace
 
 # Building
 COPY . .
-RUN go build -v -o ftpserver
+RUN CGO_ENABLED=0 go build -mod=readonly -ldflags='-w -s' -v -o ftpserver
 
 # Preparing the final image
-FROM alpine:3.16.2
+FROM scratch
 WORKDIR /app
 EXPOSE 2121-2130
 COPY --from=builder /workspace/ftpserver /bin/ftpserver
