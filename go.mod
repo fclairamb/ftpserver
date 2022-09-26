@@ -13,7 +13,7 @@ require (
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.5
 	github.com/spf13/afero v1.9.2
-	golang.org/x/crypto v0.0.0-20220924013350-4ba4fb4dd9e7
+	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 )
 
