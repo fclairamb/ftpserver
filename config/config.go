@@ -10,6 +10,7 @@ import (
 
 	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // ErrUnknownUser is returned when the provided user cannot be identified through our authentication mechanism
@@ -116,8 +117,20 @@ func (c *Config) CheckAccesses() error {
 // GetAccess return a file system access given some credentials
 func (c *Config) GetAccess(user string, pass string) (*confpar.Access, error) {
 	for _, a := range c.Content.Accesses {
-		if a.User == user && (a.Pass == pass || (a.User == "anonymous" && a.Pass == "*")) {
-			return a, nil
+		if a.User == user {
+			_, errCost := bcrypt.Cost([]byte(a.Pass))
+			if errCost == nil {
+				//This user's password is bcrypted
+				errCompare := bcrypt.CompareHashAndPassword([]byte(a.Pass), []byte(pass))
+				if errCompare == nil {
+					return a, nil
+				}
+			} else {
+				//This user's password is plain-text
+				if a.Pass == pass || (a.User == "anonymous" && a.Pass == "*") {
+					return a, nil
+				}
+			}
 		}
 	}
 

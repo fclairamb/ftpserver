@@ -183,22 +183,15 @@
                         "type": "string",
                         "title": "The FTP user",
                         "examples": [
-                            "test",
-                            "dropbox",
-                            "gdrive",
-                            "s3",
-                            "sftp"
+                            "username"
                         ]
                     },
                     "pass": {
                         "type": "string",
                         "title": "The FTP password",
                         "examples": [
-                            "test",
-                            "dropbox",
-                            "gdrive",
-                            "s3",
-                            "sftp"
+                            "plaintext-password",
+                            "$2a$10$jG7tuqIlcUDMl1m1Ytj1TunU7pk.ko8lj3nOGzZvkIeU/BsfPVBra"
                         ]
                     },
                     "fs": {
