@@ -106,6 +106,9 @@ func (c *Config) HashPlaintextPasswords() error {
 
 	save := false
 	for i, a := range c.Content.Accesses {
+		if a.User == "anonymous" && a.Pass == "*" {
+			continue
+		}
 		_, errCost := bcrypt.Cost([]byte(a.Pass))
 		if errCost != nil {
 			//This password is not hashed
