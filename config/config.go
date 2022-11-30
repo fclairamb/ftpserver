@@ -111,6 +111,7 @@ func (c *Config) HashPlaintextPasswords() error {
 			hash, errHash := bcrypt.GenerateFromPassword([]byte(a.Pass), 10)
 			if errHash == nil {
 				modified, errJsonSet := sjson.Set(string(json), "accesses."+fmt.Sprint(i)+".pass", string(hash))
+				c.Content.Accesses[i].Pass = string(hash)
 				if errJsonSet == nil {
 					save = true
 					json = []byte(modified)
