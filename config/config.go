@@ -83,7 +83,47 @@ func (c *Config) Load() error {
 
 	c.Content = &content
 
+	if c.Content.HashPlaintextPasswords {
+		c.HashPlaintextPasswords()
+	}
+
 	return c.Prepare()
+}
+
+func (c *Config) HashPlaintextPasswords() error {
+
+	file, errOpen := os.Create(c.fileName)
+
+	if errOpen != nil {
+		return errOpen
+	}
+
+	defer func() {
+		if errClose := file.Close(); errClose != nil {
+			c.logger.Error("Cannot close config file", "err", errClose)
+		}
+	}()
+
+	save := false
+	for i, a := range c.Content.Accesses {
+		_, errCost := bcrypt.Cost([]byte(a.Pass))
+		if errCost != nil {
+			//This password is not hashed
+			hash, err := bcrypt.GenerateFromPassword([]byte(a.Pass), 10)
+			if err == nil {
+				c.Content.Accesses[i].Pass = string(hash)
+				save = true
+			}
+		}
+	}
+	if save {
+		encoder := json.NewEncoder(file)
+		if errEncode := encoder.Encode(c.Content); errEncode != nil {
+			c.logger.Error("Cannot encode file", "err", errEncode)
+			return errEncode
+		}
+	}
+	return nil
 }
 
 // Prepare the config before using it

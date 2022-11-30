@@ -51,6 +51,15 @@
                 200
             ]
         },
+        "hash_plaintext_passwords": {
+            "type": "boolean",
+            "default": false,
+            "title": "Overwrite plain-text passwords with hashed equivalents",
+            "examples": [
+                true,
+                false
+            ]
+        },
         "passive_transfer_port_range": {
             "type": "object",
             "default": {},
