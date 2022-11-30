@@ -92,18 +92,6 @@ func (c *Config) Load() error {
 
 func (c *Config) HashPlaintextPasswords() error {
 
-	file, errOpen := os.Create(c.fileName)
-
-	if errOpen != nil {
-		return errOpen
-	}
-
-	defer func() {
-		if errClose := file.Close(); errClose != nil {
-			c.logger.Error("Cannot close config file", "err", errClose)
-		}
-	}()
-
 	save := false
 	for i, a := range c.Content.Accesses {
 		if a.User == "anonymous" && a.Pass == "*" {
@@ -120,6 +108,17 @@ func (c *Config) HashPlaintextPasswords() error {
 		}
 	}
 	if save {
+		file, errOpen := os.Create(c.fileName)
+
+		if errOpen != nil {
+			return errOpen
+		}
+
+		defer func() {
+			if errClose := file.Close(); errClose != nil {
+				c.logger.Error("Cannot close config file", "err", errClose)
+			}
+		}()
 		encoder := json.NewEncoder(file)
 		if errEncode := encoder.Encode(c.Content); errEncode != nil {
 			c.logger.Error("Cannot encode file", "err", errEncode)
