@@ -4,9 +4,11 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 
 	log "github.com/fclairamb/go-log"
+	"github.com/tidwall/sjson"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs"
@@ -92,6 +94,12 @@ func (c *Config) Load() error {
 
 func (c *Config) HashPlaintextPasswords() error {
 
+	json, errReadFile := os.ReadFile(c.fileName)
+	if errReadFile != nil {
+		c.logger.Error("Cannot read config file!", "err", errReadFile)
+		return errReadFile
+	}
+
 	save := false
 	for i, a := range c.Content.Accesses {
 		if a.User == "anonymous" && a.Pass == "*" {
@@ -100,29 +108,21 @@ func (c *Config) HashPlaintextPasswords() error {
 		_, errCost := bcrypt.Cost([]byte(a.Pass))
 		if errCost != nil {
 			//This password is not hashed
-			hash, err := bcrypt.GenerateFromPassword([]byte(a.Pass), 10)
-			if err == nil {
-				c.Content.Accesses[i].Pass = string(hash)
-				save = true
+			hash, errHash := bcrypt.GenerateFromPassword([]byte(a.Pass), 10)
+			if errHash == nil {
+				modified, errJsonSet := sjson.Set(string(json), "accesses."+fmt.Sprint(i)+".pass", string(hash))
+				if errJsonSet == nil {
+					save = true
+					json = []byte(modified)
+				}
 			}
 		}
 	}
 	if save {
-		file, errOpen := os.Create(c.fileName)
-
-		if errOpen != nil {
-			return errOpen
-		}
-
-		defer func() {
-			if errClose := file.Close(); errClose != nil {
-				c.logger.Error("Cannot close config file", "err", errClose)
-			}
-		}()
-		encoder := json.NewEncoder(file)
-		if errEncode := encoder.Encode(c.Content); errEncode != nil {
-			c.logger.Error("Cannot encode file", "err", errEncode)
-			return errEncode
+		errWriteFile := os.WriteFile(c.fileName, json, 0644)
+		if errWriteFile != nil {
+			c.logger.Error("Cannot write config file!", "err", errWriteFile)
+			return errWriteFile
 		}
 	}
 	return nil
