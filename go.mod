@@ -3,7 +3,7 @@ module github.com/fclairamb/ftpserver
 go 1.19
 
 require (
-	github.com/aws/aws-sdk-go v1.44.150
+	github.com/aws/aws-sdk-go v1.44.161
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.3.0
 	github.com/fclairamb/afero-s3 v0.3.1
@@ -13,8 +13,8 @@ require (
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.5
 	github.com/spf13/afero v1.9.3
-	golang.org/x/crypto v0.3.0
-	golang.org/x/oauth2 v0.2.0
+	golang.org/x/crypto v0.4.0
+	golang.org/x/oauth2 v0.3.0
 )
 
 require (
@@ -36,9 +36,9 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/net v0.2.0 // indirect
-	golang.org/x/sys v0.2.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/net v0.3.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	google.golang.org/api v0.84.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220616135557-88e70c0c3a90 // indirect
