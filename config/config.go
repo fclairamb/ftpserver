@@ -4,12 +4,15 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 
 	log "github.com/fclairamb/go-log"
+	"github.com/tidwall/sjson"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // ErrUnknownUser is returned when the provided user cannot be identified through our authentication mechanism
@@ -82,7 +85,48 @@ func (c *Config) Load() error {
 
 	c.Content = &content
 
+	if c.Content.HashPlaintextPasswords {
+		c.HashPlaintextPasswords()
+	}
+
 	return c.Prepare()
+}
+
+func (c *Config) HashPlaintextPasswords() error {
+
+	json, errReadFile := os.ReadFile(c.fileName)
+	if errReadFile != nil {
+		c.logger.Error("Cannot read config file!", "err", errReadFile)
+		return errReadFile
+	}
+
+	save := false
+	for i, a := range c.Content.Accesses {
+		if a.User == "anonymous" && a.Pass == "*" {
+			continue
+		}
+		_, errCost := bcrypt.Cost([]byte(a.Pass))
+		if errCost != nil {
+			//This password is not hashed
+			hash, errHash := bcrypt.GenerateFromPassword([]byte(a.Pass), 10)
+			if errHash == nil {
+				modified, errJsonSet := sjson.Set(string(json), "accesses."+fmt.Sprint(i)+".pass", string(hash))
+				c.Content.Accesses[i].Pass = string(hash)
+				if errJsonSet == nil {
+					save = true
+					json = []byte(modified)
+				}
+			}
+		}
+	}
+	if save {
+		errWriteFile := os.WriteFile(c.fileName, json, 0644)
+		if errWriteFile != nil {
+			c.logger.Error("Cannot write config file!", "err", errWriteFile)
+			return errWriteFile
+		}
+	}
+	return nil
 }
 
 // Prepare the config before using it
@@ -116,8 +160,20 @@ func (c *Config) CheckAccesses() error {
 // GetAccess return a file system access given some credentials
 func (c *Config) GetAccess(user string, pass string) (*confpar.Access, error) {
 	for _, a := range c.Content.Accesses {
-		if a.User == user && (a.Pass == pass || (a.User == "anonymous" && a.Pass == "*")) {
-			return a, nil
+		if a.User == user {
+			_, errCost := bcrypt.Cost([]byte(a.Pass))
+			if errCost == nil {
+				//This user's password is bcrypted
+				errCompare := bcrypt.CompareHashAndPassword([]byte(a.Pass), []byte(pass))
+				if errCompare == nil {
+					return a, nil
+				}
+			} else {
+				//This user's password is plain-text
+				if a.Pass == pass || (a.User == "anonymous" && a.Pass == "*") {
+					return a, nil
+				}
+			}
 		}
 	}
 
