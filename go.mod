@@ -15,7 +15,7 @@ require (
 	github.com/spf13/afero v1.9.4
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.7.0
-	golang.org/x/oauth2 v0.5.0
+	golang.org/x/oauth2 v0.6.0
 )
 
 require (
