@@ -40,11 +40,7 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 		return nil, errSession
 	}
 
-	s3Fs := s3.NewFs(bucket, sess)
-
-	if basePath != "" {
-		return afero.NewBasePathFs(s3Fs, basePath), nil
-	}
+	s3Fs := s3.NewFs(bucket, sess, basePath)
 
 	return s3Fs, nil
 }
