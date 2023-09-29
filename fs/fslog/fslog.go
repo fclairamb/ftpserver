@@ -81,7 +81,7 @@ func (f *Fs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, erro
 	}, err
 }
 
-// Remove calls will be logged
+// RemoveDir will be logged
 func (f *Fs) RemoveDir(name string) error {
 	if rmdir, ok := f.src.(ftpserver.ClientDriverExtensionRemoveDir); ok {
 		err := rmdir.RemoveDir(name)
