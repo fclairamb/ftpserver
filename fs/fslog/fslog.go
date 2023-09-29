@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/afero"
 
+	ftpserver "github.com/fclairamb/ftpserverlib"
 	log "github.com/fclairamb/go-log"
 )
 
@@ -78,6 +79,19 @@ func (f *Fs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, erro
 		src:    src,
 		logger: logger,
 	}, err
+}
+
+// Remove calls will be logged
+func (f *Fs) RemoveDir(name string) error {
+	if rmdir, ok := f.src.(ftpserver.ClientDriverExtensionRemoveDir); ok {
+		err := rmdir.RemoveDir(name)
+
+		logErr(f.logger, err).Info("Deleted folder", "fileName", name)
+
+		return err
+	}
+
+	return nil
 }
 
 // Remove calls will be logged

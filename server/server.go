@@ -200,14 +200,7 @@ func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (server
 		}
 	}
 
-	return &ClientDriver{
-		Fs: accFs,
-	}, nil
-}
-
-// The ClientDriver is the internal structure used for handling the client. At this stage it's limited to the afero.Fs
-type ClientDriver struct {
-	afero.Fs
+	return accFs, nil
 }
 
 func (s *Server) loadTLSConfig() (*tls.Config, error) {

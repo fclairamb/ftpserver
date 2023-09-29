@@ -671,6 +671,10 @@ github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMn
 github.com/clbanning/x2j v0.0.0-20191024224557-825249438eec/go.mod h1:jMjuTZXRI4dUb/I5gc9Hdhagfvm9+RyrPryS/auMzxE=
 github.com/clicknclear/afero-s3 v0.4.0 h1:yEMx3TPHW0DE2wWP/Gi6sBD2fK6ckyiLMWczX7NCDzY=
 github.com/clicknclear/afero-s3 v0.4.0/go.mod h1:03VIhRzlsYsGQCTmrVBLksqwRNM0eNWt24/3xXeBrlU=
+github.com/clicknclear/afero-s3 v0.4.1 h1:nPThoFmjlLF+Loepxst7QOXRiSG0I7X5ByGCrprlpR8=
+github.com/clicknclear/afero-s3 v0.4.1/go.mod h1:03VIhRzlsYsGQCTmrVBLksqwRNM0eNWt24/3xXeBrlU=
+github.com/clicknclear/afero-s3 v0.4.2 h1:wEJNu0aBBu+Sr6C6K82jhPhegC4I6I0KKWbmF1j3PwQ=
+github.com/clicknclear/afero-s3 v0.4.2/go.mod h1:03VIhRzlsYsGQCTmrVBLksqwRNM0eNWt24/3xXeBrlU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
