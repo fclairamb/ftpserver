@@ -7,3 +7,4 @@ ci-info
 *.pem
 gdrive_token_gdrive.json
 __*
+test-output

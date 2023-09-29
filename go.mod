@@ -6,8 +6,8 @@ require (
 	github.com/aws/aws-sdk-go v1.45.19
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.3.0
-	github.com/fclairamb/afero-s3 v0.3.1
 	github.com/fclairamb/afero-snd v0.1.0
+	github.com/clicknclear/afero-s3 v0.4.0
 	github.com/fclairamb/ftpserverlib v0.22.0
 	github.com/fclairamb/go-log v0.4.1
 	github.com/go-mail/mail v2.3.1+incompatible
@@ -53,6 +53,6 @@ require (
 )
 
 // replace github.com/fclairamb/ftpserverlib => /Users/florent/go/src/github.com/fclairamb/ftpserverlib
-// replace github.com/fclairamb/afero-s3 => /Users/florent/go/src/github.com/fclairamb/afero-s3
+// replace github.com/clicknclear/afero-s3 => /Users/triss/dev/afero-s3
 // replace github.com/fclairamb/afero-gdrive => /Users/florent/go/src/github.com/fclairamb/afero-gdrive
 // replace github.com/fclairamb/afero-snd => /Users/florent/go/src/github.com/fclairamb/afero-snd

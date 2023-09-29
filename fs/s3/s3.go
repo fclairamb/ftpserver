@@ -5,7 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	s3 "github.com/fclairamb/afero-s3"
+	s3 "github.com/clicknclear/afero-s3"
 	"github.com/spf13/afero"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
@@ -18,6 +18,7 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	bucket := access.Params["bucket"]
 	keyID := access.Params["access_key_id"]
 	secretAccessKey := access.Params["secret_access_key"]
+	basePath := access.Params["base_path"]
 
 	conf := aws.Config{
 		Region:           aws.String(region),
@@ -41,7 +42,9 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 
 	s3Fs := s3.NewFs(bucket, sess)
 
-	// s3Fs = stripprefix.NewStripPrefixFs(s3Fs, 1)
+	if basePath != "" {
+		return afero.NewBasePathFs(s3Fs, basePath), nil
+	}
 
 	return s3Fs, nil
 }
