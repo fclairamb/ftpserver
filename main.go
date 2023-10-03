@@ -14,8 +14,8 @@ import (
 	gkwrap "github.com/fclairamb/go-log/gokit"
 	gokit "github.com/go-kit/log"
 
-	"github.com/fclairamb/ftpserver/config"
-	"github.com/fclairamb/ftpserver/server"
+	"github.com/clicknclear/ftpserver/config"
+	"github.com/clicknclear/ftpserver/server"
 )
 
 var (

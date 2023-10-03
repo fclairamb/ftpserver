@@ -8,7 +8,7 @@ import (
 	dropbox "github.com/fclairamb/afero-dropbox"
 	"github.com/spf13/afero"
 
-	"github.com/fclairamb/ftpserver/config/confpar"
+	"github.com/clicknclear/ftpserver/config/confpar"
 )
 
 // ErrMissingToken is returned if a dropbox token wasn't specified.

@@ -14,10 +14,10 @@ import (
 	serverlib "github.com/fclairamb/ftpserverlib"
 	log "github.com/fclairamb/go-log"
 
-	"github.com/fclairamb/ftpserver/config"
-	"github.com/fclairamb/ftpserver/config/confpar"
-	"github.com/fclairamb/ftpserver/fs"
-	"github.com/fclairamb/ftpserver/fs/fslog"
+	"github.com/clicknclear/ftpserver/config"
+	"github.com/clicknclear/ftpserver/fs"
+	"github.com/clicknclear/ftpserver/fs/fslog"
+	"github.com/clicknclear/ftpserverer/config/confpar"
 )
 
 // Server structure

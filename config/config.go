@@ -10,8 +10,8 @@ import (
 	log "github.com/fclairamb/go-log"
 	"github.com/tidwall/sjson"
 
-	"github.com/fclairamb/ftpserver/config/confpar"
-	"github.com/fclairamb/ftpserver/fs"
+	"github.com/clicknclear/ftpserver/config/confpar"
+	"github.com/clicknclear/ftpserver/fs"
 	"golang.org/x/crypto/bcrypt"
 )
 
