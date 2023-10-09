@@ -50,7 +50,6 @@ type Content struct {
 	ListenAddress            string     `json:"listen_address"`              // Address to listen on
 	PublicHost               string     `json:"public_host"`                 // Public host to listen on
 	MaxClients               int        `json:"max_clients"`                 // Maximum clients who can connect
-	HashPlaintextPasswords   bool       `json:"hash_plaintext_passwords"`    // Overwrite plain-text passwords with hashed equivalents
 	Accesses                 []*Access  `json:"accesses"`                    // Accesses offered to users
 	PassiveTransferPortRange *PortRange `json:"passive_transfer_port_range"` // Listen port range
 	Logging                  Logging    `json:"logging"`                     // Logging parameters

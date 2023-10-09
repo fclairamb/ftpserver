@@ -146,6 +146,14 @@ func (s *Server) considerEnd() {
 	}
 }
 
+func (s *Server) UpdateConf(access *confpar.Access) {
+	cache := s.accesses
+	cache.Lock()
+	defer cache.Unlock()
+	delete(cache.accesses, access.User)
+	s.config.UpsertAccess(access)
+}
+
 func (s *Server) loadFs(access *confpar.Access) (afero.Fs, error) {
 	cache := s.accesses
 	cache.Lock()
