@@ -14,6 +14,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
+	"github.com/fclairamb/ftpserver/fs/utils"
 )
 
 // ErrMissingGoogleClientCredentials is returned when you have specified the google_client_id and/or
@@ -94,6 +95,8 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 
 	// Allowing to set the basePath in the driver
 	if basePath != "" {
+		basePath = utils.ReplaceEnvVars(basePath)
+
 		if _, errSetRoot := gdriveFs.SetRootDirectory(basePath); errSetRoot != nil {
 			return nil, fmt.Errorf("couldn't set the base path: %w", errSetRoot)
 		}
