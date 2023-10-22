@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
+	"github.com/fclairamb/ftpserver/fs/utils"
 )
 
 // ErrMissingBasePath is triggered when the basePath property isn't specified
@@ -18,6 +19,8 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	if basePath == "" {
 		return nil, ErrMissingBasePath
 	}
+
+	basePath = utils.ReplaceEnvVars(basePath)
 
 	return afero.NewBasePathFs(afero.NewOsFs(), basePath), nil
 }
