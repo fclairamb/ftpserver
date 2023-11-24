@@ -1,3 +1,17 @@
 builds:
-  - ldflags:
+  - env:
+      - CGO_ENABLED=0
+      - GO111MODULE=on
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - "6"
+      - "7"
+    ldflags:
       - -s -w -X main.BuildVersion={{.Version}} -X main.Commit={{.Commit}} -X main.BuildDate={{.Date}}

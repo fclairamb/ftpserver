@@ -18,6 +18,7 @@ At the current stage, supported backend are:
 - [Google Drive](https://developers.google.com/drive) (see [doc](https://github.com/fclairamb/ftpserver/tree/master/fs/gdrive)) through [afero-gdrive](https://github.com/fclairamb/afero-gdrive)
 - [SFTP](https://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol) through [afero's sftpfs](https://github.com/spf13/afero/)
 - Email through [go-mail](https://github.com/go-mail/mail) thanks to [@x-way](https://github.com/x-way)
+- Telegram through [telebot](https://github.com/tucnak/telebot) by [@slayer](https://github.com/slayer), see [doc](fs/telegram/README.md)
 
 And with those are supported common parameters to switch them to read-only, enable login access, or use a temporary directory file (see [doc](https://github.com/fclairamb/ftpserver/tree/master/fs)).
 
@@ -190,6 +191,16 @@ Here is a sample config file:
             "username": "user",
             "password": "password",
             "hostname": "192.168.168.11:22"
+         }
+      },
+      {
+         "user": "telegram",
+         "pass": "telegram",
+         "fs": "telegram",
+         "shared": true,
+         "params": {
+            "Token": "<OBTAIN_TOKEN_FROM_BOTFATHER>",
+            "ChatID": "<INSERT_CHAT_ID_HERE>"
          }
       }
    ]

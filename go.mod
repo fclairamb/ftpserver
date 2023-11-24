@@ -16,6 +16,7 @@ require (
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.15.0
 	golang.org/x/oauth2 v0.14.0
+	gopkg.in/telebot.v3 v3.1.4
 )
 
 require (
