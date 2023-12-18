@@ -14,7 +14,7 @@ require (
 	github.com/pkg/sftp v1.13.6
 	github.com/spf13/afero v1.11.0
 	github.com/tidwall/sjson v1.2.5
-	golang.org/x/crypto v0.16.0
+	golang.org/x/crypto v0.17.0
 	golang.org/x/oauth2 v0.15.0
 )
 
