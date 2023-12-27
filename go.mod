@@ -3,7 +3,7 @@ module github.com/fclairamb/ftpserver
 go 1.19
 
 require (
-	github.com/aws/aws-sdk-go v1.48.9
+	github.com/aws/aws-sdk-go v1.49.10
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.3.0
 	github.com/fclairamb/afero-s3 v0.3.1
@@ -14,7 +14,7 @@ require (
 	github.com/pkg/sftp v1.13.6
 	github.com/spf13/afero v1.11.0
 	github.com/tidwall/sjson v1.2.5
-	golang.org/x/crypto v0.16.0
+	golang.org/x/crypto v0.17.0
 	golang.org/x/oauth2 v0.15.0
 	gopkg.in/telebot.v3 v3.1.4
 )
