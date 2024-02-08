@@ -15,7 +15,7 @@ require (
 	github.com/spf13/afero v1.11.0
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.19.0
-	golang.org/x/oauth2 v0.16.0
+	golang.org/x/oauth2 v0.17.0
 )
 
 require (
@@ -40,7 +40,7 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/api v0.152.0 // indirect
