@@ -3,20 +3,20 @@ module github.com/fclairamb/ftpserver
 go 1.19
 
 require (
-	github.com/aws/aws-sdk-go v1.49.12
+	github.com/aws/aws-sdk-go v1.51.3
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.3.0
 	github.com/fclairamb/afero-s3 v0.3.1
 	github.com/fclairamb/afero-snd v0.1.0
-	github.com/fclairamb/ftpserverlib v0.22.0
+	github.com/fclairamb/ftpserverlib v0.23.0
 	github.com/fclairamb/go-log v0.4.1
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.6
 	github.com/spf13/afero v1.11.0
 	github.com/tidwall/sjson v1.2.5
-	golang.org/x/crypto v0.17.0
-	golang.org/x/oauth2 v0.15.0
-	gopkg.in/telebot.v3 v3.1.4
+	golang.org/x/crypto v0.21.0
+	golang.org/x/oauth2 v0.18.0
+	gopkg.in/telebot.v3 v3.2.1
 )
 
 require (
@@ -41,12 +41,11 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/api v0.152.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20231106174013-bbf56f31fb17 // indirect
 	google.golang.org/grpc v1.59.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
