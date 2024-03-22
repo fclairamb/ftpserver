@@ -15,6 +15,7 @@ import (
 	"github.com/fclairamb/ftpserver/fs/mail"
 	"github.com/fclairamb/ftpserver/fs/s3"
 	"github.com/fclairamb/ftpserver/fs/sftp"
+	"github.com/fclairamb/ftpserver/fs/telegram"
 )
 
 // UnsupportedFsError is returned when the described file system is not supported
@@ -45,6 +46,8 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 		fs, err = gdrive.LoadFs(access, logger.With("component", "gdrive"))
 	case "dropbox":
 		fs, err = dropbox.LoadFs(access)
+	case "telegram":
+		fs, err = telegram.LoadFs(access, logger.With("component", "telegram"))
 	default:
 		fs, err = nil, &UnsupportedFsError{Type: access.Fs}
 	}
