@@ -1,6 +1,8 @@
 module github.com/fclairamb/ftpserver
 
-go 1.19
+go 1.21
+
+toolchain go1.22.3
 
 require (
 	github.com/aws/aws-sdk-go v1.53.11
@@ -9,14 +11,14 @@ require (
 	github.com/fclairamb/afero-s3 v0.3.1
 	github.com/fclairamb/afero-snd v0.1.0
 	github.com/fclairamb/ftpserverlib v0.23.0
-	github.com/fclairamb/go-log v0.4.1
+	github.com/fclairamb/go-log v0.5.0
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.6
 	github.com/spf13/afero v1.11.0
 	github.com/tidwall/sjson v1.2.5
-	gopkg.in/telebot.v3 v3.2.1
 	golang.org/x/crypto v0.23.0
 	golang.org/x/oauth2 v0.20.0
+	gopkg.in/telebot.v3 v3.2.1
 )
 
 require (
