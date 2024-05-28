@@ -4,7 +4,7 @@
 # Preparing the build environment
 FROM golang:1.22-alpine AS builder
 ENV GOFLAGS="-mod=readonly"
-RUN apk add --update --no-cache bash ca-certificates curl git
+RUN apk add --update --no-cache bash ca-certificates curl git && update-ca-certificates
 RUN mkdir -p /workspace
 WORKDIR /workspace
 
