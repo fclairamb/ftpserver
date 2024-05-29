@@ -160,3 +160,4 @@ func confFileContent() []byte {
 
 	return []byte(str)
 }
+
