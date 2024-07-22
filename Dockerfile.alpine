@@ -13,7 +13,7 @@ COPY . .
 RUN go build -v -o ftpserver
 
 # Preparing the final image
-FROM alpine:3.20.1
+FROM alpine:3.20.2
 WORKDIR /app
 EXPOSE 2121-2130
 COPY --from=builder /workspace/ftpserver /bin/ftpserver
