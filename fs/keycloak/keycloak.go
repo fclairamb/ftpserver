@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"path"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/fclairamb/ftpserver/config/confpar"
@@ -71,7 +72,7 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 		return nil, ErrLogin
 	}
 
-	basePath = utils.ReplaceEnvVars(basePath)
+	basePath = utils.ReplaceEnvVars(path.Join(basePath, access.User))
 
 	return afero.NewBasePathFs(afero.NewOsFs(), basePath), nil
 }
