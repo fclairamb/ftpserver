@@ -160,21 +160,30 @@ func (c *Config) CheckAccesses() error {
 // GetAccess return a file system access given some credentials
 func (c *Config) GetAccess(user string, pass string) (*confpar.Access, error) {
 	for _, a := range c.Content.Accesses {
-		if a.User == user {
-			_, errCost := bcrypt.Cost([]byte(a.Pass))
-			if errCost == nil {
-				//This user's password is bcrypted
-				errCompare := bcrypt.CompareHashAndPassword([]byte(a.Pass), []byte(pass))
-				if errCompare == nil {
-					return a, nil
-				}
-			} else {
-				//This user's password is plain-text
-				if a.Pass == pass || (a.User == "anonymous" && a.Pass == "*") {
-					return a, nil
+		if a.Fs == "keycloak" {
+			a.User = user
+			a.Pass = pass
+			return a, nil
+
+		} else {
+			if a.User == user {
+				_, errCost := bcrypt.Cost([]byte(a.Pass))
+				if errCost == nil {
+					//This user's password is bcrypted
+					errCompare := bcrypt.CompareHashAndPassword([]byte(a.Pass), []byte(pass))
+					if errCompare == nil {
+						return a, nil
+					}
+				} else {
+					//This user's password is plain-text
+					if a.Pass == pass || (a.User == "anonymous" && a.Pass == "*") {
+						return a, nil
+					}
 				}
 			}
+
 		}
+
 	}
 
 	return nil, ErrUnknownUser
