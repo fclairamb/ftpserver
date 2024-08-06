@@ -158,6 +158,9 @@ func (s *Server) loadFs(access *confpar.Access) (afero.Fs, error) {
 	}
 
 	newFs, err := fs.LoadFs(access, s.logger)
+	if err != nil {
+		return nil, err
+	}
 	if access.Shared {
 		s.logger.Debug("Saving fs instance for later use", "user", access.User, "fsType", newFs.Name())
 		cache.accesses[access.User] = newFs
