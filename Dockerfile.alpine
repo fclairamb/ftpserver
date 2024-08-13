@@ -2,7 +2,7 @@
 # docker run -ti -p 2121-2130:2121-2130 fclairamb/ftpserver
 
 # Preparing the build environment
-FROM golang:1.22-alpine AS builder
+FROM golang:1.23-alpine AS builder
 ENV GOFLAGS="-mod=readonly"
 RUN apk add --update --no-cache bash ca-certificates curl git && update-ca-certificates
 RUN mkdir -p /workspace
