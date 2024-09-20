@@ -55,4 +55,5 @@ type Content struct {
 	PassiveTransferPortRange *PortRange `json:"passive_transfer_port_range"` // Listen port range
 	Logging                  Logging    `json:"logging"`                     // Logging parameters
 	TLS                      *TLS       `json:"tls"`                         // TLS Config
+	TLSRequired              string     `json:"tls_required"`
 }
