@@ -13,7 +13,7 @@ require (
 	github.com/fclairamb/ftpserverlib v0.24.1
 	github.com/fclairamb/go-log v0.5.0
 	github.com/go-mail/mail v2.3.1+incompatible
-	github.com/pkg/sftp v1.13.6
+	github.com/pkg/sftp v1.13.7
 	github.com/spf13/afero v1.11.0
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.28.0
