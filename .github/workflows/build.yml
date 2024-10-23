@@ -16,7 +16,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v4.2.1
+      - uses: actions/checkout@v4.2.2
 
       # Running golangci-lint
       - name: Linting

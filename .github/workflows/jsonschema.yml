@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-22.04
     container: python:3.11-alpine3.16
     steps:
-      - uses: actions/checkout@v4.2.1
+      - uses: actions/checkout@v4.2.2
       - name: Test
         run: |
           pip install jsonschema==4.14.0
