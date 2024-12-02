@@ -79,6 +79,7 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		ListenAddr:               conf.ListenAddress,
 		PublicHost:               conf.PublicHost,
 		PassiveTransferPortRange: portRange,
+		IdleTimeout:              conf.IdleTimeout,
 	}, nil
 }
 
