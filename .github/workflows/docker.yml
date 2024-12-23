@@ -69,7 +69,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.CR_PAT }}
       - name: Build and push (scratch)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile${{ matrix.type != '' && format('.{0}', matrix.type) || '' }}
