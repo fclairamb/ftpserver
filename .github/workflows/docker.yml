@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         type: ["", "alpine"]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -82,6 +82,6 @@ jobs:
 
   build-and-push-status:
       needs: build-and-push
-      runs-on: ubuntu-22.04
+      runs-on: ubuntu-24.04
       steps:
         - run: echo 'All good'
