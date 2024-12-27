@@ -13,14 +13,14 @@ jobs:
     strategy:
       matrix:
         type: ["", "alpine"]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
       - name: Setup go
-        uses: actions/setup-go@v5.0.2
+        uses: actions/setup-go@v5.2.0
         with:
           go-version: 1.19
       - name: Change version
@@ -69,7 +69,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.CR_PAT }}
       - name: Build and push (scratch)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile${{ matrix.type != '' && format('.{0}', matrix.type) || '' }}
@@ -82,6 +82,6 @@ jobs:
 
   build-and-push-status:
       needs: build-and-push
-      runs-on: ubuntu-22.04
+      runs-on: ubuntu-24.04
       steps:
         - run: echo 'All good'
