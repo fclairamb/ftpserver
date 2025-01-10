@@ -66,6 +66,7 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 		ClientID:     googleClientID,
 		ClientSecret: googleClientSecret,
 		Token:        token,
+		TokenFile:    tokenFile,
 		Authenticate: func(url string) (string, error) {
 			fmt.Printf("Please go to %s and enter the received code:\n", url)
 			var code string
