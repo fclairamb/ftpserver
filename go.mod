@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.23.4
 
 require (
-	github.com/aws/aws-sdk-go v1.55.5
+	github.com/aws/aws-sdk-go v1.55.6
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.3.0
 	github.com/fclairamb/afero-s3 v0.3.1
