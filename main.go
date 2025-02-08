@@ -127,10 +127,18 @@ func stop() {
 func signalHandler() {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGTERM)
+	signal.Notify(ch, syscall.SIGHUP)
 
 	for {
 		sig := <-ch
-
+		if sig == syscall.SIGHUP {
+			err := driver.ReloadConfig()
+			if err != nil {
+				ftpServer.Logger.Warn("Error reloading config ", err)
+			} else {
+				ftpServer.Logger.Info("Successfully reloaded config")
+			}
+		}
 		if sig == syscall.SIGTERM {
 			stop()
 
