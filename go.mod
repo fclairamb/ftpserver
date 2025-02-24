@@ -16,7 +16,7 @@ require (
 	github.com/pkg/sftp v1.13.7
 	github.com/spf13/afero v1.12.0
 	github.com/tidwall/sjson v1.2.5
-	golang.org/x/crypto v0.34.0
+	golang.org/x/crypto v0.35.0
 	golang.org/x/oauth2 v0.26.0
 	gopkg.in/telebot.v3 v3.3.8
 )
