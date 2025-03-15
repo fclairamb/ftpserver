@@ -14,7 +14,8 @@ require (
 	github.com/fclairamb/go-log v0.5.0
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.8
-	github.com/spf13/afero v1.13.0
+	github.com/spf13/afero v1.14.0
+	github.com/spf13/afero/sftpfs v1.14.0
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.36.0
 	golang.org/x/oauth2 v0.28.0
