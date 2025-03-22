@@ -86,10 +86,12 @@
                     ]
                 }
             },
-            "examples": [{
-                "start": 2122,
-                "end": 2130
-            }]
+            "examples": [
+                {
+                    "start": 2122,
+                    "end": 2130
+                }
+            ]
         },
         "logging": {
             "type": "object",
@@ -121,11 +123,21 @@
                     ]
                 }
             },
-            "examples": [{
-                "ftp_exchanges": true,
-                "file_accesses": true,
-                "file": "ftpserver.log"
-            }]
+            "examples": [
+                {
+                    "ftp_exchanges": true,
+                    "file_accesses": true,
+                    "file": "ftpserver.log"
+                }
+            ]
+        },
+        "idle_timeout": {
+            "type": "integer",
+            "default": 0,
+            "title": "The idle timeout in seconds",
+            "examples": [
+                60
+            ]
         },
         "tls": {
             "type": "object",
@@ -161,18 +173,22 @@
                             ]
                         }
                     },
-                    "examples": [{
-                        "cert": "cert.pem",
-                        "key": "key.pem"
-                    }]
+                    "examples": [
+                        {
+                            "cert": "cert.pem",
+                            "key": "key.pem"
+                        }
+                    ]
                 }
             },
-            "examples": [{
-                "server_cert": {
-                    "cert": "cert.pem",
-                    "key": "key.pem"
+            "examples": [
+                {
+                    "server_cert": {
+                        "cert": "cert.pem",
+                        "key": "key.pem"
+                    }
                 }
-            }]
+            ]
         },
         "accesses": {
             "type": "array",
@@ -260,76 +276,80 @@
                                 ]
                             }
                         },
-                        "examples": [{
+                        "examples": [
+                            {
+                                "enable": true,
+                                "directory": "/tmp/snd"
+                            }
+                        ]
+                    }
+                },
+                "examples": [
+                    {
+                        "user": "test",
+                        "pass": "test",
+                        "fs": "os",
+                        "params": {
+                            "basePath": "/tmp"
+                        }
+                    },
+                    {
+                        "user": "test",
+                        "pass": "test",
+                        "fs": "os",
+                        "params": {
+                            "basePath": "/tmp"
+                        }
+                    },
+                    {
+                        "user": "dropbox",
+                        "pass": "dropbox",
+                        "fs": "dropbox",
+                        "params": {
+                            "token": "..."
+                        }
+                    },
+                    {
+                        "user": "gdrive",
+                        "pass": "gdrive",
+                        "fs": "gdrive",
+                        "params": {
+                            "google_client_id": "***.apps.googleusercontent.com",
+                            "google_client_secret": "****",
+                            "base_path": "ftp"
+                        }
+                    },
+                    {
+                        "user": "s3",
+                        "pass": "s3",
+                        "fs": "s3",
+                        "params": {
+                            "endpoint": "https://s3.amazonaws.com",
+                            "region": "eu-west-1",
+                            "bucket": "my-bucket",
+                            "access_key_id": "AKIA....",
+                            "secret_access_key": "IDxd....",
+                            "disable_ssl": "false",
+                            "path_style": "false"
+                        }
+                    },
+                    {
+                        "user": "sftp",
+                        "pass": "sftp",
+                        "fs": "sftp",
+                        "shared": true,
+                        "read_only": true,
+                        "sync_and_delete": {
                             "enable": true,
                             "directory": "/tmp/snd"
-                        }]
+                        },
+                        "params": {
+                            "username": "user",
+                            "password": "password",
+                            "hostname": "192.168.168.11:22"
+                        }
                     }
-                },
-                "examples": [{
-                    "user": "test",
-                    "pass": "test",
-                    "fs": "os",
-                    "params": {
-                        "basePath": "/tmp"
-                    }
-                },
-                {
-                    "user": "test",
-                    "pass": "test",
-                    "fs": "os",
-                    "params": {
-                        "basePath": "/tmp"
-                    }
-                },
-                {
-                    "user": "dropbox",
-                    "pass": "dropbox",
-                    "fs": "dropbox",
-                    "params": {
-                        "token": "..."
-                    }
-                },
-                {
-                    "user": "gdrive",
-                    "pass": "gdrive",
-                    "fs": "gdrive",
-                    "params": {
-                        "google_client_id": "***.apps.googleusercontent.com",
-                        "google_client_secret": "****",
-                        "base_path": "ftp"
-                    }
-                },
-                {
-                    "user": "s3",
-                    "pass": "s3",
-                    "fs": "s3",
-                    "params": {
-                        "endpoint": "https://s3.amazonaws.com",
-                        "region": "eu-west-1",
-                        "bucket": "my-bucket",
-                        "access_key_id": "AKIA....",
-                        "secret_access_key": "IDxd....",
-                        "disable_ssl": "false",
-                        "path_style": "false"
-                    }
-                },
-                {
-                    "user": "sftp",
-                    "pass": "sftp",
-                    "fs": "sftp",
-                    "shared": true,
-                    "read_only": true,
-                    "sync_and_delete": {
-                        "enable": true,
-                        "directory": "/tmp/snd"
-                    },
-                    "params": {
-                        "username": "user",
-                        "password": "password",
-                        "hostname": "192.168.168.11:22"
-                    }
-                }]
+                ]
             }
         }
     },
