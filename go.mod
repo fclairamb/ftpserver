@@ -18,7 +18,7 @@ require (
 	github.com/spf13/afero/sftpfs v1.14.0
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.36.0
-	golang.org/x/oauth2 v0.28.0
+	golang.org/x/oauth2 v0.29.0
 	gopkg.in/telebot.v3 v3.3.8
 )
 
