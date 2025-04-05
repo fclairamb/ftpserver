@@ -15,7 +15,7 @@ RUN CGO_ENABLED=0 go build -mod=readonly -ldflags='-w -s' -v -o ftpserver
 # Preparing the final image
 FROM scratch
 WORKDIR /app
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /etc/ssl/certs/ /etc/ssl/certs/
 EXPOSE 2121-2130
 COPY --from=builder /workspace/ftpserver /bin/ftpserver
 ENTRYPOINT [ "/bin/ftpserver" ]
