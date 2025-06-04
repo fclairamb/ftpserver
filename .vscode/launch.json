@@ -10,7 +10,17 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/config/samples/",
             "args": ["-conf", "${workspaceFolder}/config/samples/log_file.json"]
+        },
+        {
+            "name": "Launch (hashed_passwords)",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/config/samples/",
+            "args": ["-conf", "${workspaceFolder}/config/samples/hashed_passwords.json"]
         }
     ]
 }
