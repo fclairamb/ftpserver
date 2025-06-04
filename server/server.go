@@ -86,6 +86,9 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		PassiveTransferPortRange: portRange,
 	}, nil
 }
+func (s *Server) ReloadConfig() error {
+	return s.config.Load()
+}
 
 // ClientConnected is called to send the very first welcome message
 func (s *Server) ClientConnected(cc serverlib.ClientContext) (string, error) {
