@@ -80,10 +80,21 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		}
 	}
 
+	var tlsRequired serverlib.TLSRequirement
+	switch conf.TLSRequired {
+	case "ImplicitEncryption":
+		tlsRequired = serverlib.ImplicitEncryption
+	case "MandatoryEncryption":
+		tlsRequired = serverlib.MandatoryEncryption
+	default:
+		tlsRequired = serverlib.ClearOrEncrypted
+	}
+
 	return &serverlib.Settings{
 		ListenAddr:               conf.ListenAddress,
 		PublicHost:               conf.PublicHost,
 		PassiveTransferPortRange: portRange,
+		TLSRequired:              tlsRequired,
 	}, nil
 }
 func (s *Server) ReloadConfig() error {
