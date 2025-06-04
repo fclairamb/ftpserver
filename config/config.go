@@ -2,17 +2,20 @@
 package config
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 
 	log "github.com/fclairamb/go-log"
-	"github.com/tidwall/sjson"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs"
-	"golang.org/x/crypto/bcrypt"
+
+	"github.com/go-crypt/crypt"
+	"github.com/go-crypt/crypt/algorithm/bcrypt"
+	"github.com/tidwall/sjson"
 )
 
 // ErrUnknownUser is returned when the provided user cannot be identified through our authentication mechanism
@@ -93,7 +96,6 @@ func (c *Config) Load() error {
 }
 
 func (c *Config) HashPlaintextPasswords() error {
-
 	json, errReadFile := os.ReadFile(c.fileName)
 	if errReadFile != nil {
 		c.logger.Error("Cannot read config file!", "err", errReadFile)
@@ -105,17 +107,49 @@ func (c *Config) HashPlaintextPasswords() error {
 		if a.User == "anonymous" && a.Pass == "*" {
 			continue
 		}
-		_, errCost := bcrypt.Cost([]byte(a.Pass))
-		if errCost != nil {
+
+		switch true {
+		case bytes.HasPrefix([]byte(a.Pass), []byte("$1$")):
+			//This user's password is md5crypt
+			continue
+		case bytes.HasPrefix([]byte(a.Pass), []byte("$2$")):
+			//This user's password is bcrypt
+			continue
+		case bytes.HasPrefix([]byte(a.Pass), []byte("$2a$")):
+			//This user's password is bcrypt-a
+			continue
+		case bytes.HasPrefix([]byte(a.Pass), []byte("$2b$")):
+			//This user's password is bcrypt-b
+			continue
+		case bytes.HasPrefix([]byte(a.Pass), []byte("$2x$")):
+			//This user's password is bcrypt-x
+			continue
+		case bytes.HasPrefix([]byte(a.Pass), []byte("$2y$")):
+			//This user's password is bcrypt-y
+			continue
+		case bytes.HasPrefix([]byte(a.Pass), []byte("$5$")):
+			//This user's password is sha256crypt
+			continue
+		case bytes.HasPrefix([]byte(a.Pass), []byte("$6$")):
+			//This user's password is sha512crypt
+			continue
+		default:
 			//This password is not hashed
-			hash, errHash := bcrypt.GenerateFromPassword([]byte(a.Pass), 10)
-			if errHash == nil {
-				modified, errJsonSet := sjson.Set(string(json), "accesses."+fmt.Sprint(i)+".pass", string(hash))
-				c.Content.Accesses[i].Pass = string(hash)
-				if errJsonSet == nil {
-					save = true
-					json = []byte(modified)
-				}
+			hasher, err := bcrypt.New(bcrypt.WithCost(10))
+			if err != nil {
+				return err
+			}
+
+			digest, err := hasher.Hash(a.Pass)
+			if err != nil {
+				return err
+			}
+
+			modified, errJsonSet := sjson.Set(string(json), "accesses."+fmt.Sprint(i)+".pass", digest.Encode())
+			c.Content.Accesses[i].Pass = digest.Encode()
+			if errJsonSet == nil {
+				save = true
+				json = []byte(modified)
 			}
 		}
 	}
@@ -159,16 +193,135 @@ func (c *Config) CheckAccesses() error {
 
 // GetAccess return a file system access given some credentials
 func (c *Config) GetAccess(user string, pass string) (*confpar.Access, error) {
+	decoder, err := crypt.NewDecoderAll()
+	if err != nil {
+		return nil, err
+	}
+
 	for _, a := range c.Content.Accesses {
 		if a.User == user {
-			_, errCost := bcrypt.Cost([]byte(a.Pass))
-			if errCost == nil {
-				//This user's password is bcrypted
-				errCompare := bcrypt.CompareHashAndPassword([]byte(a.Pass), []byte(pass))
-				if errCompare == nil {
+			switch true {
+			case bytes.HasPrefix([]byte(a.Pass), []byte("$1$")):
+				//This user's password is md5crypt
+				digest, err := decoder.Decode(a.Pass)
+				if err != nil {
+					return nil, err
+				}
+
+				ok, err := digest.MatchAdvanced(pass)
+				if err != nil {
+					return nil, err
+				}
+
+				if ok {
 					return a, nil
 				}
-			} else {
+			case bytes.HasPrefix([]byte(a.Pass), []byte("$2$")):
+				//This user's password is bcrypt
+				digest, err := decoder.Decode(a.Pass)
+				if err != nil {
+					return nil, err
+				}
+
+				ok, err := digest.MatchAdvanced(pass)
+				if err != nil {
+					return nil, err
+				}
+
+				if ok {
+					return a, nil
+				}
+			case bytes.HasPrefix([]byte(a.Pass), []byte("$2a$")):
+				//This user's password is bcrypt-a
+				digest, err := decoder.Decode(a.Pass)
+				if err != nil {
+					return nil, err
+				}
+
+				ok, err := digest.MatchAdvanced(pass)
+				if err != nil {
+					return nil, err
+				}
+
+				if ok {
+					return a, nil
+				}
+			case bytes.HasPrefix([]byte(a.Pass), []byte("$2b$")):
+				//This user's password is bcrypt-b
+				digest, err := decoder.Decode(a.Pass)
+				if err != nil {
+					return nil, err
+				}
+
+				ok, err := digest.MatchAdvanced(pass)
+				if err != nil {
+					return nil, err
+				}
+
+				if ok {
+					return a, nil
+				}
+			case bytes.HasPrefix([]byte(a.Pass), []byte("$2x$")):
+				//This user's password is bcrypt-x
+				digest, err := decoder.Decode(a.Pass)
+				if err != nil {
+					return nil, err
+				}
+
+				ok, err := digest.MatchAdvanced(pass)
+				if err != nil {
+					return nil, err
+				}
+
+				if ok {
+					return a, nil
+				}
+			case bytes.HasPrefix([]byte(a.Pass), []byte("$2y$")):
+				//This user's password is bcrypt-y
+				digest, err := decoder.Decode(a.Pass)
+				if err != nil {
+					return nil, err
+				}
+
+				ok, err := digest.MatchAdvanced(pass)
+				if err != nil {
+					return nil, err
+				}
+
+				if ok {
+					return a, nil
+				}
+			case bytes.HasPrefix([]byte(a.Pass), []byte("$5$")):
+				//This user's password is sha256crypt
+				digest, err := decoder.Decode(a.Pass)
+				if err != nil {
+					return nil, err
+				}
+
+				ok, err := digest.MatchAdvanced(pass)
+				if err != nil {
+					return nil, err
+				}
+
+				if ok {
+					return a, nil
+				}
+			case bytes.HasPrefix([]byte(a.Pass), []byte("$6$")):
+				//This user's password is sha512crypt
+				digest, err := decoder.Decode(a.Pass)
+				if err != nil {
+					return nil, err
+				}
+
+				ok, err := digest.MatchAdvanced(pass)
+				if err != nil {
+					return nil, err
+				}
+
+				if ok {
+					return a, nil
+				}
+			default:
 				//This user's password is plain-text
 				if a.Pass == pass || (a.User == "anonymous" && a.Pass == "*") {
 					return a, nil

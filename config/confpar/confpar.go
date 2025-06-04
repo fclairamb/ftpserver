@@ -1,6 +1,8 @@
 // Package confpar provide the core parameters of the config
 package confpar
 
+import "time"
+
 // Access provides rules around any access
 type Access struct {
 	User          string            `json:"user"`            // User authenticating
@@ -11,6 +13,13 @@ type Access struct {
 	ReadOnly      bool              `json:"read_only"`       // Read-only access
 	Shared        bool              `json:"shared"`          // Shared FS instance
 	SyncAndDelete *SyncAndDelete    `json:"sync_and_delete"` // Local empty directory and synchronization
+}
+
+// AccessesWebhook defines an optional webhook to get user's access
+type AccessesWebhook struct {
+	URL     string            `json:"url"`     // URL to call
+	Headers map[string]string `json:"headers"` // Token to use in the
+	Timeout time.Duration     `json:"timeout"` // Max time request can take
 }
 
 // SyncAndDelete provides
@@ -46,13 +55,15 @@ type ServerCert struct {
 
 // Content defines the content of the config file
 type Content struct {
-	Version                  int        `json:"version"`                     // File format version
-	ListenAddress            string     `json:"listen_address"`              // Address to listen on
-	PublicHost               string     `json:"public_host"`                 // Public host to listen on
-	MaxClients               int        `json:"max_clients"`                 // Maximum clients who can connect
-	HashPlaintextPasswords   bool       `json:"hash_plaintext_passwords"`    // Overwrite plain-text passwords with hashed equivalents
-	Accesses                 []*Access  `json:"accesses"`                    // Accesses offered to users
-	PassiveTransferPortRange *PortRange `json:"passive_transfer_port_range"` // Listen port range
-	Logging                  Logging    `json:"logging"`                     // Logging parameters
-	TLS                      *TLS       `json:"tls"`                         // TLS Config
+	Version                  int              `json:"version"`                     // File format version
+	ListenAddress            string           `json:"listen_address"`              // Address to listen on
+	PublicHost               string           `json:"public_host"`                 // Public host to listen on
+	MaxClients               int              `json:"max_clients"`                 // Maximum clients who can connect
+	HashPlaintextPasswords   bool             `json:"hash_plaintext_passwords"`    // Overwrite plain-text passwords with hashed equivalents
+	Accesses                 []*Access        `json:"accesses"`                    // Accesses offered to users
+	PassiveTransferPortRange *PortRange       `json:"passive_transfer_port_range"` // Listen port range
+	Logging                  Logging          `json:"logging"`                     // Logging parameters
+	TLS                      *TLS             `json:"tls"`                         // TLS Config
+  TLSRequired              string           `json:"tls_required"`
+	AccessesWebhook          *AccessesWebhook `json:"accesses_webhook"`            // Webhook to call when accesses are updated
 }
