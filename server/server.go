@@ -2,10 +2,15 @@
 package server
 
 import (
+	"bytes"
+	"context"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"net/http"
 	"sync"
 	"time"
 
@@ -169,9 +174,73 @@ func (s *Server) loadFs(access *confpar.Access) (afero.Fs, error) {
 	return newFs, err
 }
 
+func (s *Server) getAccessFromWebhook(user, pass string) (*confpar.Access, error) {
+	// Convert payload to JSON
+	jsonData, err := json.Marshal(map[string]string{
+		"user": user,
+		"pass": pass,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Timeout is implemented with context termination
+	ctx, cancel := context.WithTimeout(context.Background(), s.config.Content.AccessesWebhook.Timeout)
+	defer cancel()
+
+	// Create a new HTTP request
+	req, err := http.NewRequestWithContext(ctx, "POST", s.config.Content.AccessesWebhook.URL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	for key, value := range s.config.Content.AccessesWebhook.Headers {
+		req.Header.Set(key, value)
+	}
+
+	// Execute the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Check the response status
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	// Return the response
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	access := new(confpar.Access)
+	err = json.Unmarshal(body, &access)
+	if err != nil {
+		return nil, err
+	}
+
+	return access, nil
+}
+
 // AuthUser authenticates the user and selects an handling driver
 func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (serverlib.ClientDriver, error) {
-	access, errAccess := s.config.GetAccess(user, pass)
+	var (
+		access    *confpar.Access
+		errAccess error
+	)
+
+	if s.config.Content.AccessesWebhook == nil {
+		// Get the access from the configuration
+		access, errAccess = s.config.GetAccess(user, pass)
+	} else {
+		// Get the access from the webhook, not the configuration
+		access, errAccess = s.getAccessFromWebhook(user, pass)
+	}
 	if errAccess != nil {
 		return nil, errAccess
 	}
