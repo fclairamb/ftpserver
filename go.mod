@@ -10,7 +10,7 @@ require (
 	github.com/fclairamb/afero-gdrive v0.3.0
 	github.com/fclairamb/afero-s3 v0.3.1
 	github.com/fclairamb/afero-snd v0.1.0
-	github.com/fclairamb/ftpserverlib v0.25.0
+	github.com/fclairamb/ftpserverlib v0.26.0
 	github.com/fclairamb/go-log v0.5.0
 	github.com/go-crypt/crypt v0.4.1
 	github.com/go-mail/mail v2.3.1+incompatible
