@@ -18,7 +18,7 @@ require (
 	github.com/spf13/afero v1.14.0
 	github.com/spf13/afero/sftpfs v1.14.0
 	github.com/tidwall/sjson v1.2.5
-	golang.org/x/crypto v0.38.0
+	golang.org/x/crypto v0.39.0
 	golang.org/x/oauth2 v0.30.0
 	gopkg.in/telebot.v3 v3.3.8
 )
@@ -55,7 +55,7 @@ require (
 	github.com/kr/fs v0.1.0 // indirect
 	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 	google.golang.org/api v0.226.0 // indirect
 	google.golang.org/grpc v1.71.0 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
