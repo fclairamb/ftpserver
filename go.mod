@@ -11,7 +11,7 @@ require (
 	github.com/fclairamb/afero-s3 v0.3.1
 	github.com/fclairamb/afero-snd v0.1.0
 	github.com/fclairamb/ftpserverlib v0.26.0
-	github.com/fclairamb/go-log v0.5.0
+	github.com/fclairamb/go-log v0.6.0
 	github.com/go-crypt/crypt v0.4.1
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.9
@@ -48,7 +48,7 @@ require (
 require (
 	github.com/dropbox/dropbox-sdk-go-unofficial v5.6.0+incompatible // indirect
 	github.com/go-kit/log v0.2.1
-	github.com/go-logfmt/logfmt v0.5.1 // indirect
+	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.5 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
