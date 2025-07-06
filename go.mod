@@ -12,7 +12,7 @@ require (
 	github.com/fclairamb/afero-snd v0.1.0
 	github.com/fclairamb/ftpserverlib v0.26.0
 	github.com/fclairamb/go-log v0.6.0
-	github.com/go-crypt/crypt v0.4.1
+	github.com/go-crypt/crypt v0.4.2
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.9
 	github.com/spf13/afero v1.14.0
@@ -28,7 +28,7 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.7 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/go-crypt/x v0.4.2 // indirect
+	github.com/go-crypt/x v0.4.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
