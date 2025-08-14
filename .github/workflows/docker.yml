@@ -22,7 +22,7 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v5.5.0
         with:
-          go-version: 1.24
+          go-version: 1.25
       - name: Change version
         run: |
           curl -L https://github.com/fclairamb/ci-info/releases/download/v0.4.4/ci-info_0.4.4_linux_amd64.tar.gz | tar -zx
