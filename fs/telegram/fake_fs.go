@@ -13,10 +13,6 @@ type fakeFilesystem struct {
 	// dir fakeDir
 }
 
-type fakeDir struct {
-	name    string
-	content []os.FileInfo
-}
 
 // newFakeFilesystem creates a new fake filesystem
 func newFakeFilesystem() *fakeFilesystem {
@@ -63,17 +59,4 @@ func (f *fakeFilesystem) stat(name string) *FileInfo {
 	return f.dict[name]
 }
 
-// remove removes a file
-func (f *fakeFilesystem) remove(name string) {
-	f.Lock()
-	defer f.Unlock()
-	delete(f.dict, name)
-}
 
-// exists checks if a file exists
-func (f *fakeFilesystem) exists(name string) bool {
-	f.Lock()
-	defer f.Unlock()
-	_, ok := f.dict[name]
-	return ok
-}

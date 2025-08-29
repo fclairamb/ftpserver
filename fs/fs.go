@@ -21,7 +21,6 @@ import (
 
 // UnsupportedFsError is returned when the described file system is not supported
 type UnsupportedFsError struct {
-	error
 	Type string
 }
 

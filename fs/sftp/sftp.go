@@ -15,7 +15,6 @@ import (
 
 // ConnectionError is returned when a connection occurs while connecting to the SFTP server
 type ConnectionError struct {
-	error
 	Source error
 }
 
