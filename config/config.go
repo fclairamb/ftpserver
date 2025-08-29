@@ -89,7 +89,9 @@ func (c *Config) Load() error {
 	c.Content = &content
 
 	if c.Content.HashPlaintextPasswords {
-		c.HashPlaintextPasswords()
+		if err := c.HashPlaintextPasswords(); err != nil {
+			return err
+		}
 	}
 
 	return c.Prepare()

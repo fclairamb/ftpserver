@@ -60,6 +60,18 @@
                 false
             ]
         },
+        "idle_timeout": {
+            "type": "string",
+            "default": "0s",
+            "title": "Maximum idle time for client connections",
+            "description": "Duration after which idle client connections will be closed. Use Go duration format (e.g., '5m', '30s', '1h'). Set to 0 or empty to disable idle timeout.",
+            "examples": [
+                "5m",
+                "30s",
+                "1h",
+                "0s"
+            ]
+        },
         "passive_transfer_port_range": {
             "type": "object",
             "default": {},
