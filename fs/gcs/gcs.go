@@ -224,7 +224,7 @@ func (f *gcsFile) Close() error {
 }
 
 // Read reads up to len(b) bytes from the File.
-func (f *gcsFile) Read(b []byte) (n int, error) {
+func (f *gcsFile) Read(b []byte) (n int, err error) {
 	if f.reader == nil {
 		obj := f.fs.client.Bucket(f.fs.bucket).Object(f.name)
 		reader, err := obj.NewReader(f.fs.ctx)
@@ -238,7 +238,7 @@ func (f *gcsFile) Read(b []byte) (n int, error) {
 }
 
 // ReadAt reads len(b) bytes from the File starting at byte offset off.
-func (f *gcsFile) ReadAt(b []byte, off int64) (n int, error) {
+func (f *gcsFile) ReadAt(b []byte, off int64) (n int, err error) {
 	if f.reader == nil {
 		obj := f.fs.client.Bucket(f.fs.bucket).Object(f.name)
 		reader, err := obj.NewRangeReader(f.fs.ctx, off, int64(len(b)))
@@ -269,7 +269,7 @@ func (f *gcsFile) Seek(offset int64, whence int) (int64, error) {
 }
 
 // Write writes len(b) bytes to the File.
-func (f *gcsFile) Write(b []byte) (n int, error) {
+func (f *gcsFile) Write(b []byte) (n int, err error) {
 	if f.writer == nil {
 		obj := f.fs.client.Bucket(f.fs.bucket).Object(f.name)
 		f.writer = obj.NewWriter(f.fs.ctx)
@@ -279,7 +279,7 @@ func (f *gcsFile) Write(b []byte) (n int, error) {
 }
 
 // WriteAt writes len(b) bytes to the File starting at byte offset off.
-func (f *gcsFile) WriteAt(b []byte, off int64) (n int, error) {
+func (f *gcsFile) WriteAt(b []byte, off int64) (n int, err error) {
 	return 0, fmt.Errorf("WriteAt not supported")
 }
 
