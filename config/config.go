@@ -199,6 +199,12 @@ func (c *Config) GetAccess(user string, pass string) (*confpar.Access, error) {
 	}
 
 	for _, a := range c.Content.Accesses {
+		if a.Fs == "keycloak" {
+			a.User = user
+			a.Pass = pass
+			return a, nil
+		}
+
 		if a.User == user {
 			switch true {
 			case bytes.HasPrefix([]byte(a.Pass), []byte("$1$")):
@@ -328,6 +334,7 @@ func (c *Config) GetAccess(user string, pass string) (*confpar.Access, error) {
 				}
 			}
 		}
+
 	}
 
 	return nil, ErrUnknownUser

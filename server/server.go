@@ -9,8 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -304,12 +304,12 @@ func (s *Server) loadTLSConfig() (*tls.Config, error) {
 
 	serverCert := tlsConf.ServerCert
 
-	certBytes, errReadFileCert := ioutil.ReadFile(serverCert.Cert)
+	certBytes, errReadFileCert := os.ReadFile(serverCert.Cert)
 	if errReadFileCert != nil {
 		return nil, fmt.Errorf("could not load cert file: %s: %w", serverCert.Cert, errReadFileCert)
 	}
 
-	keyBytes, errReadFileKey := ioutil.ReadFile(serverCert.Key)
+	keyBytes, errReadFileKey := os.ReadFile(serverCert.Key)
 	if errReadFileKey != nil {
 		return nil, fmt.Errorf("could not load key file: %s: %w", serverCert.Cert, errReadFileCert)
 	}

@@ -4,7 +4,6 @@ package main
 import (
 	"flag"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -51,7 +50,7 @@ func main() {
 		if _, err := os.Stat(confFile); err != nil && os.IsNotExist(err) {
 			logger.Warn("No conf file, creating one", "confFile", confFile)
 
-			if err := ioutil.WriteFile(confFile, confFileContent(), 0600); err != nil { //nolint: gomnd
+			if err := os.WriteFile(confFile, confFileContent(), 0600); err != nil { //nolint: gomnd
 				logger.Warn("Couldn't create conf file", "confFile", confFile)
 			}
 		}

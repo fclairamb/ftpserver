@@ -12,6 +12,7 @@ import (
 	"github.com/fclairamb/ftpserver/fs/afos"
 	"github.com/fclairamb/ftpserver/fs/dropbox"
 	"github.com/fclairamb/ftpserver/fs/gdrive"
+	"github.com/fclairamb/ftpserver/fs/keycloak"
 	"github.com/fclairamb/ftpserver/fs/mail"
 	"github.com/fclairamb/ftpserver/fs/s3"
 	"github.com/fclairamb/ftpserver/fs/sftp"
@@ -20,7 +21,6 @@ import (
 
 // UnsupportedFsError is returned when the described file system is not supported
 type UnsupportedFsError struct {
-	error
 	Type string
 }
 
@@ -44,6 +44,8 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 		fs, err = mail.LoadFs(access)
 	case "gdrive":
 		fs, err = gdrive.LoadFs(access, logger.With("component", "gdrive"))
+	case "keycloak":
+		fs, err = keycloak.LoadFs(access)
 	case "dropbox":
 		fs, err = dropbox.LoadFs(access)
 	case "telegram":
