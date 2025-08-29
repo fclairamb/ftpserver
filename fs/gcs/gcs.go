@@ -44,6 +44,6 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 		return nil, fmt.Errorf("failed to create GCS client: %w", err)
 	}
 
-	return gcsfs.NewFs(ctx, client, bucket), nil
+	return gcsfs.NewGcsFSFromClient(ctx, client)
 }
 
