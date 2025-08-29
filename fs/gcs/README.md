@@ -1,6 +1,6 @@
 # Google Cloud Storage (GCS) filesystem
 
-This directory contains the Google Cloud Storage implementation for the FTP server.
+This directory contains the Google Cloud Storage implementation for the FTP server using the official `github.com/spf13/afero/gcsfs` package.
 
 ## Configuration
 
