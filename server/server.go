@@ -95,6 +95,7 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		PublicHost:               conf.PublicHost,
 		PassiveTransferPortRange: portRange,
 		TLSRequired:              tlsRequired,
+		IdleTimeout:              conf.IdleTimeout,
 	}, nil
 }
 func (s *Server) ReloadConfig() error {
