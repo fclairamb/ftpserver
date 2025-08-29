@@ -95,7 +95,7 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		PublicHost:               conf.PublicHost,
 		PassiveTransferPortRange: portRange,
 		TLSRequired:              tlsRequired,
-		IdleTimeout:              conf.IdleTimeout,
+		IdleTimeout:              int(conf.IdleTimeout.Seconds()),
 		EnableHASH:               conf.Extensions.EnableHASH,
 	}, nil
 }
@@ -221,7 +221,7 @@ func (s *Server) getAccessFromWebhook(user, pass string) (*confpar.Access, error
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Check the response status
 	if resp.StatusCode != http.StatusOK {
