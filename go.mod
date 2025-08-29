@@ -21,6 +21,8 @@ require (
 	golang.org/x/crypto v0.41.0
 	golang.org/x/oauth2 v0.30.0
 	gopkg.in/telebot.v3 v3.3.8
+	cloud.google.com/go/storage v1.45.0
+	google.golang.org/api v0.226.0
 )
 
 require (
