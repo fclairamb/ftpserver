@@ -524,6 +524,8 @@ github.com/spf13/afero v1.6.0/go.mod h1:Ai8FlHk4v/PARR026UzYexafAt9roJ7LcLMAmO6Z
 github.com/spf13/afero v1.8.2/go.mod h1:CtAatgMJh6bJEIs48Ay/FOnkljP3WeGUG0MC1RfAqwo=
 github.com/spf13/afero v1.14.0 h1:9tH6MapGnn/j0eb0yIXiLjERO8RB6xIVZRDCX7PtqWA=
 github.com/spf13/afero v1.14.0/go.mod h1:acJQ8t0ohCGuMN3O+Pv0V0hgMxNYDlvdk+VTfyZmbYo=
+github.com/spf13/afero v1.15.0 h1:b/YBCLWAJdFWJTN9cLhiXXcD7mzKn9Dm86dNnfyQw1I=
+github.com/spf13/afero v1.15.0/go.mod h1:NC2ByUVxtQs4b3sIUphxK0NioZnmxgyCrfzeuq8lxMg=
 github.com/spf13/afero/gcsfs v1.14.0 h1:XVQkMTbMobXk84M3d/VOeN7cW/VpkfNKvGymaFbzbJI=
 github.com/spf13/afero/gcsfs v1.14.0/go.mod h1:0VR5se9v/QvZyStJb6VnIg45bG2jweFCF9EkW2CFqaU=
 github.com/spf13/afero/sftpfs v1.14.0 h1:cddwKIesX1DYyuPOegZeW9VWiozffaOyj4z8SMGK6J0=
