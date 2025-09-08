@@ -18,7 +18,7 @@ require (
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.9
 	github.com/spf13/afero v1.15.0
-	github.com/spf13/afero/gcsfs v1.14.0
+	github.com/spf13/afero/gcsfs v1.15.0
 	github.com/spf13/afero/sftpfs v1.14.0
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.41.0
