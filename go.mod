@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.25.1
 
 require (
-	cloud.google.com/go/storage v1.56.2
+	cloud.google.com/go/storage v1.57.0
 	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/aws/aws-sdk-go v1.55.8
 	github.com/fclairamb/afero-dropbox v0.1.0
