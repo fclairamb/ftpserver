@@ -22,7 +22,7 @@ require (
 	github.com/spf13/afero/sftpfs v1.15.0
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.42.0
-	golang.org/x/oauth2 v0.31.0
+	golang.org/x/oauth2 v0.32.0
 	google.golang.org/api v0.252.0
 	gopkg.in/telebot.v3 v3.3.8
 )
