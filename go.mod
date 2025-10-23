@@ -16,7 +16,7 @@ require (
 	github.com/fclairamb/go-log v0.6.0
 	github.com/go-crypt/crypt v0.4.6
 	github.com/go-mail/mail v2.3.1+incompatible
-	github.com/pkg/sftp v1.13.9
+	github.com/pkg/sftp v1.13.10
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/afero/gcsfs v1.15.0
 	github.com/spf13/afero/sftpfs v1.15.0
