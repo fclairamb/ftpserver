@@ -1,7 +1,10 @@
 // Package confpar provide the core parameters of the config
 package confpar
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // Access provides rules around any access
 type Access struct {
@@ -58,6 +61,18 @@ type Extensions struct {
 	EnableHASH bool `json:"enable_hash"` // Enable support for calculating hash value of files
 }
 
+type Duration struct {
+	time.Duration
+}
+
+func (d *Duration) UnmarshalJSON(b []byte) (err error) {
+	var s string
+	if err = json.Unmarshal(b, &s); err == nil {
+		d.Duration, err = time.ParseDuration(s)
+	}
+	return
+}
+
 // Content defines the content of the config file
 type Content struct {
 	Version                  int              `json:"version"`                     // File format version
@@ -65,7 +80,7 @@ type Content struct {
 	PublicHost               string           `json:"public_host"`                 // Public host to listen on
 	MaxClients               int              `json:"max_clients"`                 // Maximum clients who can connect
 	HashPlaintextPasswords   bool             `json:"hash_plaintext_passwords"`    // Overwrite plain-text passwords with hashed equivalents
-	IdleTimeout              time.Duration    `json:"idle_timeout"`                // Maximum idle time for client connections
+	IdleTimeout              Duration         `json:"idle_timeout"`                // Maximum idle time for client connections
 	Accesses                 []*Access        `json:"accesses"`                    // Accesses offered to users
 	PassiveTransferPortRange *PortRange       `json:"passive_transfer_port_range"` // Listen port range
 	Extensions               Extensions       `json:"extensions"`                  // Extended features
