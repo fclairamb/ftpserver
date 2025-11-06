@@ -22,15 +22,15 @@ func TestDurationUnmarshalJSON(t *testing.T) {
 		err := json.Unmarshal(tt.input, &val)
 
 		if err == nil && tt.wantErr {
-			t.Fatalf("Duration{} UnmarshalJSON(): expecting error for invalid input")
+			t.Fatalf("expecting error for invalid input")
 		}
 
 		if err != nil && !tt.wantErr {
-			t.Fatalf("&Duration{} UnmarshalJSON(): %v", err)
+			t.Fatalf("json.Unmarshal(): %v", err)
 		}
 
 		if val.Duration != tt.expected {
-			t.Fatalf("Duration{} UnmarshalJSON(): have:%v want:%v", val.Duration, tt.expected)
+			t.Fatalf("have:%v want:%v", val.Duration, tt.expected)
 		}
 	}
 }
