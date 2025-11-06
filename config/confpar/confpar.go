@@ -22,7 +22,7 @@ type Access struct {
 type AccessesWebhook struct {
 	URL     string            `json:"url"`     // URL to call
 	Headers map[string]string `json:"headers"` // Token to use in the
-	Timeout time.Duration     `json:"timeout"` // Max time request can take
+	Timeout Duration          `json:"timeout"` // Max time request can take
 }
 
 // SyncAndDelete provides
@@ -61,18 +61,6 @@ type Extensions struct {
 	EnableHASH bool `json:"enable_hash"` // Enable support for calculating hash value of files
 }
 
-type Duration struct {
-	time.Duration
-}
-
-func (d *Duration) UnmarshalJSON(b []byte) (err error) {
-	var s string
-	if err = json.Unmarshal(b, &s); err == nil {
-		d.Duration, err = time.ParseDuration(s)
-	}
-	return
-}
-
 // Content defines the content of the config file
 type Content struct {
 	Version                  int              `json:"version"`                     // File format version
@@ -88,4 +76,22 @@ type Content struct {
 	TLS                      *TLS             `json:"tls"`                         // TLS Config
 	TLSRequired              string           `json:"tls_required"`
 	AccessesWebhook          *AccessesWebhook `json:"accesses_webhook"` // Webhook to call when accesses are updated
+}
+
+// Duration wraps time.Duration to allow unmarshaling from JSON strings
+// in Go duration format (e.g., "5m", "30s", "1h")
+type Duration struct {
+	time.Duration
+}
+
+func (d *Duration) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.Duration.String())
+}
+
+func (d *Duration) UnmarshalJSON(b []byte) (err error) {
+	var s string
+	if err = json.Unmarshal(b, &s); err == nil {
+		d.Duration, err = time.ParseDuration(s)
+	}
+	return
 }
