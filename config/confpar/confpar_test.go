@@ -17,7 +17,6 @@ func TestDurationMarshalJSON(t *testing.T) {
 		{Duration{5 * time.Minute}, []byte(`"5m0s"`)},
 		{Duration{time.Hour}, []byte(`"1h0m0s"`)},
 	} {
-
 		b, err := json.Marshal(&tt.input)
 
 		if err != nil {
