@@ -201,7 +201,7 @@ func (s *Server) getAccessFromWebhook(user, pass string) (*confpar.Access, error
 	}
 
 	// Timeout is implemented with context termination
-	ctx, cancel := context.WithTimeout(context.Background(), s.config.Content.AccessesWebhook.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), s.config.Content.AccessesWebhook.Timeout.Duration)
 	defer cancel()
 
 	// Create a new HTTP request
