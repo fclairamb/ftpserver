@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -13,7 +14,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	log "github.com/fclairamb/go-log"
 	tele "gopkg.in/telebot.v3"
 
 	"github.com/spf13/afero"
@@ -38,7 +38,7 @@ type Fs struct {
 	// ChatID is the telegram chat ID to send files to
 	ChatID int64
 	// Logger is the logger, obviously
-	Logger log.Logger
+	Logger *slog.Logger
 
 	// fakeFs is a lightweight fake filesystem intended for store temporary info about files
 	// since some ftp clients expect to perform mkdir() + stat() on files and directories before upload
@@ -70,7 +70,7 @@ var textExtensions = []string{".txt", ".md"}
 var audioExtensions = []string{".mp3", ".ogg", ".flac", ".wav", ".m4a", ".opus"}
 
 // LoadFs loads a file system from an access description
-func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
+func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 
 	token := access.Params["Token"]
 	if token == "" {

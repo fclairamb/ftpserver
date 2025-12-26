@@ -2,29 +2,28 @@
 package fslog
 
 import (
+	"log/slog"
 	"os"
 	"time"
 
 	"github.com/spf13/afero"
-
-	log "github.com/fclairamb/go-log"
 )
 
 // File is a wrapper to log interactions around file accesses
 type File struct {
-	src           afero.File // Source file
-	logger        log.Logger // Associated logger
-	lengthRead    int        // Length read
-	lengthWritten int        // Length written
+	src           afero.File   // Source file
+	logger        *slog.Logger // Associated logger
+	lengthRead    int          // Length read
+	lengthWritten int          // Length written
 }
 
 // Fs is a wrapper to log interactions around file system accesses
 type Fs struct {
-	src    afero.Fs   // Source file system
-	logger log.Logger // Associated logger
+	src    afero.Fs     // Source file system
+	logger *slog.Logger // Associated logger
 }
 
-func logErr(logger log.Logger, err error) log.Logger {
+func logErr(logger *slog.Logger, err error) *slog.Logger {
 	if err != nil {
 		return logger.With("err", err, "failed", true)
 	}
@@ -234,7 +233,7 @@ func (f *File) WriteString(str string) (int, error) {
 }
 
 // LoadFS creates an instance with logging
-func LoadFS(src afero.Fs, logger log.Logger) (afero.Fs, error) {
+func LoadFS(src afero.Fs, logger *slog.Logger) (afero.Fs, error) {
 	return &Fs{
 		src:    src,
 		logger: logger,

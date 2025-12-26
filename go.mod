@@ -1,6 +1,6 @@
 module github.com/fclairamb/ftpserver
 
-go 1.24.0
+go 1.25.0
 
 toolchain go1.25.5
 
@@ -13,7 +13,6 @@ require (
 	github.com/fclairamb/afero-s3 v0.3.1
 	github.com/fclairamb/afero-snd v0.1.0
 	github.com/fclairamb/ftpserverlib v0.28.0
-	github.com/fclairamb/go-log v0.6.0
 	github.com/go-crypt/crypt v0.4.7
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.10
@@ -59,7 +58,6 @@ require (
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
-	github.com/zeebo/errs v1.4.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/detectors/gcp v1.38.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0 // indirect
@@ -78,8 +76,7 @@ require (
 
 require (
 	github.com/dropbox/dropbox-sdk-go-unofficial v5.6.0+incompatible // indirect
-	github.com/go-kit/log v0.2.1
-	github.com/go-logfmt/logfmt v0.6.0 // indirect
+	github.com/fclairamb/go-log v0.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect

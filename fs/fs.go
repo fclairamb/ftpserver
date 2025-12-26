@@ -3,9 +3,9 @@ package fs
 
 import (
 	"fmt"
+	"log/slog"
 
 	snd "github.com/fclairamb/afero-snd"
-	log "github.com/fclairamb/go-log"
 	"github.com/spf13/afero"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
@@ -30,7 +30,7 @@ func (err UnsupportedFsError) Error() string {
 }
 
 // LoadFs loads a file system from an access description
-func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
+func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	var fs afero.Fs
 	var err error
 
@@ -72,7 +72,7 @@ func LoadFs(access *confpar.Access, logger log.Logger) (afero.Fs, error) {
 		fs, err = snd.NewFs(&snd.Config{
 			Destination: fs,
 			Temporary:   temp,
-			Logger:      logger.With("component", "snd"),
+			Logger:      nil,
 		})
 	}
 
