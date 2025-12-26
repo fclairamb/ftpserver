@@ -1,7 +1,10 @@
 // Package confpar provide the core parameters of the config
 package confpar
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 // Access provides rules around any access
 type Access struct {
@@ -19,7 +22,7 @@ type Access struct {
 type AccessesWebhook struct {
 	URL     string            `json:"url"`     // URL to call
 	Headers map[string]string `json:"headers"` // Token to use in the
-	Timeout time.Duration     `json:"timeout"` // Max time request can take
+	Timeout Duration          `json:"timeout"` // Max time request can take
 }
 
 // SyncAndDelete provides
@@ -65,7 +68,7 @@ type Content struct {
 	PublicHost               string           `json:"public_host"`                 // Public host to listen on
 	MaxClients               int              `json:"max_clients"`                 // Maximum clients who can connect
 	HashPlaintextPasswords   bool             `json:"hash_plaintext_passwords"`    // Overwrite plain-text passwords with hashed equivalents
-	IdleTimeout              time.Duration    `json:"idle_timeout"`                // Maximum idle time for client connections
+	IdleTimeout              Duration         `json:"idle_timeout"`                // Maximum idle time for client connections
 	Accesses                 []*Access        `json:"accesses"`                    // Accesses offered to users
 	PassiveTransferPortRange *PortRange       `json:"passive_transfer_port_range"` // Listen port range
 	Extensions               Extensions       `json:"extensions"`                  // Extended features
@@ -73,4 +76,22 @@ type Content struct {
 	TLS                      *TLS             `json:"tls"`                         // TLS Config
 	TLSRequired              string           `json:"tls_required"`
 	AccessesWebhook          *AccessesWebhook `json:"accesses_webhook"` // Webhook to call when accesses are updated
+}
+
+// Duration wraps time.Duration to allow unmarshaling from JSON strings
+// in Go duration format (e.g., "5m", "30s", "1h")
+type Duration struct {
+	time.Duration
+}
+
+func (d *Duration) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.String())
+}
+
+func (d *Duration) UnmarshalJSON(b []byte) (err error) {
+	var s string
+	if err = json.Unmarshal(b, &s); err == nil {
+		d.Duration, err = time.ParseDuration(s)
+	}
+	return
 }
