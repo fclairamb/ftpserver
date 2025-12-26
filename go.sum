@@ -222,6 +222,8 @@ github.com/fclairamb/afero-snd v0.1.0 h1:eQ28zAnjamm+4wxl/NlzP7LYZaSTx9fNqPHPvNL
 github.com/fclairamb/afero-snd v0.1.0/go.mod h1:3KupVhrtzquMmydX3IGUbhLVbW/KXrg9QonyJtmHITY=
 github.com/fclairamb/ftpserverlib v0.27.0 h1:HcCdVNTs9Irc0T/eHRqkcGkOejwg39WiqBdt2vLZIpE=
 github.com/fclairamb/ftpserverlib v0.27.0/go.mod h1:Wi6QrU/oxgjSgcDjFUxQHlkJfVU/94t4+zNufrkdNU8=
+github.com/fclairamb/ftpserverlib v0.27.1 h1:ecNR2Yw186lfai+K9I2dHuK0xcp4/FgB+QUukOHdEgw=
+github.com/fclairamb/ftpserverlib v0.27.1/go.mod h1:mTv0exQ08+16lVKDFIwJOvS2wXbIvCKM4MPvfmmgWow=
 github.com/fclairamb/go-log v0.0.0-20210717204555-d370617e3635/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
 github.com/fclairamb/go-log v0.0.0-20210725225107-80efc81cb386/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
 github.com/fclairamb/go-log v0.6.0 h1:1V7BJ75P2PvanLHRyGBBFjncB6d4AgEmu+BPWKbMkaU=
