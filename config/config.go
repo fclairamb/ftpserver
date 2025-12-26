@@ -6,9 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
-
-	log "github.com/fclairamb/go-log"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs"
@@ -24,12 +23,12 @@ var ErrUnknownUser = errors.New("unknown user")
 // Config provides the general server config
 type Config struct {
 	fileName string
-	logger   log.Logger
+	logger   *slog.Logger
 	Content  *confpar.Content
 }
 
 // NewConfig creates a new config instance
-func NewConfig(fileName string, logger log.Logger) (*Config, error) {
+func NewConfig(fileName string, logger *slog.Logger) (*Config, error) {
 	if fileName == "" {
 		fileName = "ftpserver.json"
 	}
@@ -48,7 +47,7 @@ func NewConfig(fileName string, logger log.Logger) (*Config, error) {
 
 // FromContent creates a new config instance from a pre-created Content and logger. The
 // fileName should indicate origin of the given Content, but the file will never be opened.
-func FromContent(content *confpar.Content, fileName string, logger log.Logger) (*Config, error) {
+func FromContent(content *confpar.Content, fileName string, logger *slog.Logger) (*Config, error) {
 	c := &Config{
 		fileName: fileName,
 		logger:   logger,

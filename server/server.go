@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"sync"
@@ -17,7 +18,6 @@ import (
 	"github.com/spf13/afero"
 
 	serverlib "github.com/fclairamb/ftpserverlib"
-	log "github.com/fclairamb/go-log"
 
 	"github.com/fclairamb/ftpserver/config"
 	"github.com/fclairamb/ftpserver/config/confpar"
@@ -28,7 +28,7 @@ import (
 // Server structure
 type Server struct { // nolint: maligned
 	config          *config.Config
-	logger          log.Logger
+	logger          *slog.Logger
 	nbClients       uint32
 	nbClientsSync   sync.Mutex
 	zeroClientEvent chan error
@@ -59,7 +59,7 @@ var ErrTimeout = errors.New("timeout")
 var ErrNotEnabled = errors.New("not enabled")
 
 // NewServer creates a server instance
-func NewServer(config *config.Config, logger log.Logger) (*Server, error) {
+func NewServer(config *config.Config, logger *slog.Logger) (*Server, error) {
 	return &Server{
 		config:   config,
 		logger:   logger,

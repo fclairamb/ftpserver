@@ -4,14 +4,13 @@ package main
 import (
 	"flag"
 	"io"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	ftpserver "github.com/fclairamb/ftpserverlib"
-	gkwrap "github.com/fclairamb/go-log/gokit"
-	gokit "github.com/go-kit/log"
 
 	"github.com/fclairamb/ftpserver/config"
 	"github.com/fclairamb/ftpserver/server"
@@ -33,7 +32,7 @@ func main() {
 	flag.Parse()
 
 	// Setting up the logger
-	logger := gkwrap.New()
+	logger := slog.Default()
 
 	logger.Info("FTP server", "version", BuildVersion, "date", BuildDate, "commit", Commit)
 
@@ -73,10 +72,12 @@ func main() {
 			return
 		}
 
-		logger = gkwrap.NewWrap(gokit.NewLogfmtLogger(io.MultiWriter(writer, os.Stdout))).With(
-			"ts", gokit.DefaultTimestampUTC,
-			"caller", gokit.DefaultCaller,
-		)
+		// Create a slog handler that writes to both file and stdout
+		multiWriter := io.MultiWriter(writer, os.Stdout)
+		handler := slog.NewTextHandler(multiWriter, &slog.HandlerOptions{
+			AddSource: true,
+		})
+		logger = slog.New(handler)
 	}
 
 	// Loading the driver
@@ -133,7 +134,7 @@ func signalHandler() {
 		if sig == syscall.SIGHUP {
 			err := driver.ReloadConfig()
 			if err != nil {
-				ftpServer.Logger.Warn("Error reloading config ", err)
+				ftpServer.Logger.Warn("Error reloading config", "err", err)
 			} else {
 				ftpServer.Logger.Info("Successfully reloaded config")
 			}
