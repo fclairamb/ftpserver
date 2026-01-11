@@ -8,6 +8,10 @@ on:
       - "v*.*.*"
   # pull_request:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     strategy:
@@ -66,8 +70,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push (scratch)
         uses: docker/build-push-action@v6
         with:
