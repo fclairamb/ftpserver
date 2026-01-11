@@ -11,6 +11,8 @@ on:
 permissions:
   contents: read
   packages: write
+  attestations: write
+  id-token: write
 
 jobs:
   build-and-push:
@@ -26,7 +28,7 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v6.1.0
         with:
-          go-version: 1.25
+          go-version-file: go.mod
       - name: Change version
         run: |
           curl -L https://github.com/fclairamb/ci-info/releases/download/v0.4.4/ci-info_0.4.4_linux_amd64.tar.gz | tar -zx
