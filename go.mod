@@ -22,7 +22,7 @@ require (
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.47.0
 	golang.org/x/oauth2 v0.34.0
-	google.golang.org/api v0.260.0
+	google.golang.org/api v0.261.0
 	gopkg.in/telebot.v3 v3.3.8
 )
 
@@ -71,17 +71,17 @@ require (
 	golang.org/x/time v0.14.0 // indirect
 	google.golang.org/genproto v0.0.0-20251202230838-ff82c1b0f217 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260120174246-409b4a993575 // indirect
 )
 
 require (
 	github.com/dropbox/dropbox-sdk-go-unofficial v5.6.0+incompatible // indirect
 	github.com/fclairamb/go-log v0.6.0 // indirect
-	github.com/googleapis/enterprise-certificate-proxy v0.3.9 // indirect
+	github.com/googleapis/enterprise-certificate-proxy v0.3.11 // indirect
 	github.com/googleapis/gax-go/v2 v2.16.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 	google.golang.org/grpc v1.78.0 // indirect
