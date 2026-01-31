@@ -16,7 +16,7 @@ require (
 	github.com/fclairamb/afero-s3 v0.4.0
 	github.com/fclairamb/afero-snd v0.2.0
 	github.com/fclairamb/ftpserverlib v0.30.0
-	github.com/go-crypt/crypt v0.4.7
+	github.com/go-crypt/crypt v0.4.8
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.10
 	github.com/spf13/afero v1.15.0
@@ -45,7 +45,7 @@ require (
 	github.com/envoyproxy/go-control-plane/envoy v1.35.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/go-crypt/x v0.4.9 // indirect
+	github.com/go-crypt/x v0.4.11 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.3 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
