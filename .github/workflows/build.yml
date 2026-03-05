@@ -23,7 +23,7 @@ jobs:
         if: matrix.lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v1.41
+          version: v1.64.8
 
       # Install Go
       - name: Setup go
