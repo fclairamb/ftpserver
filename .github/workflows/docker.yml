@@ -35,7 +35,7 @@ jobs:
           ./ci-info
       - name: Docker meta
         id: docker_meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             fclairamb/ftpserver
