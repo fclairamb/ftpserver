@@ -23,6 +23,7 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	secretAccessKey := access.Params["secret_access_key"]
 	disableSSL := access.Params["disable_ssl"] == "true"
 	pathStyle := access.Params["path_style"] == "true"
+	basePath := access.Params["basePath"]
 
 	// Build config options for AWS SDK v2
 	var configOpts []func(*config.LoadOptions) error
@@ -69,5 +70,10 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 
 	s3Fs := aferos3.NewFsFromClient(bucket, client)
 
-	return s3Fs, nil
+	var fs afero.Fs = s3Fs
+	if basePath != "" {
+		fs = afero.NewBasePathFs(s3Fs, basePath)
+	}
+
+	return fs, nil
 }
