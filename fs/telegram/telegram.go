@@ -57,6 +57,14 @@ type File struct {
 	Path string
 	// Content is the file content
 	Content []byte
+	// PartNumber is the uploaded part counter for multipart uploads
+	PartNumber int
+	// PartTempFiles stores temporary part file paths before final upload
+	PartTempFiles []string
+	// PartTempDir stores the temporary directory used for multipart spool
+	PartTempDir string
+	// TotalWritten stores total bytes written across the transfer
+	TotalWritten int64
 	// Fs is the parent Fs
 	Fs *Fs
 	// At is the current position in the file
@@ -88,12 +96,16 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 		return nil, fmt.Errorf("invalid ChatID parameter: %v", err)
 	}
 
-	// Parse MaxPartSize param, default to defaultMaxPartSize if not set or invalid
+	// Parse MaxPartSize param, default to defaultMaxPartSize if not set
 	var maxPartSize int64 = defaultMaxPartSize
-	if partSizeStr := access.Params["MaxPartSize"]; partSizeStr != "" {
+	partSizeStr := access.Params["MaxPartSize"]
+	if partSizeStr != "" {
 		parsed, parseErr := strconv.ParseInt(partSizeStr, 10, 64)
-		if parseErr != nil || parsed <= 0 {
+		if parseErr != nil {
 			return nil, fmt.Errorf("invalid MaxPartSize parameter: %v", parseErr)
+		}
+		if parsed <= 0 {
+			return nil, fmt.Errorf("invalid MaxPartSize parameter: must be > 0")
 		}
 		maxPartSize = parsed
 	}
@@ -140,45 +152,53 @@ func (f *File) Close() error {
 		return ErrNotFound
 	}
 
-	totalSize := int64(len(f.Content))
 	basePath := filepath.Base(f.Path)
+	defer f.cleanupTempParts()
 
-	partSize := f.Fs.MaxPartSize
-
-	// If small enough, send as a single message
-	if totalSize <= partSize {
-		err := f.sendContent(f.Content, basePath, basePath)
+	if f.PartNumber == 0 {
+		// Single-part upload path
+		err := f.sendContent(f.Content, basePath, basePath, false)
 		if err != nil {
 			return err
 		}
 	} else {
-		// Split into parts and send each one
-		totalParts := int((totalSize + partSize - 1) / partSize)
-		digits := len(fmt.Sprintf("%d", totalParts))
-		partFilenames := make([]string, totalParts)
-		for partNum := 1; partNum <= totalParts; partNum++ {
-			start := int64(partNum-1) * partSize
-			end := start + partSize
-			if end > totalSize {
-				end = totalSize
-			}
-			// Clean filename: e.g. "100MB.bin.part01of03"
-			partFilename := fmt.Sprintf("%s.part%0*dof%0*d", basePath, digits, partNum, digits, totalParts)
-			partCaption := fmt.Sprintf("%s (part %d/%d)", basePath, partNum, totalParts)
-			partFilenames[partNum-1] = partFilename
-			err := f.sendContent(f.Content[start:end], partFilename, partCaption)
-			if err != nil {
+		// Multipart upload path: write final remainder, then upload all parts with partXofY naming.
+		if len(f.Content) > 0 {
+			if err := f.spillNextPartToDisk(f.Content); err != nil {
 				return err
 			}
 		}
-		// Send join instructions after all parts are uploaded
+
+		totalParts := len(f.PartTempFiles)
+		partFilenames := make([]string, totalParts)
+		for idx, tempPath := range f.PartTempFiles {
+			partNum := idx + 1
+			partFilename := fmt.Sprintf("%s.part%dof%d", basePath, partNum, totalParts)
+			partCaption := fmt.Sprintf("%s (part %d/%d)", basePath, partNum, totalParts)
+
+			partData, readErr := os.ReadFile(tempPath)
+			if readErr != nil {
+				return readErr
+			}
+
+			if err := f.sendContent(partData, partFilename, partCaption, true); err != nil {
+				return err
+			}
+
+			partFilenames[idx] = partFilename
+		}
+
 		f.sendJoinInstructions(basePath, partFilenames)
 	}
 
 	f.Fs.fakeFs.create(f.Path)
-	f.Fs.fakeFs.setSize(f.Path, totalSize)
+	f.Fs.fakeFs.setSize(f.Path, f.TotalWritten)
 
 	f.Content = []byte{}
+	f.PartNumber = 0
+	f.PartTempFiles = nil
+	f.PartTempDir = ""
+	f.TotalWritten = 0
 	f.At = 0
 
 	return nil
@@ -186,20 +206,20 @@ func (f *File) Close() error {
 
 // sendContent sends a chunk of content to the telegram chat with the given caption
 // filename is used as the file name for document uploads; caption is the display text.
-func (f *File) sendContent(data []byte, filename string, caption string) error {
+func (f *File) sendContent(data []byte, filename string, caption string, forceDocument bool) error {
 	chat := tele.Chat{ID: f.Fs.ChatID}
 	var err error
 
-	if isExtension(f.Path, imageExtensions) {
+	if !forceDocument && isExtension(f.Path, imageExtensions) {
 		photo := tele.Photo{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
 		_, err = f.Fs.Bot.Send(&chat, &photo)
-	} else if isExtension(f.Path, videoExtensions) {
+	} else if !forceDocument && isExtension(f.Path, videoExtensions) {
 		video := tele.Video{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
 		_, err = f.Fs.Bot.Send(&chat, &video)
-	} else if isExtension(f.Path, audioExtensions) {
+	} else if !forceDocument && isExtension(f.Path, audioExtensions) {
 		audio := tele.Audio{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
 		_, err = f.Fs.Bot.Send(&chat, &audio)
-	} else if isExtension(f.Path, textExtensions) && len(data) < 4096 {
+	} else if !forceDocument && isExtension(f.Path, textExtensions) && len(data) < 4096 {
 		if isExtension(f.Path, []string{".md"}) {
 			_, err = f.Fs.Bot.Send(&chat, string(data), tele.ModeMarkdown)
 		} else {
@@ -221,8 +241,41 @@ func (f *File) sendContent(data []byte, filename string, caption string) error {
 	return nil
 }
 
+func (f *File) spillNextPartToDisk(data []byte) error {
+	if f.PartTempDir == "" {
+		tempDir, err := os.MkdirTemp("", "ftpserver-telegram-*")
+		if err != nil {
+			return err
+		}
+		f.PartTempDir = tempDir
+	}
+
+	f.PartNumber++
+	tempFilePath := filepath.Join(f.PartTempDir, fmt.Sprintf("part-%05d.bin", f.PartNumber))
+
+	if err := os.WriteFile(tempFilePath, data, 0o600); err != nil {
+		return err
+	}
+
+	f.PartTempFiles = append(f.PartTempFiles, tempFilePath)
+
+	return nil
+}
+
+func (f *File) cleanupTempParts() {
+	if f.PartTempDir != "" {
+		if err := os.RemoveAll(f.PartTempDir); err != nil {
+			f.Fs.Logger.Error("telegram cleanupTempParts", "err", err)
+		}
+	}
+}
+
 // sendJoinInstructions sends a text message with instructions on how to join downloaded parts
 func (f *File) sendJoinInstructions(originalName string, partFilenames []string) {
+	if len(partFilenames) == 0 {
+		return
+	}
+
 	chat := tele.Chat{ID: f.Fs.ChatID}
 
 	linuxCmd := "cat " + strings.Join(partFilenames, " ") + " > " + originalName
@@ -316,6 +369,21 @@ func (f *File) WriteAt(b []byte, off int64) (int, error) {
 
 func (f *File) Write(b []byte) (int, error) {
 	f.Content = append(f.Content, b...)
+	f.TotalWritten += int64(len(b))
+
+	partSize := int(f.Fs.MaxPartSize)
+
+	// Keep max one part in memory and stream full parts immediately.
+	for len(f.Content) > partSize {
+		part := make([]byte, partSize)
+		copy(part, f.Content[:partSize])
+
+		if err := f.spillNextPartToDisk(part); err != nil {
+			return 0, err
+		}
+
+		f.Content = f.Content[partSize:]
+	}
 
 	return len(b), nil
 }
@@ -353,8 +421,6 @@ func (m *Fs) RemoveAll(name string) error {
 // Remove is not implemented
 func (m *Fs) Remove(name string) error {
 	return nil
-
-	// Update fake filesystem metadata
 }
 
 // Mkdir
