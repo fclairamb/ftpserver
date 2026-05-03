@@ -23,6 +23,8 @@ Bots are not allowed to contact users. You need to make the first contact from t
 Please note about `shared` flag. If it's `true` then bot instance will be shared between all connections.
 If it's `false` then each user (or even each ftp connection) will have own bot instance and it can lead to telegram bot flood protection.
 
+`MaxPartSize` (optional) sets the maximum size in bytes for each part when uploading large files. Files exceeding this size are automatically split into multiple parts. Default is `51380224` (49 MB). Telegram's upload limit is 50 MB.
+
 ```json
 {
   "version": 1,
@@ -34,7 +36,8 @@ If it's `false` then each user (or even each ftp connection) will have own bot i
       "pass": "my_secure_password",
       "params": {
         "Token": "<YOUR_BOT_TOKEN>",
-        "ChatID": "<YOUR_CHAT_ID>"
+        "ChatID": "<YOUR_CHAT_ID>",
+        "MaxPartSize": "51380224"
       }
 
     }

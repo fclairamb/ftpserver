@@ -2,6 +2,7 @@
 package telegram
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -31,6 +32,9 @@ var ErrNotFound = errors.New("not found")
 // ErrInvalidParameter is returned when a parameter is invalid
 var ErrInvalidParameter = errors.New("invalid parameter")
 
+// defaultMaxPartSize is the default maximum size of each telegram upload part (49 MB, telegram limit is 50 MB)
+const defaultMaxPartSize = 49 * 1024 * 1024
+
 // Fs is a write-only afero.Fs implementation using telegram as backend
 type Fs struct {
 	// Bot is the telegram bot instance
@@ -39,6 +43,8 @@ type Fs struct {
 	ChatID int64
 	// Logger is the logger, obviously
 	Logger *slog.Logger
+	// MaxPartSize is the maximum size of each part when splitting large files (bytes)
+	MaxPartSize int64
 
 	// fakeFs is a lightweight fake filesystem intended for store temporary info about files
 	// since some ftp clients expect to perform mkdir() + stat() on files and directories before upload
@@ -82,6 +88,16 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 		return nil, fmt.Errorf("invalid ChatID parameter: %v", err)
 	}
 
+	// Parse MaxPartSize param, default to defaultMaxPartSize if not set or invalid
+	var maxPartSize int64 = defaultMaxPartSize
+	if partSizeStr := access.Params["MaxPartSize"]; partSizeStr != "" {
+		parsed, parseErr := strconv.ParseInt(partSizeStr, 10, 64)
+		if parseErr != nil || parsed <= 0 {
+			return nil, fmt.Errorf("invalid MaxPartSize parameter: %v", parseErr)
+		}
+		maxPartSize = parsed
+	}
+
 	pref := tele.Settings{
 		Token:  token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
@@ -104,10 +120,11 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	}()
 
 	fs := &Fs{
-		Bot:    bot,
-		Logger: logger,
-		ChatID: chatID,
-		fakeFs: newFakeFilesystem(),
+		Bot:         bot,
+		Logger:      logger,
+		ChatID:      chatID,
+		MaxPartSize: maxPartSize,
+		fakeFs:      newFakeFilesystem(),
 	}
 
 	return fs, nil
@@ -116,51 +133,115 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 // Name of the file
 func (f *File) Name() string { return f.Path }
 
-// Close closes the file transfer and does the actual transfer to telegram
+// Close closes the file transfer and does the actual transfer to telegram.
+// If the file is larger than maxPartSize, it will be split into multiple parts.
 func (f *File) Close() error {
 	if f.Fs == nil {
 		return ErrNotFound
 	}
 
-	chat := tele.Chat{ID: f.Fs.ChatID}
-	var err error
+	totalSize := int64(len(f.Content))
 	basePath := filepath.Base(f.Path)
 
-	if isExtension(f.Path, imageExtensions) {
-		photo := tele.Photo{File: tele.FromReader(f), Caption: basePath}
-		_, err = f.Fs.Bot.Send(&chat, &photo)
-	} else if isExtension(f.Path, videoExtensions) {
-		video := tele.Video{File: tele.FromReader(f), Caption: basePath}
-		_, err = f.Fs.Bot.Send(&chat, &video)
-	} else if isExtension(f.Path, audioExtensions) {
-		audio := tele.Audio{File: tele.FromReader(f), Caption: basePath}
-		_, err = f.Fs.Bot.Send(&chat, &audio)
-	} else if isExtension(f.Path, textExtensions) && len(f.Content) < 4096 {
-		if isExtension(f.Path, []string{".md"}) {
-			_, err = f.Fs.Bot.Send(&chat, string(f.Content), tele.ModeMarkdown)
-		} else {
-			_, err = f.Fs.Bot.Send(&chat, string(f.Content))
+	partSize := f.Fs.MaxPartSize
+
+	// If small enough, send as a single message
+	if totalSize <= partSize {
+		err := f.sendContent(f.Content, basePath, basePath)
+		if err != nil {
+			return err
 		}
 	} else {
-		document := tele.Document{File: tele.FromReader(f), Caption: basePath}
-		document.FileName = basePath
-		document.FileLocal = basePath
+		// Split into parts and send each one
+		totalParts := int((totalSize + partSize - 1) / partSize)
+		digits := len(fmt.Sprintf("%d", totalParts))
+		partFilenames := make([]string, totalParts)
+		for partNum := 1; partNum <= totalParts; partNum++ {
+			start := int64(partNum-1) * partSize
+			end := start + partSize
+			if end > totalSize {
+				end = totalSize
+			}
+			// Clean filename: e.g. "100MB.bin.part01of03"
+			partFilename := fmt.Sprintf("%s.part%0*dof%0*d", basePath, digits, partNum, digits, totalParts)
+			partCaption := fmt.Sprintf("%s (part %d/%d)", basePath, partNum, totalParts)
+			partFilenames[partNum-1] = partFilename
+			err := f.sendContent(f.Content[start:end], partFilename, partCaption)
+			if err != nil {
+				return err
+			}
+		}
+		// Send join instructions after all parts are uploaded
+		f.sendJoinInstructions(basePath, partFilenames)
+	}
+
+	f.Fs.fakeFs.create(f.Path)
+	f.Fs.fakeFs.setSize(f.Path, totalSize)
+
+	f.Content = []byte{}
+	f.At = 0
+
+	return nil
+}
+
+// sendContent sends a chunk of content to the telegram chat with the given caption
+// filename is used as the file name for document uploads; caption is the display text.
+func (f *File) sendContent(data []byte, filename string, caption string) error {
+	chat := tele.Chat{ID: f.Fs.ChatID}
+	var err error
+
+	if isExtension(f.Path, imageExtensions) {
+		photo := tele.Photo{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+		_, err = f.Fs.Bot.Send(&chat, &photo)
+	} else if isExtension(f.Path, videoExtensions) {
+		video := tele.Video{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+		_, err = f.Fs.Bot.Send(&chat, &video)
+	} else if isExtension(f.Path, audioExtensions) {
+		audio := tele.Audio{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+		_, err = f.Fs.Bot.Send(&chat, &audio)
+	} else if isExtension(f.Path, textExtensions) && len(data) < 4096 {
+		if isExtension(f.Path, []string{".md"}) {
+			_, err = f.Fs.Bot.Send(&chat, string(data), tele.ModeMarkdown)
+		} else {
+			_, err = f.Fs.Bot.Send(&chat, string(data))
+		}
+	} else {
+		document := tele.Document{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+		document.FileName = filename
 		_, err = f.Fs.Bot.Send(&chat, &document)
 	}
-	f.Fs.Logger.Info("telegram Bot.Send()", "path", f.Path)
+
+	f.Fs.Logger.Info("telegram Bot.Send()", "path", f.Path, "caption", caption)
 
 	if err != nil {
 		f.Fs.Logger.Error("telegram Bot.Send()", "err", err)
 		return err
 	}
 
-	f.Fs.fakeFs.create(f.Path)
-	f.Fs.fakeFs.setSize(f.Path, int64(len(f.Content)))
-
-	f.Content = []byte{}
-	f.At = 0
-
 	return nil
+}
+
+// sendJoinInstructions sends a text message with instructions on how to join downloaded parts
+func (f *File) sendJoinInstructions(originalName string, partFilenames []string) {
+	chat := tele.Chat{ID: f.Fs.ChatID}
+
+	linuxCmd := "cat " + strings.Join(partFilenames, " ") + " > " + originalName
+	winParts := strings.Join(partFilenames, "+")
+	winCmd := "copy /b " + winParts + " " + originalName
+
+	msg := fmt.Sprintf(
+		"📦 File: %s\n📊 Total parts: %d\n\n"+
+			"To join parts after downloading:\n\n"+
+			"Linux/Mac:\n"+
+			"```\n%s\n```\n\n"+
+			"Windows:\n"+
+			"```\n%s\n```",
+		originalName, len(partFilenames), linuxCmd, winCmd,
+	)
+
+	if _, err := f.Fs.Bot.Send(&chat, msg, tele.ModeMarkdown); err != nil {
+		f.Fs.Logger.Error("telegram sendJoinInstructions", "err", err)
+	}
 }
 
 // Read stores the received file content into the local buffer
@@ -272,6 +353,8 @@ func (m *Fs) RemoveAll(name string) error {
 // Remove is not implemented
 func (m *Fs) Remove(name string) error {
 	return nil
+
+	// Update fake filesystem metadata
 }
 
 // Mkdir
