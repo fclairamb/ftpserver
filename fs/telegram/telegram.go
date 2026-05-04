@@ -45,6 +45,8 @@ type Fs struct {
 	Logger *slog.Logger
 	// MaxPartSize is the maximum size of each part when splitting large files (bytes)
 	MaxPartSize int64
+	// TempDir is the optional directory used to store multipart temporary files
+	TempDir string
 
 	// fakeFs is a lightweight fake filesystem intended for store temporary info about files
 	// since some ftp clients expect to perform mkdir() + stat() on files and directories before upload
@@ -110,6 +112,8 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 		maxPartSize = parsed
 	}
 
+	tempDir := strings.TrimSpace(access.Params["TempDir"])
+
 	pref := tele.Settings{
 		Token:  token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
@@ -136,6 +140,7 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 		Logger:      logger,
 		ChatID:      chatID,
 		MaxPartSize: maxPartSize,
+		TempDir:     tempDir,
 		fakeFs:      newFakeFilesystem(),
 	}
 
@@ -259,8 +264,9 @@ func (f *File) sendContent(data []byte, filename string, caption string, forceDo
 
 func (f *File) spillNextPartToDisk(data []byte) error {
 	if f.PartTempDir == "" {
-		tempDir, err := os.MkdirTemp("", "ftpserver-telegram-*")
+		tempDir, err := os.MkdirTemp(f.Fs.TempDir, "ftpserver-telegram-*")
 		if err != nil {
+			f.Fs.Logger.Error("telegram spillNextPartToDisk MkdirTemp", "err", err, "tempDir", f.Fs.TempDir)
 			return err
 		}
 		f.PartTempDir = tempDir
@@ -270,6 +276,7 @@ func (f *File) spillNextPartToDisk(data []byte) error {
 	tempFilePath := filepath.Join(f.PartTempDir, fmt.Sprintf("part-%05d.bin", f.PartNumber))
 
 	if err := os.WriteFile(tempFilePath, data, 0o600); err != nil {
+		f.Fs.Logger.Error("telegram spillNextPartToDisk WriteFile", "err", err, "tempFilePath", tempFilePath, "bytes", len(data))
 		return err
 	}
 
@@ -388,6 +395,10 @@ func (f *File) Write(b []byte) (int, error) {
 	f.TotalWritten += int64(len(b))
 
 	partSize := int(f.Fs.MaxPartSize)
+	if partSize <= 0 {
+		f.Fs.Logger.Error("telegram Write invalid MaxPartSize", "maxPartSize", f.Fs.MaxPartSize, "path", f.Path)
+		return 0, ErrInvalidParameter
+	}
 
 	// Keep max one part in memory and stream full parts immediately.
 	for len(f.Content) > partSize {
@@ -395,6 +406,7 @@ func (f *File) Write(b []byte) (int, error) {
 		copy(part, f.Content[:partSize])
 
 		if err := f.spillNextPartToDisk(part); err != nil {
+			f.Fs.Logger.Error("telegram Write spillNextPartToDisk failed", "err", err, "path", f.Path, "partSize", partSize)
 			return 0, err
 		}
 

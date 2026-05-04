@@ -25,6 +25,8 @@ If it's `false` then each user (or even each ftp connection) will have own bot i
 
 `MaxPartSize` (optional) sets the maximum size in bytes for each part when uploading large files. Files exceeding this size are automatically split into multiple parts. Default is `51380224` (49 MB). Telegram's upload limit is 50 MB.
 
+`TempDir` (optional) sets the directory used to store temporary multipart chunks before upload. If omitted, the system temp directory is used.
+
 ```json
 {
   "version": 1,
@@ -37,7 +39,8 @@ If it's `false` then each user (or even each ftp connection) will have own bot i
       "params": {
         "Token": "<YOUR_BOT_TOKEN>",
         "ChatID": "<YOUR_CHAT_ID>",
-        "MaxPartSize": "51380224"
+        "MaxPartSize": "51380224",
+        "TempDir": "/tmp"
       }
 
     }
