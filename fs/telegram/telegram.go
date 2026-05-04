@@ -152,8 +152,22 @@ func (f *File) Close() error {
 		return ErrNotFound
 	}
 
+	if entry := f.Fs.fakeFs.stat(f.Path); entry != nil && entry.IsDir() {
+		// Some FTP clients open/close directory paths; never upload directories to Telegram.
+		return nil
+	}
+
 	basePath := filepath.Base(f.Path)
 	defer f.cleanupTempParts()
+
+	if f.PartNumber == 0 && len(f.Content) == 0 {
+		// Telegram rejects empty files; skip upload for empty payloads.
+		if f.Fs.fakeFs.stat(f.Path) == nil {
+			f.Fs.fakeFs.create(f.Path)
+		}
+		f.Fs.fakeFs.setSize(f.Path, 0)
+		return nil
+	}
 
 	if f.PartNumber == 0 {
 		// Single-part upload path
@@ -191,7 +205,9 @@ func (f *File) Close() error {
 		f.sendJoinInstructions(basePath, partFilenames)
 	}
 
-	f.Fs.fakeFs.create(f.Path)
+	if f.Fs.fakeFs.stat(f.Path) == nil {
+		f.Fs.fakeFs.create(f.Path)
+	}
 	f.Fs.fakeFs.setSize(f.Path, f.TotalWritten)
 
 	f.Content = []byte{}
