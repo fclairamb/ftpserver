@@ -35,6 +35,9 @@ var ErrInvalidParameter = errors.New("invalid parameter")
 // defaultMaxPartSize is the default maximum size of each telegram upload part (49 MB, telegram limit is 50 MB)
 const defaultMaxPartSize = 49 * 1024 * 1024
 
+const sendRetryAttempts = 3
+const sendRetryDelay = 1200 * time.Millisecond
+
 // Fs is a write-only afero.Fs implementation using telegram as backend
 type Fs struct {
 	// Bot is the telegram bot instance
@@ -229,28 +232,37 @@ func (f *File) Close() error {
 // filename is used as the file name for document uploads; caption is the display text.
 func (f *File) sendContent(data []byte, filename string, caption string, forceDocument bool) error {
 	chat := tele.Chat{ID: f.Fs.ChatID}
-	var err error
 
-	if !forceDocument && isExtension(f.Path, imageExtensions) {
-		photo := tele.Photo{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
-		_, err = f.Fs.Bot.Send(&chat, &photo)
-	} else if !forceDocument && isExtension(f.Path, videoExtensions) {
-		video := tele.Video{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
-		_, err = f.Fs.Bot.Send(&chat, &video)
-	} else if !forceDocument && isExtension(f.Path, audioExtensions) {
-		audio := tele.Audio{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
-		_, err = f.Fs.Bot.Send(&chat, &audio)
-	} else if !forceDocument && isExtension(f.Path, textExtensions) && len(data) < 4096 {
-		if isExtension(f.Path, []string{".md"}) {
-			_, err = f.Fs.Bot.Send(&chat, string(data), tele.ModeMarkdown)
-		} else {
-			_, err = f.Fs.Bot.Send(&chat, string(data))
+	err := f.sendWithRetry(func() error {
+		if !forceDocument && isExtension(f.Path, imageExtensions) {
+			photo := tele.Photo{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+			_, sendErr := f.Fs.Bot.Send(&chat, &photo)
+			return sendErr
 		}
-	} else {
+		if !forceDocument && isExtension(f.Path, videoExtensions) {
+			video := tele.Video{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+			_, sendErr := f.Fs.Bot.Send(&chat, &video)
+			return sendErr
+		}
+		if !forceDocument && isExtension(f.Path, audioExtensions) {
+			audio := tele.Audio{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+			_, sendErr := f.Fs.Bot.Send(&chat, &audio)
+			return sendErr
+		}
+		if !forceDocument && isExtension(f.Path, textExtensions) && len(data) < 4096 {
+			if isExtension(f.Path, []string{".md"}) {
+				_, sendErr := f.Fs.Bot.Send(&chat, string(data), tele.ModeMarkdown)
+				return sendErr
+			}
+			_, sendErr := f.Fs.Bot.Send(&chat, string(data))
+			return sendErr
+		}
+
 		document := tele.Document{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
 		document.FileName = filename
-		_, err = f.Fs.Bot.Send(&chat, &document)
-	}
+		_, sendErr := f.Fs.Bot.Send(&chat, &document)
+		return sendErr
+	})
 
 	f.Fs.Logger.Info("telegram Bot.Send()", "path", f.Path, "caption", caption)
 
@@ -260,6 +272,55 @@ func (f *File) sendContent(data []byte, filename string, caption string, forceDo
 	}
 
 	return nil
+}
+
+func isTransientTelegramError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	msg := strings.ToLower(err.Error())
+
+	transientHints := []string{
+		"too many requests",
+		"timeout",
+		"deadline exceeded",
+		"temporarily unavailable",
+		"bad gateway",
+		"internal server error",
+		"gateway timeout",
+		"connection reset",
+		"eof",
+		"i/o timeout",
+	}
+
+	for _, hint := range transientHints {
+		if strings.Contains(msg, hint) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (f *File) sendWithRetry(send func() error) error {
+	var err error
+
+	for attempt := 1; attempt <= sendRetryAttempts; attempt++ {
+		err = send()
+		if err == nil {
+			return nil
+		}
+
+		if !isTransientTelegramError(err) || attempt == sendRetryAttempts {
+			return err
+		}
+
+		f.Fs.Logger.Warn("telegram send retry", "attempt", attempt, "maxAttempts", sendRetryAttempts, "err", err)
+		time.Sleep(sendRetryDelay)
+	}
+
+	return err
 }
 
 func (f *File) spillNextPartToDisk(data []byte) error {
