@@ -207,6 +207,10 @@ func (f *File) Close() error {
 				return err
 			}
 
+			if err := os.Remove(tempPath); err != nil {
+				f.Fs.Logger.Warn("telegram remove temp part failed", "err", err, "tempFilePath", tempPath)
+			}
+
 			partFilenames[idx] = partFilename
 		}
 
