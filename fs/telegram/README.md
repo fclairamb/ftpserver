@@ -8,7 +8,7 @@ Read about telegram bots at https://core.telegram.org/bots/tutorial.
 
 Bots are not allowed to contact users. You need to make the first contact from the user for which you want to set up the bot.
 
-### Quick start
+## Quick start
 
 - Create a bot with [@BotFather](https://t.me/BotFather), let's say with username `my_ftp_bot`
 - Get bot token from BotFather's response, use it as `Token` in config
@@ -27,6 +27,12 @@ If it's `false` then each user (or even each ftp connection) will have own bot i
 
 `TempDir` (optional) sets the directory used to store temporary multipart chunks before upload. If omitted, the system temp directory is used.
 
+`RetryAttempts` (optional) sets the number of retry attempts for transient Telegram errors (e.g. rate-limit, timeout). Default is `10`.
+
+`RetryDelay` (optional) sets the delay in milliseconds between retry attempts. Default is `2000` (2 seconds).
+
+`PartUploadDelay` (optional) sets the delay in milliseconds between uploading consecutive parts, to help avoid Telegram rate-limit errors. Default is `500`.
+
 ```json
 {
   "version": 1,
@@ -40,7 +46,10 @@ If it's `false` then each user (or even each ftp connection) will have own bot i
         "Token": "<YOUR_BOT_TOKEN>",
         "ChatID": "<YOUR_CHAT_ID>",
         "MaxPartSize": "51380224",
-        "TempDir": "/tmp"
+        "TempDir": "/tmp",
+        "RetryAttempts": "10",
+        "RetryDelay": "2000",
+        "PartUploadDelay": "500"
       }
 
     }

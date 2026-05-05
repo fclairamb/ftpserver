@@ -35,8 +35,9 @@ var ErrInvalidParameter = errors.New("invalid parameter")
 // defaultMaxPartSize is the default maximum size of each telegram upload part (49 MB, telegram limit is 50 MB)
 const defaultMaxPartSize = 49 * 1024 * 1024
 
-const sendRetryAttempts = 3
-const sendRetryDelay = 1200 * time.Millisecond
+const defaultSendRetryAttempts = 10
+const defaultSendRetryDelay = 2000 * time.Millisecond
+const defaultPartUploadDelay = 500 * time.Millisecond
 
 // Fs is a write-only afero.Fs implementation using telegram as backend
 type Fs struct {
@@ -50,6 +51,12 @@ type Fs struct {
 	MaxPartSize int64
 	// TempDir is the optional directory used to store multipart temporary files
 	TempDir string
+	// RetryAttempts is the number of retry attempts for transient errors
+	RetryAttempts int
+	// RetryDelay is the delay between retry attempts
+	RetryDelay time.Duration
+	// PartUploadDelay is the delay between uploading each part to avoid rate limiting
+	PartUploadDelay time.Duration
 
 	// fakeFs is a lightweight fake filesystem intended for store temporary info about files
 	// since some ftp clients expect to perform mkdir() + stat() on files and directories before upload
@@ -117,6 +124,36 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 
 	tempDir := strings.TrimSpace(access.Params["TempDir"])
 
+	// Parse RetryAttempts param, default to defaultSendRetryAttempts if not set
+	retryAttempts := defaultSendRetryAttempts
+	if v := strings.TrimSpace(access.Params["RetryAttempts"]); v != "" {
+		parsed, parseErr := strconv.Atoi(v)
+		if parseErr != nil || parsed <= 0 {
+			return nil, fmt.Errorf("invalid RetryAttempts parameter: must be a positive integer")
+		}
+		retryAttempts = parsed
+	}
+
+	// Parse RetryDelay param (milliseconds), default to defaultSendRetryDelay if not set
+	retryDelay := defaultSendRetryDelay
+	if v := strings.TrimSpace(access.Params["RetryDelay"]); v != "" {
+		parsed, parseErr := strconv.ParseInt(v, 10, 64)
+		if parseErr != nil || parsed < 0 {
+			return nil, fmt.Errorf("invalid RetryDelay parameter: must be a non-negative integer (milliseconds)")
+		}
+		retryDelay = time.Duration(parsed) * time.Millisecond
+	}
+
+	// Parse PartUploadDelay param (milliseconds), default to defaultPartUploadDelay if not set
+	partUploadDelay := defaultPartUploadDelay
+	if v := strings.TrimSpace(access.Params["PartUploadDelay"]); v != "" {
+		parsed, parseErr := strconv.ParseInt(v, 10, 64)
+		if parseErr != nil || parsed < 0 {
+			return nil, fmt.Errorf("invalid PartUploadDelay parameter: must be a non-negative integer (milliseconds)")
+		}
+		partUploadDelay = time.Duration(parsed) * time.Millisecond
+	}
+
 	pref := tele.Settings{
 		Token:  token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
@@ -139,12 +176,15 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	}()
 
 	fs := &Fs{
-		Bot:         bot,
-		Logger:      logger,
-		ChatID:      chatID,
-		MaxPartSize: maxPartSize,
-		TempDir:     tempDir,
-		fakeFs:      newFakeFilesystem(),
+		Bot:             bot,
+		Logger:          logger,
+		ChatID:          chatID,
+		MaxPartSize:     maxPartSize,
+		TempDir:         tempDir,
+		RetryAttempts:   retryAttempts,
+		RetryDelay:      retryDelay,
+		PartUploadDelay: partUploadDelay,
+		fakeFs:          newFakeFilesystem(),
 	}
 
 	return fs, nil
@@ -204,6 +244,7 @@ func (f *File) Close() error {
 			}
 
 			if err := f.sendContent(partData, partFilename, partCaption, true); err != nil {
+				f.sendErrorToTelegram(partFilename, err)
 				return err
 			}
 
@@ -212,6 +253,11 @@ func (f *File) Close() error {
 			}
 
 			partFilenames[idx] = partFilename
+
+			// Delay between parts to avoid Telegram rate-limit errors
+			if idx < totalParts-1 && f.Fs.PartUploadDelay > 0 {
+				time.Sleep(f.Fs.PartUploadDelay)
+			}
 		}
 
 	}
@@ -236,7 +282,7 @@ func (f *File) Close() error {
 func (f *File) sendContent(data []byte, filename string, caption string, forceDocument bool) error {
 	chat := tele.Chat{ID: f.Fs.ChatID}
 
-	err := f.sendWithRetry(func() error {
+	err := f.sendWithRetry(filename, caption, func() error {
 		if !forceDocument && isExtension(f.Path, imageExtensions) {
 			photo := tele.Photo{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
 			_, sendErr := f.Fs.Bot.Send(&chat, &photo)
@@ -306,24 +352,34 @@ func isTransientTelegramError(err error) bool {
 	return false
 }
 
-func (f *File) sendWithRetry(send func() error) error {
+func (f *File) sendWithRetry(filename string, caption string, send func() error) error {
 	var err error
 
-	for attempt := 1; attempt <= sendRetryAttempts; attempt++ {
+	for attempt := 1; attempt <= f.Fs.RetryAttempts; attempt++ {
 		err = send()
 		if err == nil {
 			return nil
 		}
 
-		if !isTransientTelegramError(err) || attempt == sendRetryAttempts {
+		if !isTransientTelegramError(err) || attempt == f.Fs.RetryAttempts {
 			return err
 		}
 
-		f.Fs.Logger.Warn("telegram send retry", "attempt", attempt, "maxAttempts", sendRetryAttempts, "err", err)
-		time.Sleep(sendRetryDelay)
+		f.Fs.Logger.Warn("telegram send retry", "attempt", attempt, "maxAttempts", f.Fs.RetryAttempts, "path", f.Path, "filename", filename, "caption", caption, "err", err)
+		time.Sleep(f.Fs.RetryDelay)
 	}
 
 	return err
+}
+
+// sendErrorToTelegram sends an error notification to the Telegram chat with the #ERROR tag.
+func (f *File) sendErrorToTelegram(filename string, uploadErr error) {
+	chat := tele.Chat{ID: f.Fs.ChatID}
+	msg := fmt.Sprintf("#ERROR Upload failed\nFile: %s\nError: %v", filename, uploadErr)
+	f.Fs.Logger.Error("telegram upload failed after all retries", "filename", filename, "err", uploadErr)
+	if _, err := f.Fs.Bot.Send(&chat, msg); err != nil {
+		f.Fs.Logger.Error("telegram sendErrorToTelegram failed", "err", err, "filename", filename)
+	}
 }
 
 func (f *File) spillNextPartToDisk(data []byte) error {
