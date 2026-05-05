@@ -214,7 +214,6 @@ func (f *File) Close() error {
 			partFilenames[idx] = partFilename
 		}
 
-		f.sendJoinInstructions(basePath, partFilenames)
 	}
 
 	if f.Fs.fakeFs.stat(f.Path) == nil {
@@ -355,48 +354,6 @@ func (f *File) cleanupTempParts() {
 		if err := os.RemoveAll(f.PartTempDir); err != nil {
 			f.Fs.Logger.Error("telegram cleanupTempParts", "err", err)
 		}
-	}
-}
-
-// sendJoinInstructions sends a text message with instructions on how to join downloaded parts
-func (f *File) sendJoinInstructions(originalName string, partFilenames []string) {
-	if len(partFilenames) == 0 {
-		return
-	}
-
-	chat := tele.Chat{ID: f.Fs.ChatID}
-	totalParts := len(partFilenames)
-
-	linuxCmd := fmt.Sprintf("for i in $(seq 1 %d); do cat '%s.part${i}of%d' >> '%s'; done", totalParts, originalName, totalParts, originalName)
-	pwshCmd := fmt.Sprintf("1..%d | %% { Get-Content -AsByteStream '%s.part${_}of%d' } | Set-Content -AsByteStream '%s'", totalParts, originalName, totalParts, originalName)
-
-	msg := fmt.Sprintf(
-		"📦 File: %s\n📊 Total parts: %d\n\n"+
-			"To join parts after downloading:\n\n"+
-			"Linux/Mac:\n"+
-			"```\n%s\n```\n\n"+
-			"Windows (PowerShell):\n"+
-			"```\n%s\n```",
-		originalName, totalParts, linuxCmd, pwshCmd,
-	)
-
-	if len(msg) > 3800 {
-		msg = fmt.Sprintf(
-			"📦 File: %s\n📊 Total parts: %d\n\n"+
-				"Message shortened to avoid Telegram length limits.\n"+
-				"Use this pattern to reassemble:\n\n"+
-				"Linux/Mac:\n"+
-				"```\ncat %s.part*of%d > %s\n```\n\n"+
-				"Windows (PowerShell):\n"+
-				"```\n1..%d | %% { Get-Content -AsByteStream '%s.part${_}of%d' } | Set-Content -AsByteStream '%s'\n```",
-			originalName, totalParts,
-			originalName, totalParts, originalName,
-			totalParts, originalName, totalParts, originalName,
-		)
-	}
-
-	if _, err := f.Fs.Bot.Send(&chat, msg, tele.ModeMarkdown); err != nil {
-		f.Fs.Logger.Error("telegram sendJoinInstructions", "err", err)
 	}
 }
 

@@ -51,3 +51,33 @@ If it's `false` then each user (or even each ftp connection) will have own bot i
   }
 }
 ```
+
+## Reassembling multipart files
+
+When a file exceeds `MaxPartSize`, it is uploaded as numbered parts (`filename.part1ofN`, `filename.part2ofN`, …).
+Download all parts into the same directory, then reassemble them with one of the commands below.
+
+**Linux / macOS**
+
+```bash
+# Reassemble every *.tar.gz split in the current directory
+for base in $(ls *.part1of* | sed 's/\.part1of.*//'); do
+  ls "${base}.part"*of* | sort -t'f' -k2 -n | xargs cat > "${base}"
+  echo "Reassembled: ${base}"
+done
+```
+
+**Windows (PowerShell)**
+
+```powershell
+# Reassemble every *.tar.gz split in the current directory
+Get-ChildItem '*.part1of*' | ForEach-Object {
+  $base = $_.Name -replace '\.part1of.*', ''
+  $out  = $base
+  Get-ChildItem "${base}.part*of*" |
+    Sort-Object { [int]($_.Name -replace '.*\.part(\d+)of.*','$1') } |
+    ForEach-Object { Get-Content $_.FullName -AsByteStream } |
+    Set-Content -AsByteStream $out
+  Write-Host "Reassembled: $out"
+}
+```
