@@ -38,6 +38,7 @@ const defaultMaxPartSize = 49 * 1024 * 1024
 const defaultSendRetryAttempts = 10
 const defaultSendRetryDelay = 2000 * time.Millisecond
 const defaultPartUploadDelay = 500 * time.Millisecond
+const maxReadbackCacheSize = 128 * 1024
 
 // Fs is a write-only afero.Fs implementation using telegram as backend
 type Fs struct {
@@ -266,6 +267,11 @@ func (f *File) Close() error {
 		f.Fs.fakeFs.create(f.Path)
 	}
 	f.Fs.fakeFs.setSize(f.Path, f.TotalWritten)
+	if f.PartNumber == 0 && f.TotalWritten > 0 && f.TotalWritten <= maxReadbackCacheSize {
+		f.Fs.fakeFs.setContent(f.Path, f.Content)
+	} else {
+		f.Fs.fakeFs.setContent(f.Path, nil)
+	}
 
 	f.Content = []byte{}
 	f.PartNumber = 0
@@ -561,9 +567,43 @@ func (m *Fs) MkdirAll(name string, mode os.FileMode) error {
 	return nil
 }
 
+func candidatePaths(name string) []string {
+	trimmed := strings.TrimPrefix(name, "/")
+	paths := []string{name}
+
+	if trimmed != name {
+		paths = append(paths, trimmed)
+	} else if trimmed != "" {
+		paths = append(paths, "/"+trimmed)
+	}
+
+	return paths
+}
+
+func (m *Fs) readbackContent(name string) []byte {
+	for _, p := range candidatePaths(name) {
+		if content := m.fakeFs.content(p); content != nil {
+			return content
+		}
+	}
+
+	return nil
+}
+
+func (m *Fs) statPath(name string) (*FileInfo, string) {
+	for _, p := range candidatePaths(name) {
+		if info := m.fakeFs.stat(p); info != nil {
+			return info, p
+		}
+	}
+
+	return nil, name
+}
+
 // Open opens a file buffer
 func (m *Fs) Open(name string) (afero.File, error) {
-	return &File{Path: name, Fs: m}, nil
+	content := m.readbackContent(name)
+	return &File{Path: name, Fs: m, Content: content}, nil
 }
 
 // Create creates a file buffer
@@ -574,12 +614,13 @@ func (m *Fs) Create(name string) (afero.File, error) {
 
 // OpenFile opens a file buffer
 func (m *Fs) OpenFile(name string, flag int, mode os.FileMode) (afero.File, error) {
-	return &File{Path: name, Fs: m}, nil
+	content := m.readbackContent(name)
+	return &File{Path: name, Fs: m, Content: content}, nil
 }
 
 // Stat() fake implementation
 func (m *Fs) Stat(name string) (os.FileInfo, error) {
-	fileInfo := m.fakeFs.stat(name)
+	fileInfo, _ := m.statPath(name)
 
 	if fileInfo == nil {
 		return nil, &os.PathError{Op: "stat", Path: name, Err: nil}

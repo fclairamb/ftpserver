@@ -13,6 +13,7 @@ type FileData struct {
 	mode    os.FileMode
 	modtime time.Time
 	size    int64
+	content []byte
 }
 
 type FileInfo struct {
