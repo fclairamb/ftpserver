@@ -3,6 +3,7 @@ package s3
 
 import (
 	"context"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -72,6 +73,9 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 
 	var fs afero.Fs = s3Fs
 	if basePath != "" {
+		// Strip leading/trailing slashes: S3 object keys must not start with "/"
+		// and a trailing slash would produce double slashes in key names.
+		basePath = strings.Trim(basePath, "/")
 		fs = afero.NewBasePathFs(s3Fs, basePath)
 	}
 
