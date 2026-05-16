@@ -2,7 +2,7 @@ module github.com/fclairamb/ftpserver
 
 go 1.25.0
 
-toolchain go1.26.2
+toolchain go1.26.3
 
 require (
 	cloud.google.com/go/storage v1.62.1
@@ -10,22 +10,22 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.41.7
 	github.com/aws/aws-sdk-go-v2/config v1.32.17
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.16
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.100.1
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.101.0
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.3.0
 	github.com/fclairamb/afero-s3 v0.4.0
 	github.com/fclairamb/afero-snd v0.2.0
 	github.com/fclairamb/ftpserverlib v0.30.0
-	github.com/go-crypt/crypt v0.4.13
+	github.com/go-crypt/crypt v0.4.14
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.10
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/afero/gcsfs v1.15.0
 	github.com/spf13/afero/sftpfs v1.15.0
 	github.com/tidwall/sjson v1.2.5
-	golang.org/x/crypto v0.50.0
+	golang.org/x/crypto v0.51.0
 	golang.org/x/oauth2 v0.36.0
-	google.golang.org/api v0.277.0
+	google.golang.org/api v0.279.0
 	gopkg.in/telebot.v3 v3.3.8
 )
 
@@ -45,7 +45,7 @@ require (
 	github.com/envoyproxy/go-control-plane/envoy v1.36.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.3.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/go-crypt/x v0.4.14 // indirect
+	github.com/go-crypt/x v0.4.15 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -100,8 +100,8 @@ require (
 	github.com/googleapis/gax-go/v2 v2.22.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	golang.org/x/net v0.53.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	google.golang.org/grpc v1.80.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
