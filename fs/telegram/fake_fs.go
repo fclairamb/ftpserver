@@ -13,7 +13,6 @@ type fakeFilesystem struct {
 	// dir fakeDir
 }
 
-
 // newFakeFilesystem creates a new fake filesystem
 func newFakeFilesystem() *fakeFilesystem {
 	return &fakeFilesystem{
@@ -52,11 +51,42 @@ func (f *fakeFilesystem) setSize(name string, size int64) {
 	}
 }
 
+// setContent stores read-back content for a file path.
+func (f *fakeFilesystem) setContent(name string, content []byte) {
+	f.Lock()
+	defer f.Unlock()
+	if fileInfo, found := f.dict[name]; found {
+		if content == nil {
+			fileInfo.content = nil
+			return
+		}
+
+		copied := make([]byte, len(content))
+		copy(copied, content)
+		fileInfo.content = copied
+	}
+}
+
+// content returns a copy of read-back content for a file path.
+func (f *fakeFilesystem) content(name string) []byte {
+	f.Lock()
+	defer f.Unlock()
+	if fileInfo, found := f.dict[name]; found {
+		if fileInfo.content == nil {
+			return nil
+		}
+
+		copied := make([]byte, len(fileInfo.content))
+		copy(copied, fileInfo.content)
+		return copied
+	}
+
+	return nil
+}
+
 // stat returns a file info
 func (f *fakeFilesystem) stat(name string) *FileInfo {
 	f.Lock()
 	defer f.Unlock()
 	return f.dict[name]
 }
-
-

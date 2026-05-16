@@ -200,7 +200,12 @@ Here is a sample config file:
          "shared": true,
          "params": {
             "Token": "<OBTAIN_TOKEN_FROM_BOTFATHER>",
-            "ChatID": "<INSERT_CHAT_ID_HERE>"
+            "ChatID": "<INSERT_CHAT_ID_HERE>",
+            "MaxPartSize": "51380224",
+            "TempDir": "/tmp",
+            "RetryAttempts": "10",
+            "RetryDelay": "2000",
+            "PartUploadDelay": "500"
          }
       }
    ]

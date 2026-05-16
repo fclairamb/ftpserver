@@ -2,6 +2,7 @@
 package telegram
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -31,6 +32,14 @@ var ErrNotFound = errors.New("not found")
 // ErrInvalidParameter is returned when a parameter is invalid
 var ErrInvalidParameter = errors.New("invalid parameter")
 
+// defaultMaxPartSize is the default maximum size of each telegram upload part (49 MB, telegram limit is 50 MB)
+const defaultMaxPartSize = 49 * 1024 * 1024
+
+const defaultSendRetryAttempts = 10
+const defaultSendRetryDelay = 2000 * time.Millisecond
+const defaultPartUploadDelay = 500 * time.Millisecond
+const maxReadbackCacheSize = 128 * 1024
+
 // Fs is a write-only afero.Fs implementation using telegram as backend
 type Fs struct {
 	// Bot is the telegram bot instance
@@ -39,6 +48,16 @@ type Fs struct {
 	ChatID int64
 	// Logger is the logger, obviously
 	Logger *slog.Logger
+	// MaxPartSize is the maximum size of each part when splitting large files (bytes)
+	MaxPartSize int64
+	// TempDir is the optional directory used to store multipart temporary files
+	TempDir string
+	// RetryAttempts is the number of retry attempts for transient errors
+	RetryAttempts int
+	// RetryDelay is the delay between retry attempts
+	RetryDelay time.Duration
+	// PartUploadDelay is the delay between uploading each part to avoid rate limiting
+	PartUploadDelay time.Duration
 
 	// fakeFs is a lightweight fake filesystem intended for store temporary info about files
 	// since some ftp clients expect to perform mkdir() + stat() on files and directories before upload
@@ -51,6 +70,14 @@ type File struct {
 	Path string
 	// Content is the file content
 	Content []byte
+	// PartNumber is the uploaded part counter for multipart uploads
+	PartNumber int
+	// PartTempFiles stores temporary part file paths before final upload
+	PartTempFiles []string
+	// PartTempDir stores the temporary directory used for multipart spool
+	PartTempDir string
+	// TotalWritten stores total bytes written across the transfer
+	TotalWritten int64
 	// Fs is the parent Fs
 	Fs *Fs
 	// At is the current position in the file
@@ -82,6 +109,52 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 		return nil, fmt.Errorf("invalid ChatID parameter: %v", err)
 	}
 
+	// Parse MaxPartSize param, default to defaultMaxPartSize if not set
+	var maxPartSize int64 = defaultMaxPartSize
+	partSizeStr := access.Params["MaxPartSize"]
+	if partSizeStr != "" {
+		parsed, parseErr := strconv.ParseInt(partSizeStr, 10, 64)
+		if parseErr != nil {
+			return nil, fmt.Errorf("invalid MaxPartSize parameter: %v", parseErr)
+		}
+		if parsed <= 0 {
+			return nil, fmt.Errorf("invalid MaxPartSize parameter: must be > 0")
+		}
+		maxPartSize = parsed
+	}
+
+	tempDir := strings.TrimSpace(access.Params["TempDir"])
+
+	// Parse RetryAttempts param, default to defaultSendRetryAttempts if not set
+	retryAttempts := defaultSendRetryAttempts
+	if v := strings.TrimSpace(access.Params["RetryAttempts"]); v != "" {
+		parsed, parseErr := strconv.Atoi(v)
+		if parseErr != nil || parsed <= 0 {
+			return nil, fmt.Errorf("invalid RetryAttempts parameter: must be a positive integer")
+		}
+		retryAttempts = parsed
+	}
+
+	// Parse RetryDelay param (milliseconds), default to defaultSendRetryDelay if not set
+	retryDelay := defaultSendRetryDelay
+	if v := strings.TrimSpace(access.Params["RetryDelay"]); v != "" {
+		parsed, parseErr := strconv.ParseInt(v, 10, 64)
+		if parseErr != nil || parsed < 0 {
+			return nil, fmt.Errorf("invalid RetryDelay parameter: must be a non-negative integer (milliseconds)")
+		}
+		retryDelay = time.Duration(parsed) * time.Millisecond
+	}
+
+	// Parse PartUploadDelay param (milliseconds), default to defaultPartUploadDelay if not set
+	partUploadDelay := defaultPartUploadDelay
+	if v := strings.TrimSpace(access.Params["PartUploadDelay"]); v != "" {
+		parsed, parseErr := strconv.ParseInt(v, 10, 64)
+		if parseErr != nil || parsed < 0 {
+			return nil, fmt.Errorf("invalid PartUploadDelay parameter: must be a non-negative integer (milliseconds)")
+		}
+		partUploadDelay = time.Duration(parsed) * time.Millisecond
+	}
+
 	pref := tele.Settings{
 		Token:  token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
@@ -104,10 +177,15 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	}()
 
 	fs := &Fs{
-		Bot:    bot,
-		Logger: logger,
-		ChatID: chatID,
-		fakeFs: newFakeFilesystem(),
+		Bot:             bot,
+		Logger:          logger,
+		ChatID:          chatID,
+		MaxPartSize:     maxPartSize,
+		TempDir:         tempDir,
+		RetryAttempts:   retryAttempts,
+		RetryDelay:      retryDelay,
+		PartUploadDelay: partUploadDelay,
+		fakeFs:          newFakeFilesystem(),
 	}
 
 	return fs, nil
@@ -116,51 +194,229 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 // Name of the file
 func (f *File) Name() string { return f.Path }
 
-// Close closes the file transfer and does the actual transfer to telegram
+// Close closes the file transfer and does the actual transfer to telegram.
+// If the file is larger than maxPartSize, it will be split into multiple parts.
 func (f *File) Close() error {
 	if f.Fs == nil {
 		return ErrNotFound
 	}
 
-	chat := tele.Chat{ID: f.Fs.ChatID}
-	var err error
-	basePath := filepath.Base(f.Path)
+	if entry := f.Fs.fakeFs.stat(f.Path); entry != nil && entry.IsDir() {
+		// Some FTP clients open/close directory paths; never upload directories to Telegram.
+		return nil
+	}
 
-	if isExtension(f.Path, imageExtensions) {
-		photo := tele.Photo{File: tele.FromReader(f), Caption: basePath}
-		_, err = f.Fs.Bot.Send(&chat, &photo)
-	} else if isExtension(f.Path, videoExtensions) {
-		video := tele.Video{File: tele.FromReader(f), Caption: basePath}
-		_, err = f.Fs.Bot.Send(&chat, &video)
-	} else if isExtension(f.Path, audioExtensions) {
-		audio := tele.Audio{File: tele.FromReader(f), Caption: basePath}
-		_, err = f.Fs.Bot.Send(&chat, &audio)
-	} else if isExtension(f.Path, textExtensions) && len(f.Content) < 4096 {
-		if isExtension(f.Path, []string{".md"}) {
-			_, err = f.Fs.Bot.Send(&chat, string(f.Content), tele.ModeMarkdown)
-		} else {
-			_, err = f.Fs.Bot.Send(&chat, string(f.Content))
+	basePath := filepath.Base(f.Path)
+	defer f.cleanupTempParts()
+
+	if f.PartNumber == 0 && len(f.Content) == 0 {
+		// Telegram rejects empty files; skip upload for empty payloads.
+		if f.Fs.fakeFs.stat(f.Path) == nil {
+			f.Fs.fakeFs.create(f.Path)
+		}
+		f.Fs.fakeFs.setSize(f.Path, 0)
+		return nil
+	}
+
+	if f.PartNumber == 0 {
+		// Single-part upload path
+		err := f.sendContent(f.Content, basePath, basePath, false)
+		if err != nil {
+			return err
 		}
 	} else {
-		document := tele.Document{File: tele.FromReader(f), Caption: basePath}
-		document.FileName = basePath
-		document.FileLocal = basePath
-		_, err = f.Fs.Bot.Send(&chat, &document)
+		// Multipart upload path: write final remainder, then upload all parts with partXofY naming.
+		if len(f.Content) > 0 {
+			if err := f.spillNextPartToDisk(f.Content); err != nil {
+				return err
+			}
+		}
+
+		totalParts := len(f.PartTempFiles)
+		partFilenames := make([]string, totalParts)
+		for idx, tempPath := range f.PartTempFiles {
+			partNum := idx + 1
+			partFilename := fmt.Sprintf("%s.part%dof%d", basePath, partNum, totalParts)
+			partCaption := fmt.Sprintf("%s (part %d/%d)", basePath, partNum, totalParts)
+
+			partData, readErr := os.ReadFile(tempPath)
+			if readErr != nil {
+				return readErr
+			}
+
+			if err := f.sendContent(partData, partFilename, partCaption, true); err != nil {
+				f.sendErrorToTelegram(partFilename, err)
+				return err
+			}
+
+			if err := os.Remove(tempPath); err != nil {
+				f.Fs.Logger.Warn("telegram remove temp part failed", "err", err, "tempFilePath", tempPath)
+			}
+
+			partFilenames[idx] = partFilename
+
+			// Delay between parts to avoid Telegram rate-limit errors
+			if idx < totalParts-1 && f.Fs.PartUploadDelay > 0 {
+				time.Sleep(f.Fs.PartUploadDelay)
+			}
+		}
+
 	}
-	f.Fs.Logger.Info("telegram Bot.Send()", "path", f.Path)
+
+	if f.Fs.fakeFs.stat(f.Path) == nil {
+		f.Fs.fakeFs.create(f.Path)
+	}
+	f.Fs.fakeFs.setSize(f.Path, f.TotalWritten)
+	if f.PartNumber == 0 && f.TotalWritten > 0 && f.TotalWritten <= maxReadbackCacheSize {
+		f.Fs.fakeFs.setContent(f.Path, f.Content)
+	} else {
+		f.Fs.fakeFs.setContent(f.Path, nil)
+	}
+
+	f.Content = []byte{}
+	f.PartNumber = 0
+	f.PartTempFiles = nil
+	f.PartTempDir = ""
+	f.TotalWritten = 0
+	f.At = 0
+
+	return nil
+}
+
+// sendContent sends a chunk of content to the telegram chat with the given caption
+// filename is used as the file name for document uploads; caption is the display text.
+func (f *File) sendContent(data []byte, filename string, caption string, forceDocument bool) error {
+	chat := tele.Chat{ID: f.Fs.ChatID}
+
+	err := f.sendWithRetry(filename, caption, func() error {
+		if !forceDocument && isExtension(f.Path, imageExtensions) {
+			photo := tele.Photo{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+			_, sendErr := f.Fs.Bot.Send(&chat, &photo)
+			return sendErr
+		}
+		if !forceDocument && isExtension(f.Path, videoExtensions) {
+			video := tele.Video{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+			_, sendErr := f.Fs.Bot.Send(&chat, &video)
+			return sendErr
+		}
+		if !forceDocument && isExtension(f.Path, audioExtensions) {
+			audio := tele.Audio{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+			_, sendErr := f.Fs.Bot.Send(&chat, &audio)
+			return sendErr
+		}
+		if !forceDocument && isExtension(f.Path, textExtensions) && len(data) < 4096 {
+			if isExtension(f.Path, []string{".md"}) {
+				_, sendErr := f.Fs.Bot.Send(&chat, string(data), tele.ModeMarkdown)
+				return sendErr
+			}
+			_, sendErr := f.Fs.Bot.Send(&chat, string(data))
+			return sendErr
+		}
+
+		document := tele.Document{File: tele.FromReader(bytes.NewReader(data)), Caption: caption}
+		document.FileName = filename
+		_, sendErr := f.Fs.Bot.Send(&chat, &document)
+		return sendErr
+	})
+
+	f.Fs.Logger.Info("telegram Bot.Send()", "path", f.Path, "caption", caption)
 
 	if err != nil {
 		f.Fs.Logger.Error("telegram Bot.Send()", "err", err)
 		return err
 	}
 
-	f.Fs.fakeFs.create(f.Path)
-	f.Fs.fakeFs.setSize(f.Path, int64(len(f.Content)))
+	return nil
+}
 
-	f.Content = []byte{}
-	f.At = 0
+func isTransientTelegramError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	msg := strings.ToLower(err.Error())
+
+	transientHints := []string{
+		"too many requests",
+		"timeout",
+		"deadline exceeded",
+		"temporarily unavailable",
+		"bad gateway",
+		"internal server error",
+		"gateway timeout",
+		"connection reset",
+		"eof",
+		"i/o timeout",
+	}
+
+	for _, hint := range transientHints {
+		if strings.Contains(msg, hint) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (f *File) sendWithRetry(filename string, caption string, send func() error) error {
+	var err error
+
+	for attempt := 1; attempt <= f.Fs.RetryAttempts; attempt++ {
+		err = send()
+		if err == nil {
+			return nil
+		}
+
+		if !isTransientTelegramError(err) || attempt == f.Fs.RetryAttempts {
+			return err
+		}
+
+		f.Fs.Logger.Warn("telegram send retry", "attempt", attempt, "maxAttempts", f.Fs.RetryAttempts, "path", f.Path, "filename", filename, "caption", caption, "err", err)
+		time.Sleep(f.Fs.RetryDelay)
+	}
+
+	return err
+}
+
+// sendErrorToTelegram sends an error notification to the Telegram chat with the #ERROR tag.
+func (f *File) sendErrorToTelegram(filename string, uploadErr error) {
+	chat := tele.Chat{ID: f.Fs.ChatID}
+	msg := fmt.Sprintf("#ERROR Upload failed\nFile: %s\nError: %v", filename, uploadErr)
+	f.Fs.Logger.Error("telegram upload failed after all retries", "filename", filename, "err", uploadErr)
+	if _, err := f.Fs.Bot.Send(&chat, msg); err != nil {
+		f.Fs.Logger.Error("telegram sendErrorToTelegram failed", "err", err, "filename", filename)
+	}
+}
+
+func (f *File) spillNextPartToDisk(data []byte) error {
+	if f.PartTempDir == "" {
+		tempDir, err := os.MkdirTemp(f.Fs.TempDir, "ftpserver-telegram-*")
+		if err != nil {
+			f.Fs.Logger.Error("telegram spillNextPartToDisk MkdirTemp", "err", err, "tempDir", f.Fs.TempDir)
+			return err
+		}
+		f.PartTempDir = tempDir
+	}
+
+	f.PartNumber++
+	tempFilePath := filepath.Join(f.PartTempDir, fmt.Sprintf("part-%05d.bin", f.PartNumber))
+
+	if err := os.WriteFile(tempFilePath, data, 0o600); err != nil {
+		f.Fs.Logger.Error("telegram spillNextPartToDisk WriteFile", "err", err, "tempFilePath", tempFilePath, "bytes", len(data))
+		return err
+	}
+
+	f.PartTempFiles = append(f.PartTempFiles, tempFilePath)
 
 	return nil
+}
+
+func (f *File) cleanupTempParts() {
+	if f.PartTempDir != "" {
+		if err := os.RemoveAll(f.PartTempDir); err != nil {
+			f.Fs.Logger.Error("telegram cleanupTempParts", "err", err)
+		}
+	}
 }
 
 // Read stores the received file content into the local buffer
@@ -235,6 +491,26 @@ func (f *File) WriteAt(b []byte, off int64) (int, error) {
 
 func (f *File) Write(b []byte) (int, error) {
 	f.Content = append(f.Content, b...)
+	f.TotalWritten += int64(len(b))
+
+	partSize := int(f.Fs.MaxPartSize)
+	if partSize <= 0 {
+		f.Fs.Logger.Error("telegram Write invalid MaxPartSize", "maxPartSize", f.Fs.MaxPartSize, "path", f.Path)
+		return 0, ErrInvalidParameter
+	}
+
+	// Keep max one part in memory and stream full parts immediately.
+	for len(f.Content) > partSize {
+		part := make([]byte, partSize)
+		copy(part, f.Content[:partSize])
+
+		if err := f.spillNextPartToDisk(part); err != nil {
+			f.Fs.Logger.Error("telegram Write spillNextPartToDisk failed", "err", err, "path", f.Path, "partSize", partSize)
+			return 0, err
+		}
+
+		f.Content = f.Content[partSize:]
+	}
 
 	return len(b), nil
 }
@@ -291,9 +567,43 @@ func (m *Fs) MkdirAll(name string, mode os.FileMode) error {
 	return nil
 }
 
+func candidatePaths(name string) []string {
+	trimmed := strings.TrimPrefix(name, "/")
+	paths := []string{name}
+
+	if trimmed != name {
+		paths = append(paths, trimmed)
+	} else if trimmed != "" {
+		paths = append(paths, "/"+trimmed)
+	}
+
+	return paths
+}
+
+func (m *Fs) readbackContent(name string) []byte {
+	for _, p := range candidatePaths(name) {
+		if content := m.fakeFs.content(p); content != nil {
+			return content
+		}
+	}
+
+	return nil
+}
+
+func (m *Fs) statPath(name string) (*FileInfo, string) {
+	for _, p := range candidatePaths(name) {
+		if info := m.fakeFs.stat(p); info != nil {
+			return info, p
+		}
+	}
+
+	return nil, name
+}
+
 // Open opens a file buffer
 func (m *Fs) Open(name string) (afero.File, error) {
-	return &File{Path: name, Fs: m}, nil
+	content := m.readbackContent(name)
+	return &File{Path: name, Fs: m, Content: content}, nil
 }
 
 // Create creates a file buffer
@@ -304,12 +614,13 @@ func (m *Fs) Create(name string) (afero.File, error) {
 
 // OpenFile opens a file buffer
 func (m *Fs) OpenFile(name string, flag int, mode os.FileMode) (afero.File, error) {
-	return &File{Path: name, Fs: m}, nil
+	content := m.readbackContent(name)
+	return &File{Path: name, Fs: m, Content: content}, nil
 }
 
 // Stat() fake implementation
 func (m *Fs) Stat(name string) (os.FileInfo, error) {
-	fileInfo := m.fakeFs.stat(name)
+	fileInfo, _ := m.statPath(name)
 
 	if fileInfo == nil {
 		return nil, &os.PathError{Op: "stat", Path: name, Err: nil}
