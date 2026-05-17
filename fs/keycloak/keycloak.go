@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/Nerzal/gocloak/v13"
+	"github.com/Nerzal/gocloak/v14"
 	"github.com/fclairamb/ftpserver/config/confpar"
 	"github.com/fclairamb/ftpserver/fs/utils"
 	"github.com/spf13/afero"
