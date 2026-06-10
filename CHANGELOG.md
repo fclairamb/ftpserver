@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.16.0](https://github.com/fclairamb/ftpserver/compare/v0.15.2...v0.16.0) (2026-06-10)
+
+
+### Features
+
+* **s3:** add basePath support using afero.BasePathFs ([#1636](https://github.com/fclairamb/ftpserver/issues/1636)) ([8e5a218](https://github.com/fclairamb/ftpserver/commit/8e5a218e6732b7a27f6e397f6e534cbb9602cc17))
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#1687](https://github.com/fclairamb/ftpserver/issues/1687)) ([4112dbf](https://github.com/fclairamb/ftpserver/commit/4112dbf396d35b62e7390b946e3bb0fd244a1d70))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1691](https://github.com/fclairamb/ftpserver/issues/1691)) ([ca1f701](https://github.com/fclairamb/ftpserver/commit/ca1f701717edbe76dfbe488410a66d34e34788a8))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1694](https://github.com/fclairamb/ftpserver/issues/1694)) ([8f11cc8](https://github.com/fclairamb/ftpserver/commit/8f11cc8c9c60a615ee7f78a05f377eb7c67cc92f))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1698](https://github.com/fclairamb/ftpserver/issues/1698)) ([b0b4813](https://github.com/fclairamb/ftpserver/commit/b0b481347c0e4a15b098c4f93de3eb521e0856b3))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1699](https://github.com/fclairamb/ftpserver/issues/1699)) ([465cb97](https://github.com/fclairamb/ftpserver/commit/465cb9795a38b3cb9d31cd9006dd8ddc0e09d67d))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1702](https://github.com/fclairamb/ftpserver/issues/1702)) ([8e36aff](https://github.com/fclairamb/ftpserver/commit/8e36aff3d60e1bf61488c8b03d31d5a0eb654e5d))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1703](https://github.com/fclairamb/ftpserver/issues/1703)) ([e5f54a8](https://github.com/fclairamb/ftpserver/commit/e5f54a8a1a6b4d24311b1017dd29ed7490cad556))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1707](https://github.com/fclairamb/ftpserver/issues/1707)) ([ccd62fa](https://github.com/fclairamb/ftpserver/commit/ccd62fa96169a6224beae6d902984db4761e41a3))
+* **deps:** update module cloud.google.com/go/storage to v1.62.2 ([#1682](https://github.com/fclairamb/ftpserver/issues/1682)) ([d8cdfde](https://github.com/fclairamb/ftpserver/commit/d8cdfdeb829e8fac39fe70f26b380290d2580b09))
+* **deps:** update module cloud.google.com/go/storage to v1.62.3 ([#1701](https://github.com/fclairamb/ftpserver/issues/1701)) ([183aead](https://github.com/fclairamb/ftpserver/commit/183aead55f51d34cf0ca085c2fccb45968bbc28c))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/s3 to v1.102.0 ([#1690](https://github.com/fclairamb/ftpserver/issues/1690)) ([da500b1](https://github.com/fclairamb/ftpserver/commit/da500b1402144a097623fcd3dd8b07c34b6e5399))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/s3 to v1.102.1 ([#1693](https://github.com/fclairamb/ftpserver/issues/1693)) ([f05a3f2](https://github.com/fclairamb/ftpserver/commit/f05a3f2af165ab7b4f99d6e48ae25caf1398b4e4))
+* **deps:** update module github.com/fclairamb/ftpserverlib to v0.31.0 ([#1680](https://github.com/fclairamb/ftpserver/issues/1680)) ([8ca7d5c](https://github.com/fclairamb/ftpserver/commit/8ca7d5c8ccd000f6f645b7b48e95984a95276603))
+* **deps:** update module github.com/fclairamb/ftpserverlib to v0.32.0 ([#1692](https://github.com/fclairamb/ftpserver/issues/1692)) ([87fac19](https://github.com/fclairamb/ftpserver/commit/87fac19eb3f3c083463cdd408cd8b94d399d8738))
+* **deps:** update module github.com/go-crypt/crypt to v0.14.15 ([#1686](https://github.com/fclairamb/ftpserver/issues/1686)) ([3c02d74](https://github.com/fclairamb/ftpserver/commit/3c02d74b5d2da04e6e10fa9a08df5e741ca4c1e9))
+* **deps:** update module github.com/nerzal/gocloak/v13 to v14 ([#1672](https://github.com/fclairamb/ftpserver/issues/1672)) ([30146c5](https://github.com/fclairamb/ftpserver/commit/30146c534be003aa40976705d6e5f8fb8d4cc8cc))
+* **deps:** update module golang.org/x/crypto to v0.52.0 ([#1685](https://github.com/fclairamb/ftpserver/issues/1685)) ([02746a7](https://github.com/fclairamb/ftpserver/commit/02746a7fca47b8d9397ecf13f668ec4bd6bf33e6))
+* **deps:** update module golang.org/x/crypto to v0.53.0 ([#1704](https://github.com/fclairamb/ftpserver/issues/1704)) ([1953ede](https://github.com/fclairamb/ftpserver/commit/1953edee5e78f706b26ff24c0e36110e94957257))
+* **deps:** update module google.golang.org/api to v0.280.0 ([#1684](https://github.com/fclairamb/ftpserver/issues/1684)) ([a9462da](https://github.com/fclairamb/ftpserver/commit/a9462dac44aaf89af0ddab78b132f1fcbe073c25))
+* **deps:** update module google.golang.org/api to v0.281.0 ([#1688](https://github.com/fclairamb/ftpserver/issues/1688)) ([59764ce](https://github.com/fclairamb/ftpserver/commit/59764cee6a580d263dd646495a932b346ecae3f6))
+* **deps:** update module google.golang.org/api to v0.282.0 ([#1689](https://github.com/fclairamb/ftpserver/issues/1689)) ([c9747f5](https://github.com/fclairamb/ftpserver/commit/c9747f5ed5748d27d32cf3478e948da43f58c4a2))
+* **deps:** update module google.golang.org/api to v0.283.0 ([#1695](https://github.com/fclairamb/ftpserver/issues/1695)) ([2bc26f8](https://github.com/fclairamb/ftpserver/commit/2bc26f85eda7746dc229c670234b5fc0cde4173f))
+* **deps:** update module google.golang.org/api to v0.284.0 ([#1706](https://github.com/fclairamb/ftpserver/issues/1706)) ([43c0ca7](https://github.com/fclairamb/ftpserver/commit/43c0ca7c01be0e76376965bdcb6e9e5fc1f07561))
+
 ## [0.15.2](https://github.com/fclairamb/ftpserver/compare/v0.15.1...v0.15.2) (2026-05-16)
 
 
