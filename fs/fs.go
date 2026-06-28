@@ -42,7 +42,7 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	case "gcs":
 		fs, err = gcs.LoadFs(access)
 	case "sftp":
-		fs, err = sftp.LoadFs(access)
+		fs, err = sftp.LoadFs(access, logger.With("component", "sftp"))
 	case "mail":
 		fs, err = mail.LoadFs(access)
 	case "gdrive":

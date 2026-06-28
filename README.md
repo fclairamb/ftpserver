@@ -190,7 +190,8 @@ Here is a sample config file:
          "params": {
             "username": "user",
             "password": "password",
-            "hostname": "192.168.168.11:22"
+            "hostname": "192.168.168.11:22",
+            "known_hosts": "/home/ftpserver/.ssh/known_hosts"
          }
       },
       {
@@ -216,3 +217,19 @@ You can generate the TLS key pair files with the following command:
 ```bash
 openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out cert.pem -keyout key.pem
 ```
+
+### SFTP backend host key verification
+
+The `sftp` backend connects to an upstream SSH/SFTP server and verifies its host key to
+protect against man-in-the-middle attacks. You must configure exactly one of the following
+`params`:
+
+- `known_hosts`: path to an OpenSSH `known_hosts` file containing the upstream server's key
+  (e.g. generated with `ssh-keyscan -H host >> known_hosts`).
+- `host_key`: the upstream server's public key pinned inline, in `authorized_keys` /
+  `known_hosts` line format (e.g. `ssh-ed25519 AAAA...`).
+- `insecure_ignore_host_key`: set to `"true"` to disable host key verification entirely.
+  This is **unsafe** (it exposes the connection to man-in-the-middle attacks) and should only
+  be used in trusted networks or for testing.
+
+If none of these is set, the connection is refused.
