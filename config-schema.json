@@ -339,7 +339,8 @@
                     "params": {
                         "username": "user",
                         "password": "password",
-                        "hostname": "192.168.168.11:22"
+                        "hostname": "192.168.168.11:22",
+                        "known_hosts": "/home/ftpserver/.ssh/known_hosts"
                     }
                 }]
             }
