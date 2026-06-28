@@ -298,6 +298,19 @@ type ClientDriver struct {
 	afero.Fs
 }
 
+// Symlink creates a symbolic link. It implements ftpserverlib's
+// ClientDriverExtensionSymlink interface (the "SITE SYMLINK" command), delegating to
+// the underlying filesystem when it supports symlinks (the local OS backend does).
+// Backends that can't create symlinks return an *os.LinkError wrapping
+// afero.ErrNoSymlink. See #980.
+func (d *ClientDriver) Symlink(oldname, newname string) error {
+	if linker, ok := d.Fs.(afero.Linker); ok {
+		return linker.SymlinkIfPossible(oldname, newname)
+	}
+
+	return &os.LinkError{Op: "symlink", Old: oldname, New: newname, Err: afero.ErrNoSymlink}
+}
+
 func (s *Server) loadTLSConfig() (*tls.Config, error) {
 	tlsConf := s.config.Content.TLS
 	if tlsConf == nil || tlsConf.ServerCert == nil {
