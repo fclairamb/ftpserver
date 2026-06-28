@@ -97,6 +97,10 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		TLSRequired:              tlsRequired,
 		IdleTimeout:              int(conf.IdleTimeout.Seconds()),
 		EnableHASH:               conf.Extensions.EnableHASH,
+		// Default to binary transfers. Without this, the transfer type defaults to ASCII
+		// (the zero value of TransferType), which silently corrupts binary files (e.g. .exe)
+		// when a client uploads/downloads without first issuing a "TYPE I" command. See #1532.
+		DefaultTransferType: serverlib.TransferTypeBinary,
 	}, nil
 }
 func (s *Server) ReloadConfig() error {
