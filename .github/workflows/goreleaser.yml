@@ -27,3 +27,8 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # actions/setup-go pins GOTOOLCHAIN=local, which makes GoReleaser fail with
+          # "go.mod requires go >= X (running go Y; GOTOOLCHAIN=local)" whenever the
+          # installed Go is older than the version required by go.mod. Allow Go to fetch
+          # the toolchain declared in go.mod so release binaries get built again. See #1658.
+          GOTOOLCHAIN: auto
