@@ -97,6 +97,10 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		TLSRequired:              tlsRequired,
 		IdleTimeout:              int(conf.IdleTimeout.Seconds()),
 		EnableHASH:               conf.Extensions.EnableHASH,
+		// Default to binary transfers. Without this, the transfer type defaults to ASCII
+		// (the zero value of TransferType), which silently corrupts binary files (e.g. .exe)
+		// when a client uploads/downloads without first issuing a "TYPE I" command. See #1532.
+		DefaultTransferType: serverlib.TransferTypeBinary,
 	}, nil
 }
 func (s *Server) ReloadConfig() error {
@@ -296,6 +300,19 @@ func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (server
 // The ClientDriver is the internal structure used for handling the client. At this stage it's limited to the afero.Fs
 type ClientDriver struct {
 	afero.Fs
+}
+
+// Symlink creates a symbolic link. It implements ftpserverlib's
+// ClientDriverExtensionSymlink interface (the "SITE SYMLINK" command), delegating to
+// the underlying filesystem when it supports symlinks (the local OS backend does).
+// Backends that can't create symlinks return an *os.LinkError wrapping
+// afero.ErrNoSymlink. See #980.
+func (d *ClientDriver) Symlink(oldname, newname string) error {
+	if linker, ok := d.Fs.(afero.Linker); ok {
+		return linker.SymlinkIfPossible(oldname, newname)
+	}
+
+	return &os.LinkError{Op: "symlink", Old: oldname, New: newname, Err: afero.ErrNoSymlink}
 }
 
 func (s *Server) loadTLSConfig() (*tls.Config, error) {
