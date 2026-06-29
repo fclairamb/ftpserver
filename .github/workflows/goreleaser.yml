@@ -21,7 +21,7 @@ jobs:
           go-version-file: go.mod
       -
         name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v7.2.2
+        uses: goreleaser/goreleaser-action@v7.2.3
         with:
           version: '~> v2'
           args: release --clean
