@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.16.0](https://github.com/fclairamb/ftpserver/compare/v0.15.2...v0.16.0) (2026-06-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **sftp:** SFTP accesses must now configure host key verification (known_hosts or host_key), or explicitly set insecure_ignore_host_key to "true". Existing configurations relying on the previous unconditional acceptance will fail to connect until updated.
+
+### Features
+
+* **s3:** add basePath support using afero.BasePathFs ([#1636](https://github.com/fclairamb/ftpserver/issues/1636)) ([8e5a218](https://github.com/fclairamb/ftpserver/commit/8e5a218e6732b7a27f6e397f6e534cbb9602cc17))
+* **server:** support symlink creation (SITE SYMLINK) ([#1719](https://github.com/fclairamb/ftpserver/issues/1719)) ([4240bc5](https://github.com/fclairamb/ftpserver/commit/4240bc541c89c7805ac5e09154ad6aab3339efbb)), closes [#980](https://github.com/fclairamb/ftpserver/issues/980)
+
+
+### Bug Fixes
+
+* **ci:** build release binaries again by allowing Go toolchain download ([#1717](https://github.com/fclairamb/ftpserver/issues/1717)) ([723318e](https://github.com/fclairamb/ftpserver/commit/723318ee9c0f67ef27c30cce6098d41464386c7a)), closes [#1658](https://github.com/fclairamb/ftpserver/issues/1658)
+* **deps:** migrate keycloak import from gocloak/v13 to v14 ([#1681](https://github.com/fclairamb/ftpserver/issues/1681)) ([438cc28](https://github.com/fclairamb/ftpserver/commit/438cc288ffa0687940605b9b86269d97b217265f)), closes [#1678](https://github.com/fclairamb/ftpserver/issues/1678)
+* **deps:** update aws-sdk-go-v2 monorepo ([#1722](https://github.com/fclairamb/ftpserver/issues/1722)) ([2002595](https://github.com/fclairamb/ftpserver/commit/2002595514106f920a5ba52fbff9975fbdf5db5a))
+* **deps:** update module cloud.google.com/go/storage to v1.63.0 ([#1715](https://github.com/fclairamb/ftpserver/issues/1715)) ([e07913d](https://github.com/fclairamb/ftpserver/commit/e07913d2e24115f0363a97957121c4a0dd974614))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/s3 to v1.102.1 ([#1693](https://github.com/fclairamb/ftpserver/issues/1693)) ([f05a3f2](https://github.com/fclairamb/ftpserver/commit/f05a3f2af165ab7b4f99d6e48ae25caf1398b4e4))
+* **deps:** update module github.com/fclairamb/ftpserverlib to v0.32.0 ([#1692](https://github.com/fclairamb/ftpserver/issues/1692)) ([87fac19](https://github.com/fclairamb/ftpserver/commit/87fac19eb3f3c083463cdd408cd8b94d399d8738))
+* **deps:** update module github.com/go-crypt/crypt to v0.14.15 ([#1686](https://github.com/fclairamb/ftpserver/issues/1686)) ([3c02d74](https://github.com/fclairamb/ftpserver/commit/3c02d74b5d2da04e6e10fa9a08df5e741ca4c1e9))
+* **deps:** update module github.com/nerzal/gocloak/v13 to v14 ([#1672](https://github.com/fclairamb/ftpserver/issues/1672)) ([30146c5](https://github.com/fclairamb/ftpserver/commit/30146c534be003aa40976705d6e5f8fb8d4cc8cc))
+* **deps:** update module golang.org/x/crypto to v0.53.0 ([#1704](https://github.com/fclairamb/ftpserver/issues/1704)) ([1953ede](https://github.com/fclairamb/ftpserver/commit/1953edee5e78f706b26ff24c0e36110e94957257))
+* **deps:** update module google.golang.org/api to v0.286.0 ([#1712](https://github.com/fclairamb/ftpserver/issues/1712)) ([0bc270f](https://github.com/fclairamb/ftpserver/commit/0bc270f93a742ecbc5d14e4cc5756dad1fd9e4e5))
+* **s3:** normalize basePath and add documentation ([#1679](https://github.com/fclairamb/ftpserver/issues/1679)) ([acddc1b](https://github.com/fclairamb/ftpserver/commit/acddc1bd7adb9bc7b820a010870abd064050c7f1))
+* **server:** default to binary transfer type ([#1718](https://github.com/fclairamb/ftpserver/issues/1718)) ([6d30f3d](https://github.com/fclairamb/ftpserver/commit/6d30f3d81f96a45be146b83a2df5f3233f56398b)), closes [#1532](https://github.com/fclairamb/ftpserver/issues/1532)
+* **sftp:** verify SSH host key to prevent MITM ([#1716](https://github.com/fclairamb/ftpserver/issues/1716)) ([3b2b3aa](https://github.com/fclairamb/ftpserver/commit/3b2b3aa26568cf9a7bebb57b585154bacb182575))
+
 ## [0.15.2](https://github.com/fclairamb/ftpserver/compare/v0.15.1...v0.15.2) (2026-05-16)
 
 
