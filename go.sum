@@ -245,6 +245,8 @@ github.com/fclairamb/afero-dropbox v0.1.0 h1:Y5AQkkUcyBCI5ANZAWcA5IwgBmA3RB4mtJj
 github.com/fclairamb/afero-dropbox v0.1.0/go.mod h1:bFSrZxcHtW86/cUUc7swGKMMr2/4pnwBAA1D1QR9tGs=
 github.com/fclairamb/afero-gdrive v0.3.0 h1:vzxtei3np1N3wvjB0qaMH9Ioia6IZ+hEgRUKxRofldM=
 github.com/fclairamb/afero-gdrive v0.3.0/go.mod h1:qIXpC9G58IYEBMuxU9Akp+CUohourBoFB5Ad3Z367sU=
+github.com/fclairamb/afero-gdrive v0.4.0 h1:NTbk4+frSwfRGBGNj9XGgxyqbWBaZPhlDaTePKLSg88=
+github.com/fclairamb/afero-gdrive v0.4.0/go.mod h1:rXYr27s9N8bRvSW8xfNuuPVmmptQ14UKnxIqBqMtqsQ=
 github.com/fclairamb/afero-s3 v0.4.0 h1:N++eKFyOTkdYQMDSAU2AGMVWBOo49FqbpeQ+e3v1jQA=
 github.com/fclairamb/afero-s3 v0.4.0/go.mod h1:1SnwtWGA61s7B32BknqXRIZ34yQm+97fY9HlHYZ8RwA=
 github.com/fclairamb/afero-snd v0.2.0 h1:UwsAGhe5GZdHvYvUYm8k3yMiZxYCztk9Z6dysSqD3PE=
