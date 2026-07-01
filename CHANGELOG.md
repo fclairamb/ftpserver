@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.16.1](https://github.com/fclairamb/ftpserver/compare/v0.16.0...v0.16.1) (2026-07-01)
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#1726](https://github.com/fclairamb/ftpserver/issues/1726)) ([4cf4f97](https://github.com/fclairamb/ftpserver/commit/4cf4f97b5f5b8b2e0e2467bbe050c41b7bdf81e0))
+* **deps:** update module github.com/fclairamb/afero-gdrive to v0.4.0 ([#1723](https://github.com/fclairamb/ftpserver/issues/1723)) ([7d434f5](https://github.com/fclairamb/ftpserver/commit/7d434f5a3c9a87d78f486e06a0032e0c6fb18ee7))
+* **deps:** update module google.golang.org/api to v0.287.0 ([#1725](https://github.com/fclairamb/ftpserver/issues/1725)) ([b72f80a](https://github.com/fclairamb/ftpserver/commit/b72f80aede8025d50d0300e2e35671432ac46f71))
+
 ## [0.16.0](https://github.com/fclairamb/ftpserver/compare/v0.15.2...v0.16.0) (2026-06-29)
 
 
