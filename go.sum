@@ -144,6 +144,8 @@ github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.30 h1:/hi1JADLEW9YYryEz1w4GQ
 github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.30/go.mod h1:/3AOgy4K17Dm4ucMZVC/MJkzy5kmfKUcINRHZyo0koQ=
 github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.20.19 h1:Gxj3kAlmM+a/VVO4YNsmgHGVUZhSxs0tuVwLIxZBCtM=
 github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.20.19/go.mod h1:XGq5kImVqQT4HUNbbG+0Y8O74URsPNH7CGPg1s1HW5E=
+github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.22.30 h1:qzaF2qXmjqBcLbtcpIxOddoDH5eKIRdmOiKt7BatgDc=
+github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.22.30/go.mod h1:5LlJNctj1Y7l59FPonG4LNjK5DvorTKIS+pAVuWAh3s=
 github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.29 h1:f3vKqSo13fhTYb+JEcXwXefZQE26I1FB5eTSniU67ko=
 github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.29/go.mod h1:MzoLFUArKGpGD+ukmPiTPG1X5x4o6M2kq4v2dr1FiEc=
 github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.30 h1:xM/Is9cKMHa8Jj8zkvWhvrFkZsXJV9E+BB4g0HW0duQ=
@@ -285,6 +287,8 @@ github.com/fclairamb/afero-gdrive v0.4.0 h1:NTbk4+frSwfRGBGNj9XGgxyqbWBaZPhlDaTe
 github.com/fclairamb/afero-gdrive v0.4.0/go.mod h1:rXYr27s9N8bRvSW8xfNuuPVmmptQ14UKnxIqBqMtqsQ=
 github.com/fclairamb/afero-s3 v0.4.0 h1:N++eKFyOTkdYQMDSAU2AGMVWBOo49FqbpeQ+e3v1jQA=
 github.com/fclairamb/afero-s3 v0.4.0/go.mod h1:1SnwtWGA61s7B32BknqXRIZ34yQm+97fY9HlHYZ8RwA=
+github.com/fclairamb/afero-s3 v0.5.0 h1:7ArQIUcCAkZE7cTd9kSKL04P4WR9F7QUAGaJvG0mTek=
+github.com/fclairamb/afero-s3 v0.5.0/go.mod h1:nDq/3TIY3Frn3DvMkd8qYtfdR6cmpSVN6R/FdwgUrkQ=
 github.com/fclairamb/afero-snd v0.2.0 h1:UwsAGhe5GZdHvYvUYm8k3yMiZxYCztk9Z6dysSqD3PE=
 github.com/fclairamb/afero-snd v0.2.0/go.mod h1:8Dm99lI8gX4IxVtQW6jLrpl+sB+W0B0H4IcXdu+ePwg=
 github.com/fclairamb/ftpserverlib v0.32.0 h1:F6Fr2Kvv2Dts22RirIxrHFe8khqJXymaYyfczkoGMRE=
