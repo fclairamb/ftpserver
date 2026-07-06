@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.16.2](https://github.com/fclairamb/ftpserver/compare/v0.16.1...v0.16.2) (2026-07-06)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/fclairamb/afero-s3 to v0.5.0 ([#1728](https://github.com/fclairamb/ftpserver/issues/1728)) ([68dd2d8](https://github.com/fclairamb/ftpserver/commit/68dd2d81102bdee43f1e382594f08f44a0bd0b4e))
+* **deps:** update module github.com/fclairamb/ftpserverlib to v0.32.1 ([#1727](https://github.com/fclairamb/ftpserver/issues/1727)) ([a32f02a](https://github.com/fclairamb/ftpserver/commit/a32f02a7708fcce3ce1d73f8c4a9ace54886c4c2))
+
 ## [0.16.1](https://github.com/fclairamb/ftpserver/compare/v0.16.0...v0.16.1) (2026-07-01)
 
 
