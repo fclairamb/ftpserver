@@ -2,7 +2,7 @@ module github.com/fclairamb/ftpserver
 
 go 1.25.8
 
-toolchain go1.26.4
+toolchain go1.26.5
 
 require (
 	cloud.google.com/go/storage v1.63.0
