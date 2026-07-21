@@ -5,7 +5,7 @@ go 1.25.8
 toolchain go1.26.5
 
 require (
-	cloud.google.com/go/storage v1.63.1
+	cloud.google.com/go/storage v1.64.0
 	github.com/Nerzal/gocloak/v14 v14.0.3
 	github.com/aws/aws-sdk-go-v2 v1.42.1
 	github.com/aws/aws-sdk-go-v2/config v1.32.30
