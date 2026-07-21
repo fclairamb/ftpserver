@@ -81,6 +81,8 @@ cloud.google.com/go/storage v1.63.0 h1:hvXF2xfg9I32bjujggxgkEZn/Ej6sJ9pieFgeueBL
 cloud.google.com/go/storage v1.63.0/go.mod h1:tirWVptrFNo5GEX2DQ47JooF7yaweJdAJ1hYAVMvKzE=
 cloud.google.com/go/storage v1.63.1 h1:CYXILV9G4CH0C18IQ9+V0h4XiqD2LhKnMLO0o7uJWNs=
 cloud.google.com/go/storage v1.63.1/go.mod h1:lWyAtwvDZHdL3k68WVKbESP6bmWaV23ZJJ/JEVw/ZaQ=
+cloud.google.com/go/storage v1.64.0 h1:KLpxI/oX9LxeRsNqn877d2WyeT3ryiEwnGt8pwcSPZg=
+cloud.google.com/go/storage v1.64.0/go.mod h1:lWyAtwvDZHdL3k68WVKbESP6bmWaV23ZJJ/JEVw/ZaQ=
 cloud.google.com/go/trace v1.11.7 h1:kDNDX8JkaAG3R2nq1lIdkb7FCSi1rCmsEtKVsty7p+U=
 cloud.google.com/go/trace v1.11.7/go.mod h1:TNn9d5V3fQVf6s4SCveVMIBS2LJUqo73GACmq/Tky0s=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
