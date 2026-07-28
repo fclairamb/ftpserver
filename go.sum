@@ -106,6 +106,8 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapp
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Nerzal/gocloak/v14 v14.0.3 h1:qUSkQnTOZoZIjnsXJ3r2NaahhzB49chSLvyAw/JxADU=
 github.com/Nerzal/gocloak/v14 v14.0.3/go.mod h1:USD19a/cfPyP9JskOA6uKKblSD4cJcadRt2ETPpHxlY=
+github.com/Nerzal/gocloak/v14 v14.0.4 h1:k1JYb5zFAgcSHDWcbb4g0f6vTOdnZiub/zjW+/Y/yQA=
+github.com/Nerzal/gocloak/v14 v14.0.4/go.mod h1:tUcVh1t5gqGtEeHrtQs375zc2wSdIo6mCl8hnBXpizY=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
