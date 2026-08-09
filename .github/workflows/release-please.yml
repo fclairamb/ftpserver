@@ -11,7 +11,23 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-24.04
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: googleapis/release-please-action@v5.0.0
+        id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  # The release is created with the default GITHUB_TOKEN, which by design does not
+  # trigger any further workflow. The binaries therefore have to be built from here
+  # rather than from a `push: tags` trigger (see #1738).
+  release-artifacts:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/release-artifacts.yml
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    permissions:
+      contents: write
