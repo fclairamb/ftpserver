@@ -58,7 +58,9 @@ These features are brought by [ftpserverlib](https://github.com/fclairamb/ftpser
 ### Get it
 
 #### Download it
-Fetch a binary from the [latest release](/releases) and run it.
+Fetch a binary for your platform from the [latest release](https://github.com/fclairamb/ftpserver/releases/latest)
+and run it. Archives are named `ftpserver-<version>-<os>-<arch>` and are provided for Linux, macOS and Windows on
+`amd64` and `arm64`, plus `armv6`/`armv7` for Linux (Raspberry Pi and friends).
 
 #### Build & run it locally
 

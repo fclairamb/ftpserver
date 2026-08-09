@@ -1,0 +1,84 @@
+name: Release artifacts
+
+# Builds the release binaries and uploads them as GitHub release assets.
+#
+# Releases are cut by release-please, which creates the tag and the release with
+# the default GITHUB_TOKEN. Events produced by that token never trigger another
+# workflow, so a `push: tags` trigger alone silently stops producing binaries
+# (see #1738). That's why release-please.yml calls this workflow directly.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Tag of the release to attach the binaries to'
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag of the release to attach the binaries to (e.g. v0.16.2)'
+        required: true
+        type: string
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release-artifacts:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        goos: [linux, darwin, windows]
+        goarch: [amd64, arm64]
+        include:
+          - goos: linux
+            goarch: arm
+            goarm: '6'
+          - goos: linux
+            goarch: arm
+            goarm: '7'
+    steps:
+      - name: Resolve tag
+        id: tag
+        # `inputs` is empty on a tag push, in which case the ref is the tag itself.
+        run: |
+          tag='${{ inputs.tag }}'
+          if [ -z "${tag}" ]; then
+            tag='${{ github.ref_name }}'
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Resolve build info
+        id: build
+        run: |
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
+      - name: Build and upload
+        uses: wangyoucao577/go-release-action@v1.55
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_tag: ${{ steps.tag.outputs.tag }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          goarm: ${{ matrix.goarm }}
+          goversion: go.mod
+          binary_name: ftpserver
+          extra_files: LICENSE README.md
+          md5sum: false
+          sha256sum: true
+          overwrite: true
+          ldflags: >-
+            -s -w
+            -X main.BuildVersion=${{ steps.tag.outputs.tag }}
+            -X main.Commit=${{ steps.build.outputs.commit }}
+            -X main.BuildDate=${{ steps.build.outputs.date }}
