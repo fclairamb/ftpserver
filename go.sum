@@ -513,6 +513,8 @@ github.com/fclairamb/ftpserverlib v0.32.1 h1:JoBxoiu2sifjVbIAfkCQn7Oi3mFbX/PHRO+
 github.com/fclairamb/ftpserverlib v0.32.1/go.mod h1:RJZgAyW8uSb/BtDwD2Wf2wUGUxLaQdmB6VXU7XGp8Oc=
 github.com/fclairamb/ftpserverlib v0.32.2 h1:ZbqKQg8H+ZrH5XPnKu2hNZlm2Pi1+fWcyENudaqjTko=
 github.com/fclairamb/ftpserverlib v0.32.2/go.mod h1:2R5f+iqvWQzhYJusc9OJXDut3ONKMiWPjSPqaWGzX6Y=
+github.com/fclairamb/ftpserverlib v0.32.3 h1:JUe5V+2VLYz23H4cZV0OujVqBqfwCjUcNdlf7hR/7FE=
+github.com/fclairamb/ftpserverlib v0.32.3/go.mod h1:2R5f+iqvWQzhYJusc9OJXDut3ONKMiWPjSPqaWGzX6Y=
 github.com/fclairamb/go-log v0.0.0-20210725225107-80efc81cb386/go.mod h1:iqmym8aI6xBbZXnZSPjElrmQrlEwjwEemOmIzKaTBM8=
 github.com/fclairamb/go-log v0.6.0 h1:1V7BJ75P2PvanLHRyGBBFjncB6d4AgEmu+BPWKbMkaU=
 github.com/fclairamb/go-log v0.6.0/go.mod h1:cyXxOw4aJwO6lrZb8GRELSw+sxO6wwkLJdsjY5xYCWA=
