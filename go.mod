@@ -1,6 +1,6 @@
 module github.com/fclairamb/ftpserver
 
-go 1.25.8
+go 1.26.0
 
 toolchain go1.27.1
 
@@ -23,7 +23,7 @@ require (
 	github.com/spf13/afero/gcsfs v1.15.0
 	github.com/spf13/afero/sftpfs v1.15.0
 	github.com/tidwall/sjson v1.2.5
-	golang.org/x/crypto v0.55.0
+	golang.org/x/crypto v0.56.0
 	golang.org/x/oauth2 v0.36.0
 	google.golang.org/api v0.296.0
 	gopkg.in/telebot.v3 v3.3.8
