@@ -12,7 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.20.5
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.1
 	github.com/fclairamb/afero-dropbox v0.1.0
-	github.com/fclairamb/afero-gdrive v0.4.0
+	github.com/fclairamb/afero-gdrive v0.5.0
 	github.com/fclairamb/afero-s3 v0.5.0
 	github.com/fclairamb/afero-snd v0.2.0
 	github.com/fclairamb/ftpserverlib v0.32.4
