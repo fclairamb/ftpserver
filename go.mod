@@ -5,7 +5,7 @@ go 1.26.0
 toolchain go1.27.1
 
 require (
-	cloud.google.com/go/storage v1.68.0
+	cloud.google.com/go/storage v1.69.0
 	github.com/Nerzal/gocloak/v14 v14.0.4
 	github.com/aws/aws-sdk-go-v2 v1.47.1
 	github.com/aws/aws-sdk-go-v2/config v1.33.6
@@ -37,7 +37,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.9.1 // indirect
 	cloud.google.com/go/iam v1.12.0 // indirect
 	cloud.google.com/go/monitoring v1.30.0 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.34.0 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.35.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.57.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.57.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -47,7 +47,7 @@ require (
 	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/go-crypt/x v0.4.16 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
-	github.com/go-logr/logr v1.4.3 // indirect
+	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-resty/resty/v2 v2.17.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
@@ -62,14 +62,14 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
-	go.opentelemetry.io/contrib/detectors/gcp v1.44.0 // indirect
+	go.opentelemetry.io/contrib/detectors/gcp v1.45.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.68.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.69.0 // indirect
-	go.opentelemetry.io/otel v1.44.0 // indirect
-	go.opentelemetry.io/otel/metric v1.44.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.44.0 // indirect
-	go.opentelemetry.io/otel/sdk/metric v1.44.0 // indirect
-	go.opentelemetry.io/otel/trace v1.44.0 // indirect
+	go.opentelemetry.io/otel v1.45.0 // indirect
+	go.opentelemetry.io/otel/metric v1.45.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.45.0 // indirect
+	go.opentelemetry.io/otel/sdk/metric v1.45.0 // indirect
+	go.opentelemetry.io/otel/trace v1.45.0 // indirect
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
 	google.golang.org/genproto v0.0.0-20260715232425-e75dac1f907d // indirect
@@ -96,7 +96,7 @@ require (
 	github.com/dropbox/dropbox-sdk-go-unofficial v5.6.0+incompatible // indirect
 	github.com/fclairamb/go-log v0.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.22 // indirect
-	github.com/googleapis/gax-go/v2 v2.24.1 // indirect
+	github.com/googleapis/gax-go/v2 v2.26.2 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	golang.org/x/mod v0.41.0 // indirect
 	golang.org/x/net v0.59.0 // indirect
