@@ -1,94 +1,78 @@
-# File system loading
+# Common access options
 
-On top of the supported file system and their associated config, 
-they are few parameters that can be enabled.
+On top of the backend (`fs`) and its `params`, every access supports a few options.
 
 ## Read-only
-This blocks any writing call to the underlying file system. It can be abled by the `read_only` boolean parameter.
+
+The `read_only` boolean blocks any write to the underlying file system.
 
 ```json
 {
-   "version": 1,
-   "accesses": [
-      {
-         "read_only": true,
-         
-         // The usual FS config:
-         "user": "test",
-         "pass": "test",
-         "fs": "os",
-         "params": {
-            "basePath": "/tmp"
-         }
-      }
-   ]
+  "user": "test",
+  "pass": "test",
+  "fs": "os",
+  "read_only": true,
+  "params": {
+    "basePath": "/tmp"
+  }
 }
-``` 
+```
 
 ## Shared
-This makes sure the underlying filesystem is loaded once per use. It can be enabled by the `shared` boolean parameter.
+
+The `shared` boolean makes the backend instance created at the first login of the user reused by all their later
+sessions, instead of creating a new one for each session. This is useful for backends with an expensive setup (SFTP
+connection, Telegram bot...). Shared instances are dropped when the configuration is reloaded.
 
 ```json
 {
-   "version": 1,
-   "accesses": [
-      {
-         "shared": true,
-        // The usual FS config:
-        "user": "test",
-         "pass": "test",
-         "fs": "os",
-         "params": {
-            "basePath": "/tmp"
-         }
-      }
-   ]
+  "user": "test",
+  "pass": "test",
+  "fs": "os",
+  "shared": true,
+  "params": {
+    "basePath": "/tmp"
+  }
 }
-``` 
+```
 
 ## Sync & Delete
-This creates a temporary local folder that will be replicated to a destination file system.
 
+The `sync_and_delete` option makes uploaded files written to a local temporary directory first, and then moved to the
+backend once they are complete (see [afero-snd](https://github.com/fclairamb/afero-snd)). The `directory` is optional,
+a system temporary directory is used when it isn't specified.
 
 ```json
 {
-   "version": 1,
-   "accesses": [
-      {
-        "sync_and_delete": {
-            "enable": true,         // To enable it
-            "directory": "/tmp/dir" // Temporary directory (optional)
-         },
-         // The usual FS config:
-         "user": "test",
-         "pass": "test",
-         "fs": "os",
-         "params": {
-            "basePath": "/target"
-         }
-      }
-   ]
+  "user": "test",
+  "pass": "test",
+  "fs": "os",
+  "sync_and_delete": {
+    "enable": true,
+    "directory": "/tmp/snd"
+  },
+  "params": {
+    "basePath": "/target"
+  }
 }
-``` 
+```
 
 ## Logging
+
+The `logging` option enables the logging of the FTP exchanges and/or the file accesses of this access only. The same
+options exist at the server level to enable them for all the accesses.
+
 ```json
 {
-   "version": 1,
-   "accesses": [
-      {
-        "logging": {
-            "file_accesses": true, // This logs every single file access
-            "ftp_exchanges": true // This logs every single FTP command
-        },
-        // The usual FS config:
-         "user": "test",
-         "pass": "test",
-         "fs": "os",
-         "params": {
-            "basePath": "/target"
-         }
-      }
-   ]
+  "user": "test",
+  "pass": "test",
+  "fs": "os",
+  "logging": {
+    "ftp_exchanges": true,
+    "file_accesses": true
+  },
+  "params": {
+    "basePath": "/target"
+  }
 }
-``` 
+```

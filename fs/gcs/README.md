@@ -1,6 +1,7 @@
 # Google Cloud Storage (GCS) filesystem
 
-This directory contains the Google Cloud Storage implementation for the FTP server using the official `github.com/spf13/afero/gcsfs` package.
+This backend gives access to a Google Cloud Storage bucket, using afero's
+[gcsfs](https://github.com/spf13/afero/tree/master/gcsfs) package.
 
 ## Configuration
 
@@ -12,11 +13,10 @@ The GCS filesystem supports the following configuration parameters:
   "accesses": [
     {
       "user": "test",
-      "pass": "test", 
+      "pass": "test",
       "fs": "gcs",
       "params": {
         "bucket": "your-gcs-bucket-name",
-        "project_id": "your-project-id",
         "key_file": "/path/to/service-account-key.json"
       }
     }
@@ -26,9 +26,10 @@ The GCS filesystem supports the following configuration parameters:
 
 ### Parameters
 
-- `bucket` (required): The GCS bucket name to use
-- `project_id` (optional): Google Cloud Project ID. If not provided, it will use the default project from the environment or service account
-- `key_file` (optional): Path to a service account key JSON file for authentication. If not provided, it will use default credentials (environment variables, metadata service, etc.)
+- `bucket` (required): The GCS bucket name to use. It is the root directory of the FTP access.
+- `key_file` (optional): Path to a service account key JSON file for authentication. If not provided, the default
+  credentials are used (environment variables, metadata service, etc.)
+- `project_id`: Not used (the bucket name is enough to access it), it is accepted for backward compatibility.
 
 ### Authentication
 
@@ -48,7 +49,6 @@ The GCS filesystem supports multiple authentication methods:
   "fs": "gcs",
   "params": {
     "bucket": "my-ftp-bucket",
-    "project_id": "my-project-123",
     "key_file": "/etc/gcs-key.json"
   }
 }
@@ -57,7 +57,7 @@ The GCS filesystem supports multiple authentication methods:
 #### With default credentials:
 ```json
 {
-  "fs": "gcs", 
+  "fs": "gcs",
   "params": {
     "bucket": "my-ftp-bucket"
   }

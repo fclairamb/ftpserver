@@ -1,32 +1,31 @@
 # Dropbox backend
 
 ## Parameters
-Possible parameters are:
-- `token`: The non-expiring authentication token to use
+
+- `token`: The Dropbox access token to use. If it isn't set, the `DROPBOX_TOKEN` environment variable is used.
 
 ## How to use it
+
 ### Create an app
-You can follow 
-[these instructions](https://medium.com/swlh/google-drive-api-with-python-part-i-set-up-credentials-1f729cb0372b).
 
-### Use the created client credentials
-You can either define the `google_client_id` and `google_client_secret` access params or specify the `GOOGLE_CLIENT_ID`
-and `GOOGLE_CLIENT_SECRET` environment variables.
+1. Create an app in the [Dropbox App Console](https://www.dropbox.com/developers/apps), with the access type you
+   need ("App folder" restricts the FTP server to a dedicated folder, "Full Dropbox" gives access to everything).
+2. In the "Permissions" tab, enable at least `files.metadata.read`, `files.content.read` and `files.content.write`.
+3. In the "Settings" tab, generate an access token.
 
-You should have a config file looking like this one:
+### Configure the access
+
 ```json
 {
   "accesses": [
-   {
+    {
       "user": "dropbox",
       "pass": "dropbox",
       "fs": "dropbox",
       "params": {
-        "google_client_id": "*****.apps.googleusercontent.com",
-        "google_client_secret": "*****"
+        "token": "sl.*****"
       }
     }
   ]
 }
 ```
-
