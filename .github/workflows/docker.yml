@@ -19,6 +19,9 @@ on:
   push:
     tags:
       - "v*.*.*"
+    # TODO: remove before merging, only used to test the Docker Hub / GHCR upload from this branch
+    branches:
+      - chore/cleanup
   pull_request:
     paths:
       - Dockerfile*
@@ -76,6 +79,7 @@ jobs:
             type=semver,pattern={{major}},value=${{ steps.tag.outputs.tag }}
             type=semver,suffix=,pattern=${{ matrix.type != '' && matrix.type || 'latest' }},value=${{ steps.tag.outputs.tag }}
             type=ref,event=pr
+            type=ref,event=branch
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
