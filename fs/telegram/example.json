@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/fclairamb/ftpserver/main/config-schema.json",
   "version": 1,
   "accesses": [
     {
@@ -15,7 +16,6 @@
         "RetryDelay": "2000",
         "PartUploadDelay": "500"
       }
-
     }
   ],
   "passive_transfer_port_range": {

@@ -16,20 +16,30 @@ type FileData struct {
 	content []byte
 }
 
+// FileInfo implements the os.FileInfo interface on top of FileData
 type FileInfo struct {
 	*FileData
 }
 
-// Implements os.FileInfo
+// Name returns the base name of the file
 func (s *FileInfo) Name() string {
 	_, name := filepath.Split(s.name)
 	return name
 }
 
-func (s *FileInfo) Mode() os.FileMode  { return s.mode }
+// Mode returns the file mode bits
+func (s *FileInfo) Mode() os.FileMode { return s.mode }
+
+// ModTime returns the modification time
 func (s *FileInfo) ModTime() time.Time { return s.modtime }
-func (s *FileInfo) IsDir() bool        { return s.dir }
-func (s *FileInfo) Sys() interface{}   { return nil }
+
+// IsDir tells if the file is a directory
+func (s *FileInfo) IsDir() bool { return s.dir }
+
+// Sys returns the underlying data source (always nil)
+func (s *FileInfo) Sys() any { return nil }
+
+// Size returns the size of the file
 func (s *FileInfo) Size() int64 {
 	if s.IsDir() {
 		return int64(42)

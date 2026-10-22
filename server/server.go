@@ -26,7 +26,7 @@ import (
 )
 
 // Server structure
-type Server struct { // nolint: maligned
+type Server struct {
 	config          *config.Config
 	logger          *slog.Logger
 	nbClients       uint32
@@ -52,11 +52,20 @@ func newFsCache() *fsCache {
 // ErrTimeout is returned when an operation timeouts
 var ErrTimeout = errors.New("timeout")
 
-// ErrNotImplemented is returned when we're using something that has not been implemented yet
-// var ErrNotImplemented = errors.New("not implemented")
-
 // ErrNotEnabled is returned when a feature hasn't been enabled
 var ErrNotEnabled = errors.New("not enabled")
+
+// ErrTooManyClients is returned when the max_clients limit has been reached
+var ErrTooManyClients = errors.New("too many clients")
+
+// ErrWebhookStatus is returned when the accesses webhook doesn't return a 200 status code
+var ErrWebhookStatus = errors.New("unexpected webhook status code")
+
+// defaultWebhookTimeout is used when the accesses webhook timeout isn't specified
+const defaultWebhookTimeout = 30 * time.Second
+
+// maxWebhookResponseSize is the maximum size of an accesses webhook response
+const maxWebhookResponseSize = 1 << 20
 
 // NewServer creates a server instance
 func NewServer(config *config.Config, logger *slog.Logger) (*Server, error) {
@@ -103,8 +112,20 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 		DefaultTransferType: serverlib.TransferTypeBinary,
 	}, nil
 }
+
+// ReloadConfig reloads the configuration file. Shared file systems are dropped so that they get re-created with
+// the new configuration.
 func (s *Server) ReloadConfig() error {
-	return s.config.Load()
+	if err := s.config.Load(); err != nil {
+		return err
+	}
+
+	s.accesses.Lock()
+	defer s.accesses.Unlock()
+
+	s.accesses.accesses = make(map[string]afero.Fs)
+
+	return nil
 }
 
 // ClientConnected is called to send the very first welcome message
@@ -119,6 +140,13 @@ func (s *Server) ClientConnected(cc serverlib.ClientContext) (string, error) {
 		"nbClients", s.nbClients,
 	)
 
+	// The client is counted until it disconnects, which also happens when we refuse it
+	if maxClients := s.config.Content.MaxClients; maxClients > 0 && int64(s.nbClients) > int64(maxClients) {
+		s.logger.Warn("Too many clients, refusing connection", "clientId", cc.ID(), "maxClients", maxClients)
+
+		return "Too many clients, try again later", ErrTooManyClients
+	}
+
 	if s.config.Content.Logging.FtpExchanges {
 		cc.SetDebug(true)
 	}
@@ -126,7 +154,7 @@ func (s *Server) ClientConnected(cc serverlib.ClientContext) (string, error) {
 	return "ftpserver", nil
 }
 
-// ClientDisconnected is called when the user disconnects, even if he never authenticated
+// ClientDisconnected is called when the user disconnects, even if they never authenticated
 func (s *Server) ClientDisconnected(cc serverlib.ClientContext) {
 	s.nbClientsSync.Lock()
 	defer s.nbClientsSync.Unlock()
@@ -154,10 +182,17 @@ func (s *Server) Stop() {
 func (s *Server) WaitGracefully(timeout time.Duration) error {
 	s.logger.Info("Waiting for last client to disconnect...")
 
-	defer func() { s.zeroClientEvent = nil }()
+	s.nbClientsSync.Lock()
+	zeroClientEvent := s.zeroClientEvent
+	s.nbClientsSync.Unlock()
+
+	if zeroClientEvent == nil {
+		// Stop wasn't called, there's nothing to wait for
+		return nil
+	}
 
 	select {
-	case err := <-s.zeroClientEvent:
+	case err := <-zeroClientEvent:
 		return err
 	case <-time.After(timeout):
 		return ErrTimeout
@@ -204,43 +239,44 @@ func (s *Server) getAccessFromWebhook(user, pass string) (*confpar.Access, error
 		return nil, err
 	}
 
+	webhook := s.config.Content.AccessesWebhook
+
+	timeout := webhook.Timeout.Duration
+	if timeout <= 0 {
+		timeout = defaultWebhookTimeout
+	}
+
 	// Timeout is implemented with context termination
-	ctx, cancel := context.WithTimeout(context.Background(), s.config.Content.AccessesWebhook.Timeout.Duration)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	// Create a new HTTP request
-	req, err := http.NewRequestWithContext(ctx, "POST", s.config.Content.AccessesWebhook.URL, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, webhook.URL, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	for key, value := range s.config.Content.AccessesWebhook.Headers {
+
+	for key, value := range webhook.Headers {
 		req.Header.Set(key, value)
 	}
 
 	// Execute the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
+
 	defer func() { _ = resp.Body.Close() }()
 
 	// Check the response status
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	// Return the response
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %d", ErrWebhookStatus, resp.StatusCode)
 	}
 
 	access := new(confpar.Access)
-	err = json.Unmarshal(body, &access)
-	if err != nil {
+	if err := json.NewDecoder(io.LimitReader(resp.Body, maxWebhookResponseSize)).Decode(access); err != nil {
 		return nil, err
 	}
 
@@ -330,7 +366,7 @@ func (s *Server) loadTLSConfig() (*tls.Config, error) {
 
 	keyBytes, errReadFileKey := os.ReadFile(serverCert.Key)
 	if errReadFileKey != nil {
-		return nil, fmt.Errorf("could not load key file: %s: %w", serverCert.Cert, errReadFileCert)
+		return nil, fmt.Errorf("could not load key file: %s: %w", serverCert.Key, errReadFileKey)
 	}
 
 	keypair, errKeyPair := tls.X509KeyPair(certBytes, keyBytes)

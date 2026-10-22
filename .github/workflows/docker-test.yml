@@ -1,43 +1,59 @@
-name: Test the current docker image
+name: Test the docker image
 
 on:
   schedule:
-    # We want to run it every day
-    - cron:  '0 0 * * *'
+    # We want to check the published image every day
+    - cron: '0 0 * * *'
+  pull_request:
+    paths:
+      - Dockerfile*
+      - .dockerignore
+      - .github/workflows/docker-test.yml
+  workflow_dispatch:
 
 jobs:
   test-docker-image:
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: ["latest", "alpine"]
     runs-on: ubuntu-26.04
-    timeout-minutes: 1
-    services:
-      ftpserver:
-        image: fclairamb/ftpserver
-        ports:
-          - 2121-2130:2121-2130
-
+    timeout-minutes: 15
+    env:
+      SERVER_PORT: 2121
     steps:
-      - name: Run sample
-        env:
-          SERVER_PORT: 2121
+      - uses: actions/checkout@v7.0.1
+        if: github.event_name == 'pull_request'
+
+      - name: Build the image
+        if: github.event_name == 'pull_request'
+        run: |
+          docker build -t "fclairamb/ftpserver:${{ matrix.tag }}" \
+            -f "Dockerfile${{ matrix.tag == 'alpine' && '.alpine' || '' }}" .
+
+      - name: Start the server
+        run: |
+          docker run -d --name ftpserver -p 2121-2130:2121-2130 "fclairamb/ftpserver:${{ matrix.tag }}"
+
+      - name: Upload and download a file
         run: |
           set -xe
 
-          # Getting a file
-          curl https://placekitten.com/2048/2048 -o kitty.jpg
+          # Generating a file
+          head -c 2097152 /dev/urandom > local.bin
 
           # Waiting for server to be ready
-          while ! nc -z localhost ${SERVER_PORT} </dev/null; do sleep 1; done
+          timeout 30 sh -c "while ! nc -z localhost ${SERVER_PORT} </dev/null; do sleep 1; done"
 
           # Upload a file
-          curl -v -T kitty.jpg ftp://test:test@localhost:${SERVER_PORT}/remote.jpg
+          curl -v -T local.bin "ftp://test:test@localhost:${SERVER_PORT}/remote.bin"
 
-          # Download a file
-          curl -v ftp://test:test@localhost:2121/remote.jpg -o remote.jpg
-
-          # Checking that the output file exists
-          if [ ! -f remote.jpg ]; then
-            exit 1
-          fi
+          # Download it back
+          curl -v "ftp://test:test@localhost:${SERVER_PORT}/remote.bin" -o remote.bin
 
           # Comparing file contents
-          diff kitty.jpg remote.jpg
+          cmp local.bin remote.bin
+
+      - name: Server logs
+        if: always()
+        run: docker logs ftpserver

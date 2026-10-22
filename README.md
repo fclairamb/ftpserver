@@ -1,77 +1,81 @@
 # Golang FTP Server
 
-![Build](https://github.com/fclairamb/ftpserver/workflows/Build/badge.svg)
-![Cross Build](https://github.com/fclairamb/ftpserver/workflows/Cross%20Build/badge.svg)
-![Docker Image](https://github.com/fclairamb/ftpserver/workflows/Docker%20Image/badge.svg)
-![Docker test](https://github.com/fclairamb/ftpserver/workflows/Docker%20test/badge.svg)
-![Docker downloads](https://img.shields.io/docker/pulls/fclairamb/ftpserver)
-[![Go Report Card](https://goreportcard.com/badge/fclairamb/ftpserver)](https://goreportcard.com/report/fclairamb/ftpserver)
-[![GoDoc](https://godoc.org/github.com/fclairamb/ftpserver?status.svg)](https://godoc.org/github.com/fclairamb/ftpserver/server)
+[![Build](https://github.com/fclairamb/ftpserver/actions/workflows/build.yml/badge.svg)](https://github.com/fclairamb/ftpserver/actions/workflows/build.yml)
+[![Docker images](https://github.com/fclairamb/ftpserver/actions/workflows/docker.yml/badge.svg)](https://github.com/fclairamb/ftpserver/actions/workflows/docker.yml)
+[![Docker test](https://github.com/fclairamb/ftpserver/actions/workflows/docker-test.yml/badge.svg)](https://github.com/fclairamb/ftpserver/actions/workflows/docker-test.yml)
+[![Docker pulls](https://img.shields.io/docker/pulls/fclairamb/ftpserver)](https://hub.docker.com/r/fclairamb/ftpserver)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fclairamb/ftpserver)](https://goreportcard.com/report/github.com/fclairamb/ftpserver)
+[![Go Reference](https://pkg.go.dev/badge/github.com/fclairamb/ftpserver.svg)](https://pkg.go.dev/github.com/fclairamb/ftpserver)
 
-This FTP server is a gateway between old-school FTP devices and modern cloud based file systems, using the
-[afero](https://github.com/spf13/afero)'s Fs interface and acting as a reference implementation of the [ftpserverlib](https://github.com/fclairamb/ftpserverlib).
+A gateway between old-school FTP devices (cameras, scanners, printers, legacy software...) and modern cloud based
+file systems.
 
-At the current stage, supported backend are:
-- Local disk
-- [S3](https://aws.amazon.com/s3/) through [afero-s3](https://github.com/fclairamb/afero-s3)
-- [Dropbox](https://www.dropbox.com/) (see [doc](https://github.com/fclairamb/ftpserver/tree/master/fs/dropbox)) through [afero-dropbox](https://github.com/fclairamb/afero-dropbox)
-- [Google Drive](https://developers.google.com/drive) (see [doc](https://github.com/fclairamb/ftpserver/tree/master/fs/gdrive)) through [afero-gdrive](https://github.com/fclairamb/afero-gdrive)
-- [SFTP](https://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol) through [afero's sftpfs](https://github.com/spf13/afero/)
-- Email through [go-mail](https://github.com/go-mail/mail) thanks to [@x-way](https://github.com/x-way)
-- Telegram through [telebot](https://github.com/tucnak/telebot) by [@slayer](https://github.com/slayer), see [doc](fs/telegram/README.md)
+It is built on top of [ftpserverlib](https://github.com/fclairamb/ftpserverlib), for which it is the reference
+implementation, and of the [afero](https://github.com/spf13/afero) `Fs` interface.
 
-And with those are supported common parameters to switch them to read-only, enable login access, or use a temporary directory file (see [doc](https://github.com/fclairamb/ftpserver/tree/master/fs)).
+## Supported backends
 
-## Current status of the project
+| Backend | `fs` value | Documentation |
+| --- | --- | --- |
+| Local disk | `os` | [below](#local-disk) |
+| [Amazon S3](https://aws.amazon.com/s3/) and S3-compatible storages (MinIO, Ceph...), through [afero-s3](https://github.com/fclairamb/afero-s3) | `s3` | [fs/s3](fs/s3/README.md) |
+| [Google Cloud Storage](https://cloud.google.com/storage), through afero's [gcsfs](https://github.com/spf13/afero/tree/master/gcsfs) | `gcs` | [fs/gcs](fs/gcs/README.md) |
+| [Dropbox](https://www.dropbox.com/), through [afero-dropbox](https://github.com/fclairamb/afero-dropbox) | `dropbox` | [fs/dropbox](fs/dropbox/README.md) |
+| [Google Drive](https://developers.google.com/drive), through [afero-gdrive](https://github.com/fclairamb/afero-gdrive) | `gdrive` | [fs/gdrive](fs/gdrive/README.md) |
+| [SFTP](https://en.wikipedia.org/wiki/SSH_File_Transfer_Protocol), through afero's [sftpfs](https://github.com/spf13/afero/tree/master/sftpfs) | `sftp` | [fs/sftp](fs/sftp/README.md) |
+| Email (each uploaded file is sent as an attachment), thanks to [@x-way](https://github.com/x-way) | `mail` | [fs/mail](fs/mail/README.md) |
+| Telegram (each uploaded file is sent to a chat), thanks to [@slayer](https://github.com/slayer) | `telegram` | [fs/telegram](fs/telegram/README.md) |
+| Local disk with users authenticated by [Keycloak](https://www.keycloak.org/) | `keycloak` | [fs/keycloak](fs/keycloak/README.md) |
 
-### Features
+On top of any backend, an access can be made read-only, share its backend instance between sessions, write through a
+local temporary directory or log every file access (see [fs/README.md](fs/README.md)).
 
-#### FTP protocol
+## Features
 
-These features are brought by [ftpserverlib](https://github.com/fclairamb/ftpserverlib) itself:
+FTP protocol support is brought by [ftpserverlib](https://github.com/fclairamb/ftpserverlib):
 
- * Uploading and downloading files
- * Directory listing (LIST + MLST)
- * File and directory deletion and renaming
- * TLS support (AUTH + PROT)
- * File download/upload resume support (REST)
- * Complete driver for all the above features
- * Passive socket connections (EPSV and PASV commands)
- * Active socket connections (PORT command)
- * Small memory footprint
- * Only relies on the standard library except for:
-   * [go-kit log](https://github.com/go-kit/kit/tree/master/log) for logging
-   * [afero](https://github.com/spf13/afero) for generic file systems handling
- * Supported extensions:
-   * [AUTH](https://tools.ietf.org/html/rfc2228#page-6) - Control session protection
-   * [AUTH TLS](https://tools.ietf.org/html/rfc4217#section-4.1) - TLS session
-   * [PROT](https://tools.ietf.org/html/rfc2228#page-8) - Transfer protection
-   * [EPRT/EPSV](https://tools.ietf.org/html/rfc2428) - IPv6 support
-   * [MDTM](https://tools.ietf.org/html/rfc3659#page-8) - File Modification Time
-   * [SIZE](https://tools.ietf.org/html/rfc3659#page-11) - Size of a file
-   * [REST](https://tools.ietf.org/html/rfc3659#page-13) - Restart of interrupted transfer
-   * [MLST](https://tools.ietf.org/html/rfc3659#page-23) - Simple file listing for machine processing
-   * [MLSD](https://tools.ietf.org/html/rfc3659#page-23) - Directory listing for machine processing
+* Uploading and downloading files, with resume support (`REST`)
+* Directory listing (`LIST`, `NLST`, [`MLST`/`MLSD`](https://tools.ietf.org/html/rfc3659#page-23))
+* File and directory deletion and renaming, symbolic links (`SITE SYMLINK`, on the local disk backend)
+* Passive (`PASV`, `EPSV`) and active (`PORT`, `EPRT`) transfers, IPv6 support ([RFC 2428](https://tools.ietf.org/html/rfc2428))
+* Explicit TLS ([`AUTH TLS`](https://tools.ietf.org/html/rfc4217#section-4.1), [`PROT`](https://tools.ietf.org/html/rfc2228#page-8)) and implicit TLS
+* File modification time ([`MDTM`](https://tools.ietf.org/html/rfc3659#page-8)) and size ([`SIZE`](https://tools.ietf.org/html/rfc3659#page-11))
+* File hashing (`HASH`, `XCRC`, `MD5`, `XSHA256`...), when enabled
+* Small memory footprint
+
+On top of it, this server provides:
+
+* Multiple users, each one with their own backend
+* Hashed passwords (bcrypt, md5crypt, sha256crypt, sha512crypt), plain-text passwords can be hashed automatically
+* Authentication through an HTTP webhook
+* Configuration hot-reload (`SIGHUP`) and graceful shutdown (`SIGTERM`)
 
 ## Getting started
 
-### Get it
+### Download it
 
-#### Download it
 Fetch a binary for your platform from the [latest release](https://github.com/fclairamb/ftpserver/releases/latest)
 and run it. Archives are named `ftpserver-<version>-<os>-<arch>` and are provided for Linux, macOS and Windows on
 `amd64` and `arm64`, plus `armv6`/`armv7` for Linux (Raspberry Pi and friends).
 
-#### Build & run it locally
+### Build it
 
-```bash
-go install github.com/fclairamb/ftpserver@main
-
-ftpserver &
+```sh
+go install github.com/fclairamb/ftpserver@latest
+ftpserver
 ```
 
-#### Run it with docker
-There's also a containerized version of the server (31MB, based on alpine).
+### Run it with docker
+
+Images are available on [Docker Hub](https://hub.docker.com/r/fclairamb/ftpserver) and on the
+[GitHub container registry](https://github.com/fclairamb/ftpserver/pkgs/container/ftpserver)
+(`ghcr.io/fclairamb/ftpserver`) for `linux/amd64`, `linux/arm64`, `linux/arm/v6` and `linux/arm/v7`:
+
+* `latest`, `<version>`: minimal image, containing only the binary
+* `alpine`, `<version>-alpine`: image based on alpine, if you need a shell
+
+The image runs from the `/app` directory, which is where it reads (or creates) its `ftpserver.json` config file. The
+default config file serves the `/tmp` directory.
 
 ```sh
 # Creating a directory
@@ -81,157 +85,177 @@ mkdir -p files
 docker run --rm -d -p 2121-2130:2121-2130 -v $(pwd)/files:/tmp -v $(pwd):/app fclairamb/ftpserver
 ```
 
-#### Run it with docker compose
+### Run it with docker compose
+
 ```yml
 # docker-compose.yml
-
-version: '3.3'
 services:
   ftpserver:
+    image: fclairamb/ftpserver
     ports:
       - '2121-2130:2121-2130'
     volumes:
       - ./files:/tmp
       - .:/app
-    image: fclairamb/ftpserver
 ```
 
 ```sh
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Test it
-This is a quick way to see if it's working correctly:
 
 ```sh
-# Download some file
-[ -f kitty.jpg ] || (curl -o kitty.jpg.tmp https://placekitten.com/2048/2048 && mv kitty.jpg.tmp kitty.jpg)
+# Create some file
+head -c 1048576 /dev/urandom > file.bin
 
 # Upload it to the server
-curl -v -T kitty.jpg ftp://test:test@localhost:2121/
+curl -v -T file.bin ftp://test:test@localhost:2121/
 
 # Download it back
-curl ftp://test:test@localhost:2121/kitty.jpg -o kitty2.jpg
+curl ftp://test:test@localhost:2121/file.bin -o file2.bin
 
 # Compare it
-diff kitty.jpg kitty2.jpg
+cmp file.bin file2.bin
 ```
 
-### Config file
-If you don't create a `ftpserver.json` file, one will be created for you.
+## Usage
 
-Here is a sample config file:
+```
+ftpserver [-conf <file>] [-conf-only]
+```
+
+* `-conf <file>`: config file to use. When not specified, `ftpserver.json` is used, and created if it doesn't exist.
+* `-conf-only`: only create the config file (if it doesn't exist) and check it can be loaded, then exit.
+
+Signals:
+
+* `SIGHUP` reloads the config file.
+* `SIGTERM` stops accepting new connections and waits up to one minute for the connected clients to leave.
+
+## Configuration
+
+The configuration is a JSON file, described by a [JSON schema](config-schema.json). Referencing it with the
+`$schema` property gives you auto-completion and validation in most editors. If you start the server without any
+config file, a sample one is created with a single `test`/`test` user serving `/tmp`.
 
 ```json
 {
-   "version": 1,
-   "passive_transfer_port_range": {
-      "start": 2122,
-      "end": 2130
-   },
-   "tls": {
-      "server_cert": {
-         "cert": "cert.pem",
-         "key": "key.pem"
+  "$schema": "https://raw.githubusercontent.com/fclairamb/ftpserver/main/config-schema.json",
+  "version": 1,
+  "listen_address": "0.0.0.0:2121",
+  "passive_transfer_port_range": {
+    "start": 2122,
+    "end": 2130
+  },
+  "accesses": [
+    {
+      "user": "test",
+      "pass": "test",
+      "fs": "os",
+      "params": {
+        "basePath": "/tmp"
       }
-   },
-   "accesses": [
-      {
-         "user": "test",
-         "pass": "test",
-         "fs": "os",
-         "params": {
-            "basePath": "/tmp"
-         }
-      },
-      {
-         "user": "test",
-         "pass": "test",
-         "fs": "os",
-         "params": {
-            "basePath": "/tmp"
-         }
-      },
-      {
-         "user": "dropbox",
-         "pass": "dropbox",
-         "fs": "dropbox",
-         "params": {
-            "token": "..."
-         }
-      },
-      {
-         "user": "gdrive",
-         "pass": "gdrive",
-         "fs": "gdrive",
-         "params": {
-            "google_client_id": "***.apps.googleusercontent.com",
-            "google_client_secret": "****",
-            "base_path": "ftp"
-         }
-      },
-      {
-
-         "user": "s3",
-         "pass": "s3",
-         "fs": "s3",
-         "params": {
-            "endpoint": "https://s3.amazonaws.com",
-            "region": "eu-west-1",
-            "bucket": "my-bucket",
-            "access_key_id": "AKIA....",
-            "secret_access_key": "IDxd....",
-            "disable_ssl": "false",
-            "path_style": "false"
-         }
-      },
-      {
-         "user": "sftp",
-         "pass": "sftp",
-         "fs": "sftp",
-         "params": {
-            "username": "user",
-            "password": "password",
-            "hostname": "192.168.168.11:22",
-            "known_hosts": "/home/ftpserver/.ssh/known_hosts"
-         }
-      },
-      {
-         "user": "telegram",
-         "pass": "telegram",
-         "fs": "telegram",
-         "shared": true,
-         "params": {
-            "Token": "<OBTAIN_TOKEN_FROM_BOTFATHER>",
-            "ChatID": "<INSERT_CHAT_ID_HERE>",
-            "MaxPartSize": "51380224",
-            "TempDir": "/tmp",
-            "RetryAttempts": "10",
-            "RetryDelay": "2000",
-            "PartUploadDelay": "500"
-         }
+    },
+    {
+      "user": "s3",
+      "pass": "$2a$10$jG7tuqIlcUDMl1m1Ytj1TunU7pk.ko8lj3nOGzZvkIeU/BsfPVBra",
+      "fs": "s3",
+      "read_only": true,
+      "params": {
+        "bucket": "my-bucket",
+        "region": "eu-west-1"
       }
-   ]
+    }
+  ]
 }
 ```
 
-You can generate the TLS key pair files with the following command:
-```bash
+More samples are available in [config/samples](config/samples).
+
+### General options
+
+| Property | Description | Default |
+| --- | --- | --- |
+| `listen_address` | Address to listen on | `0.0.0.0:2121` |
+| `public_host` | Public IP address to advertise for passive transfers, when the server is behind a NAT gateway. Can be overridden with the `PUBLIC_HOST` environment variable | |
+| `passive_transfer_port_range` | Ports to use for passive transfers (`start`, `end`) | any port |
+| `max_clients` | Maximum number of simultaneous clients, `0` means no limit | `0` |
+| `idle_timeout` | Duration after which idle connections are closed (e.g. `5m`), a negative value disables it | `15m` |
+| `tls` | TLS certificate files: `{"server_cert": {"cert": "cert.pem", "key": "key.pem"}}` | |
+| `tls_required` | `ClearOrEncrypted`, `MandatoryEncryption` (explicit TLS required) or `ImplicitEncryption` (implicit FTPS) | `ClearOrEncrypted` |
+| `hash_plaintext_passwords` | Replace the plain-text passwords of the config file by their bcrypt hash | `false` |
+| `extensions.enable_hash` | Enable the `HASH` command and its variants | `false` |
+| `logging.ftp_exchanges` | Log all the FTP commands and responses | `false` |
+| `logging.file_accesses` | Log all the file accesses | `false` |
+| `logging.file` | Also write the logs to this file | |
+| `accesses` | The users and their backend, see below | |
+| `accesses_webhook` | Authenticate users with a webhook instead of the `accesses`, see below | |
+
+### Accesses
+
+Each access defines a user and the backend serving their files:
+
+| Property | Description |
+| --- | --- |
+| `user` | User name |
+| `pass` | Password: plain-text or hashed (`$2a$`/`$2b$`/`$2y$` bcrypt, `$1$` md5crypt, `$5$` sha256crypt, `$6$` sha512crypt). The `anonymous` user with a `*` password accepts any password |
+| `fs` | Backend to use (see [supported backends](#supported-backends)) |
+| `params` | Backend parameters, as strings. See each backend's documentation |
+| `read_only`, `shared`, `sync_and_delete`, `logging` | Common options, see [fs/README.md](fs/README.md) |
+
+Accesses are evaluated in their declaration order. A hashed password can be generated with
+`htpasswd -nbBC 10 "" 'my-password' | cut -d: -f2`, or by enabling `hash_plaintext_passwords`.
+
+#### Local disk
+
+The `os` backend serves a local directory, defined by the `basePath` parameter. Environment variables (`$NAME`) in
+the path are replaced by their value.
+
+```json
+{
+  "user": "test",
+  "pass": "test",
+  "fs": "os",
+  "params": {
+    "basePath": "/srv/ftp/$FTP_DIR"
+  }
+}
+```
+
+### Webhook authentication
+
+When `accesses_webhook` is defined, the `accesses` of the config file are ignored: for each login, the user and
+password are posted as JSON (`{"user": "...", "pass": "..."}`) to the webhook. It must reply with a `200` status code
+and an [access](#accesses) object, any other status code refuses the login.
+
+```json
+{
+  "accesses_webhook": {
+    "url": "https://auth.example.com/ftp",
+    "headers": {
+      "Authorization": "Bearer my-secret-token"
+    },
+    "timeout": "5s"
+  },
+  "accesses": []
+}
+```
+
+The `timeout` defaults to `30s`.
+
+### TLS
+
+You can generate a self-signed TLS key pair with the following command:
+
+```sh
 openssl req -new -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out cert.pem -keyout key.pem
 ```
 
-### SFTP backend host key verification
+## Contributing
 
-The `sftp` backend connects to an upstream SSH/SFTP server and verifies its host key to
-protect against man-in-the-middle attacks. You must configure exactly one of the following
-`params`:
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-- `known_hosts`: path to an OpenSSH `known_hosts` file containing the upstream server's key
-  (e.g. generated with `ssh-keyscan -H host >> known_hosts`).
-- `host_key`: the upstream server's public key pinned inline, in `authorized_keys` /
-  `known_hosts` line format (e.g. `ssh-ed25519 AAAA...`).
-- `insecure_ignore_host_key`: set to `"true"` to disable host key verification entirely.
-  This is **unsafe** (it exposes the connection to man-in-the-middle attacks) and should only
-  be used in trusted networks or for testing.
+## License
 
-If none of these is set, the connection is refused.
+[MIT](LICENSE)

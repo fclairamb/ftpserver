@@ -7,14 +7,24 @@ on:
 jobs:
   json-schema-check:
     runs-on: ubuntu-26.04
-    container: python:3.11-alpine3.16
+    container: python:3.14-alpine
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Test
         run: |
-          pip install jsonschema==4.14.0
-          for f in $(find config/ -name '*.json')
-          do
-            echo "Checking $f"
-            jsonschema -i $f config-schema.json
-          done
+          pip install jsonschema==4.26.0
+          python - config-schema.json $(find config/ fs/ -name '*.json') <<'EOF_PY'
+          import json, sys, jsonschema
+
+          schema = json.load(open(sys.argv[1]))
+          jsonschema.Draft7Validator.check_schema(schema)
+          failed = False
+          for f in sys.argv[2:]:
+              try:
+                  jsonschema.validate(json.load(open(f)), schema)
+                  print(f"OK   {f}")
+              except Exception as e:
+                  failed = True
+                  print(f"FAIL {f}: {e}")
+          sys.exit(1 if failed else 0)
+          EOF_PY

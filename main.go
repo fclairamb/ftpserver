@@ -22,6 +22,12 @@ var (
 )
 
 func main() {
+	if err := run(); err != nil {
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	// Arguments vars
 	var confFile string
 	var onlyConf bool
@@ -46,30 +52,29 @@ func main() {
 	}
 
 	if autoCreate {
-		if _, err := os.Stat(confFile); err != nil && os.IsNotExist(err) {
-			logger.Warn("No conf file, creating one", "confFile", confFile)
-
-			if err := os.WriteFile(confFile, confFileContent(), 0600); err != nil { //nolint: gomnd
-				logger.Warn("Couldn't create conf file", "confFile", confFile)
-			}
-		}
+		createConfFile(confFile, logger)
 	}
 
 	conf, errConfig := config.NewConfig(confFile, logger)
 	if errConfig != nil {
 		logger.Error("Can't load conf", "err", errConfig)
 
-		return
+		return errConfig
+	}
+
+	if onlyConf {
+		logger.Warn("Only creating conf")
+
+		return nil
 	}
 
 	// Now is a good time to open a logging file
 	if conf.Content.Logging.File != "" {
-		writer, err := os.OpenFile(conf.Content.Logging.File, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600) //nolint:gomnd
-
+		writer, err := os.OpenFile(conf.Content.Logging.File, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o600)
 		if err != nil {
 			logger.Error("Can't open log file", "err", err)
 
-			return
+			return err
 		}
 
 		// Create a slog handler that writes to both file and stdout
@@ -87,7 +92,7 @@ func main() {
 	if errNewServer != nil {
 		logger.Error("Could not load the driver", "err", errNewServer)
 
-		return
+		return errNewServer
 	}
 
 	// Instantiating the server by passing our driver implementation
@@ -100,19 +105,30 @@ func main() {
 	go signalHandler()
 
 	// Blocking call, behaving similarly to the http.ListenAndServe
-	if onlyConf {
-		logger.Warn("Only creating conf")
-
-		return
-	}
-
 	if err := ftpServer.ListenAndServe(); err != nil {
 		logger.Error("Problem listening", "err", err)
+
+		return err
 	}
 
 	// We wait at most 1 minutes for all clients to disconnect
 	if err := driver.WaitGracefully(time.Minute); err != nil {
 		ftpServer.Logger.Warn("Problem stopping server", "err", err)
+	}
+
+	return nil
+}
+
+// createConfFile creates a sample config file if it doesn't exist yet
+func createConfFile(confFile string, logger *slog.Logger) {
+	if _, err := os.Stat(confFile); err == nil || !os.IsNotExist(err) {
+		return
+	}
+
+	logger.Warn("No conf file, creating one", "confFile", confFile)
+
+	if err := os.WriteFile(confFile, confFileContent(), 0o600); err != nil {
+		logger.Warn("Couldn't create conf file", "confFile", confFile, "err", err)
 	}
 }
 
@@ -126,23 +142,20 @@ func stop() {
 
 func signalHandler() {
 	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGTERM)
-	signal.Notify(ch, syscall.SIGHUP)
+	signal.Notify(ch, syscall.SIGTERM, syscall.SIGHUP)
 
-	for {
-		sig := <-ch
-		if sig == syscall.SIGHUP {
-			err := driver.ReloadConfig()
-			if err != nil {
+	for sig := range ch {
+		switch sig {
+		case syscall.SIGHUP:
+			if err := driver.ReloadConfig(); err != nil {
 				ftpServer.Logger.Warn("Error reloading config", "err", err)
 			} else {
 				ftpServer.Logger.Info("Successfully reloaded config")
 			}
-		}
-		if sig == syscall.SIGTERM {
+		case syscall.SIGTERM:
 			stop()
 
-			break
+			return
 		}
 	}
 }
