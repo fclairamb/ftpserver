@@ -1,0 +1,7 @@
+.git
+.github
+.vscode
+ftpserver
+ftpserver.json
+ftpserver.log
+*.pem

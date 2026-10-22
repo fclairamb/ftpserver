@@ -38,10 +38,11 @@
         "public_host": {
             "type": "string",
             "default": "",
-            "title": "The public listening address (when behing a NAT gateway)",
+            "title": "The public IP address (when behind a NAT gateway)",
             "examples": [
                 "1.2.3.4"
-            ]
+            ],
+            "description": "Can be overridden with the PUBLIC_HOST environment variable."
         },
         "max_clients": {
             "type": "integer",
@@ -49,7 +50,8 @@
             "title": "The maximum number of concurrent clients to accept",
             "examples": [
                 200
-            ]
+            ],
+            "description": "0 means no limit."
         },
         "hash_plaintext_passwords": {
             "type": "boolean",
@@ -98,10 +100,12 @@
                     ]
                 }
             },
-            "examples": [{
-                "start": 2122,
-                "end": 2130
-            }]
+            "examples": [
+                {
+                    "start": 2122,
+                    "end": 2130
+                }
+            ]
         },
         "logging": {
             "type": "object",
@@ -126,18 +130,20 @@
                 },
                 "file": {
                     "type": "string",
-                    "default": "ftpserver.log",
+                    "default": "",
                     "title": "Perform logging to a file",
                     "examples": [
                         "ftpserver.log"
                     ]
                 }
             },
-            "examples": [{
-                "ftp_exchanges": true,
-                "file_accesses": true,
-                "file": "ftpserver.log"
-            }]
+            "examples": [
+                {
+                    "ftp_exchanges": true,
+                    "file_accesses": true,
+                    "file": "ftpserver.log"
+                }
+            ]
         },
         "tls": {
             "type": "object",
@@ -173,18 +179,84 @@
                             ]
                         }
                     },
-                    "examples": [{
-                        "cert": "cert.pem",
-                        "key": "key.pem"
-                    }]
+                    "examples": [
+                        {
+                            "cert": "cert.pem",
+                            "key": "key.pem"
+                        }
+                    ]
                 }
             },
-            "examples": [{
-                "server_cert": {
-                    "cert": "cert.pem",
-                    "key": "key.pem"
+            "examples": [
+                {
+                    "server_cert": {
+                        "cert": "cert.pem",
+                        "key": "key.pem"
+                    }
                 }
-            }]
+            ]
+        },
+        "tls_required": {
+            "type": "string",
+            "default": "ClearOrEncrypted",
+            "title": "TLS requirement",
+            "description": "ClearOrEncrypted: TLS is optional, MandatoryEncryption: clients must use explicit TLS (AUTH TLS), ImplicitEncryption: the whole connection is encrypted (implicit FTPS).",
+            "enum": [
+                "ClearOrEncrypted",
+                "MandatoryEncryption",
+                "ImplicitEncryption"
+            ]
+        },
+        "extensions": {
+            "type": "object",
+            "default": {},
+            "title": "Extended features",
+            "additionalProperties": false,
+            "properties": {
+                "enable_hash": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "Enable the HASH command (and its XCRC, MD5, XMD5, XSHA, XSHA1, XSHA256, XSHA512 variants)"
+                }
+            }
+        },
+        "accesses_webhook": {
+            "type": "object",
+            "title": "Webhook authenticating users",
+            "description": "When set, the accesses are not read from the config file: the user and password are POSTed as JSON to the webhook, which must reply with a 200 status code and an access object.",
+            "required": [
+                "url"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "title": "URL to call",
+                    "examples": [
+                        "https://auth.example.com/ftp"
+                    ]
+                },
+                "headers": {
+                    "type": "object",
+                    "title": "HTTP headers to add to the request",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "examples": [
+                        {
+                            "Authorization": "Bearer secret"
+                        }
+                    ]
+                },
+                "timeout": {
+                    "type": "string",
+                    "default": "30s",
+                    "title": "Maximum duration of the request (Go duration format)",
+                    "examples": [
+                        "5s"
+                    ]
+                }
+            }
         },
         "accesses": {
             "type": "array",
@@ -192,12 +264,9 @@
             "title": "The accesses",
             "items": {
                 "type": "object",
-                "title": "A Schema",
+                "title": "An access",
                 "required": [
-                    "user",
-                    "pass",
-                    "fs",
-                    "params"
+                    "fs"
                 ],
                 "properties": {
                     "user": {
@@ -205,7 +274,8 @@
                         "title": "The FTP user",
                         "examples": [
                             "username"
-                        ]
+                        ],
+                        "description": "Not used by the keycloak backend, which accepts any user."
                     },
                     "pass": {
                         "type": "string",
@@ -213,17 +283,22 @@
                         "examples": [
                             "plaintext-password",
                             "$2a$10$jG7tuqIlcUDMl1m1Ytj1TunU7pk.ko8lj3nOGzZvkIeU/BsfPVBra"
-                        ]
+                        ],
+                        "description": "Plain-text, or hashed with md5crypt, bcrypt, sha256crypt or sha512crypt. Use \"*\" with the \"anonymous\" user to accept any password."
                     },
                     "fs": {
                         "type": "string",
                         "title": "The backend file system to use",
-                        "examples": [
+                        "enum": [
                             "os",
+                            "s3",
+                            "gcs",
+                            "sftp",
                             "dropbox",
                             "gdrive",
-                            "s3",
-                            "sftp"
+                            "mail",
+                            "telegram",
+                            "keycloak"
                         ]
                     },
                     "params": {
@@ -233,7 +308,7 @@
                     "shared": {
                         "type": "boolean",
                         "default": false,
-                        "title": "If the backend shall be shared between session",
+                        "title": "If the backend instance shall be shared between sessions",
                         "examples": [
                             true
                         ]
@@ -251,14 +326,13 @@
                         "default": {},
                         "title": "If we should use the sync & delete mechanism",
                         "required": [
-                            "enable",
-                            "directory"
+                            "enable"
                         ],
                         "properties": {
                             "enable": {
                                 "type": "boolean",
                                 "default": false,
-                                "title": "The enable Schema",
+                                "title": "Enable the sync & delete mechanism",
                                 "examples": [
                                     true
                                 ]
@@ -266,83 +340,97 @@
                             "directory": {
                                 "type": "string",
                                 "default": "",
-                                "title": "The directory Schema",
+                                "title": "Temporary directory (optional, a system one is used otherwise)",
                                 "examples": [
                                     "/tmp/snd"
                                 ]
                             }
                         },
-                        "examples": [{
+                        "examples": [
+                            {
+                                "enable": true,
+                                "directory": "/tmp/snd"
+                            }
+                        ]
+                    },
+                    "logging": {
+                        "type": "object",
+                        "default": {},
+                        "title": "Logging options of this access",
+                        "additionalProperties": false,
+                        "properties": {
+                            "ftp_exchanges": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "Log all FTP exchanges"
+                            },
+                            "file_accesses": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "Log all file accesses"
+                            }
+                        }
+                    }
+                },
+                "examples": [
+                    {
+                        "user": "test",
+                        "pass": "test",
+                        "fs": "os",
+                        "params": {
+                            "basePath": "/tmp"
+                        }
+                    },
+                    {
+                        "user": "dropbox",
+                        "pass": "dropbox",
+                        "fs": "dropbox",
+                        "params": {
+                            "token": "..."
+                        }
+                    },
+                    {
+                        "user": "gdrive",
+                        "pass": "gdrive",
+                        "fs": "gdrive",
+                        "params": {
+                            "google_client_id": "***.apps.googleusercontent.com",
+                            "google_client_secret": "****",
+                            "base_path": "ftp"
+                        }
+                    },
+                    {
+                        "user": "s3",
+                        "pass": "s3",
+                        "fs": "s3",
+                        "params": {
+                            "endpoint": "https://s3.amazonaws.com",
+                            "region": "eu-west-1",
+                            "bucket": "my-bucket",
+                            "access_key_id": "AKIA....",
+                            "secret_access_key": "IDxd....",
+                            "disable_ssl": "false",
+                            "path_style": "false"
+                        }
+                    },
+                    {
+                        "user": "sftp",
+                        "pass": "sftp",
+                        "fs": "sftp",
+                        "shared": true,
+                        "read_only": true,
+                        "sync_and_delete": {
                             "enable": true,
                             "directory": "/tmp/snd"
-                        }]
+                        },
+                        "params": {
+                            "username": "user",
+                            "password": "password",
+                            "hostname": "192.168.168.11:22",
+                            "known_hosts": "/home/ftpserver/.ssh/known_hosts"
+                        }
                     }
-                },
-                "examples": [{
-                    "user": "test",
-                    "pass": "test",
-                    "fs": "os",
-                    "params": {
-                        "basePath": "/tmp"
-                    }
-                },
-                {
-                    "user": "test",
-                    "pass": "test",
-                    "fs": "os",
-                    "params": {
-                        "basePath": "/tmp"
-                    }
-                },
-                {
-                    "user": "dropbox",
-                    "pass": "dropbox",
-                    "fs": "dropbox",
-                    "params": {
-                        "token": "..."
-                    }
-                },
-                {
-                    "user": "gdrive",
-                    "pass": "gdrive",
-                    "fs": "gdrive",
-                    "params": {
-                        "google_client_id": "***.apps.googleusercontent.com",
-                        "google_client_secret": "****",
-                        "base_path": "ftp"
-                    }
-                },
-                {
-                    "user": "s3",
-                    "pass": "s3",
-                    "fs": "s3",
-                    "params": {
-                        "endpoint": "https://s3.amazonaws.com",
-                        "region": "eu-west-1",
-                        "bucket": "my-bucket",
-                        "access_key_id": "AKIA....",
-                        "secret_access_key": "IDxd....",
-                        "disable_ssl": "false",
-                        "path_style": "false"
-                    }
-                },
-                {
-                    "user": "sftp",
-                    "pass": "sftp",
-                    "fs": "sftp",
-                    "shared": true,
-                    "read_only": true,
-                    "sync_and_delete": {
-                        "enable": true,
-                        "directory": "/tmp/snd"
-                    },
-                    "params": {
-                        "username": "user",
-                        "password": "password",
-                        "hostname": "192.168.168.11:22",
-                        "known_hosts": "/home/ftpserver/.ssh/known_hosts"
-                    }
-                }]
+                ]
             }
         }
     },
