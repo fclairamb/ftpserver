@@ -62,7 +62,7 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	}
 
 	// If we're defining a dubious behavior, we can use it
-	if err == nil && access != nil && access.SyncAndDelete != nil && access.SyncAndDelete.Enable {
+	if err == nil && access.SyncAndDelete != nil && access.SyncAndDelete.Enable {
 		var temp afero.Fs
 
 		if access.SyncAndDelete.Directory != "" {

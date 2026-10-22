@@ -42,33 +42,48 @@ type File struct {
 	At      int64
 }
 
+// defaultPort is the SMTP port used when none is specified
+const defaultPort = 25
+
+// sslPort is the SMTPS port, on which SSL is enabled by default
+const sslPort = 465
+
 // LoadFs loads a file system from an access description
 func LoadFs(access *confpar.Access) (afero.Fs, error) {
-	port, err := strconv.Atoi(access.Params["Port"])
-	if err != nil {
-		return nil, err
+	port := defaultPort
+
+	if portStr := access.Params["Port"]; portStr != "" {
+		var err error
+		if port, err = strconv.Atoi(portStr); err != nil {
+			return nil, fmt.Errorf("%w: Port: %w", ErrInvalidParameter, err)
+		}
+
+		if port < 1 || port > 65535 {
+			port = defaultPort
+		}
 	}
 
-	if port < 1 || port > 65535 {
-		port = 25
-	}
+	// SSL is enabled by default on the SMTPS port
+	ssl := port == sslPort
 
-	ssl, err2 := strconv.ParseBool(access.Params["SSL"])
-	if err2 != nil {
-		return nil, err2
+	if sslStr := access.Params["SSL"]; sslStr != "" {
+		var err error
+		if ssl, err = strconv.ParseBool(sslStr); err != nil {
+			return nil, fmt.Errorf("%w: SSL: %w", ErrInvalidParameter, err)
+		}
 	}
 
 	var starttlspolicy mail.StartTLSPolicy
 
 	switch access.Params["StartTLSPolicy"] {
+	case "", "MandatoryStartTLS":
+		starttlspolicy = mail.MandatoryStartTLS
 	case "OpportunisticStartTLS":
 		starttlspolicy = mail.OpportunisticStartTLS
-	case "MandatoryStartTLS":
-		starttlspolicy = mail.MandatoryStartTLS
 	case "NoStartTLS":
 		starttlspolicy = mail.NoStartTLS
 	default:
-		return nil, ErrInvalidParameter
+		return nil, fmt.Errorf("%w: StartTLSPolicy: %q", ErrInvalidParameter, access.Params["StartTLSPolicy"])
 	}
 
 	f := &Fs{
