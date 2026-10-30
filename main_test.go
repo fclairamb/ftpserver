@@ -61,7 +61,7 @@ func TestCreateConfFileGeneratedPassword(t *testing.T) {
 		t.Fatalf("Unexpected access: %+v", access)
 	}
 
-	content, err := os.ReadFile(confFile) //nolint:gosec // test file
+	content, err := os.ReadFile(confFile)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,7 +97,7 @@ func TestCreateConfFileKeepsExistingFile(t *testing.T) {
 		t.Fatal("No password should be generated for an existing file")
 	}
 
-	content, err := os.ReadFile(confFile) //nolint:gosec // test file
+	content, err := os.ReadFile(confFile)
 	if err != nil {
 		t.Fatal(err)
 	}
