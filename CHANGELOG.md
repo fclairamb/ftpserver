@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.6](https://github.com/fclairamb/ftpserver/compare/v0.16.5...v0.16.6) (2026-10-30)
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#1854](https://github.com/fclairamb/ftpserver/issues/1854)) ([803ca1d](https://github.com/fclairamb/ftpserver/commit/803ca1d6d384488f1e83f280175c96d3e7094db3))
+
 ## [0.16.5](https://github.com/fclairamb/ftpserver/compare/v0.16.4...v0.16.5) (2026-10-30)
 
 
