@@ -35,3 +35,9 @@ A Go FTP server acting as a gateway between FTP clients and various storage back
 - Pull request titles follow conventional commits; releases are cut by release-please, which also triggers the
   binaries (`release-artifacts.yml`) and docker images (`docker.yml`) builds.
 - `build.go` holds the version variables, set at build time with `-ldflags -X`.
+
+## Automerge
+
+A PR labelled `automerge` merges on its own once CI is green: `.github/workflows/auto-merge.yml` enables GitHub's
+auto-merge (squash) and updates a branch that is behind main, with the `CI_PAT` secret (a branch update pushed with
+`GITHUB_TOKEN` would not trigger CI). Renovate's minor/patch updates get the label.

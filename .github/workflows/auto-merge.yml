@@ -1,0 +1,92 @@
+name: Auto-merge
+
+# A pull request labelled `automerge` merges on its own once CI is green.
+#
+# The protection of main requires `build` and `json-schema-check` AND an up-to-date branch
+# (strict status checks), so enabling GitHub's auto-merge is not enough: a PR
+# that is behind main sits there forever. This workflow therefore does both, for every
+# open non-draft PR carrying the label:
+#   1. enables auto-merge (squash), which merges it as soon as CI passes;
+#   2. updates its branch from main when it is behind, which re-runs CI.
+#
+# It runs when the label is added (or the PR is opened/updated with it), after
+# every push to main (each merge leaves the other labelled PRs behind), and on
+# a half-hourly schedule as a backstop for a missed event or API hiccup.
+#
+# CI_PAT, not GITHUB_TOKEN: a branch update pushed with GITHUB_TOKEN would not
+# trigger the CI workflow, and the PR would never get its required check.
+# A PR whose branch conflicts with main cannot be updated by the API: it is
+# reported as a warning and left for a human.
+
+on:
+  pull_request:
+    types: [labeled, opened, reopened, synchronize, ready_for_review]
+  push:
+    branches: [main]
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: auto-merge-${{ github.event.pull_request.number || 'all' }}
+  cancel-in-progress: false
+
+jobs:
+  automerge:
+    runs-on: ubuntu-26.04
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'automerge')
+    steps:
+      - name: Enable auto-merge and update behind branches
+        env:
+          GH_TOKEN: ${{ secrets.CI_PAT }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${PR_NUMBER}" ]; then
+            prs="${PR_NUMBER}"
+          else
+            prs=$(gh pr list --state open --label automerge --limit 100 --json number --jq '.[].number')
+          fi
+
+          if [ -z "${prs}" ]; then
+            echo "No open PR labelled automerge."
+            exit 0
+          fi
+
+          for n in ${prs}; do
+            pr=$(gh pr view "${n}" --json isDraft,baseRefName,headRefOid,autoMergeRequest)
+            if [ "$(jq -r .isDraft <<<"${pr}")" = "true" ]; then
+              echo "#${n}: draft, skipped."
+              continue
+            fi
+            base=$(jq -r .baseRefName <<<"${pr}")
+            head=$(jq -r .headRefOid <<<"${pr}")
+
+            # Idempotent. When CI is already green and the branch is current,
+            # this merges right away.
+            if [ "$(jq -r '.autoMergeRequest != null' <<<"${pr}")" = "true" ]; then
+              echo "#${n}: auto-merge already enabled."
+            elif gh pr merge --auto --squash "${n}"; then
+              echo "#${n}: auto-merge enabled."
+            else
+              echo "::warning::#${n}: could not enable auto-merge."
+            fi
+
+            behind=$(gh api "repos/${GH_REPO}/compare/${base}...${head}" --jq .behind_by 2>/dev/null || echo unknown)
+            if [ "${behind}" = "0" ]; then
+              echo "#${n}: up to date with ${base}."
+              continue
+            fi
+
+            echo "#${n}: behind ${base} by ${behind} commit(s), updating the branch."
+            if out=$(gh api -X PUT "repos/${GH_REPO}/pulls/${n}/update-branch" -f expected_head_sha="${head}" 2>&1); then
+              echo "#${n}: branch update requested."
+            else
+              echo "::warning::#${n}: branch update failed (conflict with ${base}?): ${out}"
+            fi
+          done
