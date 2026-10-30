@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.16.5](https://github.com/fclairamb/ftpserver/compare/v0.16.4...v0.16.5) (2026-10-30)
+
+
+### Bug Fixes
+
+* always check keycloak credentials, even on shared accesses ([#1848](https://github.com/fclairamb/ftpserver/issues/1848)) ([9a24e42](https://github.com/fclairamb/ftpserver/commit/9a24e4296acf55a37f3a088de0685d3464c8a623))
+* **deps:** update github.com/fclairamb/ftpserverlib to v0.32.6 ([#1850](https://github.com/fclairamb/ftpserver/issues/1850)) ([ec4f71b](https://github.com/fclairamb/ftpserver/commit/ec4f71bddd9b0427a0346cca8ff32a039aba61c3))
+* **server:** nil passive port range crashes passive transfers ([#1845](https://github.com/fclairamb/ftpserver/issues/1845)) ([b7dbc33](https://github.com/fclairamb/ftpserver/commit/b7dbc339f7c4b9cfb73d69b5ff9cee4cd0e84388))
+* **server:** random default password, mail upload limit, non-root images, token file mode, pinned release action ([#1847](https://github.com/fclairamb/ftpserver/issues/1847)) ([60645ff](https://github.com/fclairamb/ftpserver/commit/60645ffd6d01d33293d65753adb35d9851e2f68c))
+
 ## [0.16.4](https://github.com/fclairamb/ftpserver/compare/v0.16.3...v0.16.4) (2026-10-30)
 
 
