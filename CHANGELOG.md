@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.16.4](https://github.com/fclairamb/ftpserver/compare/v0.16.3...v0.16.4) (2026-10-30)
+
+
+### Bug Fixes
+
+* **passive transfers crashed when no `passive_transfer_port_range` was set** ("value method PortRange.NumberAttempts called using nil *PortRange pointer", seen with WinSCP since 0.15), fixes [#1825](https://github.com/fclairamb/ftpserver/issues/1825) ([#1846](https://github.com/fclairamb/ftpserver/issues/1846)) ([1907786](https://github.com/fclairamb/ftpserver/commit/19077867c4bfaa5a5123e1c380fec74877771f62))
+* several bugs found during an overall cleanup ([#1833](https://github.com/fclairamb/ftpserver/issues/1833)) ([f76111a](https://github.com/fclairamb/ftpserver/commit/f76111ae31f3766dd2390903bfa9d926d2d39ec1)):
+  * **keycloak:** concurrent logins could share credentials and land in another user's directory; user names escaping `base_path` are rejected; `KEYCLOAK_CLIENT_SECRET` is accepted (the misspelled variable still works)
+  * **webhook:** logins always failed without a `timeout` (it now defaults to 30s), and the response size is capped
+  * **`max_clients`** is now enforced
+  * **gcs:** the `bucket` parameter is honoured, so the FTP root can be listed
+  * **s3:** endpoints without a scheme get `http://` or `https://` depending on `disable_ssl`
+  * startup failures (bad config, busy port) exit with status 1, without waiting a minute
+  * a missing TLS key file is reported as such
+  * hashing plain-text passwords keeps the config file's permissions; plain-text passwords are compared in constant time
+  * a data race in graceful shutdown is fixed, and `SIGHUP` drops the shared file systems so they pick up the new config
+  * **mail:** the shipped example loads (`SSL`, `StartTLSPolicy` and `Port` are optional)
+* **docker images are published again** (none since v0.15.1): built at each release, cross-compiled; the scratch image includes `/tmp`
+* the JSON schema accepts `tls_required`, `extensions`, `accesses_webhook` and per-access `logging`
+* **deps:** Google Cloud Storage v1.70.0, AWS S3 SDK v1.114.4, afero-gdrive v0.5.0, ftpserverlib v0.32.5, pkg/sftp v1.13.12, golang.org/x/crypto v0.58.0, golang.org/x/oauth2 v0.37.0, Google APIs v0.310.0, plus regular AWS SDK updates
+
 ## [0.16.3](https://github.com/fclairamb/ftpserver/compare/v0.16.2...v0.16.3) (2026-08-09)
 
 
