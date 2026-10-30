@@ -44,12 +44,3 @@ A Go FTP server acting as a gateway between FTP clients and various storage back
 - The `automerge` label merges a PR on its own once CI is green: `.github/workflows/auto-merge.yml` enables
   GitHub's auto-merge (squash) and updates a branch that is behind main, with the `CI_PAT` secret (a branch update
   pushed with `GITHUB_TOKEN` would not trigger CI). Renovate's minor/patch updates get it.
-=======
-- Backend parameters are strings read from `access.Params`. Document them in the backend's `README.md` and keep the
-  JSON schema and the main README backend table up to date.
-- Imports: standard library, third-party, then `github.com/fclairamb/ftpserver/...` packages.
-- Line length limit: 120 characters.
-- Pull request titles follow conventional commits; releases are cut by release-please, which also triggers the
-  binaries (`release-artifacts.yml`) and docker images (`docker.yml`) builds.
-- `build.go` holds the version variables, set at build time with `-ldflags -X`.
->>>>>>> origin/main
