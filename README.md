@@ -4,7 +4,6 @@
 [![Docker images](https://github.com/fclairamb/ftpserver/actions/workflows/docker.yml/badge.svg)](https://github.com/fclairamb/ftpserver/actions/workflows/docker.yml)
 [![Docker test](https://github.com/fclairamb/ftpserver/actions/workflows/docker-test.yml/badge.svg)](https://github.com/fclairamb/ftpserver/actions/workflows/docker-test.yml)
 [![Docker pulls](https://img.shields.io/docker/pulls/fclairamb/ftpserver)](https://hub.docker.com/r/fclairamb/ftpserver)
-[![Go Report Card](https://goreportcard.com/badge/github.com/fclairamb/ftpserver)](https://goreportcard.com/report/github.com/fclairamb/ftpserver)
 [![Go Reference](https://pkg.go.dev/badge/github.com/fclairamb/ftpserver.svg)](https://pkg.go.dev/github.com/fclairamb/ftpserver)
 
 A gateway between old-school FTP devices (cameras, scanners, printers, legacy software...) and modern cloud based
