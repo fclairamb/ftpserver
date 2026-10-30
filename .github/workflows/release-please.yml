@@ -21,8 +21,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   # The release is created with the default GITHUB_TOKEN, which by design does not
-  # trigger any further workflow. The binaries therefore have to be built from here
-  # rather than from a `push: tags` trigger (see #1738).
+  # trigger any further workflow. The binaries and docker images therefore have to be
+  # built from here rather than from a `push: tags` trigger (see #1738).
   release-artifacts:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
@@ -31,3 +31,14 @@ jobs:
       tag: ${{ needs.release-please.outputs.tag_name }}
     permissions:
       contents: write
+
+  docker:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/docker.yml
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write

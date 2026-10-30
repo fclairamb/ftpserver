@@ -1,21 +1,31 @@
 # Should be started with:
 # docker run -ti -p 2121-2130:2121-2130 fclairamb/ftpserver
 
-# Preparing the build environment
-FROM golang:1.27-alpine AS builder
-ENV GOFLAGS="-mod=readonly"
-RUN apk add --update --no-cache bash ca-certificates curl git && update-ca-certificates
-RUN mkdir -p /workspace
+# Preparing the build environment. The binary is cross-compiled on the build platform, which is much faster than
+# building it in an emulated environment.
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS builder
+ENV GOFLAGS="-mod=readonly" CGO_ENABLED=0
+RUN apk add --update --no-cache ca-certificates && update-ca-certificates
 WORKDIR /workspace
+
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
 # Building
 COPY . .
-RUN CGO_ENABLED=0 go build -mod=readonly -ldflags='-w -s' -v -o ftpserver
+ARG TARGETOS TARGETARCH TARGETVARIANT
+ARG VERSION=dev COMMIT="" BUILD_DATE=""
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    if [ "$TARGETARCH" = "arm" ]; then export GOARM="${TARGETVARIANT#v}"; fi && \
+    GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v -o ftpserver \
+      -ldflags="-w -s -X main.BuildVersion=${VERSION} -X main.Commit=${COMMIT} -X main.BuildDate=${BUILD_DATE}"
 
 # Preparing the final image
 FROM scratch
-WORKDIR /app
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+# The default configuration serves the /tmp directory
+COPY --from=builder /tmp /tmp
+WORKDIR /app
 EXPOSE 2121-2130
 COPY --from=builder /workspace/ftpserver /bin/ftpserver
 ENTRYPOINT [ "/bin/ftpserver" ]
