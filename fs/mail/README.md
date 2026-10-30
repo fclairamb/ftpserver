@@ -14,6 +14,8 @@ an empty result.
 - `From`: The sender address.
 - `To`: The recipient address.
 - `Subject`: The subject of the emails.
+- `MaxSize` (optional): Maximum size of an uploaded file in bytes, `26214400` (25 MiB) by default. Must be positive. Larger
+  uploads are refused and no email is sent.
 - `Message`: The body of the emails, `%s` is replaced by the file name.
 
 ## Configuration

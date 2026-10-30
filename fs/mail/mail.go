@@ -25,6 +25,12 @@ var ErrNotFound = errors.New("not found")
 // ErrInvalidParameter is returned when a parameter is invalid
 var ErrInvalidParameter = errors.New("invalid parameter")
 
+// ErrFileTooLarge is returned when an uploaded file exceeds the MaxSize limit
+var ErrFileTooLarge = errors.New("file too large")
+
+// defaultMaxSize is the default upload size limit (25 MiB, a common SMTP message limit)
+const defaultMaxSize = 25 * 1024 * 1024
+
 // Fs is a write-only afero.Fs implementation using mail as backend
 type Fs struct {
 	Dialer  mail.Dialer
@@ -32,6 +38,7 @@ type Fs struct {
 	To      string
 	Subject string
 	Message string
+	MaxSize int64
 }
 
 // File is the afero.File implementation
@@ -40,6 +47,7 @@ type File struct {
 	Content []byte
 	Fs      *Fs
 	At      int64
+	tooBig  bool
 }
 
 // defaultPort is the SMTP port used when none is specified
@@ -86,6 +94,19 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 		return nil, fmt.Errorf("%w: StartTLSPolicy: %q", ErrInvalidParameter, access.Params["StartTLSPolicy"])
 	}
 
+	maxSize := int64(defaultMaxSize)
+
+	if maxStr := access.Params["MaxSize"]; maxStr != "" {
+		var err error
+		if maxSize, err = strconv.ParseInt(maxStr, 10, 64); err != nil {
+			return nil, fmt.Errorf("%w: MaxSize: %w", ErrInvalidParameter, err)
+		}
+
+		if maxSize <= 0 {
+			return nil, fmt.Errorf("%w: MaxSize: must be positive", ErrInvalidParameter)
+		}
+	}
+
 	f := &Fs{
 		Dialer: mail.Dialer{
 			Host:           access.Params["Host"],
@@ -100,6 +121,7 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 		To:      access.Params["To"],
 		Subject: access.Params["Subject"],
 		Message: access.Params["Message"],
+		MaxSize: maxSize,
 	}
 
 	return f, nil
@@ -112,6 +134,12 @@ func (f *File) Name() string { return f.Path }
 func (f *File) Close() error {
 	if f.Fs == nil {
 		return ErrNotFound
+	}
+
+	if f.tooBig {
+		f.Content = nil
+
+		return ErrFileTooLarge
 	}
 
 	m := mail.NewMessage()
@@ -196,7 +224,14 @@ func (f *File) WriteAt(b []byte, off int64) (int, error) {
 	return 0, ErrNotImplemented
 }
 
+// Write buffers the content, refusing it once the size limit is exceeded
 func (f *File) Write(b []byte) (int, error) {
+	if f.tooBig || (f.Fs != nil && int64(len(f.Content))+int64(len(b)) > f.Fs.MaxSize) {
+		f.tooBig = true
+
+		return 0, ErrFileTooLarge
+	}
+
 	f.Content = append(f.Content, b...)
 
 	return len(b), nil

@@ -64,7 +64,7 @@ jobs:
           echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
 
       - name: Build and upload
-        uses: wangyoucao577/go-release-action@v1.55
+        uses: wangyoucao577/go-release-action@279495102627de7960cbc33434ab01a12bae144b # v1.55
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_tag: ${{ steps.tag.outputs.tag }}
