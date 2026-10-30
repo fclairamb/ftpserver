@@ -34,6 +34,10 @@ A Go FTP server acting as a gateway between FTP clients and various storage back
 - Line length limit: 120 characters.
 - Pull request titles follow conventional commits; releases are cut by release-please, which also triggers the
   binaries (`release-artifacts.yml`) and docker images (`docker.yml`) builds.
+- `docker.yml` pushes to Docker Hub and `ghcr.io/fclairamb/ftpserver` with `GITHUB_TOKEN`. That needs the GHCR
+  package to grant this repo the **Write** role (package settings, *Manage Actions access*) and to stay **Public**;
+  neither can be set by API. Without it the push fails with `permission_denied: read_package` (GHCR was stuck at
+  0.13.0 from 2023 until 0.16.5).
 - `build.go` holds the version variables, set at build time with `-ldflags -X`.
 
 ## Automerge
