@@ -153,7 +153,7 @@ func TestSettingsWithPassivePortRange(t *testing.T) {
 	}
 
 	portRange, ok := settings.PassiveTransferPortRange.(*serverlib.PortRange)
-	if !ok || portRange.Start != 2122 || portRange.End != 2130 {
+	if !ok || portRange.Start != 2122 || portRange.End != 2130 || portRange.NumberAttempts() != 9 {
 		t.Fatalf("unexpected port range: %#v", settings.PassiveTransferPortRange)
 	}
 }
