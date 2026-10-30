@@ -36,11 +36,8 @@ A Go FTP server acting as a gateway between FTP clients and various storage back
   binaries (`release-artifacts.yml`) and docker images (`docker.yml`) builds.
 - `build.go` holds the version variables, set at build time with `-ldflags -X`.
 
-## Autopilot and automerge
+## Automerge
 
-- The `autopilot` label on a PR or an issue hands it to the `/autopilot` loop (wabot scheduler
-  `everything/schedulers/<repo>-autopilot.md`, woken by the repo's GitHub webhook through ntfy `github-autopilot`).
-  It keeps the PR mergeable (base merges, CI, coverage) and never merges it.
-- The `automerge` label merges a PR on its own once CI is green: `.github/workflows/auto-merge.yml` enables
-  GitHub's auto-merge (squash) and updates a branch that is behind main, with the `CI_PAT` secret (a branch update
-  pushed with `GITHUB_TOKEN` would not trigger CI). Renovate's minor/patch updates get it.
+A PR labelled `automerge` merges on its own once CI is green: `.github/workflows/auto-merge.yml` enables GitHub's
+auto-merge (squash) and updates a branch that is behind main, with the `CI_PAT` secret (a branch update pushed with
+`GITHUB_TOKEN` would not trigger CI). Renovate's minor/patch updates get the label.
