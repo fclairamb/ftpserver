@@ -125,3 +125,35 @@ func TestMaxClients(t *testing.T) {
 		t.Fatalf("second client should be refused, got: %q", banner)
 	}
 }
+
+// TestSettingsWithoutPassivePortRange makes sure no port range in the config gives a nil interface to ftpserverlib.
+// A typed nil (*PortRange)(nil) made every passive transfer panic with "NumberAttempts called using nil *PortRange
+// pointer" (#1825).
+func TestSettingsWithoutPassivePortRange(t *testing.T) {
+	srv := newTestServer(t, &confpar.Content{})
+
+	settings, err := srv.GetSettings()
+	if err != nil {
+		t.Fatalf("GetSettings: %v", err)
+	}
+
+	if settings.PassiveTransferPortRange != nil {
+		t.Fatalf("expected a nil port range, got %#v", settings.PassiveTransferPortRange)
+	}
+}
+
+func TestSettingsWithPassivePortRange(t *testing.T) {
+	srv := newTestServer(t, &confpar.Content{
+		PassiveTransferPortRange: &confpar.PortRange{Start: 2122, End: 2130},
+	})
+
+	settings, err := srv.GetSettings()
+	if err != nil {
+		t.Fatalf("GetSettings: %v", err)
+	}
+
+	portRange, ok := settings.PassiveTransferPortRange.(*serverlib.PortRange)
+	if !ok || portRange.Start != 2122 || portRange.End != 2130 {
+		t.Fatalf("unexpected port range: %#v", settings.PassiveTransferPortRange)
+	}
+}

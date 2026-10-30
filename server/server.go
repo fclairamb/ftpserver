@@ -80,7 +80,9 @@ func NewServer(config *config.Config, logger *slog.Logger) (*Server, error) {
 func (s *Server) GetSettings() (*serverlib.Settings, error) {
 	conf := s.config.Content
 
-	var portRange *serverlib.PortRange
+	// Keep this an interface: a nil *PortRange stored in it would be a non-nil interface, and ftpserverlib would
+	// call NumberAttempts on the nil pointer on every passive transfer (#1825).
+	var portRange serverlib.PasvPortGetter
 
 	if conf.PassiveTransferPortRange != nil {
 		portRange = &serverlib.PortRange{
