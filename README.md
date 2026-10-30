@@ -74,7 +74,8 @@ Images are available on [Docker Hub](https://hub.docker.com/r/fclairamb/ftpserve
 * `alpine`, `<version>-alpine`: image based on alpine, if you need a shell
 
 The image runs from the `/app` directory, which is where it reads (or creates) its `ftpserver.json` config file. The
-default config file serves the `/tmp` directory.
+default config file serves the `/tmp` directory, with a `test` user whose random password is printed in the logs
+(`docker logs <container>`) when the file is created.
 
 ```sh
 # Creating a directory
@@ -83,6 +84,10 @@ mkdir -p files
 # Starting the sample FTP server
 docker run --rm -d -p 2121-2130:2121-2130 -v $(pwd)/files:/tmp -v $(pwd):/app fclairamb/ftpserver
 ```
+
+The images run as the unprivileged user `65532:65532`. Mounted directories must be writable by that uid (for example
+`chown 65532:65532 files .`), or you can override the user with `--user "$(id -u):$(id -g)"`. This is a breaking change
+for setups that mount host directories owned by another uid.
 
 ### Run it with docker compose
 
@@ -104,15 +109,21 @@ docker compose up -d
 
 ### Test it
 
+The password of the `test` user is generated when the config file is created, and only printed then:
+
 ```sh
+# Find the generated password in the logs
+docker logs <container> 2>&1 | grep "No conf file"
+PASS=<the password from the logs>
+
 # Create some file
 head -c 1048576 /dev/urandom > file.bin
 
 # Upload it to the server
-curl -v -T file.bin ftp://test:test@localhost:2121/
+curl -v -T file.bin "ftp://test:${PASS}@localhost:2121/"
 
 # Download it back
-curl ftp://test:test@localhost:2121/file.bin -o file2.bin
+curl "ftp://test:${PASS}@localhost:2121/file.bin" -o file2.bin
 
 # Compare it
 cmp file.bin file2.bin
@@ -136,7 +147,8 @@ Signals:
 
 The configuration is a JSON file, described by a [JSON schema](config-schema.json). Referencing it with the
 `$schema` property gives you auto-completion and validation in most editors. If you start the server without any
-config file, a sample one is created with a single `test`/`test` user serving `/tmp`.
+config file, a sample one is created with a single `test` user serving `/tmp`. Its password is random: it is
+printed once in the logs when the file is created, and stored hashed (bcrypt) in the file.
 
 ```json
 {

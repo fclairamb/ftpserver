@@ -120,6 +120,26 @@ func isHashedPassword(pass string) bool {
 	return false
 }
 
+// newHasher creates the hasher used to store plain-text passwords
+func newHasher() (algorithm.Hash, error) {
+	return bcrypt.New(bcrypt.WithCost(bcryptCost))
+}
+
+// HashPassword returns the bcrypt hash of a plain-text password, in the format expected in the config file
+func HashPassword(pass string) (string, error) {
+	hasher, err := newHasher()
+	if err != nil {
+		return "", err
+	}
+
+	digest, err := hasher.Hash(pass)
+	if err != nil {
+		return "", err
+	}
+
+	return digest.Encode(), nil
+}
+
 // HashPlaintextPasswords replaces all the plain-text passwords of the config file by their bcrypt equivalent,
 // and saves the config file.
 func (c *Config) HashPlaintextPasswords() error {
@@ -148,7 +168,7 @@ func (c *Config) HashPlaintextPasswords() error {
 
 		if hasher == nil {
 			var err error
-			if hasher, err = bcrypt.New(bcrypt.WithCost(bcryptCost)); err != nil {
+			if hasher, err = newHasher(); err != nil {
 				return err
 			}
 		}
