@@ -23,3 +23,6 @@ Neither image sets a `USER`: `Dockerfile:24-31` (scratch) and `Dockerfile.alpine
 
 ## Open questions
 - Is a breaking change acceptable for users who mount host directories owned by another uid? Recommended: yes, with a note in the changelog and the `--user` override documented.
+
+## Resolved open questions
+- A breaking change for host mounts owned by another uid is acceptable, with a changelog note and the `--user` override documented (autopilot: recommended answer).

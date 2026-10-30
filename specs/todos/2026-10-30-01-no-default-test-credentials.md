@@ -28,3 +28,7 @@ This is the default path of the published Docker images: their `ENTRYPOINT` pass
 ## Open questions
 - Keep a fixed, documented password for the quick start, and only print a warning? Recommended: no, generate a random one; a known password on a network service is the issue.
 - Store the generated password hashed? Recommended: yes, bcrypt like `hash_plaintext_passwords`, so the config file never holds it in clear.
+
+## Resolved open questions
+- Generate a random password at first start; no fixed documented password (autopilot: recommended answer).
+- Store the generated password hashed with bcrypt, like `hash_plaintext_passwords` (autopilot: recommended answer).
