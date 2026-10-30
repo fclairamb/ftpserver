@@ -207,6 +207,12 @@ func (s *Server) considerEnd() {
 }
 
 func (s *Server) loadFs(access *confpar.Access) (afero.Fs, error) {
+	// The keycloak backend checks the user's credentials when creating its file system, a cached instance would
+	// skip this check.
+	if access.Fs == "keycloak" {
+		return fs.LoadFs(access, s.logger)
+	}
+
 	cache := s.accesses
 	cache.Lock()
 	defer cache.Unlock()
