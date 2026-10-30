@@ -48,13 +48,7 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	var s3Opts []func(*s3.Options)
 
 	if endpoint != "" {
-		endpointURL := endpoint
-		if disableSSL {
-			// Ensure HTTP scheme if SSL is disabled
-			if len(endpointURL) > 0 && endpointURL[0] != 'h' {
-				endpointURL = "http://" + endpointURL
-			}
-		}
+		endpointURL := endpointWithScheme(endpoint, disableSSL)
 		s3Opts = append(s3Opts, func(o *s3.Options) {
 			o.BaseEndpoint = aws.String(endpointURL)
 		})
@@ -80,4 +74,18 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	}
 
 	return fs, nil
+}
+
+// endpointWithScheme adds the URL scheme to an endpoint that doesn't have one: "http" if SSL is disabled,
+// "https" otherwise. An endpoint that already has a scheme is returned as is.
+func endpointWithScheme(endpoint string, disableSSL bool) string {
+	if strings.Contains(endpoint, "://") {
+		return endpoint
+	}
+
+	if disableSSL {
+		return "http://" + endpoint
+	}
+
+	return "https://" + endpoint
 }

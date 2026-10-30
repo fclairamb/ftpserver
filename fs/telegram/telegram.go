@@ -15,12 +15,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	tele "gopkg.in/telebot.v3"
-
 	"github.com/spf13/afero"
+	tele "gopkg.in/telebot.v3"
+	"gopkg.in/telebot.v3/middleware"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
-	"gopkg.in/telebot.v3/middleware"
 )
 
 // ErrNotImplemented is returned when something is not implemented
@@ -88,7 +87,9 @@ type File struct {
 var imageExtensions = []string{".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif"}
 
 // videoExtensions is the list of supported video extensions
-var videoExtensions = []string{".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".mpeg", ".mpg", ".m4v", ".3gp", ".3g2"}
+var videoExtensions = []string{
+	".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".mpeg", ".mpg", ".m4v", ".3gp", ".3g2",
+}
 
 // textExtensions is the list of supported text extensions
 var textExtensions = []string{".txt", ".md"}
@@ -98,7 +99,6 @@ var audioExtensions = []string{".mp3", ".ogg", ".flac", ".wav", ".m4a", ".opus"}
 
 // LoadFs loads a file system from an access description
 func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
-
 	token := access.Params["Token"]
 	if token == "" {
 		return nil, fmt.Errorf("parameter Token is empty")
@@ -106,7 +106,7 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 
 	chatID, err := strconv.ParseInt(access.Params["ChatID"], 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("invalid ChatID parameter: %v", err)
+		return nil, fmt.Errorf("invalid ChatID parameter: %w", err)
 	}
 
 	// Parse MaxPartSize param, default to defaultMaxPartSize if not set
@@ -115,7 +115,7 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	if partSizeStr != "" {
 		parsed, parseErr := strconv.ParseInt(partSizeStr, 10, 64)
 		if parseErr != nil {
-			return nil, fmt.Errorf("invalid MaxPartSize parameter: %v", parseErr)
+			return nil, fmt.Errorf("invalid MaxPartSize parameter: %w", parseErr)
 		}
 		if parsed <= 0 {
 			return nil, fmt.Errorf("invalid MaxPartSize parameter: must be > 0")
@@ -239,7 +239,7 @@ func (f *File) Close() error {
 			partFilename := fmt.Sprintf("%s.part%dof%d", basePath, partNum, totalParts)
 			partCaption := fmt.Sprintf("%s (part %d/%d)", basePath, partNum, totalParts)
 
-			partData, readErr := os.ReadFile(tempPath)
+			partData, readErr := os.ReadFile(tempPath) //nolint:gosec // temporary file created by ourselves
 			if readErr != nil {
 				return readErr
 			}
@@ -260,7 +260,6 @@ func (f *File) Close() error {
 				time.Sleep(f.Fs.PartUploadDelay)
 			}
 		}
-
 	}
 
 	if f.Fs.fakeFs.stat(f.Path) == nil {
@@ -371,7 +370,15 @@ func (f *File) sendWithRetry(filename string, caption string, send func() error)
 			return err
 		}
 
-		f.Fs.Logger.Warn("telegram send retry", "attempt", attempt, "maxAttempts", f.Fs.RetryAttempts, "path", f.Path, "filename", filename, "caption", caption, "err", err)
+		f.Fs.Logger.Warn(
+			"telegram send retry",
+			"attempt", attempt,
+			"maxAttempts", f.Fs.RetryAttempts,
+			"path", f.Path,
+			"filename", filename,
+			"caption", caption,
+			"err", err,
+		)
 		time.Sleep(f.Fs.RetryDelay)
 	}
 
@@ -402,7 +409,10 @@ func (f *File) spillNextPartToDisk(data []byte) error {
 	tempFilePath := filepath.Join(f.PartTempDir, fmt.Sprintf("part-%05d.bin", f.PartNumber))
 
 	if err := os.WriteFile(tempFilePath, data, 0o600); err != nil {
-		f.Fs.Logger.Error("telegram spillNextPartToDisk WriteFile", "err", err, "tempFilePath", tempFilePath, "bytes", len(data))
+		f.Fs.Logger.Error(
+			"telegram spillNextPartToDisk WriteFile",
+			"err", err, "tempFilePath", tempFilePath, "bytes", len(data),
+		)
 		return err
 	}
 
@@ -550,7 +560,7 @@ func (m *Fs) Remove(name string) error {
 	return nil
 }
 
-// Mkdir
+// Mkdir creates a directory
 func (m *Fs) Mkdir(name string, mode os.FileMode) error {
 	m.fakeFs.mkdir(name, mode)
 	return nil
@@ -618,7 +628,7 @@ func (m *Fs) OpenFile(name string, flag int, mode os.FileMode) (afero.File, erro
 	return &File{Path: name, Fs: m, Content: content}, nil
 }
 
-// Stat() fake implementation
+// Stat returns the file information
 func (m *Fs) Stat(name string) (os.FileInfo, error) {
 	fileInfo, _ := m.statPath(name)
 
