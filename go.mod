@@ -15,7 +15,7 @@ require (
 	github.com/fclairamb/afero-gdrive v0.5.0
 	github.com/fclairamb/afero-s3 v0.5.0
 	github.com/fclairamb/afero-snd v0.2.0
-	github.com/fclairamb/ftpserverlib v0.32.5
+	github.com/fclairamb/ftpserverlib v0.32.6
 	github.com/go-crypt/crypt v0.14.15
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/pkg/sftp v1.13.12
@@ -94,7 +94,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.51.6 // indirect
 	github.com/aws/smithy-go v1.28.7 // indirect
 	github.com/dropbox/dropbox-sdk-go-unofficial v5.6.0+incompatible // indirect
-	github.com/fclairamb/go-log v0.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.24 // indirect
 	github.com/googleapis/gax-go/v2 v2.27.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
