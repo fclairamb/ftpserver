@@ -3,6 +3,7 @@ package gdrive
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -81,7 +82,7 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	}
 
 	if saveToken {
-		if errStoreToken := drvoa.StoreTokenToFile(tokenFile, auth.Token); errStoreToken != nil {
+		if errStoreToken := storeToken(tokenFile, auth.Token); errStoreToken != nil {
 			return nil, fmt.Errorf("token couldn't be saved: %w", errStoreToken)
 		}
 	}
@@ -101,4 +102,22 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	}
 
 	return gdriveFs, err
+}
+
+// storeToken saves the token readable by its owner only, even if the file already exists.
+func storeToken(path string, token *oauth2.Token) error {
+	data, err := json.Marshal(token)
+	if err != nil {
+		return fmt.Errorf("couldn't marshal token: %w", err)
+	}
+
+	if err = os.WriteFile(path, data, 0o600); err != nil {
+		return fmt.Errorf("couldn't write token file: %w", err)
+	}
+
+	if err = os.Chmod(path, 0o600); err != nil {
+		return fmt.Errorf("couldn't set token file permissions: %w", err)
+	}
+
+	return nil
 }
