@@ -106,7 +106,7 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 
 // storeToken saves the token readable by its owner only, even if the file already exists.
 func storeToken(path string, token *oauth2.Token) error {
-	data, err := json.Marshal(token)
+	data, err := json.Marshal(token) //nolint:gosec // written to a 0600 file
 	if err != nil {
 		return fmt.Errorf("couldn't marshal token: %w", err)
 	}
