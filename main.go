@@ -2,9 +2,12 @@
 package main
 
 import (
+	"crypto/rand"
 	"flag"
+	"fmt"
 	"io"
 	"log/slog"
+	"math/big"
 	"os"
 	"os/signal"
 	"syscall"
@@ -119,17 +122,65 @@ func run() error {
 	return nil
 }
 
-// createConfFile creates a sample config file if it doesn't exist yet
-func createConfFile(confFile string, logger *slog.Logger) {
+// defaultUser is the user of the auto-created config file
+const defaultUser = "test"
+
+// passwordAlphabet excludes the characters that are easily confused (0/O, 1/l/I)
+const passwordAlphabet = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+// passwordLength is the length of the generated password
+const passwordLength = 20
+
+// generatePassword creates a random password from passwordAlphabet
+func generatePassword() (string, error) {
+	maxIndex := big.NewInt(int64(len(passwordAlphabet)))
+	pass := make([]byte, passwordLength)
+
+	for i := range pass {
+		n, err := rand.Int(rand.Reader, maxIndex)
+		if err != nil {
+			return "", fmt.Errorf("could not generate a password: %w", err)
+		}
+
+		pass[i] = passwordAlphabet[n.Int64()]
+	}
+
+	return string(pass), nil
+}
+
+// createConfFile creates a sample config file if it doesn't exist yet. Its single user gets a random password, which
+// is logged once and stored hashed. It returns the generated password, or an empty string if no file was created.
+func createConfFile(confFile string, logger *slog.Logger) string {
 	if _, err := os.Stat(confFile); err == nil || !os.IsNotExist(err) {
-		return
+		return ""
 	}
 
-	logger.Warn("No conf file, creating one", "confFile", confFile)
-
-	if err := os.WriteFile(confFile, confFileContent(), 0o600); err != nil {
+	pass, err := generatePassword()
+	if err != nil {
 		logger.Warn("Couldn't create conf file", "confFile", confFile, "err", err)
+
+		return ""
 	}
+
+	hash, err := config.HashPassword(pass)
+	if err != nil {
+		logger.Warn("Couldn't create conf file", "confFile", confFile, "err", err)
+
+		return ""
+	}
+
+	if err := os.WriteFile(confFile, confFileContent(defaultUser, hash), 0o600); err != nil {
+		logger.Warn("Couldn't create conf file", "confFile", confFile, "err", err)
+
+		return ""
+	}
+
+	logger.Warn(
+		"No conf file, created one. The password is only displayed now, it is stored hashed.",
+		"confFile", confFile, "user", defaultUser, "password", pass,
+	)
+
+	return pass
 }
 
 func stop() {
@@ -160,13 +211,13 @@ func signalHandler() {
 	}
 }
 
-func confFileContent() []byte {
-	str := `{
+func confFileContent(user, passHash string) []byte {
+	str := fmt.Sprintf(`{
   "version": 1,
   "accesses": [
     {
-      "user": "test",
-      "pass": "test",
+      "user": %q,
+      "pass": %q,
       "fs": "os",
       "params": {
         "basePath": "/tmp"
@@ -177,7 +228,7 @@ func confFileContent() []byte {
     "start": 2122,
     "end": 2130
   }
-}`
+}`, user, passHash)
 
 	return []byte(str)
 }
