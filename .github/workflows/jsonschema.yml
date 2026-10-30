@@ -7,7 +7,7 @@ on:
 jobs:
   json-schema-check:
     runs-on: ubuntu-26.04
-    container: python:3.14-alpine
+    container: python:3.15-alpine
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Test
