@@ -31,6 +31,12 @@ jobs:
           docker build -t "fclairamb/ftpserver:${{ matrix.tag }}" \
             -f "Dockerfile${{ matrix.tag == 'alpine' && '.alpine' || '' }}" .
 
+      - name: Check that the image runs as a non-root user
+        if: github.event_name == 'pull_request'
+        run: |
+          USER_ID="$(docker inspect --format '{{.Config.User}}' "fclairamb/ftpserver:${{ matrix.tag }}")"
+          test "${USER_ID}" = "65532:65532"
+
       # The auto-created config file has a random password: we use our own config file, which also works with the
       # published images built before that change
       - name: Create the config file

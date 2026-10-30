@@ -85,6 +85,10 @@ mkdir -p files
 docker run --rm -d -p 2121-2130:2121-2130 -v $(pwd)/files:/tmp -v $(pwd):/app fclairamb/ftpserver
 ```
 
+The images run as the unprivileged user `65532:65532`. Mounted directories must be writable by that uid (for example
+`chown 65532:65532 files .`), or you can override the user with `--user "$(id -u):$(id -g)"`. This is a breaking change
+for setups that mount host directories owned by another uid.
+
 ### Run it with docker compose
 
 ```yml

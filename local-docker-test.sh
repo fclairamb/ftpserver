@@ -4,6 +4,7 @@
 docker rm -f ftpserver-test || :
 
 docker build . -t ftpserver-test
+test "$(docker inspect --format '{{.Config.User}}' ftpserver-test)" = "65532:65532"
 docker run -d --rm --name ftpserver-test -p 2121-2130:2121-2130 ftpserver-test
 trap 'docker rm -f ftpserver-test' EXIT
 

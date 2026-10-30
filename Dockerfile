@@ -20,11 +20,16 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
     GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v -o ftpserver \
       -ldflags="-w -s -X main.BuildVersion=${VERSION} -X main.Commit=${COMMIT} -X main.BuildDate=${BUILD_DATE}"
 
+# The directories the server writes to, owned by the unprivileged user (65532 is the distroless "nonroot" id)
+RUN install -d -o 65532 -g 65532 /rootfs/app && install -d -m 1777 -o 65532 -g 65532 /rootfs/tmp
+
 # Preparing the final image
 FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 # The default configuration serves the /tmp directory
-COPY --from=builder /tmp /tmp
+COPY --from=builder --chown=65532:65532 /rootfs/tmp /tmp
+COPY --from=builder --chown=65532:65532 /rootfs/app /app
+USER 65532:65532
 WORKDIR /app
 EXPOSE 2121-2130
 COPY --from=builder /workspace/ftpserver /bin/ftpserver
