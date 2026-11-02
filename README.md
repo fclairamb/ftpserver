@@ -240,6 +240,10 @@ When `accesses_webhook` is defined, the `accesses` of the config file are ignore
 password are posted as JSON (`{"user": "...", "pass": "..."}`) to the webhook. It must reply with a `200` status code
 and an [access](#accesses) object, any other status code refuses the login.
 
+With `"shared": true`, a backend instance is reused only by later logins with the same user name and an identical
+access (same `fs`, `params`, `read_only`, etc.). Two users never share an instance, even when the reply doesn't set
+`user` or returns the same access for both.
+
 ```json
 {
   "accesses_webhook": {

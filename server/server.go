@@ -4,7 +4,9 @@ package server
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"crypto/tls"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -208,19 +210,45 @@ func (s *Server) considerEnd() {
 	}
 }
 
-func (s *Server) loadFs(access *confpar.Access) (afero.Fs, error) {
+// fsCacheKey returns the key of a shared file system instance: a fingerprint of the login name and of the whole
+// access. Two logins share an instance only when they use the same login name and identical accesses, so an access
+// can never be handed the backend of another one (same user name with other parameters, or a webhook reply that
+// doesn't set a distinct user).
+func fsCacheKey(user string, access *confpar.Access) (string, error) {
+	data, err := json.Marshal(struct {
+		Login  string          `json:"login"`
+		Access *confpar.Access `json:"access"`
+	}{
+		Login:  user,
+		Access: access,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	sum := sha256.Sum256(data)
+
+	return hex.EncodeToString(sum[:]), nil
+}
+
+func (s *Server) loadFs(user string, access *confpar.Access) (afero.Fs, error) {
 	// The keycloak backend checks the user's credentials when creating its file system, a cached instance would
-	// skip this check.
-	if access.Fs == "keycloak" {
+	// skip this check. A non-shared access always gets a new instance.
+	if access.Fs == "keycloak" || !access.Shared {
 		return fs.LoadFs(access, s.logger)
+	}
+
+	key, err := fsCacheKey(user, access)
+	if err != nil {
+		return nil, err
 	}
 
 	cache := s.accesses
 	cache.Lock()
 	defer cache.Unlock()
 
-	if cachedFs := cache.accesses[access.User]; cachedFs != nil {
-		s.logger.Debug("Reusing fs instance", "user", access.User)
+	if cachedFs := cache.accesses[key]; cachedFs != nil {
+		s.logger.Debug("Reusing fs instance", "user", user)
 
 		return cachedFs, nil
 	}
@@ -229,12 +257,11 @@ func (s *Server) loadFs(access *confpar.Access) (afero.Fs, error) {
 	if err != nil {
 		return nil, err
 	}
-	if access.Shared {
-		s.logger.Debug("Saving fs instance for later use", "user", access.User, "fsType", newFs.Name())
-		cache.accesses[access.User] = newFs
-	}
 
-	return newFs, err
+	s.logger.Debug("Saving fs instance for later use", "user", user, "fsType", newFs.Name())
+	cache.accesses[key] = newFs
+
+	return newFs, nil
 }
 
 func (s *Server) getAccessFromWebhook(user, pass string) (*confpar.Access, error) {
@@ -309,7 +336,7 @@ func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (server
 		return nil, errAccess
 	}
 
-	accFs, errFs := s.loadFs(access)
+	accFs, errFs := s.loadFs(user, access)
 
 	if errFs != nil {
 		return nil, errFs

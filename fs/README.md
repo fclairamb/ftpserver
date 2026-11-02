@@ -22,7 +22,9 @@ The `read_only` boolean blocks any write to the underlying file system.
 
 The `shared` boolean makes the backend instance created at the first login of the user reused by all their later
 sessions, instead of creating a new one for each session. This is useful for backends with an expensive setup (SFTP
-connection, Telegram bot...). Shared instances are dropped when the configuration is reloaded.
+connection, Telegram bot...). An instance is reused only for the same user name and an identical access: another
+access with the same user name (other password, backend, parameters or `read_only` flag) gets its own instance.
+Shared instances are dropped when the configuration is reloaded.
 
 ```json
 {
