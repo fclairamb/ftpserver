@@ -218,7 +218,12 @@ func (c *Config) Prepare() error {
 // CheckAccesses checks all accesses
 func (c *Config) CheckAccesses() error {
 	for _, access := range c.Content.Accesses {
-		_, errAccess := fs.LoadFs(access, c.logger)
+		_, closer, errAccess := fs.LoadFs(access, c.logger)
+		if closer != nil {
+			// The file system was only loaded to check the access, release its connection
+			_ = closer.Close()
+		}
+
 		if errAccess != nil {
 			c.logger.Error("Config: Invalid access !", "err", errAccess, "username", access.User, "fs", access.Fs)
 

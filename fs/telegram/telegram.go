@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"os"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -61,6 +62,11 @@ type Fs struct {
 	// fakeFs is a lightweight fake filesystem intended for store temporary info about files
 	// since some ftp clients expect to perform mkdir() + stat() on files and directories before upload
 	fakeFs *fakeFilesystem
+
+	// lifecycle protects started and closed, so that the poller is started and stopped at most once
+	lifecycle sync.Mutex
+	started   bool
+	closed    bool
 }
 
 // File is the afero.File implementation
@@ -97,8 +103,14 @@ var textExtensions = []string{".txt", ".md"}
 // audioExtensions is the list of supported audio extensions
 var audioExtensions = []string{".mp3", ".ogg", ".flac", ".wav", ".m4a", ".opus"}
 
-// LoadFs loads a file system from an access description
+// LoadFs loads a file system from an access description. The returned file system polls the Telegram API until its
+// Close method is called.
 func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
+	return loadFs(access, logger, "")
+}
+
+// loadFs loads a file system using the Telegram API at apiURL (the default API when empty)
+func loadFs(access *confpar.Access, logger *slog.Logger, apiURL string) (*Fs, error) {
 	token := access.Params["Token"]
 	if token == "" {
 		return nil, fmt.Errorf("parameter Token is empty")
@@ -156,6 +168,7 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	}
 
 	pref := tele.Settings{
+		URL:    apiURL,
 		Token:  token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	}
@@ -171,11 +184,6 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 	bot.Handle("/start", startHandler)
 	bot.Handle("/help", helpHandler)
 
-	go func() {
-		// Run bot in the background
-		bot.Start()
-	}()
-
 	fs := &Fs{
 		Bot:             bot,
 		Logger:          logger,
@@ -188,7 +196,45 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 		fakeFs:          newFakeFilesystem(),
 	}
 
+	fs.start()
+
 	return fs, nil
+}
+
+// start runs the bot's poller in the background. It does nothing if the poller was already started or if the file
+// system is closed.
+func (m *Fs) start() {
+	m.lifecycle.Lock()
+	defer m.lifecycle.Unlock()
+
+	if m.started || m.closed {
+		return
+	}
+
+	m.started = true
+
+	go m.Bot.Start()
+}
+
+// Close stops the bot's poller. It can be called several times.
+func (m *Fs) Close() error {
+	m.lifecycle.Lock()
+	if m.closed {
+		m.lifecycle.Unlock()
+
+		return nil
+	}
+
+	m.closed = true
+	started := m.started
+	m.lifecycle.Unlock()
+
+	if started {
+		// Stop waits for the poller to end, it also cancels the pending long poll request
+		m.Bot.Stop()
+	}
+
+	return nil
 }
 
 // Name of the file

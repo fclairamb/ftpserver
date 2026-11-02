@@ -44,4 +44,7 @@ A Go FTP server acting as a gateway between FTP clients and various storage back
 
 A PR labelled `automerge` merges on its own once CI is green: `.github/workflows/auto-merge.yml` enables GitHub's
 auto-merge (squash) and updates a branch that is behind main, with the `CI_PAT` secret (a branch update pushed with
-`GITHUB_TOKEN` would not trigger CI). Renovate's minor/patch updates get the label.
+`GITHUB_TOKEN` would not trigger CI). Renovate's minor/patch updates get the label. The label only applies to
+same-repository PRs: a PR from a fork is skipped with a warning and must be merged by hand (GitHub disables auto-merge
+when an outside contributor pushes, and re-enabling it would merge unreviewed commits). Auto-merge is enabled with
+`--match-head-commit`, pinned to the head the workflow inspected.
