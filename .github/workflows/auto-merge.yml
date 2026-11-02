@@ -17,6 +17,13 @@ name: Auto-merge
 # trigger the CI workflow, and the PR would never get its required check.
 # A PR whose branch conflicts with main cannot be updated by the API: it is
 # reported as a warning and left for a human.
+#
+# The label only applies to same-repository PRs (Renovate, maintainers): only
+# people with write access can push to those branches. A PR coming from a fork
+# is skipped with a warning and must be merged by hand: GitHub turns auto-merge
+# off when an outside contributor pushes, and re-arming it here would merge
+# commits nobody reviewed. Auto-merge is also pinned to the head commit that was
+# just inspected (--match-head-commit).
 
 on:
   pull_request:
@@ -59,7 +66,12 @@ jobs:
           fi
 
           for n in ${prs}; do
-            pr=$(gh pr view "${n}" --json isDraft,baseRefName,headRefOid,autoMergeRequest)
+            pr=$(gh pr view "${n}" --json isDraft,baseRefName,headRefOid,autoMergeRequest,isCrossRepository,headRepositoryOwner)
+            if [ "$(jq -r .isCrossRepository <<<"${pr}")" != "false" ]; then
+              owner=$(jq -r '.headRepositoryOwner.login // "unknown"' <<<"${pr}")
+              echo "::warning::#${n}: comes from a fork (${owner}), skipped. Fork PRs must be merged by hand."
+              continue
+            fi
             if [ "$(jq -r .isDraft <<<"${pr}")" = "true" ]; then
               echo "#${n}: draft, skipped."
               continue
@@ -71,7 +83,7 @@ jobs:
             # this merges right away.
             if [ "$(jq -r '.autoMergeRequest != null' <<<"${pr}")" = "true" ]; then
               echo "#${n}: auto-merge already enabled."
-            elif gh pr merge --auto --squash "${n}"; then
+            elif gh pr merge --auto --squash --match-head-commit "${head}" "${n}"; then
               echo "#${n}: auto-merge enabled."
             else
               echo "::warning::#${n}: could not enable auto-merge."
