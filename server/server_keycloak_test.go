@@ -58,15 +58,15 @@ func newKeycloakTestServer(t *testing.T, keycloakURL string) *Server {
 func TestKeycloakSharedChecksPassword(t *testing.T) {
 	srv := newKeycloakTestServer(t, newFakeKeycloak(t, "alice", "good").URL)
 
-	if _, err := srv.AuthUser(nil, "alice", "good"); err != nil {
+	if _, err := srv.AuthUser(newFakeClient(), "alice", "good"); err != nil {
 		t.Fatalf("valid login failed: %v", err)
 	}
 
-	if _, err := srv.AuthUser(nil, "alice", "wrong"); err == nil {
+	if _, err := srv.AuthUser(newFakeClient(), "alice", "wrong"); err == nil {
 		t.Fatal("login with a wrong password succeeded after a valid login")
 	}
 
-	if _, err := srv.AuthUser(nil, "alice", "good"); err != nil {
+	if _, err := srv.AuthUser(newFakeClient(), "alice", "good"); err != nil {
 		t.Fatalf("second valid login failed: %v", err)
 	}
 }
@@ -75,7 +75,7 @@ func TestKeycloakSharedChecksPassword(t *testing.T) {
 func TestKeycloakWrongPassword(t *testing.T) {
 	srv := newKeycloakTestServer(t, newFakeKeycloak(t, "alice", "good").URL)
 
-	if _, err := srv.AuthUser(nil, "alice", "wrong"); err == nil {
+	if _, err := srv.AuthUser(newFakeClient(), "alice", "wrong"); err == nil {
 		t.Fatal("login with a wrong password succeeded")
 	}
 }

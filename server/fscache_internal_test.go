@@ -3,10 +3,12 @@ package server
 import (
 	"encoding/json"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"sync/atomic"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -17,15 +19,33 @@ import (
 	"github.com/fclairamb/ftpserver/config/confpar"
 )
 
-// fakeClientContext only implements what AuthUser uses when no logging is enabled.
+// fakeClientContext only implements what AuthUser and ClientDisconnected use when no logging is enabled.
 type fakeClientContext struct {
 	serverlib.ClientContext
+	id uint32
+}
+
+func (cc fakeClientContext) ID() uint32 { return cc.id }
+
+func (cc fakeClientContext) RemoteAddr() net.Addr { return &net.TCPAddr{} }
+
+// lastClientID gives each fake client its own ID
+var lastClientID atomic.Uint32
+
+func newFakeClient() fakeClientContext {
+	return fakeClientContext{id: lastClientID.Add(1)}
 }
 
 func authFs(t *testing.T, srv *Server, user, pass string) afero.Fs {
 	t.Helper()
 
-	driver, err := srv.AuthUser(fakeClientContext{}, user, pass)
+	return authClientFs(t, srv, newFakeClient(), user, pass)
+}
+
+func authClientFs(t *testing.T, srv *Server, cc fakeClientContext, user, pass string) afero.Fs {
+	t.Helper()
+
+	driver, err := srv.AuthUser(cc, user, pass)
 	if err != nil {
 		t.Fatalf("AuthUser(%s): %v", user, err)
 	}
