@@ -31,3 +31,6 @@ Without `shared`, a new backend is created at each login (`server/server.go:228-
 
 ## Open questions
 - Close dropped shared instances at reload (reference counting), or leave them as they are? Recommended: reference counting, otherwise each reload of a server with a shared SFTP access leaks one connection.
+
+## Resolved open questions
+- Close dropped shared instances at reload using reference counting (autopilot: recommended answer), otherwise each reload leaks one connection.

@@ -25,3 +25,6 @@ No test harness for workflows. Check with `actionlint` (or `gh workflow view`) t
 
 ## Open questions
 - Should fork PRs be supported at all, for example by recording the reviewed head SHA when the label is added and refusing any other one? Recommended: no, skip fork PRs; they are rare and can be merged by hand.
+
+## Resolved open questions
+- Skip fork PRs; do not support them (autopilot: recommended answer). They are rare and can be merged by hand.
