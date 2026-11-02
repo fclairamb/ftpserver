@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net"
+	"sync"
 
 	"github.com/pkg/sftp"
 	"github.com/spf13/afero"
@@ -93,8 +95,37 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 
 	client, errSftp := sftp.NewClient(conn)
 	if errSftp != nil {
+		_ = conn.Close()
+
 		return nil, &ConnectionError{Source: errSftp}
 	}
 
-	return sftpfs.New(client), nil
+	return &Fs{Fs: sftpfs.New(client), client: client, conn: conn}, nil
+}
+
+// Fs is the SFTP file system. It also closes the SFTP client and its SSH connection, which afero's sftpfs can't do.
+type Fs struct {
+	afero.Fs
+
+	client    *sftp.Client
+	conn      *ssh.Client
+	closeOnce sync.Once
+	closeErr  error
+}
+
+// Close closes the SFTP client and the SSH connection. It can be called several times.
+func (f *Fs) Close() error {
+	f.closeOnce.Do(func() {
+		errClient := f.client.Close()
+		errConn := f.conn.Close()
+
+		// The SFTP client closes the session, the SSH connection may already be closed by then
+		if errors.Is(errConn, net.ErrClosed) {
+			errConn = nil
+		}
+
+		f.closeErr = errors.Join(errClient, errConn)
+	})
+
+	return f.closeErr
 }

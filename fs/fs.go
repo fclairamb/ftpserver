@@ -3,6 +3,7 @@ package fs
 
 import (
 	"fmt"
+	"io"
 	"log/slog"
 
 	snd "github.com/fclairamb/afero-snd"
@@ -29,8 +30,12 @@ func (err UnsupportedFsError) Error() string {
 	return fmt.Sprintf("Unsupported FS: %s", err.Type)
 }
 
-// LoadFs loads a file system from an access description
-func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
+// LoadFs loads a file system from an access description.
+//
+// The returned closer releases what the backend holds (an SFTP connection, a Telegram poller). It is nil when the
+// backend holds nothing. The wrappers applied on top of the backend (read-only, sync & delete) hide its Close
+// method, so the caller must keep this closer and call it when the file system is no longer used.
+func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, io.Closer, error) {
 	var fs afero.Fs
 	var err error
 
@@ -57,12 +62,18 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 		fs, err = nil, &UnsupportedFsError{Type: access.Fs}
 	}
 
-	if err == nil && access.ReadOnly {
+	if err != nil {
+		return nil, nil, err
+	}
+
+	closer, _ := fs.(io.Closer)
+
+	if access.ReadOnly {
 		fs = afero.NewReadOnlyFs(fs)
 	}
 
 	// If we're defining a dubious behavior, we can use it
-	if err == nil && access.SyncAndDelete != nil && access.SyncAndDelete.Enable {
+	if access.SyncAndDelete != nil && access.SyncAndDelete.Enable {
 		var temp afero.Fs
 
 		if access.SyncAndDelete.Directory != "" {
@@ -76,5 +87,13 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 		})
 	}
 
-	return fs, err
+	if err != nil {
+		if closer != nil {
+			_ = closer.Close()
+		}
+
+		return nil, nil, err
+	}
+
+	return fs, closer, nil
 }

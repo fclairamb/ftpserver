@@ -38,16 +38,41 @@ type Server struct {
 	tlsConfig       *tls.Config
 	tlsError        error
 	accesses        *fsCache
+	// fsLoader creates the file system of an access, it is replaced by tests
+	fsLoader func(access *confpar.Access, logger *slog.Logger) (afero.Fs, io.Closer, error)
+	// sessions holds the function releasing the file system of each authenticated client, by client ID
+	sessions   map[uint32]func()
+	sessionsMu sync.Mutex
+}
+
+// cachedFs is a shared file system instance. It is closed once it has been dropped from the cache (by a reload) and
+// no session uses it anymore.
+type cachedFs struct {
+	fs      afero.Fs
+	closer  io.Closer
+	refs    int
+	dropped bool
 }
 
 type fsCache struct {
 	sync.Mutex
-	accesses map[string]afero.Fs
+	accesses map[string]*cachedFs
 }
 
 func newFsCache() *fsCache {
 	return &fsCache{
-		accesses: make(map[string]afero.Fs),
+		accesses: make(map[string]*cachedFs),
+	}
+}
+
+// closeFs closes a file system's backend, if it holds something to release
+func (s *Server) closeFs(closer io.Closer) {
+	if closer == nil {
+		return
+	}
+
+	if err := closer.Close(); err != nil {
+		s.logger.Warn("Could not close file system", "err", err)
 	}
 }
 
@@ -75,6 +100,8 @@ func NewServer(config *config.Config, logger *slog.Logger) (*Server, error) {
 		config:   config,
 		logger:   logger,
 		accesses: newFsCache(),
+		fsLoader: fs.LoadFs,
+		sessions: make(map[uint32]func()),
 	}, nil
 }
 
@@ -118,16 +145,29 @@ func (s *Server) GetSettings() (*serverlib.Settings, error) {
 }
 
 // ReloadConfig reloads the configuration file. Shared file systems are dropped so that they get re-created with
-// the new configuration.
+// the new configuration. A dropped instance is closed now if no session uses it, or when its last session ends.
 func (s *Server) ReloadConfig() error {
 	if err := s.config.Load(); err != nil {
 		return err
 	}
 
-	s.accesses.Lock()
-	defer s.accesses.Unlock()
+	var toClose []io.Closer
 
-	s.accesses.accesses = make(map[string]afero.Fs)
+	s.accesses.Lock()
+	for _, entry := range s.accesses.accesses {
+		entry.dropped = true
+
+		if entry.refs == 0 {
+			toClose = append(toClose, entry.closer)
+		}
+	}
+
+	s.accesses.accesses = make(map[string]*cachedFs)
+	s.accesses.Unlock()
+
+	for _, closer := range toClose {
+		s.closeFs(closer)
+	}
 
 	return nil
 }
@@ -160,6 +200,9 @@ func (s *Server) ClientConnected(cc serverlib.ClientContext) (string, error) {
 
 // ClientDisconnected is called when the user disconnects, even if they never authenticated
 func (s *Server) ClientDisconnected(cc serverlib.ClientContext) {
+	// ftpserverlib never closes the client driver, release its file system here
+	s.releaseSession(cc.ID())
+
 	s.nbClientsSync.Lock()
 	defer s.nbClientsSync.Unlock()
 
@@ -231,37 +274,90 @@ func fsCacheKey(user string, access *confpar.Access) (string, error) {
 	return hex.EncodeToString(sum[:]), nil
 }
 
-func (s *Server) loadFs(user string, access *confpar.Access) (afero.Fs, error) {
+// loadFs returns the file system of an access, and the function to call once the session doesn't use it anymore.
+func (s *Server) loadFs(user string, access *confpar.Access) (afero.Fs, func(), error) {
 	// The keycloak backend checks the user's credentials when creating its file system, a cached instance would
-	// skip this check. A non-shared access always gets a new instance.
+	// skip this check. A non-shared access always gets a new instance, closed at the end of the session.
 	if access.Fs == "keycloak" || !access.Shared {
-		return fs.LoadFs(access, s.logger)
+		newFs, closer, err := s.fsLoader(access, s.logger)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		return newFs, func() { s.closeFs(closer) }, nil
 	}
 
 	key, err := fsCacheKey(user, access)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	cache := s.accesses
 	cache.Lock()
 	defer cache.Unlock()
 
-	if cachedFs := cache.accesses[key]; cachedFs != nil {
+	entry := cache.accesses[key]
+	if entry != nil {
 		s.logger.Debug("Reusing fs instance", "user", user)
+	} else {
+		newFs, closer, err := s.fsLoader(access, s.logger)
+		if err != nil {
+			return nil, nil, err
+		}
 
-		return cachedFs, nil
+		s.logger.Debug("Saving fs instance for later use", "user", user, "fsType", newFs.Name())
+
+		entry = &cachedFs{fs: newFs, closer: closer}
+		cache.accesses[key] = entry
 	}
 
-	newFs, err := fs.LoadFs(access, s.logger)
-	if err != nil {
-		return nil, err
+	entry.refs++
+
+	var once sync.Once
+
+	release := func() {
+		once.Do(func() { s.releaseCachedFs(entry) })
 	}
 
-	s.logger.Debug("Saving fs instance for later use", "user", user, "fsType", newFs.Name())
-	cache.accesses[key] = newFs
+	return entry.fs, release, nil
+}
 
-	return newFs, nil
+// releaseCachedFs ends the use of a shared instance by a session, and closes it if it was dropped and was its last use
+func (s *Server) releaseCachedFs(entry *cachedFs) {
+	cache := s.accesses
+	cache.Lock()
+	entry.refs--
+	mustClose := entry.dropped && entry.refs == 0
+	cache.Unlock()
+
+	if mustClose {
+		s.closeFs(entry.closer)
+	}
+}
+
+// setSession records the function releasing the file system of a client. A previous one (the client logged in
+// again in the same session) is released.
+func (s *Server) setSession(clientID uint32, release func()) {
+	s.sessionsMu.Lock()
+	previous := s.sessions[clientID]
+	s.sessions[clientID] = release
+	s.sessionsMu.Unlock()
+
+	if previous != nil {
+		previous()
+	}
+}
+
+// releaseSession releases the file system of a client, if it authenticated
+func (s *Server) releaseSession(clientID uint32) {
+	s.sessionsMu.Lock()
+	release := s.sessions[clientID]
+	delete(s.sessions, clientID)
+	s.sessionsMu.Unlock()
+
+	if release != nil {
+		release()
+	}
 }
 
 func (s *Server) getAccessFromWebhook(user, pass string) (*confpar.Access, error) {
@@ -336,7 +432,7 @@ func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (server
 		return nil, errAccess
 	}
 
-	accFs, errFs := s.loadFs(user, access)
+	accFs, release, errFs := s.loadFs(user, access)
 
 	if errFs != nil {
 		return nil, errFs
@@ -359,9 +455,13 @@ func (s *Server) AuthUser(cc serverlib.ClientContext, user, pass string) (server
 		accFs, err = fslog.LoadFS(accFs, logger)
 
 		if err != nil {
+			release()
+
 			return nil, err
 		}
 	}
+
+	s.setSession(cc.ID(), release)
 
 	return &ClientDriver{
 		Fs: accFs,
