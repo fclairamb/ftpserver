@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache
       -ldflags="-w -s -X main.BuildVersion=${VERSION} -X main.Commit=${COMMIT} -X main.BuildDate=${BUILD_DATE}"
 
 # Preparing the final image
-FROM alpine:3.24.3
+FROM alpine:3.24.4
 # Running as an unprivileged user (65532 is the distroless "nonroot" id)
 RUN install -d -o 65532 -g 65532 /app && chown 65532:65532 /tmp
 USER 65532:65532
