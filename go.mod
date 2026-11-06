@@ -23,7 +23,7 @@ require (
 	github.com/spf13/afero/gcsfs v1.15.0
 	github.com/spf13/afero/sftpfs v1.15.0
 	github.com/stretchr/testify v1.12.1
-	github.com/tidwall/sjson v1.2.5
+	github.com/tidwall/sjson v1.2.7
 	golang.org/x/crypto v0.58.0
 	golang.org/x/oauth2 v0.37.0
 	google.golang.org/api v0.311.0
@@ -59,7 +59,7 @@ require (
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.8.1 // indirect
-	github.com/tidwall/gjson v1.14.4 // indirect
+	github.com/tidwall/gjson v1.20.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
