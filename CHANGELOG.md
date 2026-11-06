@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.16.6](https://github.com/fclairamb/ftpserver/compare/v0.16.5...v0.16.6) (2026-11-06)
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#1854](https://github.com/fclairamb/ftpserver/issues/1854)) ([803ca1d](https://github.com/fclairamb/ftpserver/commit/803ca1d6d384488f1e83f280175c96d3e7094db3))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1861](https://github.com/fclairamb/ftpserver/issues/1861)) ([465b4f9](https://github.com/fclairamb/ftpserver/commit/465b4f962388452b653b459a7e63d558469962c4))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1865](https://github.com/fclairamb/ftpserver/issues/1865)) ([aea80d1](https://github.com/fclairamb/ftpserver/commit/aea80d158c798acd1fec642c69d09493138c5429))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1868](https://github.com/fclairamb/ftpserver/issues/1868)) ([a56f83a](https://github.com/fclairamb/ftpserver/commit/a56f83a8a8d5766ac8fb8daaee1394779bb38e68))
+* **deps:** update module github.com/fclairamb/ftpserverlib to v0.32.7 ([#1856](https://github.com/fclairamb/ftpserver/issues/1856)) ([fe85a9e](https://github.com/fclairamb/ftpserver/commit/fe85a9ed8a1b4714a9625e6c35cef5029b4ce2d4))
+* **deps:** update module github.com/fclairamb/ftpserverlib to v0.33.0 ([#1867](https://github.com/fclairamb/ftpserver/issues/1867)) ([5ab8e5a](https://github.com/fclairamb/ftpserver/commit/5ab8e5ad2cab4032b87ce04e687318013f603a86))
+* **deps:** update module github.com/tidwall/sjson to v1.2.6 ([#1866](https://github.com/fclairamb/ftpserver/issues/1866)) ([1e53c20](https://github.com/fclairamb/ftpserver/commit/1e53c20d0cda01ac5edc4cfefb8f4a643241107e))
+* **deps:** update module google.golang.org/api to v0.311.0 ([#1860](https://github.com/fclairamb/ftpserver/issues/1860)) ([a30ccaa](https://github.com/fclairamb/ftpserver/commit/a30ccaa7ca3b8f208e53d8dfb85eb36a97cc024a))
+* **server:** isolate the shared fs cache, release backends on disconnect, harden workflows ([#1857](https://github.com/fclairamb/ftpserver/issues/1857)) ([215486e](https://github.com/fclairamb/ftpserver/commit/215486e73f7cfba2883f8f835cea3dec55459313))
+
 ## [0.16.5](https://github.com/fclairamb/ftpserver/compare/v0.16.4...v0.16.5) (2026-10-30)
 
 
