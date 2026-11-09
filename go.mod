@@ -23,7 +23,7 @@ require (
 	github.com/spf13/afero/gcsfs v1.15.0
 	github.com/spf13/afero/sftpfs v1.15.0
 	github.com/stretchr/testify v1.12.1
-	github.com/tidwall/sjson v1.2.8
+	github.com/tidwall/sjson v1.2.9
 	golang.org/x/crypto v0.58.0
 	golang.org/x/oauth2 v0.37.0
 	google.golang.org/api v0.311.0
