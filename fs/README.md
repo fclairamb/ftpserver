@@ -44,6 +44,10 @@ The `sync_and_delete` option makes uploaded files written to a local temporary d
 backend once they are complete (see [afero-snd](https://github.com/fclairamb/afero-snd)). The `directory` is optional,
 a system temporary directory is used when it isn't specified.
 
+Files are copied to the backend in the background, after the client got its upload confirmation. When the session
+ends (or a shared instance is dropped by a reload), the pending copies finish before the backend is closed, waiting at
+most one minute. The system temporary directory is then removed; a `directory` set in the configuration is kept.
+
 ```json
 {
   "user": "test",

@@ -2,6 +2,7 @@
 package fs
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -32,9 +33,11 @@ func (err UnsupportedFsError) Error() string {
 
 // LoadFs loads a file system from an access description.
 //
-// The returned closer releases what the backend holds (an SFTP connection, a Telegram poller). It is nil when the
-// backend holds nothing. The wrappers applied on top of the backend (read-only, sync & delete) hide its Close
-// method, so the caller must keep this closer and call it when the file system is no longer used.
+// The returned closer releases what the file system holds: the sync & delete wrapper (its goroutine and temporary
+// directory, once its pending copies have reached the backend), then what the backend holds (an SFTP connection, a
+// Telegram poller). It is nil when none of them holds anything. The wrappers applied on top of the backend
+// (read-only, sync & delete) hide its Close method, so the caller must keep this closer and call it when the file
+// system is no longer used.
 func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, io.Closer, error) {
 	var fs afero.Fs
 	var err error
@@ -66,7 +69,18 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, io.Closer, e
 		return nil, nil, err
 	}
 
-	closer, _ := fs.(io.Closer)
+	return wrapFs(access, fs, logger)
+}
+
+// wrapFs applies the wrappers of an access (read-only, sync & delete) on top of its backend. It returns the closer
+// releasing the sync & delete wrapper first (so that its pending copies reach the backend), then the backend. The
+// closer is nil when neither of them holds anything.
+func wrapFs(access *confpar.Access, fs afero.Fs, logger *slog.Logger) (afero.Fs, io.Closer, error) {
+	var closers multiCloser
+
+	if backendCloser, ok := fs.(io.Closer); ok {
+		closers = append(closers, backendCloser)
+	}
 
 	if access.ReadOnly {
 		fs = afero.NewReadOnlyFs(fs)
@@ -80,20 +94,40 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, io.Closer, e
 			temp = afero.NewBasePathFs(afero.NewOsFs(), access.SyncAndDelete.Directory)
 		}
 
-		fs, err = snd.NewFs(&snd.Config{
+		sndFs, err := snd.NewFs(&snd.Config{
 			Destination: fs,
 			Temporary:   temp,
-			Logger:      nil,
+			Logger:      logger.With("component", "snd"),
 		})
-	}
+		if err != nil {
+			_ = closers.Close()
 
-	if err != nil {
-		if closer != nil {
-			_ = closer.Close()
+			return nil, nil, err
 		}
 
-		return nil, nil, err
+		fs = sndFs
+		// The wrapper is closed before the backend: closing it waits for its queued copies
+		closers = append(multiCloser{sndFs}, closers...)
 	}
 
-	return fs, closer, nil
+	if len(closers) == 0 {
+		return fs, nil, nil
+	}
+
+	return fs, closers, nil
+}
+
+// multiCloser closes all its closers, in order, and returns their errors
+type multiCloser []io.Closer
+
+func (closers multiCloser) Close() error {
+	var errs []error
+
+	for _, closer := range closers {
+		if err := closer.Close(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	return errors.Join(errs...)
 }
