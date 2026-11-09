@@ -315,6 +315,8 @@ github.com/fclairamb/afero-s3 v0.5.0 h1:7ArQIUcCAkZE7cTd9kSKL04P4WR9F7QUAGaJvG0m
 github.com/fclairamb/afero-s3 v0.5.0/go.mod h1:nDq/3TIY3Frn3DvMkd8qYtfdR6cmpSVN6R/FdwgUrkQ=
 github.com/fclairamb/afero-snd v0.2.0 h1:UwsAGhe5GZdHvYvUYm8k3yMiZxYCztk9Z6dysSqD3PE=
 github.com/fclairamb/afero-snd v0.2.0/go.mod h1:8Dm99lI8gX4IxVtQW6jLrpl+sB+W0B0H4IcXdu+ePwg=
+github.com/fclairamb/afero-snd v0.3.0 h1:LIE1FjJdNc4R3EIzZG0BjMam7EdXmOZsPKohb5MXlt4=
+github.com/fclairamb/afero-snd v0.3.0/go.mod h1:44UDsng3IbHagMpnKmzoI+7X8aUxhXNJJFEhslARceI=
 github.com/fclairamb/ftpserverlib v0.32.6 h1:C+Y9lDANWQllbmFny1Pvn0d85V0ys8TIGzeb+CaZMK8=
 github.com/fclairamb/ftpserverlib v0.32.6/go.mod h1:KuQisjRN43wF2efPcxz07RseZyOz93hp+aPG2tx8ICQ=
 github.com/fclairamb/ftpserverlib v0.32.7 h1:5jY5BQ+cbj/XWNhH7RbhMwCh31sKF9PlNqtBSDOCZg4=

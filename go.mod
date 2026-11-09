@@ -14,7 +14,7 @@ require (
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.5.0
 	github.com/fclairamb/afero-s3 v0.5.0
-	github.com/fclairamb/afero-snd v0.2.0
+	github.com/fclairamb/afero-snd v0.3.0
 	github.com/fclairamb/ftpserverlib v0.33.0
 	github.com/go-crypt/crypt v0.14.15
 	github.com/go-mail/mail v2.3.1+incompatible
