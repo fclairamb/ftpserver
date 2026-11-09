@@ -63,3 +63,6 @@ the 2026-11-02 finding M3 (`specs/done/2026/11/2026-11-02-03-release-backends-on
 ## Open questions
 - Fix the waiting in afero-snd, or only in ftpserver (a wrapper closer that drains the queue itself is not possible
   without afero-snd exposing it)? Recommended: in afero-snd, then bump it here.
+
+## Resolved open questions
+- Fix the waiting in afero-snd, then bump it in ftpserver. (autopilot: recommended answer)
