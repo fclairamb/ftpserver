@@ -2,7 +2,7 @@ module github.com/fclairamb/ftpserver
 
 go 1.26.0
 
-toolchain go1.27.3
+toolchain go1.27.4
 
 require (
 	cloud.google.com/go/storage v1.70.0
@@ -23,9 +23,9 @@ require (
 	github.com/spf13/afero/gcsfs v1.15.0
 	github.com/spf13/afero/sftpfs v1.15.0
 	github.com/stretchr/testify v1.12.1
-	github.com/tidwall/sjson v1.2.8
+	github.com/tidwall/sjson v1.2.9
 	golang.org/x/crypto v0.58.0
-	golang.org/x/oauth2 v0.37.0
+	golang.org/x/oauth2 v0.38.0
 	google.golang.org/api v0.311.0
 	gopkg.in/telebot.v3 v3.3.8
 )
