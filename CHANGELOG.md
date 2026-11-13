@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.16.6](https://github.com/fclairamb/ftpserver/compare/v0.16.5...v0.16.6) (2026-11-13)
+
+
+### Bug Fixes
+
+* **server:** the shared file system cache is isolated, backends are released on disconnect and workflows are hardened ([#1857](https://github.com/fclairamb/ftpserver/issues/1857)) ([215486e](https://github.com/fclairamb/ftpserver/commit/215486e73f7cfba2883f8f835cea3dec55459313))
+* **fs:** the sync & delete wrapper is closed and lets its pending copies finish ([#1870](https://github.com/fclairamb/ftpserver/issues/1870)) ([046f244](https://github.com/fclairamb/ftpserver/commit/046f24490161a599e1d45cdb56d5a73fa72d9c5a))
+* **deps:** ftpserverlib v0.33.0 ([#1856](https://github.com/fclairamb/ftpserver/issues/1856), [#1867](https://github.com/fclairamb/ftpserver/issues/1867)), afero-snd v0.3.0 ([#1871](https://github.com/fclairamb/ftpserver/issues/1871)), golang.org/x/crypto v0.59.0 ([#1879](https://github.com/fclairamb/ftpserver/issues/1879)), golang.org/x/oauth2 v0.38.0 ([#1874](https://github.com/fclairamb/ftpserver/issues/1874)), sjson v1.2.9 ([#1866](https://github.com/fclairamb/ftpserver/issues/1866), [#1869](https://github.com/fclairamb/ftpserver/issues/1869), [#1873](https://github.com/fclairamb/ftpserver/issues/1873)), Google APIs v0.314.0 ([#1860](https://github.com/fclairamb/ftpserver/issues/1860), [#1877](https://github.com/fclairamb/ftpserver/issues/1877), [#1880](https://github.com/fclairamb/ftpserver/issues/1880), [#1881](https://github.com/fclairamb/ftpserver/issues/1881)) and regular AWS SDK updates ([#1854](https://github.com/fclairamb/ftpserver/issues/1854), [#1861](https://github.com/fclairamb/ftpserver/issues/1861), [#1865](https://github.com/fclairamb/ftpserver/issues/1865), [#1868](https://github.com/fclairamb/ftpserver/issues/1868), [#1872](https://github.com/fclairamb/ftpserver/issues/1872), [#1876](https://github.com/fclairamb/ftpserver/issues/1876))
+
 ## [0.16.5](https://github.com/fclairamb/ftpserver/compare/v0.16.4...v0.16.5) (2026-10-30)
 
 
