@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.16.7](https://github.com/fclairamb/ftpserver/compare/v0.16.6...v0.16.7) (2026-11-13)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/fclairamb/ftpserverlib to v0.33.1 ([#1882](https://github.com/fclairamb/ftpserver/issues/1882)) ([f6931d8](https://github.com/fclairamb/ftpserver/commit/f6931d887305bbe15d86fa7b7f309c974a54fdaf))
+* **deps:** update module google.golang.org/api to v0.315.0 ([#1884](https://github.com/fclairamb/ftpserver/issues/1884)) ([bb14986](https://github.com/fclairamb/ftpserver/commit/bb149868d24c6d6522a4db46910e6474cf6d0aad))
+
 ## [0.16.6](https://github.com/fclairamb/ftpserver/compare/v0.16.5...v0.16.6) (2026-11-13)
 
 
