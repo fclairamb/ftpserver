@@ -205,6 +205,8 @@ github.com/fclairamb/afero-snd v0.3.0 h1:LIE1FjJdNc4R3EIzZG0BjMam7EdXmOZsPKohb5M
 github.com/fclairamb/afero-snd v0.3.0/go.mod h1:44UDsng3IbHagMpnKmzoI+7X8aUxhXNJJFEhslARceI=
 github.com/fclairamb/ftpserverlib v0.33.0 h1:ZlyazIdDhKDsPzOuWId7uXh5w7HpuXrfFK/UhD9ZcUU=
 github.com/fclairamb/ftpserverlib v0.33.0/go.mod h1:KuQisjRN43wF2efPcxz07RseZyOz93hp+aPG2tx8ICQ=
+github.com/fclairamb/ftpserverlib v0.33.1 h1:BkTtxjJ5Hi0wnjEyoJHl81URLo92P+h7PtoIv+iQ4os=
+github.com/fclairamb/ftpserverlib v0.33.1/go.mod h1:kvHAaE6wFlfEzI4RwCViiNJrZb2Dne8wpOMng4ySvV8=
 github.com/felixge/httpsnoop v1.1.0 h1:3YtUj32ZZkqZtt3sZZsClsymw/QDuVfpNhoA31zeORc=
 github.com/felixge/httpsnoop v1.1.0/go.mod h1:Zqxgdd+1Rkcz8euOqdr7lqgCRJztwr5hp9vDSi5UZCE=
 github.com/frankban/quicktest v1.14.3/go.mod h1:mgiwOwqx65TmIk1wJ6Q7wvnVMocbUorkibMOrVTHZps=
