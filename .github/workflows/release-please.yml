@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  issues: write # create the release-please labels
   pull-requests: write
 
 jobs:
@@ -19,9 +20,10 @@ jobs:
 
       # Pre-create the labels release-please relies on to track its own PRs. If GitHub's
       # Labels API hiccups while release-please runs, it can't find its PR later.
+      # GITHUB_TOKEN, not CI_PAT: CI_PAT can't create labels (HTTP 403).
       - name: Ensure release-please labels exist
         env:
-          GH_TOKEN: ${{ secrets.CI_PAT || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh label create "autorelease: pending" --color ededed --force --repo "${{ github.repository }}"
           gh label create "autorelease: tagged"  --color ededed --force --repo "${{ github.repository }}"
