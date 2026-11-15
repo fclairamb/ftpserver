@@ -41,6 +41,17 @@ initial creation.
 
 ### Connect for the first time
 
-Run the server in interactive mode. The first time you log in with the "gdrive" user, the server prints a link
-that you need to open to authorize the app you just created. It gives you a code that you need to type in the
-server's console. The server then creates the token file, and won't ask you again.
+The first time you log in with the "gdrive" user, the server logs an authorization link and waits. Open it in a
+browser and grant access: Google then redirects the browser to a temporary `http://127.0.0.1:<port>/` page served by
+the server, which captures the authorization code (Google blocked the old copy-paste "out-of-band" flow). The server
+then creates the token file, and won't ask you again.
+
+If the browser doesn't run on the server's machine (remote server, docker container), the redirect fails with a
+"can't connect" page. Copy the URL from the address bar and open it from the server instead, before the login times
+out on the client side:
+
+```sh
+curl 'http://127.0.0.1:<port>/?state=...&code=...'
+```
+
+You can also authorize on your own machine and copy the token file to the server.

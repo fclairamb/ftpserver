@@ -67,12 +67,17 @@ func LoadFs(access *confpar.Access, logger *slog.Logger) (afero.Fs, error) {
 		ClientID:     googleClientID,
 		ClientSecret: googleClientSecret,
 		Token:        token,
-		Authenticate: func(url string) (string, error) {
-			fmt.Printf("Please go to %s and enter the received code:\n", url)
-			var code string
-			_, errScan := fmt.Scan(&code)
+		// No Authenticate callback: afero-gdrive then runs the loopback flow, Google blocked the
+		// out-of-band one (https://github.com/fclairamb/ftpserver/issues/1123).
+		OpenURL: func(url string) error {
+			logger.Warn(
+				"Google Drive authorization needed: open the URL in a browser. If the browser can't reach "+
+					"the server's 127.0.0.1 redirect, run curl on the server with the URL it redirected to",
+				"url", url,
+				"userName", access.User,
+			)
 
-			return code, errScan
+			return nil
 		},
 	}
 

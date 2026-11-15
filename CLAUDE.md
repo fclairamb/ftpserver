@@ -48,3 +48,11 @@ auto-merge (squash) and updates a branch that is behind main, with the `CI_PAT` 
 same-repository PRs: a PR from a fork is skipped with a warning and must be merged by hand (GitHub disables auto-merge
 when an outside contributor pushes, and re-enabling it would merge unreviewed commits). Auto-merge is enabled with
 `--match-head-commit`, pinned to the head the workflow inspected.
+
+## Testing the gdrive backend
+
+Google project `ftpserver-gdrive-test` (Florent's account, no billing) has a "Desktop app" OAuth client, in testing
+mode with Florent as the only test user. Its credentials are in gopass: `fclairamb/ftpserver/gdrive-test/client-id`
+and `fclairamb/ftpserver/gdrive-test/client-secret`. Export them as `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`, log
+in once over FTP and open the logged authorization URL. Work in a dedicated folder, delete it afterwards, and revoke
+the token (`POST https://oauth2.googleapis.com/revoke`). Testing-mode refresh tokens expire after 7 days.
