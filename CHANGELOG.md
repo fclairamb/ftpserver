@@ -5,11 +5,8 @@
 
 ### Bug Fixes
 
-* **deps:** update module github.com/fclairamb/afero-s3 to v0.5.1 ([#1887](https://github.com/fclairamb/ftpserver/issues/1887)) ([58a36b6](https://github.com/fclairamb/ftpserver/commit/58a36b604c3a81e263dd841fd5b97b7d0c95ac5d))
-* **deps:** update module github.com/fclairamb/ftpserverlib to v0.33.1 ([#1882](https://github.com/fclairamb/ftpserver/issues/1882)) ([f6931d8](https://github.com/fclairamb/ftpserver/commit/f6931d887305bbe15d86fa7b7f309c974a54fdaf))
-* **deps:** update module github.com/fclairamb/ftpserverlib to v0.33.2 ([#1888](https://github.com/fclairamb/ftpserver/issues/1888)) ([ecbb906](https://github.com/fclairamb/ftpserver/commit/ecbb9066c7f18c2e462bde5d455d9e5fc28223ba))
-* **deps:** update module google.golang.org/api to v0.315.0 ([#1884](https://github.com/fclairamb/ftpserver/issues/1884)) ([bb14986](https://github.com/fclairamb/ftpserver/commit/bb149868d24c6d6522a4db46910e6474cf6d0aad))
-* **gdrive:** use the loopback OAuth flow for the first authorization ([#1885](https://github.com/fclairamb/ftpserver/issues/1885)) ([b30ebd8](https://github.com/fclairamb/ftpserver/commit/b30ebd82386711cba4e4b4d5952e14eb94cbfc0b))
+* **gdrive:** the first Google Drive authorization now uses the loopback OAuth flow ([#1885](https://github.com/fclairamb/ftpserver/issues/1885)) ([b30ebd8](https://github.com/fclairamb/ftpserver/commit/b30ebd82386711cba4e4b4d5952e14eb94cbfc0b))
+* **deps:** update ftpserverlib to v0.33.2 ([#1882](https://github.com/fclairamb/ftpserver/issues/1882), [#1888](https://github.com/fclairamb/ftpserver/issues/1888)), afero-s3 to v0.5.1 ([#1887](https://github.com/fclairamb/ftpserver/issues/1887)) and google.golang.org/api to v0.315.0 ([#1884](https://github.com/fclairamb/ftpserver/issues/1884))
 
 ## [0.16.6](https://github.com/fclairamb/ftpserver/compare/v0.16.5...v0.16.6) (2026-11-13)
 
