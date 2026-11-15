@@ -13,7 +13,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.114.10
 	github.com/fclairamb/afero-dropbox v0.1.0
 	github.com/fclairamb/afero-gdrive v0.5.0
-	github.com/fclairamb/afero-s3 v0.5.0
+	github.com/fclairamb/afero-s3 v0.5.1
 	github.com/fclairamb/afero-snd v0.3.0
 	github.com/fclairamb/ftpserverlib v0.33.1
 	github.com/go-crypt/crypt v0.14.15
@@ -81,7 +81,7 @@ require (
 require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.27 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.20.9 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.22.30 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.23.24 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.12 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.12 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.5.12 // indirect
