@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.16.7](https://github.com/fclairamb/ftpserver/compare/v0.16.6...v0.16.7) (2026-11-15)
+
+
+### Bug Fixes
+
+* **gdrive:** the first Google Drive authorization now uses the loopback OAuth flow ([#1885](https://github.com/fclairamb/ftpserver/issues/1885)) ([b30ebd8](https://github.com/fclairamb/ftpserver/commit/b30ebd82386711cba4e4b4d5952e14eb94cbfc0b))
+* **deps:** update ftpserverlib to v0.33.2 ([#1882](https://github.com/fclairamb/ftpserver/issues/1882), [#1888](https://github.com/fclairamb/ftpserver/issues/1888)), afero-s3 to v0.5.1 ([#1887](https://github.com/fclairamb/ftpserver/issues/1887)) and google.golang.org/api to v0.315.0 ([#1884](https://github.com/fclairamb/ftpserver/issues/1884))
+
 ## [0.16.6](https://github.com/fclairamb/ftpserver/compare/v0.16.5...v0.16.6) (2026-11-13)
 
 
