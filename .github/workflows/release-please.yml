@@ -15,14 +15,46 @@ jobs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Pre-create the labels release-please relies on to track its own PRs. If GitHub's
+      # Labels API hiccups while release-please runs, it can't find its PR later.
+      - name: Ensure release-please labels exist
+        env:
+          GH_TOKEN: ${{ secrets.CI_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "autorelease: pending" --color ededed --force --repo "${{ github.repository }}"
+          gh label create "autorelease: tagged"  --color ededed --force --repo "${{ github.repository }}"
+
+      # CI_PAT makes the release PR run the CI like any other PR: with the default
+      # GITHUB_TOKEN it gets no checks, so the required ones never pass and the
+      # `automerge` label can't merge it.
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CI_PAT || secrets.GITHUB_TOKEN }}
 
-  # The release is created with the default GITHUB_TOKEN, which by design does not
-  # trigger any further workflow. The binaries and docker images therefore have to be
-  # built from here rather than from a `push: tags` trigger (see #1738).
+      # Drift detector: if HEAD is a merged release commit but no matching GitHub release
+      # exists, release-please lost track of its own PR. Fail loudly.
+      - name: Detect release drift
+        if: ${{ always() && !cancelled() }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          msg=$(git log -1 --pretty=%s)
+          if [[ "$msg" =~ ^chore\((main|release)\):\ release\ v?([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            want="v${BASH_REMATCH[2]}"
+            if ! gh api "repos/${{ github.repository }}/releases/tags/$want" >/dev/null 2>&1; then
+              echo "::error::HEAD is '$msg' but release $want was not created by release-please."
+              exit 1
+            fi
+            echo "Release drift check: $want tagged and released"
+          fi
+
+  # The binaries and docker images are built from here rather than from a `push: tags`
+  # trigger (see #1738): the release used to be created with GITHUB_TOKEN, which doesn't
+  # trigger other workflows, and calling them from here keeps one source of truth.
   release-artifacts:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
