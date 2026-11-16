@@ -183,7 +183,8 @@ func authorize(
 		OpenURL: func(url string) error {
 			logger.Warn(
 				"Google Drive authorization needed: open the URL in a browser. If the browser can't reach "+
-					"the server's 127.0.0.1 redirect, run curl on the server with the URL it redirected to",
+					"the server's 127.0.0.1 redirect, run curl on the server with the URL it redirected to. "+
+					"Don't share this URL: it identifies the pending authorization",
 				"url", url,
 				"userName", access.User,
 				"timeout", timeout,
