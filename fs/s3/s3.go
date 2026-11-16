@@ -3,6 +3,8 @@ package s3
 
 import (
 	"context"
+	"errors"
+	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -15,6 +17,19 @@ import (
 	"github.com/fclairamb/ftpserver/config/confpar"
 )
 
+// ErrChmodNotSupported is returned by Chmod when the access doesn't set the "chmod_acl" param
+var ErrChmodNotSupported = errors.New("chmod is not supported on s3")
+
+// noChmodFs refuses Chmod and passes every other call to the wrapped file system
+type noChmodFs struct {
+	afero.Fs
+}
+
+// Chmod refuses to change the mode, without calling the backend
+func (f *noChmodFs) Chmod(name string, _ os.FileMode) error {
+	return &os.PathError{Op: "chmod", Path: name, Err: ErrChmodNotSupported}
+}
+
 // LoadFs loads a file system from an access description
 func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	endpoint := access.Params["endpoint"]
@@ -25,6 +40,7 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	disableSSL := access.Params["disable_ssl"] == "true"
 	pathStyle := access.Params["path_style"] == "true"
 	basePath := access.Params["basePath"]
+	chmodACL := access.Params["chmod_acl"] == "true"
 
 	// Build config options for AWS SDK v2
 	var configOpts []func(*config.LoadOptions) error
@@ -66,11 +82,17 @@ func LoadFs(access *confpar.Access) (afero.Fs, error) {
 	s3Fs := aferos3.NewFsFromClient(bucket, client)
 
 	var fs afero.Fs = s3Fs
+	if !chmodACL {
+		// afero-s3 maps a chmod mode to a canned ACL (644 -> public-read), which would let any FTP user
+		// with write access make objects public through SITE CHMOD. It is refused unless the operator opts in.
+		fs = &noChmodFs{Fs: fs}
+	}
+
 	if basePath != "" {
 		// Strip leading/trailing slashes: S3 object keys must not start with "/"
 		// and a trailing slash would produce double slashes in key names.
 		basePath = strings.Trim(basePath, "/")
-		fs = afero.NewBasePathFs(s3Fs, basePath)
+		fs = afero.NewBasePathFs(fs, basePath)
 	}
 
 	return fs, nil
