@@ -61,3 +61,8 @@ inside the base path.
 - Refuse `SITE CHMOD` with an error (550), or accept it silently without effect? Recommended: refuse it. A silent
   success misleads the user, and FTP clients treat a failed `SITE CHMOD` after an upload as a warning, not a failed
   upload.
+
+## Resolved open questions
+- Refuse `SITE CHMOD` with an error (550), or accept it silently without effect? Refuse it, unless the access sets
+  `chmod_acl: "true"`. `Chmod` returns `ErrChmodNotSupported` ("chmod is not supported on s3"), which ftpserverlib
+  sends as a 550 reply. (autopilot: recommended answer)
