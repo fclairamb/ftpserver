@@ -195,6 +195,8 @@ github.com/fatih/color v1.10.0/go.mod h1:ELkj/draVOlAH/xkhN6mQ50Qd0MPOk5AAr3maGE
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
 github.com/fclairamb/afero-dropbox v0.1.0 h1:Y5AQkkUcyBCI5ANZAWcA5IwgBmA3RB4mtJjJ7ffgLEc=
 github.com/fclairamb/afero-dropbox v0.1.0/go.mod h1:bFSrZxcHtW86/cUUc7swGKMMr2/4pnwBAA1D1QR9tGs=
+github.com/fclairamb/afero-gdrive v0.5.1-0.20261115195415-aed22d986c1f h1:luvvP7+PgTSxUtoNR6JlZU6DF77Jt8KCBtZjHlp7TJg=
+github.com/fclairamb/afero-gdrive v0.5.1-0.20261115195415-aed22d986c1f/go.mod h1:7yBHJN92jf6Rt3SWiBkc1htpMNDW1ym9ThQ0Acg6dJo=
 github.com/fclairamb/afero-gdrive v0.5.1-0.20261116071604-4e40c9256a9d h1:VLAg/NgEPNKLO+hMLm7S9t2G4Wv3L20gH62HgdRDSAI=
 github.com/fclairamb/afero-gdrive v0.5.1-0.20261116071604-4e40c9256a9d/go.mod h1:7yBHJN92jf6Rt3SWiBkc1htpMNDW1ym9ThQ0Acg6dJo=
 github.com/fclairamb/afero-s3 v0.5.1 h1:r6/VWc/6RS1t/wLGl7+OtsT6QV6ntDpf2fme/sk6buA=
