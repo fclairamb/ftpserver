@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.16.8](https://github.com/fclairamb/ftpserver/compare/v0.16.7...v0.16.8) (2026-11-17)
+
+
+### Bug Fixes
+
+* **fs:** the S3 backend refuses `SITE CHMOD` ACL changes, and the first Google Drive authorization is bounded in time and bound to its session ([#1891](https://github.com/fclairamb/ftpserver/issues/1891)) ([21941c3](https://github.com/fclairamb/ftpserver/commit/21941c3c4dfb5dfb59d6f6327e427d608b65618a))
+* **deps:** update cloud.google.com/go/storage to v1.71.0 ([#1892](https://github.com/fclairamb/ftpserver/issues/1892)), afero-gdrive to aed22d9 ([#1894](https://github.com/fclairamb/ftpserver/issues/1894)) and the AWS SDK ([#1895](https://github.com/fclairamb/ftpserver/issues/1895))
+
 ## [0.16.7](https://github.com/fclairamb/ftpserver/compare/v0.16.6...v0.16.7) (2026-11-15)
 
 
