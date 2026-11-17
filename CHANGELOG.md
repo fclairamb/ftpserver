@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.16.8](https://github.com/fclairamb/ftpserver/compare/v0.16.7...v0.16.8) (2026-11-17)
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#1895](https://github.com/fclairamb/ftpserver/issues/1895)) ([2057823](https://github.com/fclairamb/ftpserver/commit/20578234c618a953880103a39f2b47bc51d3fb6b))
+* **deps:** update github.com/fclairamb/afero-gdrive digest to aed22d9 ([#1894](https://github.com/fclairamb/ftpserver/issues/1894)) ([419ce04](https://github.com/fclairamb/ftpserver/commit/419ce041d384612d9e41e09d4c422285c9848b34))
+* **deps:** update module cloud.google.com/go/storage to v1.71.0 ([#1892](https://github.com/fclairamb/ftpserver/issues/1892)) ([86f2ecb](https://github.com/fclairamb/ftpserver/commit/86f2ecb2951d3d2af47cdf01c205a0405ece3cce))
+* **fs:** refuse s3 SITE CHMOD ACL changes, bound and bind the gdrive first authorization ([#1891](https://github.com/fclairamb/ftpserver/issues/1891)) ([21941c3](https://github.com/fclairamb/ftpserver/commit/21941c3c4dfb5dfb59d6f6327e427d608b65618a))
+
 ## [0.16.7](https://github.com/fclairamb/ftpserver/compare/v0.16.6...v0.16.7) (2026-11-15)
 
 
