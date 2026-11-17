@@ -103,12 +103,8 @@ github.com/aws/aws-sdk-go-v2 v1.48.0 h1:tFU7EJVm7MfyaXLsXdYTZ0Vd6vwt9OljCyqq0gqk
 github.com/aws/aws-sdk-go-v2 v1.48.0/go.mod h1:oeKU5p+TQBnpeLmU42WZLWvzv+ORLn+74n4QVLnm/Z0=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.27 h1:3dMP9eEmHVosFN1QiD24IJBKVY8m6iUfVYXqRCT118Q=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.27/go.mod h1:KH4PKcqtjy1m0656eqQV2v53xE04ddJzuNloEKqlHkI=
-github.com/aws/aws-sdk-go-v2/config v1.33.18 h1:WC0C4jM/tewXG8DWXnoxXnusJPZTryPazqk2k/zgd2s=
-github.com/aws/aws-sdk-go-v2/config v1.33.18/go.mod h1:0kRpFgsnD59mC2bbbyOTVpaZ9RnXW/pFkqlfiwbgZaU=
 github.com/aws/aws-sdk-go-v2/config v1.33.19 h1:M0aPu5EdAMR6lGYN2GvM76WY0yqTyDi+gxV7s7Cdnr8=
 github.com/aws/aws-sdk-go-v2/config v1.33.19/go.mod h1:FSZkRx5fOaq82bZkGZrK+dXFgWvI4iIE0Y6ADmEKDag=
-github.com/aws/aws-sdk-go-v2/credentials v1.21.0 h1:OViwhqeipkQzSHuO2eQDUCdLrI6r3nzGxFUyM8GqnCs=
-github.com/aws/aws-sdk-go-v2/credentials v1.21.0/go.mod h1:OffaVQod3fyZzhZJyPtw11WpHPF1uIHADc+/MYlXmbA=
 github.com/aws/aws-sdk-go-v2/credentials v1.21.1 h1:4iuMmYSa42WMeClXjzE+HoZIeBud6o/bd00BN6WM9H4=
 github.com/aws/aws-sdk-go-v2/credentials v1.21.1/go.mod h1:OffaVQod3fyZzhZJyPtw11WpHPF1uIHADc+/MYlXmbA=
 github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.20.9 h1:oH1E0tjN0g+ZRusbX1dsuat4FJ0z05l8hWaycSbDuNc=
@@ -129,8 +125,6 @@ github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.12 h1:wzAqMZ2O
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.12/go.mod h1:/0TfyruByHsOlphzP26xDTRe2DKD0J1I1Uyy2TyP8EI=
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.20.12 h1:H0IaQayT3TLiGIHiNnleQZTbndDlx7LGZ0NWZ5mDwjA=
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.20.12/go.mod h1:YuJJNxaOjnknLIrscBmkLhIpnmg9LzHd25sQRKUboGU=
-github.com/aws/aws-sdk-go-v2/service/s3 v1.114.10 h1:WBJb2VxRzzKnuN94YWqZPiu5a5zc3IleFqgZnmVCyvU=
-github.com/aws/aws-sdk-go-v2/service/s3 v1.114.10/go.mod h1:8NhAIBVYkVHq0hIbbzujdoou0VkKwMdG+De9e5oX6qI=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.115.0 h1:oV2uKPg8nko04rMAed8TLFPIOzEOIx6roOYceImhcwg=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.115.0/go.mod h1:8NhAIBVYkVHq0hIbbzujdoou0VkKwMdG+De9e5oX6qI=
 github.com/aws/aws-sdk-go-v2/service/signin v1.13.1 h1:ssrDA6AKfXEc3h0Pf4EI4vQ8sN5Zd136SrU9Tjr0XPc=
@@ -201,10 +195,8 @@ github.com/fatih/color v1.10.0/go.mod h1:ELkj/draVOlAH/xkhN6mQ50Qd0MPOk5AAr3maGE
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
 github.com/fclairamb/afero-dropbox v0.1.0 h1:Y5AQkkUcyBCI5ANZAWcA5IwgBmA3RB4mtJjJ7ffgLEc=
 github.com/fclairamb/afero-dropbox v0.1.0/go.mod h1:bFSrZxcHtW86/cUUc7swGKMMr2/4pnwBAA1D1QR9tGs=
-github.com/fclairamb/afero-gdrive v0.5.1-0.20261115195415-aed22d986c1f h1:luvvP7+PgTSxUtoNR6JlZU6DF77Jt8KCBtZjHlp7TJg=
-github.com/fclairamb/afero-gdrive v0.5.1-0.20261115195415-aed22d986c1f/go.mod h1:7yBHJN92jf6Rt3SWiBkc1htpMNDW1ym9ThQ0Acg6dJo=
-github.com/fclairamb/afero-gdrive v0.5.1-0.20261116071604-4e40c9256a9d h1:VLAg/NgEPNKLO+hMLm7S9t2G4Wv3L20gH62HgdRDSAI=
-github.com/fclairamb/afero-gdrive v0.5.1-0.20261116071604-4e40c9256a9d/go.mod h1:7yBHJN92jf6Rt3SWiBkc1htpMNDW1ym9ThQ0Acg6dJo=
+github.com/fclairamb/afero-gdrive v0.5.1-0.20261117055251-c2c644f0fbd5 h1:abpmIV6YCj97B+gjEbjUvSk7k9y4Ucpd2RM+Kn9hnn8=
+github.com/fclairamb/afero-gdrive v0.5.1-0.20261117055251-c2c644f0fbd5/go.mod h1:7yBHJN92jf6Rt3SWiBkc1htpMNDW1ym9ThQ0Acg6dJo=
 github.com/fclairamb/afero-s3 v0.5.1 h1:r6/VWc/6RS1t/wLGl7+OtsT6QV6ntDpf2fme/sk6buA=
 github.com/fclairamb/afero-s3 v0.5.1/go.mod h1:b6nnYmxBAgak50OaJ9nKEqOVvr7l3qfhHJrAoI7cVKE=
 github.com/fclairamb/afero-snd v0.3.0 h1:LIE1FjJdNc4R3EIzZG0BjMam7EdXmOZsPKohb5MXlt4=
