@@ -36,4 +36,5 @@ jobs:
             keycloak
             docker
             release
+            main
           requireScope: false
