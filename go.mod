@@ -28,6 +28,7 @@ require (
 	golang.org/x/oauth2 v0.38.0
 	google.golang.org/api v0.316.0
 	gopkg.in/telebot.v3 v3.3.8
+	gopkg.in/telebot.v4 v4.0.0
 )
 
 require (

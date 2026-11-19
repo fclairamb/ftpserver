@@ -1058,6 +1058,7 @@ gopkg.in/mail.v2 v2.3.1 h1:WYFn/oANrAGP2C0dcV6/pbkPzv8yGzqTjPmTeO7qoXk=
 gopkg.in/mail.v2 v2.3.1/go.mod h1:htwXN1Qh09vZJ1NVKxQqHPBaCBbzKhp5GzuJEA4VJWw=
 gopkg.in/telebot.v3 v3.3.8 h1:uVDGjak9l824FN9YARWUHMsiNZnlohAVwUycw21k6t8=
 gopkg.in/telebot.v3 v3.3.8/go.mod h1:1mlbqcLTVSfK9dx7fdp+Nb5HZsy4LLPtpZTKmwhwtzM=
+gopkg.in/telebot.v4 v4.0.0/go.mod h1:jhcQjM/176jZm/s9Up/MzV5VFGPjyI8oiJhWvCMxayI=
 gopkg.in/yaml.v2 v2.2.1/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.2.3/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
