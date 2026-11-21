@@ -7,7 +7,6 @@ toolchain go1.27.4
 require (
 	cloud.google.com/go/storage v1.71.0
 	github.com/Nerzal/gocloak/v14 v14.0.4
-	github.com/Nerzal/gocloak/v15 v15.0.0
 	github.com/aws/aws-sdk-go-v2 v1.48.0
 	github.com/aws/aws-sdk-go-v2/config v1.33.21
 	github.com/aws/aws-sdk-go-v2/credentials v1.21.3
@@ -28,7 +27,6 @@ require (
 	golang.org/x/crypto v0.59.0
 	golang.org/x/oauth2 v0.38.0
 	google.golang.org/api v0.316.0
-	gopkg.in/telebot.v4 v4.0.0
 	gopkg.in/telebot.v4 v4.0.0
 )
 

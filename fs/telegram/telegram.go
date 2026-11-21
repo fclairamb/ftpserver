@@ -17,8 +17,8 @@ import (
 	"time"
 
 	"github.com/spf13/afero"
-	tele "gopkg.in/telebot.v3"
-	"gopkg.in/telebot.v3/middleware"
+	tele "gopkg.in/telebot.v4"
+	"gopkg.in/telebot.v4/middleware"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
 )
