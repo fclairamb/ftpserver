@@ -11,6 +11,9 @@ on:
       - .github/workflows/docker-test.yml
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   test-docker-image:
     strategy:
@@ -24,6 +27,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: github.event_name == 'pull_request'
+        with:
+          persist-credentials: false
 
       - name: Build the image
         if: github.event_name == 'pull_request'
