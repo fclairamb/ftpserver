@@ -9,7 +9,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/Nerzal/gocloak/v14"
+	"github.com/Nerzal/gocloak/v15"
 	"github.com/spf13/afero"
 
 	"github.com/fclairamb/ftpserver/config/confpar"
