@@ -18,7 +18,7 @@ require (
 	github.com/fclairamb/ftpserverlib v0.33.3
 	github.com/go-crypt/crypt v0.14.15
 	github.com/go-mail/mail v2.3.1+incompatible
-	github.com/pkg/sftp v1.13.12
+	github.com/pkg/sftp v1.13.13
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/afero/gcsfs v1.15.0
 	github.com/spf13/afero/sftpfs v1.15.0
