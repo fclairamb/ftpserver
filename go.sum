@@ -61,6 +61,8 @@ cloud.google.com/go/longrunning v1.5.0 h1:aGonu6LHQl38DyozLs2jxGieI4Ixk+7GTnmHVc
 cloud.google.com/go/longrunning v1.5.0/go.mod h1:vjM1U85ZQuTv8lJoUBSA44HLWvM6BBFeaSJYGFF1Q00=
 cloud.google.com/go/monitoring v1.30.0 h1:r/d+JUbyKmJ8b07iznuKfzVzrIXTWxHQ3lBRm3x2LlY=
 cloud.google.com/go/monitoring v1.30.0/go.mod h1:htlUR0QWVMrjFzZmN4LGnMAve9xB/eduwjmINxVZ8RM=
+cloud.google.com/go/monitoring v1.31.0 h1:LCuAoYiq8snyL/eDAG/VC73uWFXeax8+YEfmoNGJUrY=
+cloud.google.com/go/monitoring v1.31.0/go.mod h1:7uk2dIJIf7ra64dI1VuQ0ttoFqvtKjdzq46u6zNP1hU=
 cloud.google.com/go/pubsub v1.0.1/go.mod h1:R0Gpsv3s54REJCy4fxDixWD93lHJMoZTyQ2kNxGRt3I=
 cloud.google.com/go/pubsub v1.1.0/go.mod h1:EwwdRX2sKPjnvnqCa270oGRyludottCI76h+R3AArQw=
 cloud.google.com/go/pubsub v1.2.0/go.mod h1:jhfEVHT8odbXTkndysNHCcx0awwzvfOlguIAii9o8iA=
@@ -73,6 +75,8 @@ cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9
 cloud.google.com/go/storage v1.14.0/go.mod h1:GrKmX003DSIwi9o29oFT7YDnHYwZoctc3fOKtUw0Xmo=
 cloud.google.com/go/storage v1.71.0 h1:vv4wBFygNlKtSmDMcCIz/ATVv9iIJMkZGjk17uzXMv4=
 cloud.google.com/go/storage v1.71.0/go.mod h1:axUlps/Uy9usUkUNd14db8SbV7s+dNV+BU/xkvPmzrU=
+cloud.google.com/go/storage v1.71.1 h1:VV+UWTHX07FLnwNi2cGL9ECRHEnA9UzIMC6D88DrQgk=
+cloud.google.com/go/storage v1.71.1/go.mod h1:S4Fb7xUi2nm0TSlnl8V3Cc+Q0+g6AOBpzt57j5/jY8U=
 cloud.google.com/go/trace v1.16.0 h1:GmQovzFc5F0CNfl0VLgL64aoTtu7xsM0YajW2GlG9+E=
 cloud.google.com/go/trace v1.16.0/go.mod h1:r+bdAn16dKLSV1G2D5v3e58IlQlizfxWrUfjx7kM7X0=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
@@ -81,10 +85,14 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.62.0 h1:5y2LR2pripbccOte6BpZ+guv5O5W0OQIfKvUYZrGaAQ=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.62.0/go.mod h1:b3f7EifFRqkVt142USoGIP62uUeZm7ALCPrs1ZjWXYo=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.63.0 h1:IRqLaCkFN7i+bo7eZFIITa2HP2aXZQvU0VQBEqgUrDs=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.63.0/go.mod h1:loo9GMOLCTVFwqP+ZAZkXuPzPq3jbauUpmG565+qMNM=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.62.0 h1:tRsXhJnn0w0TNwJpVrB94wsrimzjWKFzdQlUhRdNUzc=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.62.0/go.mod h1:ifhe5teRNcbxg9p353DhOkOgczzL/IBLYFqT1cm1zpM=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.62.0 h1:aPMa5qZU9dp4fU34o+jQgVIPFIOi20oxYg8TLigmZLg=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.62.0/go.mod h1:sg6Wqbl0BKKZ5zKnQj2q0qic/3ziF894SCx1LpbX37Y=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.63.0 h1:BvrXkC8g/MqI7lyJt0Jddjuo1hm+NlNx4theSFfhfw8=
+github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.63.0/go.mod h1:O5gqO+rsDs9p6eDe5MNSLfSIcoiw1iGqkyQbiiFCWhU=
 github.com/Nerzal/gocloak/v15 v15.1.0 h1:SN0NxG0spVKGY8B4YZrua2qnTq0V4kODPzVStNfT0JE=
 github.com/Nerzal/gocloak/v15 v15.1.0/go.mod h1:q4NwclOIt8JzgjDcJlPgFWTygO+0N7abKIndhwqFm9k=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
@@ -1026,6 +1034,8 @@ google.golang.org/genproto v0.0.0-20261012220534-4341edf3f941 h1:CXq2XEi5aEyLjjP
 google.golang.org/genproto v0.0.0-20261012220534-4341edf3f941/go.mod h1:3gK0ehnhP0V7/x3ypGoLyT3d0n6TSi/EcsphIjHrcz4=
 google.golang.org/genproto/googleapis/api v0.0.0-20261110000943-09e21b237f2c h1:ofk4SEqvpf6M5VWh88xRp42IYgdVOh7gffebnDj3OqU=
 google.golang.org/genproto/googleapis/api v0.0.0-20261110000943-09e21b237f2c/go.mod h1:OzYcNQzaMRKcOFRMtyLzG/cfW1SmS2eh+7UmOLLFblk=
+google.golang.org/genproto/googleapis/api v0.0.0-20261118221215-c8830f628b3f h1:7CbYDSDM5xqpq8v2tNm+Q057COf1lvA0gorVk+304tY=
+google.golang.org/genproto/googleapis/api v0.0.0-20261118221215-c8830f628b3f/go.mod h1:CPxXEEQ1S9iJmInAF/8MNc8tKWnya8I8Kni9Zh2hV0M=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20261110000943-09e21b237f2c h1:XXChExL+Tm7Ubp0x0VXUEncPLHrkXIgoVWqnxmKNbAA=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20261110000943-09e21b237f2c/go.mod h1:OaIUM3+LpYcK2GXM4FTmhWoIq371Owdr+Cc7/BsYHHc=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20261118221215-c8830f628b3f h1:aDW6Vb2T1K0xbAgW+ED8iz39WlgjjX/OKiNh6tXv/+g=
