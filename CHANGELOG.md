@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.16.9](https://github.com/fclairamb/ftpserver/compare/v0.16.8...v0.16.9) (2026-11-28)
+
+
+### Bug Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([#1904](https://github.com/fclairamb/ftpserver/issues/1904)) ([d19c478](https://github.com/fclairamb/ftpserver/commit/d19c478f86b7b938b73e786b01b22e8645f234e4))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1908](https://github.com/fclairamb/ftpserver/issues/1908)) ([91d2857](https://github.com/fclairamb/ftpserver/commit/91d285766e2d62c74365c296697c78ee51442c96))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1922](https://github.com/fclairamb/ftpserver/issues/1922)) ([754a631](https://github.com/fclairamb/ftpserver/commit/754a6317da969cdf78b60ddda3b5a187ac4aad5f))
+* **deps:** update aws-sdk-go-v2 monorepo ([#1924](https://github.com/fclairamb/ftpserver/issues/1924)) ([f074eac](https://github.com/fclairamb/ftpserver/commit/f074eacc2d99e621a02392ac52a0bf14d378eb1d))
+* **deps:** update github.com/fclairamb/afero-gdrive digest to 7e69ace ([#1918](https://github.com/fclairamb/ftpserver/issues/1918)) ([ca01729](https://github.com/fclairamb/ftpserver/commit/ca017290b9f8d6c30eca7e32f8f9633986b04d9d))
+* **deps:** update github.com/fclairamb/afero-gdrive digest to 9e6a2c8 ([#1919](https://github.com/fclairamb/ftpserver/issues/1919)) ([d61fedb](https://github.com/fclairamb/ftpserver/commit/d61fedba73eb4d62bd0a0edf24d68897bf5e7188))
+* **deps:** update github.com/fclairamb/afero-gdrive digest to aadfab9 ([#1913](https://github.com/fclairamb/ftpserver/issues/1913)) ([4c12b0c](https://github.com/fclairamb/ftpserver/commit/4c12b0c6aacbbd6dec8214982c4f9dc65c0cc442))
+* **deps:** update github.com/fclairamb/afero-gdrive digest to c2c644f ([#1898](https://github.com/fclairamb/ftpserver/issues/1898)) ([34169d4](https://github.com/fclairamb/ftpserver/commit/34169d4f1898f4d4ea3a972d5cad4f60bd6d6898))
+* **deps:** update github.com/fclairamb/afero-gdrive digest to ca26e87 ([#1903](https://github.com/fclairamb/ftpserver/issues/1903)) ([5bc6b0b](https://github.com/fclairamb/ftpserver/commit/5bc6b0b041f55af0862a893225de9d9ba9ccd77b))
+* **deps:** update module cloud.google.com/go/storage to v1.71.1 ([#1923](https://github.com/fclairamb/ftpserver/issues/1923)) ([8c0c548](https://github.com/fclairamb/ftpserver/commit/8c0c54844f80b88c734afe2fe2b84d71deaa6297))
+* **deps:** update module github.com/aws/aws-sdk-go-v2/service/s3 to v1.115.0 ([#1899](https://github.com/fclairamb/ftpserver/issues/1899)) ([a2262b1](https://github.com/fclairamb/ftpserver/commit/a2262b19d902ed8726cc193814dfc391368c3bcd))
+* **deps:** update module github.com/fclairamb/ftpserverlib to v0.33.3 ([#1907](https://github.com/fclairamb/ftpserver/issues/1907)) ([c820190](https://github.com/fclairamb/ftpserver/commit/c8201902042ec136fb7a923428602cb33a5a1c1a))
+* **deps:** update module github.com/nerzal/gocloak/v14 to v15 ([#1912](https://github.com/fclairamb/ftpserver/issues/1912)) ([85c0bfe](https://github.com/fclairamb/ftpserver/commit/85c0bfefb98a9de0f999c16e5e04e6fcf9c9b014))
+* **deps:** update module github.com/nerzal/gocloak/v14 to v15 ([#1914](https://github.com/fclairamb/ftpserver/issues/1914)) ([a0739cd](https://github.com/fclairamb/ftpserver/commit/a0739cd146fbaf2cb640a4523e92684ffcb8a16c))
+* **deps:** update module github.com/nerzal/gocloak/v14 to v15 ([#1915](https://github.com/fclairamb/ftpserver/issues/1915)) ([020406c](https://github.com/fclairamb/ftpserver/commit/020406c200b2e0e4ce35abc2f68e4ac21d8e3a6d))
+* **deps:** update module github.com/pkg/sftp to v1.13.13 ([#1921](https://github.com/fclairamb/ftpserver/issues/1921)) ([0575445](https://github.com/fclairamb/ftpserver/commit/0575445264075203c82db48d020be604a10afce9))
+* **deps:** update module github.com/tidwall/sjson to v1.2.10 ([#1901](https://github.com/fclairamb/ftpserver/issues/1901)) ([2373dda](https://github.com/fclairamb/ftpserver/commit/2373ddad8ac9031cd3efa1cdd720097333efea23))
+* **deps:** update module github.com/tidwall/sjson to v1.2.11 ([#1909](https://github.com/fclairamb/ftpserver/issues/1909)) ([c4aed8d](https://github.com/fclairamb/ftpserver/commit/c4aed8df5bb266a9b879f2a2d8a6ca30955fb40d))
+* **deps:** update module google.golang.org/api to v0.316.0 ([#1902](https://github.com/fclairamb/ftpserver/issues/1902)) ([a5beb13](https://github.com/fclairamb/ftpserver/commit/a5beb13242de63c8601abec2f0d9b172de4a06a9))
+* **deps:** update module gopkg.in/telebot.v3 to v4 ([#1905](https://github.com/fclairamb/ftpserver/issues/1905)) ([54efaca](https://github.com/fclairamb/ftpserver/commit/54efaca1b99ff3fba63c86955a675443307bc9fe))
+* **deps:** update module gopkg.in/telebot.v3 to v4 ([#1906](https://github.com/fclairamb/ftpserver/issues/1906)) ([9291cf1](https://github.com/fclairamb/ftpserver/commit/9291cf11f27b0c339047558da4cfe8d9a9e79a37))
+
 ## [0.16.8](https://github.com/fclairamb/ftpserver/compare/v0.16.7...v0.16.8) (2026-11-17)
 
 
